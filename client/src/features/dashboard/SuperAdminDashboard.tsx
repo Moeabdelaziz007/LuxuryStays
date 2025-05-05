@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, getDocs, addDoc, serverTimestamp, doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { FaUsers, FaHome, FaTools, FaBullhorn, FaPalette, FaBell } from "react-icons/fa";
 
@@ -7,24 +7,29 @@ export default function SuperAdminDashboard() {
   const [users, setUsers] = useState<any[]>([]);
   const [properties, setProperties] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
   const [view, setView] = useState("main");
   const [notification, setNotification] = useState("");
   const [target, setTarget] = useState("all");
   const [sent, setSent] = useState(false);
+  const [theme, setTheme] = useState({ primary: "#00FF94", background: "#000000" });
+  const [savedTheme, setSavedTheme] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const usersSnap = await getDocs(collection(db, "users"));
-      setUsers(usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-
-      const propsSnap = await getDocs(collection(db, "properties"));
-      setProperties(propsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-
-      const servSnap = await getDocs(collection(db, "services"));
-      setServices(servSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setUsers((await getDocs(collection(db, "users"))).docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setProperties((await getDocs(collection(db, "properties"))).docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setServices((await getDocs(collection(db, "services"))).docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setOffers((await getDocs(collection(db, "offers"))).docs.map(doc => ({ id: doc.id, ...doc.data() })));
     };
     fetchData();
   }, []);
+
+  const saveTheme = async () => {
+    await setDoc(doc(db, "settings", "theme"), theme);
+    setSavedTheme(true);
+    setTimeout(() => setSavedTheme(false), 2000);
+  };
 
   const sendNotification = async () => {
     if (!notification) return;
@@ -100,6 +105,65 @@ export default function SuperAdminDashboard() {
       </div>
     );
   }
+
+  if (view === "theme") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">🎨 تخصيص الهوية البصرية</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="bg-gray-900 p-6 rounded-xl max-w-xl mx-auto">
+          <div className="mb-6">
+            <h3 className="font-bold text-lg text-green-400 mb-2">اللون الرئيسي</h3>
+            <div className="flex items-center gap-4">
+              <input 
+                type="color" 
+                value={theme.primary} 
+                onChange={(e) => setTheme({...theme, primary: e.target.value})} 
+                className="w-16 h-10 rounded cursor-pointer"
+              />
+              <span className="text-sm text-white">{theme.primary}</span>
+            </div>
+          </div>
+          <div className="mb-6">
+            <h3 className="font-bold text-lg text-green-400 mb-2">لون الخلفية</h3>
+            <div className="flex items-center gap-4">
+              <input 
+                type="color" 
+                value={theme.background} 
+                onChange={(e) => setTheme({...theme, background: e.target.value})} 
+                className="w-16 h-10 rounded cursor-pointer"
+              />
+              <span className="text-sm text-white">{theme.background}</span>
+            </div>
+          </div>
+          <div className="mt-8">
+            <button onClick={saveTheme} className="bg-green-400 text-black font-bold py-2 px-4 rounded hover:scale-105">
+              حفظ التخصيص
+            </button>
+            {savedTheme && <p className="text-green-400 mt-4">✅ تم حفظ التخصيص بنجاح!</p>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "offers") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">🎁 العروض الترويجية</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {offers.map((offer) => (
+            <div key={offer.id} className="bg-gray-900 p-4 rounded-xl">
+              <h3 className="font-bold text-lg text-green-400">{offer.title}</h3>
+              <p className="text-sm text-white/80">{offer.description}</p>
+              <p className="text-sm text-gray-400">⚡ الحالة: {offer.active ? "فعالة" : "معطلة"}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
   
   const cards = [
     { 
@@ -126,7 +190,8 @@ export default function SuperAdminDashboard() {
       icon: <FaPalette size={24} />, 
       label: "الثيم والتصميم", 
       desc: "تخصيص الهوية البصرية", 
-      color: "bg-gradient-to-br from-yellow-400 to-orange-500"
+      color: "bg-gradient-to-br from-yellow-400 to-orange-500",
+      onClick: () => setView("theme")
     },
     { 
       icon: <FaBell size={24} />, 
@@ -137,9 +202,10 @@ export default function SuperAdminDashboard() {
     },
     { 
       icon: <FaBullhorn size={24} />, 
-      label: "العروض", 
+      label: `العروض (${offers.length})`, 
       desc: "إدارة العروض الترويجية", 
-      color: "bg-gradient-to-br from-indigo-500 to-blue-700"
+      color: "bg-gradient-to-br from-indigo-500 to-blue-700",
+      onClick: () => setView("offers")
     },
   ];
 
