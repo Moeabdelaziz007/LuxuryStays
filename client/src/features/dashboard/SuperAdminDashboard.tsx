@@ -76,6 +76,24 @@ export default function SuperAdminDashboard() {
     );
   }
 
+  if (view === "properties") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">🏠 العقارات</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {properties.map((prop) => (
+            <div key={prop.id} className="bg-gray-900 p-4 rounded-xl">
+              <h3 className="font-bold text-lg text-green-400">{prop.name}</h3>
+              <p className="text-sm text-white/80">📍 {prop.location}</p>
+              <p className="text-sm text-gray-400">💲 {prop.pricePerNight}$ / ليلة</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (view === "services") {
     return (
       <div className="bg-black text-white min-h-screen p-8">
@@ -230,7 +248,8 @@ export default function SuperAdminDashboard() {
       icon: <FaHome size={24} />, 
       label: `العقارات (${properties.length})`, 
       desc: "التحكم بالعقارات المعروضة", 
-      color: "bg-gradient-to-br from-blue-400 to-cyan-500"
+      color: "bg-gradient-to-br from-blue-400 to-cyan-500",
+      onClick: () => setView("properties")
     },
     { 
       icon: <FaTools size={24} />, 
