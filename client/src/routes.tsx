@@ -2,6 +2,11 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import RouteGuard from "@/components/RouteGuard";
 import { UserRole } from "@shared/schema";
+import { 
+  CustomerLayout, 
+  PropertyAdminLayout, 
+  SuperAdminLayout 
+} from "@/components/layout/RoleLayouts";
 
 // Dashboard components
 import SuperAdminDashboard from "@/features/dashboard/super-admin";
@@ -29,7 +34,9 @@ export default function AppRoutes() {
         path="/customer"
         element={
           <RouteGuard role={UserRole.CUSTOMER}>
-            <CustomerDashboard />
+            <CustomerLayout>
+              <CustomerDashboard />
+            </CustomerLayout>
           </RouteGuard>
         }
       />
@@ -38,7 +45,9 @@ export default function AppRoutes() {
         path="/property-admin"
         element={
           <RouteGuard role={UserRole.PROPERTY_ADMIN}>
-            <PropertyAdminDashboard />
+            <PropertyAdminLayout>
+              <PropertyAdminDashboard />
+            </PropertyAdminLayout>
           </RouteGuard>
         }
       />
@@ -47,7 +56,9 @@ export default function AppRoutes() {
         path="/super-admin"
         element={
           <RouteGuard role={UserRole.SUPER_ADMIN}>
-            <SuperAdminDashboard />
+            <SuperAdminLayout>
+              <SuperAdminDashboard />
+            </SuperAdminLayout>
           </RouteGuard>
         }
       />
