@@ -57,7 +57,7 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error("Google login error:", err);
       if (err.code === 'auth/unauthorized-domain') {
-        setError(`هذا النطاق غير مصرح له بتسجيل الدخول باستخدام Google. الرجاء إضافة هذا الرابط (${window.location.origin}) في إعدادات Firebase Authentication > Sign-in method > Authorized domains.`);
+        setError("جاري العمل على تفعيل الدخول بواسطة Google. الرجاء استخدام البريد الإلكتروني وكلمة المرور بدلاً من ذلك.");
         console.error(`Please add ${window.location.origin} to Firebase authorized domains`);
       } else {
         setError(err.message || "فشل تسجيل الدخول باستخدام Google");

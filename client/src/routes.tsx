@@ -2,22 +2,14 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import RouteGuard from "@/components/RouteGuard";
 import { UserRole } from "@shared/schema";
-import { 
-  CustomerLayout, 
-  PropertyAdminLayout, 
-  SuperAdminLayout 
-} from "@/components/layout/RoleLayouts";
 
-// Dashboard components
+// Components
+import Layout from "@/components/layout/Layout";
 import SuperAdminDashboard from "@/features/dashboard/super-admin";
 import PropertyAdminDashboard from "@/features/dashboard/property-admin";
 import CustomerDashboard from "@/features/dashboard/customer";
-
-// Public components
 import PublicHome from "@/features/public/Home";
 import NotFound from "@/pages/not-found";
-
-// Auth components
 import LoginPage from "@/features/auth/Login";
 import SignupPage from "@/features/auth/Signup";
 import UnauthorizedPage from "@/features/auth/Unauthorized";
@@ -34,9 +26,9 @@ export default function AppRoutes() {
         path="/customer"
         element={
           <RouteGuard role={UserRole.CUSTOMER}>
-            <CustomerLayout>
+            <Layout>
               <CustomerDashboard />
-            </CustomerLayout>
+            </Layout>
           </RouteGuard>
         }
       />
@@ -45,9 +37,9 @@ export default function AppRoutes() {
         path="/property-admin"
         element={
           <RouteGuard role={UserRole.PROPERTY_ADMIN}>
-            <PropertyAdminLayout>
+            <Layout>
               <PropertyAdminDashboard />
-            </PropertyAdminLayout>
+            </Layout>
           </RouteGuard>
         }
       />
@@ -56,9 +48,9 @@ export default function AppRoutes() {
         path="/super-admin"
         element={
           <RouteGuard role={UserRole.SUPER_ADMIN}>
-            <SuperAdminLayout>
+            <Layout>
               <SuperAdminDashboard />
-            </SuperAdminLayout>
+            </Layout>
           </RouteGuard>
         }
       />
