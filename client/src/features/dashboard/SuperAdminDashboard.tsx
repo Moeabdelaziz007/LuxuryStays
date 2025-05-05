@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { FaUsers, FaHome, FaTools, FaBullhorn, FaPalette, FaBell } from "react-icons/fa";
 
@@ -8,6 +8,9 @@ export default function SuperAdminDashboard() {
   const [properties, setProperties] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [view, setView] = useState("main");
+  const [notification, setNotification] = useState("");
+  const [target, setTarget] = useState("all");
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,6 +26,18 @@ export default function SuperAdminDashboard() {
     fetchData();
   }, []);
 
+  const sendNotification = async () => {
+    if (!notification) return;
+    const payload = {
+      message: notification,
+      target,
+      createdAt: serverTimestamp(),
+    };
+    await addDoc(collection(db, "notifications"), payload);
+    setSent(true);
+    setNotification("");
+  };
+
   if (view === "users") {
     return (
       <div className="bg-black text-white min-h-screen p-8">
@@ -36,6 +51,51 @@ export default function SuperAdminDashboard() {
               <p className="text-sm text-gray-400">🎭 الدور: {u.role || "غير محدد"}</p>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "services") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">🛎️ إدارة الخدمات</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {services.map((s) => (
+            <div key={s.id} className="bg-gray-900 p-4 rounded-xl">
+              <h3 className="font-bold text-lg text-green-400">{s.title}</h3>
+              <p className="text-sm text-white/80">💬 {s.description}</p>
+              <p className="text-sm text-gray-400">💲 السعر: {s.price || 0}$</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "notifications") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">🔔 إرسال إشعار</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="bg-gray-900 p-6 rounded-xl max-w-xl mx-auto">
+          <label className="block mb-4">
+            <span className="text-white">📝 نص الإشعار:</span>
+            <textarea value={notification} onChange={(e) => setNotification(e.target.value)} rows={4} className="w-full mt-2 p-2 rounded bg-gray-800 text-white" />
+          </label>
+          <label className="block mb-4">
+            <span className="text-white">🎯 الفئة المستهدفة:</span>
+            <select value={target} onChange={(e) => setTarget(e.target.value)} className="w-full mt-2 p-2 rounded bg-gray-800 text-white">
+              <option value="all">جميع المستخدمين</option>
+              <option value="customer">العملاء فقط</option>
+              <option value="admin">المشرفين فقط</option>
+            </select>
+          </label>
+          <button onClick={sendNotification} className="bg-green-400 text-black font-bold py-2 px-4 rounded hover:scale-105">
+            إرسال الإشعار
+          </button>
+          {sent && <p className="text-green-400 mt-4">✅ تم إرسال الإشعار بنجاح!</p>}
         </div>
       </div>
     );
@@ -59,7 +119,8 @@ export default function SuperAdminDashboard() {
       icon: <FaTools size={24} />, 
       label: `الخدمات (${services.length})`, 
       desc: "تعديل وإضافة الخدمات", 
-      color: "bg-gradient-to-br from-purple-500 to-pink-500"
+      color: "bg-gradient-to-br from-purple-500 to-pink-500",
+      onClick: () => setView("services")
     },
     { 
       icon: <FaPalette size={24} />, 
@@ -71,7 +132,8 @@ export default function SuperAdminDashboard() {
       icon: <FaBell size={24} />, 
       label: "الإشعارات", 
       desc: "إرسال تنبيهات عامة أو خاصة", 
-      color: "bg-gradient-to-br from-red-400 to-pink-600"
+      color: "bg-gradient-to-br from-red-400 to-pink-600",
+      onClick: () => setView("notifications")
     },
     { 
       icon: <FaBullhorn size={24} />, 
