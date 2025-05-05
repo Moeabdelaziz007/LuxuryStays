@@ -57,7 +57,14 @@ export default function ActiveServices() {
         ) : services.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {services.map((service) => (
-              <ServiceCard key={service.id} service={service} />
+              <ServiceCard 
+                key={service.id} 
+                service={{
+                  ...service,
+                  id: service.id.toString(),
+                  iconClass: service.iconClass || 'utensils'
+                }} 
+              />
             ))}
           </div>
         ) : (
