@@ -14,6 +14,7 @@ export default function SuperAdminDashboard() {
   const [sent, setSent] = useState(false);
   const [theme, setTheme] = useState({ primary: "#00FF94", background: "#000000" });
   const [savedTheme, setSavedTheme] = useState(false);
+  const [newOffer, setNewOffer] = useState({ title: "", description: "", active: true });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +30,20 @@ export default function SuperAdminDashboard() {
     await setDoc(doc(db, "settings", "theme"), theme);
     setSavedTheme(true);
     setTimeout(() => setSavedTheme(false), 2000);
+  };
+  
+  const addOffer = async () => {
+    await addDoc(collection(db, "offers"), {
+      ...newOffer,
+      createdAt: serverTimestamp(),
+    });
+    setNewOffer({ title: "", description: "", active: true });
+    
+    // Refresh offers
+    const offersSnapshot = await getDocs(collection(db, "offers"));
+    setOffers(offersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    
+    setView("offers");
   };
 
   const sendNotification = async () => {
@@ -151,7 +166,8 @@ export default function SuperAdminDashboard() {
     return (
       <div className="bg-black text-white min-h-screen p-8">
         <h1 className="text-3xl font-bold text-green-400 mb-6">🎁 العروض الترويجية</h1>
-        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <button onClick={() => setView("main")} className="mb-4 text-sm text-green-400 underline">← رجوع</button>
+        <button onClick={() => setView("add-offer")} className="mb-6 ml-4 text-sm bg-green-500 px-4 py-2 rounded font-bold">➕ إضافة عرض</button>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {offers.map((offer) => (
             <div key={offer.id} className="bg-gray-900 p-4 rounded-xl">
@@ -160,6 +176,43 @@ export default function SuperAdminDashboard() {
               <p className="text-sm text-gray-400">⚡ الحالة: {offer.active ? "فعالة" : "معطلة"}</p>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+  
+  if (view === "add-offer") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">➕ إضافة عرض جديد</h1>
+        <button onClick={() => setView("offers")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="bg-gray-900 p-6 rounded-xl max-w-xl mx-auto space-y-4">
+          <input
+            type="text"
+            placeholder="عنوان العرض"
+            value={newOffer.title}
+            onChange={(e) => setNewOffer({ ...newOffer, title: e.target.value })}
+            className="w-full p-2 rounded bg-gray-800 text-white"
+          />
+          <textarea
+            placeholder="وصف العرض"
+            value={newOffer.description}
+            onChange={(e) => setNewOffer({ ...newOffer, description: e.target.value })}
+            className="w-full p-2 rounded bg-gray-800 text-white"
+            rows={4}
+          />
+          <label className="text-white text-sm">
+            <input
+              type="checkbox"
+              checked={newOffer.active}
+              onChange={(e) => setNewOffer({ ...newOffer, active: e.target.checked })}
+              className="mr-2"
+            />
+            تفعيل العرض عند الإضافة
+          </label>
+          <button onClick={addOffer} className="bg-green-400 text-black font-bold py-2 px-4 rounded hover:scale-105">
+            حفظ العرض
+          </button>
         </div>
       </div>
     );

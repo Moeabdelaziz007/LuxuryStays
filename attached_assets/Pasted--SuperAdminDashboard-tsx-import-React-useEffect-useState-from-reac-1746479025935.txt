@@ -1,0 +1,81 @@
+// ✅ SuperAdminDashboard.tsx مع صفحة العقارات مضافة
+import React, { useEffect, useState } from "react";
+import { collection, getDocs, addDoc, serverTimestamp, doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { FaUsers, FaHome, FaTools, FaBullhorn, FaPalette, FaBell } from "react-icons/fa";
+
+export default function SuperAdminDashboard() {
+  const [users, setUsers] = useState<any[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
+  const [view, setView] = useState("main");
+  const [newOffer, setNewOffer] = useState({ title: "", description: "", active: true });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setUsers((await getDocs(collection(db, "users"))).docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setProperties((await getDocs(collection(db, "properties"))).docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setServices((await getDocs(collection(db, "services"))).docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setOffers((await getDocs(collection(db, "offers"))).docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchData();
+  }, []);
+
+  const addOffer = async () => {
+    await addDoc(collection(db, "offers"), {
+      ...newOffer,
+      createdAt: serverTimestamp(),
+    });
+    setNewOffer({ title: "", description: "", active: true });
+    setView("offers");
+  };
+
+  if (view === "properties") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">🏠 العقارات</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {properties.map((prop) => (
+            <div key={prop.id} className="bg-gray-900 p-4 rounded-xl">
+              <h3 className="font-bold text-lg text-green-400">{prop.name}</h3>
+              <p className="text-sm text-white/80">📍 {prop.location}</p>
+              <p className="text-sm text-gray-400">💲 {prop.pricePerNight}$ / ليلة</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ... باقي الأكواد (offers, add-offer, main cards)
+
+  const cards = [
+    { icon: <FaUsers size={24} />, label: `المستخدمين (${users.length})`, desc: "إدارة الحسابات والصلاحيات", color: "bg-gradient-to-br from-green-400 to-lime-500", onClick: () => setView("users") },
+    { icon: <FaHome size={24} />, label: `العقارات (${properties.length})`, desc: "التحكم بالعقارات المعروضة", color: "bg-gradient-to-br from-blue-400 to-cyan-500", onClick: () => setView("properties") },
+    { icon: <FaTools size={24} />, label: `الخدمات (${services.length})`, desc: "تعديل وإضافة الخدمات", color: "bg-gradient-to-br from-purple-500 to-pink-500", onClick: () => setView("services") },
+    { icon: <FaPalette size={24} />, label: "الثيم والتصميم", desc: "تخصيص الهوية البصرية", color: "bg-gradient-to-br from-yellow-400 to-orange-500", onClick: () => setView("theme") },
+    { icon: <FaBell size={24} />, label: "الإشعارات", desc: "إرسال تنبيهات عامة أو خاصة", color: "bg-gradient-to-br from-red-400 to-pink-600", onClick: () => setView("notifications") },
+    { icon: <FaBullhorn size={24} />, label: `العروض (${offers.length})`, desc: "إدارة العروض الترويجية", color: "bg-gradient-to-br from-indigo-500 to-blue-700", onClick: () => setView("offers") },
+  ];
+
+  return (
+    <div className="bg-black text-white min-h-screen p-8">
+      <h1 className="text-4xl font-bold text-green-400 mb-10 text-center">لوحة المشرف العام</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {cards.map((card, i) => (
+          <div key={i} onClick={card.onClick} className={`rounded-2xl p-6 shadow-xl ${card.color} hover:scale-105 transition-all cursor-pointer`}>
+            <div className="flex items-center gap-4">
+              <div className="bg-black bg-opacity-20 p-3 rounded-full">{card.icon}</div>
+              <div>
+                <h3 className="text-xl font-bold">{card.label}</h3>
+                <p className="text-sm text-white/80">{card.desc}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
