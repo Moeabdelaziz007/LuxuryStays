@@ -22,39 +22,132 @@ export default function HomePage() {
   
   return (
     <div className="bg-black text-white min-h-screen">
-      {/* 🧊 Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center">
-        <img
-          src="https://i.ibb.co/BzvWzbh/villa-hero.jpg"
-          alt="Luxury Villa"
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
-        />
-        <div className="relative z-10 text-center max-w-2xl px-4">
-          <h1 className="text-5xl md:text-6xl font-extrabold text-green-400 drop-shadow-lg mb-4">
-            StayX
-          </h1>
-          <p className="text-2xl md:text-3xl font-light text-white mb-6 drop-shadow-md">
-            إحجز إقامتك الفاخرة وخدماتك الذكية هذا الصيف ✨
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/login"
-              className="inline-block bg-green-400 text-black font-bold py-3 px-8 rounded-full text-lg hover:scale-105 transition-all"
-            >
-              تسجيل الدخول الآن
-            </a>
-            <button 
-              onClick={handleSeedData} 
-              disabled={seeding}
-              className="inline-block bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:scale-105 transition-all">
-              {seeding ? 'جاري الإضافة...' : 'إضافة بيانات تجريبية'}
-            </button>
-          </div>
-          {seedResult && (
-            <div className={`mt-4 p-2 rounded ${seedResult.success ? 'bg-green-800' : 'bg-red-800'}`}>
-              {seedResult.success ? 'تم إضافة البيانات بنجاح!' : 'حدث خطأ أثناء إضافة البيانات'}
+      {/* ✨ Luxury Hero Section */}
+      <section className="relative h-screen flex items-center overflow-hidden">
+        {/* Animated Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0">
+          <div className="absolute inset-0 opacity-10 bg-[url('https://i.ibb.co/BzvWzbh/villa-hero.jpg')] bg-cover bg-center"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+        </div>
+        
+        {/* Floating Elements - only visible on larger screens */}
+        <div className="absolute inset-0 overflow-hidden hidden md:block">
+          <div className="absolute top-[15%] right-[10%] w-20 h-20 rounded-full bg-green-400/10 blur-xl animate-pulse"></div>
+          <div className="absolute bottom-[20%] left-[15%] w-32 h-32 rounded-full bg-green-400/5 blur-xl animate-pulse"></div>
+          <div className="absolute top-[40%] left-[5%] w-16 h-16 rounded-full bg-green-400/10 blur-xl animate-pulse"></div>
+        </div>
+        
+        {/* Main Content */}
+        <div className="container mx-auto px-4 z-10 flex flex-col md:flex-row items-center justify-between">
+          {/* Text Section */}
+          <div className="md:w-1/2 text-right mb-12 md:mb-0">
+            <div className="relative">
+              {/* Animated Highlight */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-green-400/20 rounded-full blur-xl animate-pulse"></div>
+              
+              {/* Branding */}
+              <h1 className="text-7xl md:text-8xl font-black text-white mb-4 relative">
+                <span className="block">
+                  <span className="text-green-400">Stay</span>
+                  <span className="text-white">X</span>
+                </span>
+                <div className="absolute -top-5 -left-5 w-12 h-12 bg-green-400/30 rounded-full blur-md"></div>
+              </h1>
+              
+              <p className="text-2xl md:text-3xl font-light text-gray-300 mb-8 max-w-lg leading-relaxed">
+                بوابتك للإقامة الفاخرة في <span className="text-green-400 font-semibold">الساحل الشمالي</span> وراس الحكمة ✨
+              </p>
+              
+              {/* Stats/Features */}
+              <div className="grid grid-cols-3 gap-4 mb-10">
+                <div className="text-center p-3 rounded-xl bg-black/30 backdrop-blur-sm border border-gray-800">
+                  <div className="text-green-400 text-2xl font-bold">+٥٠</div>
+                  <div className="text-gray-400 text-sm">عقار فاخر</div>
+                </div>
+                <div className="text-center p-3 rounded-xl bg-black/30 backdrop-blur-sm border border-gray-800">
+                  <div className="text-green-400 text-2xl font-bold">١٠٠٪</div>
+                  <div className="text-gray-400 text-sm">ضمان الجودة</div>
+                </div>
+                <div className="text-center p-3 rounded-xl bg-black/30 backdrop-blur-sm border border-gray-800">
+                  <div className="text-green-400 text-2xl font-bold">٢٤/٧</div>
+                  <div className="text-gray-400 text-sm">دعم فني</div>
+                </div>
+              </div>
+              
+              {/* Buttons */}
+              <div className="flex flex-wrap gap-4">
+                <a
+                  href="/properties"
+                  className="px-8 py-4 bg-gradient-to-r from-green-400 to-green-500 text-black font-bold rounded-xl shadow-lg hover:shadow-green-500/25 hover:scale-105 transition-all flex items-center justify-center"
+                >
+                  <span>استكشف العقارات</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </a>
+                <a
+                  href="/login"
+                  className="px-8 py-4 bg-black/50 backdrop-blur-md text-white font-bold rounded-xl border border-green-400/30 hover:border-green-400 transition-all"
+                >
+                  تسجيل الدخول
+                </a>
+                <button 
+                  onClick={handleSeedData} 
+                  disabled={seeding}
+                  className="px-6 py-3 bg-gray-800/80 backdrop-blur-sm text-gray-300 font-medium rounded-xl border border-gray-700 hover:bg-gray-700 transition-all"
+                >
+                  {seeding ? 'جاري الإضافة...' : 'إضافة بيانات تجريبية'}
+                </button>
+              </div>
+              
+              {/* Result Message */}
+              {seedResult && (
+                <div className={`mt-6 p-3 rounded-xl backdrop-blur-sm ${seedResult.success ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'} border ${seedResult.success ? 'border-green-500/30' : 'border-red-500/30'}`}>
+                  {seedResult.success ? '✓ تم إضافة البيانات بنجاح!' : '✗ حدث خطأ أثناء إضافة البيانات'}
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
+          {/* Image Section */}
+          <div className="md:w-1/2 h-full relative flex items-center justify-center">
+            <div className="relative">
+              {/* Images */}
+              <div className="w-[400px] h-[500px] relative rounded-xl overflow-hidden shadow-2xl border-2 border-white/5 transform rotate-2">
+                <img 
+                  src="https://i.ibb.co/BzvWzbh/villa-hero.jpg" 
+                  alt="Luxury Villa" 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <div className="absolute bottom-3 left-3 right-3 bg-black/60 backdrop-blur-sm p-3 rounded-lg">
+                  <div className="text-white text-lg font-bold">فيلا فاخرة في هاسيندا باي</div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-green-400">$350 / ليلة</span>
+                    <div className="flex items-center">
+                      <span className="text-yellow-400">★★★★★</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Decorative Elements */}
+              <div className="absolute -top-5 -right-5 w-40 h-40 rounded-xl border-2 border-white/10 -z-10"></div>
+              <div className="absolute -bottom-5 -left-5 w-40 h-40 rounded-xl border-2 border-green-400/10 -z-10"></div>
+              
+              {/* Badge */}
+              <div className="absolute -top-4 -left-4 bg-green-400 text-black font-bold py-2 px-4 rounded-lg shadow-lg transform -rotate-3">
+                أفضل اختيار
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Scroll Down Indicator */}
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
         </div>
       </section>
 

@@ -41,26 +41,40 @@ const properties = [
   }
 ];
 
-// Sample service data with specific details for available services
+// Sample service data with real restaurants and nightclubs in Ras El Hekma and North Coast
 const services = [
   {
     title: "حجز المطاعم الفاخرة",
-    description: "احجز طاولتك في أفضل مطاعم الساحل مثل ديبو، المراسي، وسان ستيفانو مجاناً بدون رسوم",
-    status: "active"
+    description: "احجز طاولتك مجاناً في أشهر مطاعم الساحل وراس الحكمة: لا فيستا، تشيبرياني، كايرو كيتشين بمارينا، سمك في بو آيلاند، زيتونة بهاسيندا",
+    status: "active",
+    locations: [
+      { name: "لا فيستا (La Vista)", area: "راس الحكمة" },
+      { name: "سمك", area: "بو آيلاند، سيدي عبد الرحمن" },
+      { name: "تشيبرياني (Cipriani)", area: "المراسي، الساحل الشمالي" },
+      { name: "كايرو كيتشين", area: "مارينا، الساحل الشمالي" },
+      { name: "زيتونة", area: "هاسيندا باي، الساحل الشمالي" }
+    ]
   },
   {
     title: "حجز النوادي الليلية",
-    description: "استمتع بالحفلات في أشهر النوادي مثل 6IX Degrees وسقالة وScape مقابل 5$ فقط للحجز",
-    status: "active"
+    description: "استمتع بالحفلات في أشهر النوادي الليلية مقابل 5$ فقط: 6IX Degrees في ماونتن فيو، بيتش باد، سقالة في مراسي، ساوند في هاسيندا باي",
+    status: "active",
+    locations: [
+      { name: "6IX Degrees", area: "ماونتن فيو، راس الحكمة" },
+      { name: "Beach Bud", area: "مراقيا، الساحل الشمالي" },
+      { name: "سقالة (Scaffold)", area: "المراسي، الساحل الشمالي" },
+      { name: "Martin's Beach Club", area: "نورث إيدج، الساحل الشمالي" },
+      { name: "ساوند (Sound)", area: "هاسيندا باي، الساحل الشمالي" }
+    ]
   },
   {
     title: "المساج الفاخر",
-    description: "خدمة مساج داخل الفيلا من محترفين معتمدين، سبا كامل ومعالجات تجميلية",
+    description: "خدمة مساج داخل الفيلا من محترفين معتمدين، سبا كامل ومعالجات تجميلية من سبا لاديرا وذا ريتريت",
     status: "coming-soon"
   },
   {
     title: "تأجير اليخوت والقوارب",
-    description: "استمتع برحلات بحرية خاصة في مارينا الساحل الشمالي ومارينا راس الحكمة",
+    description: "استمتع برحلات بحرية خاصة في مارينا الساحل الشمالي ومارينا راس الحكمة مع أفضل مقدمي خدمات اليخوت",
     status: "coming-soon"
   }
 ];

@@ -2,15 +2,24 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/firebase";
+import { useState } from "react";
+
+interface Location {
+  name: string;
+  area: string;
+}
 
 interface Service {
   id: string;
   title: string;
   description: string;
   status: "active" | "coming-soon";
+  locations?: Location[];
 }
 
 export default function ServicesSection() {
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  
   const { data: activeServices, isLoading: activeLoading } = useQuery({
     queryKey: ["services", "active"],
     queryFn: async () => {
@@ -39,7 +48,7 @@ export default function ServicesSection() {
     <div>
       <div className="max-w-4xl mx-auto text-center mb-12">
         <p className="text-gray-400 mb-8">
-          استمتع بخدماتنا الحصرية التي تجعل إقامتك تجربة لا تُنسى. نتعاون مع أفضل الشركاء في الساحل الشمالي لتوفير تجارب استثنائية لضيوفنا.
+          استمتع بخدماتنا الحصرية التي تجعل إقامتك تجربة لا تُنسى. نتعاون مع أفضل المطاعم والنوادي الليلية في الساحل الشمالي وراس الحكمة.
         </p>
       </div>
       
@@ -71,9 +80,50 @@ export default function ServicesSection() {
                 </div>
               </div>
               
-              <p className="text-md mb-8">{service.description}</p>
+              <p className="text-md mb-4">{service.description}</p>
               
-              <div className="flex items-center justify-between">
+              {/* Display locations */}
+              {service.locations && (
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-2 my-4">
+                    <button
+                      onClick={() => setSelectedLocation(null)}
+                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation === null ? 'bg-green-400 text-black' : 'bg-gray-700 text-white'}`}
+                    >
+                      الكل
+                    </button>
+                    <button
+                      onClick={() => setSelectedLocation("راس الحكمة")}
+                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation?.includes("راس الحكمة") ? 'bg-green-400 text-black' : 'bg-gray-700 text-white'}`}
+                    >
+                      راس الحكمة
+                    </button>
+                    <button
+                      onClick={() => setSelectedLocation("الساحل الشمالي")}
+                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation?.includes("الساحل") ? 'bg-green-400 text-black' : 'bg-gray-700 text-white'}`}
+                    >
+                      الساحل الشمالي
+                    </button>
+                  </div>
+                  
+                  <div className="bg-gray-800 rounded-lg p-3 mt-2">
+                    <h4 className="text-sm font-semibold text-green-400 mb-2">الأماكن المتاحة:</h4>
+                    <ul className="space-y-2">
+                      {service.locations
+                        .filter(loc => selectedLocation ? loc.area.includes(selectedLocation) : true)
+                        .map((location, idx) => (
+                        <li key={idx} className="flex items-center text-sm">
+                          <span className="w-2 h-2 rounded-full bg-green-400 mr-2"></span>
+                          <span className="font-medium">{location.name}</span>
+                          <span className="text-gray-400 text-xs mr-2">({location.area})</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between mt-6">
                 <div>
                   <span className="text-xs text-gray-400 block mb-1">أماكن متاحة اليوم</span>
                   <div className="flex items-center">
