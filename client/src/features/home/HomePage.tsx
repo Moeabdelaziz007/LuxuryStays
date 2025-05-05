@@ -26,7 +26,7 @@ export default function HomePage() {
       <section className="relative h-screen flex items-center overflow-hidden">
         {/* Enhanced Animated Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0">
-          <div className="absolute inset-0 opacity-10 bg-[url('https://i.ibb.co/BzvWzbh/villa-hero.jpg')] bg-cover bg-center"></div>
+          <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=2070')] bg-cover bg-center"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
           
           {/* Subtle Grid Lines */}
@@ -123,7 +123,7 @@ export default function HomePage() {
               {/* Images */}
               <div className="w-[400px] h-[500px] relative rounded-xl overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)] border-2 border-[#39FF14]/20 transform rotate-2">
                 <img 
-                  src="https://i.ibb.co/BzvWzbh/villa-hero.jpg" 
+                  src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1170" 
                   alt="Luxury Villa" 
                   className="w-full h-full object-cover"
                 />
@@ -240,7 +240,7 @@ export default function HomePage() {
               </span>
             </div>
             <img
-              src="https://i.ibb.co/T8PtzDz/chillroom-cover.jpg"
+              src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1112"
               alt="ChillRoom"
               className="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-15 transition-opacity"
             />
