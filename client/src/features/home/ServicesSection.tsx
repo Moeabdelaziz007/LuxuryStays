@@ -88,32 +88,32 @@ export default function ServicesSection() {
                   <div className="flex flex-wrap gap-2 my-4">
                     <button
                       onClick={() => setSelectedLocation(null)}
-                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation === null ? 'bg-green-400 text-black' : 'bg-gray-700 text-white'}`}
+                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation === null ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white'}`}
                     >
                       الكل
                     </button>
                     <button
                       onClick={() => setSelectedLocation("راس الحكمة")}
-                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation?.includes("راس الحكمة") ? 'bg-green-400 text-black' : 'bg-gray-700 text-white'}`}
+                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation?.includes("راس الحكمة") ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white'}`}
                     >
                       راس الحكمة
                     </button>
                     <button
                       onClick={() => setSelectedLocation("الساحل الشمالي")}
-                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation?.includes("الساحل") ? 'bg-green-400 text-black' : 'bg-gray-700 text-white'}`}
+                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation?.includes("الساحل") ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white'}`}
                     >
                       الساحل الشمالي
                     </button>
                   </div>
                   
                   <div className="bg-gray-800 rounded-lg p-3 mt-2">
-                    <h4 className="text-sm font-semibold text-green-400 mb-2">الأماكن المتاحة:</h4>
+                    <h4 className="text-sm font-semibold text-[#39FF14] mb-2">الأماكن المتاحة:</h4>
                     <ul className="space-y-2">
                       {service.locations
                         .filter(loc => selectedLocation ? loc.area.includes(selectedLocation) : true)
                         .map((location, idx) => (
                         <li key={idx} className="flex items-center text-sm">
-                          <span className="w-2 h-2 rounded-full bg-green-400 mr-2"></span>
+                          <span className="w-2 h-2 rounded-full bg-[#39FF14] mr-2"></span>
                           <span className="font-medium">{location.name}</span>
                           <span className="text-gray-400 text-xs mr-2">({location.area})</span>
                         </li>
@@ -128,7 +128,7 @@ export default function ServicesSection() {
                   <span className="text-xs text-gray-400 block mb-1">أماكن متاحة اليوم</span>
                   <div className="flex items-center">
                     <div className="h-2 w-32 bg-gray-700 rounded-full overflow-hidden">
-                      <div className={`h-full ${service.title.includes("مطاعم") ? "bg-green-400 w-3/4" : "bg-purple-400 w-1/2"}`}></div>
+                      <div className={`h-full ${service.title.includes("مطاعم") ? "bg-[#39FF14] w-3/4" : "bg-[#39FF14] w-1/2"}`}></div>
                     </div>
                     <span className="text-sm text-gray-300 ml-2">
                       {service.title.includes("مطاعم") ? "75%" : "50%"}
@@ -136,7 +136,7 @@ export default function ServicesSection() {
                   </div>
                 </div>
                 
-                <button className={`${service.title.includes("مطاعم") ? "bg-green-400 hover:bg-green-500" : "bg-purple-400 hover:bg-purple-500"} text-black font-bold py-3 px-6 rounded-lg transition-colors group-hover:scale-105`}>
+                <button className={`bg-[#39FF14] hover:bg-[#50FF30] text-black font-bold py-3 px-6 rounded-lg transition-colors group-hover:scale-105 shadow-[0_0_10px_rgba(57,255,20,0.3)]`}>
                   احجز الآن
                 </button>
               </div>
@@ -146,7 +146,7 @@ export default function ServicesSection() {
       </div>
       
       <div className="text-center mt-12">
-        <a href="/services" className="inline-flex items-center justify-center gap-2 text-green-400 hover:text-green-300 font-bold text-lg">
+        <a href="/services" className="inline-flex items-center justify-center gap-2 text-[#39FF14] hover:text-[#50FF30] font-bold text-lg">
           عرض جميع الخدمات
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />

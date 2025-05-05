@@ -1,0 +1,55 @@
+// ✅ 3. CustomerDashboard.tsx
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/contexts/auth-context";
+
+export default function CustomerDashboard() {
+  const { user } = useAuth();
+
+  const { data: bookings, isLoading } = useQuery(["customer-bookings", user?.uid], async () => {
+    const q = query(collection(db, "bookings"), where("userId", "==", user?.uid));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }, { enabled: !!user });
+
+  return (
+    <div className="bg-black text-white min-h-screen p-6">
+      <h1 className="text-4xl font-bold text-green-400 mb-6">لوحة تحكم العميل</h1>
+
+      <div className="bg-gray-900 p-6 rounded-xl shadow mb-8">
+        <h3 className="text-xl font-semibold mb-4">📅 حجوزاتي</h3>
+        {isLoading ? (
+          <p>جاري التحميل...</p>
+        ) : bookings?.length === 0 ? (
+          <p className="text-gray-400">لا يوجد حجوزات بعد.</p>
+        ) : (
+          <ul className="space-y-3">
+            {bookings.map((b: any) => (
+              <li key={b.id} className="bg-gray-800 p-4 rounded-xl">
+                <div>📌 العقار: {b.propertyId}</div>
+                <div>🗓️ التاريخ: {b.date}</div>
+                <div>👥 الضيوف: {b.guests}</div>
+                <div className="text-sm text-green-400 mt-1">الحالة: {b.status}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-gray-900 p-6 rounded-xl shadow">
+          <h3 className="text-xl font-semibold mb-2">⭐ تقييماتي</h3>
+          <p className="text-sm text-gray-400">(يتم الربط لاحقًا)</p>
+        </div>
+        <div className="bg-gray-900 p-6 rounded-xl shadow">
+          <h3 className="text-xl font-semibold mb-2">🎁 نقاط المكافآت</h3>
+          <p className="text-sm text-gray-400">(يتم التفعيل لاحقًا)</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ✅ باقي الصفحات كما هي، جاهزة للربط حسب كل دور
