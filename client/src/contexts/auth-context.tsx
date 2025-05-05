@@ -1,45 +1,57 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { useNavigate } from "react-router-dom";
+
+interface UserData {
+  uid: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt: string;
+  [key: string]: any;
+}
 
 interface AuthContextType {
-  user: User | null;
-  role: string | null;
+  user: UserData | null;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  role: null,
   loading: true,
 });
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-        const data = userDoc.data();
-        setRole(data?.role || null);
+        const docRef = doc(db, "users", firebaseUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data() as UserData;
+          setUser(userData);
+
+          // توجيه حسب الدور
+          if (userData.role === "CUSTOMER") navigate("/customer");
+          else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
+          else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
+          else navigate("/unauthorized");
+        }
       } else {
-        setRole(null);
+        setUser(null);
       }
       setLoading(false);
     });
-    return () => unsub();
-  }, []);
+    return () => unsubscribe();
+  }, [navigate]);
 
-  return (
-    <AuthContext.Provider value={{ user, role, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
+  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>;
+};
 
 export const useAuth = () => useContext(AuthContext);

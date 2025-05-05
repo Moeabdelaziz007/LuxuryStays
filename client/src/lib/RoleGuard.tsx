@@ -8,7 +8,7 @@ export default function RoleGuard({
   role: string;
   children: React.ReactNode;
 }) {
-  const { user, role: userRole, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   // Show loading state with Arabic text
   if (loading) {
@@ -21,12 +21,12 @@ export default function RoleGuard({
   }
 
   // Allow super admin to access all routes
-  if (userRole === "SUPER_ADMIN") {
+  if (user.role === "SUPER_ADMIN") {
     return <>{children}</>;
   }
 
   // Redirect unauthorized users
-  if (!userRole || userRole !== role) {
+  if (!user.role || user.role !== role) {
     return <Navigate to="/unauthorized" replace />;
   }
 

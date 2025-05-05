@@ -9,7 +9,7 @@ interface RouteGuardProps {
 }
 
 export default function RouteGuard({ children, role }: RouteGuardProps) {
-  const { user, role: userRole, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   // عرض حالة التحميل
   if (loading) {
@@ -22,12 +22,12 @@ export default function RouteGuard({ children, role }: RouteGuardProps) {
   }
 
   // السماح للمشرف العام بالوصول إلى جميع المسارات
-  if (userRole === "SUPER_ADMIN") {
+  if (user.role === "SUPER_ADMIN") {
     return <>{children}</>;
   }
 
   // توجيه المستخدمين غير المصرح لهم
-  if (!userRole || userRole !== role) {
+  if (!user.role || user.role !== role) {
     return <Navigate to="/unauthorized" replace />;
   }
 

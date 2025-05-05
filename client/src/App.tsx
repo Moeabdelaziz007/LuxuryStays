@@ -10,15 +10,15 @@ import { getAuth, getRedirectResult } from "firebase/auth";
 import AppRoutes from "./routes";
 
 function RedirectHandler() {
-  const { user, role, loading } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!loading && user && role) {
+    if (!loading && user) {
       // Redirect based on user role if user is on the home page
       if (location.pathname === '/') {
-        switch (role) {
+        switch (user.role) {
           case UserRole.CUSTOMER:
             navigate('/customer');
             break;
@@ -31,7 +31,7 @@ function RedirectHandler() {
         }
       }
     }
-  }, [user, role, loading, location, navigate]);
+  }, [user, loading, location, navigate]);
 
   return null;
 }

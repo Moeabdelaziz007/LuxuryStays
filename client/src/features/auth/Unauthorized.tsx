@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function UnauthorizedPage() {
-  const { user, role } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white p-4">
@@ -19,7 +19,7 @@ export default function UnauthorizedPage() {
               أنت مسجل الدخول كـ <span className="font-bold text-green-400">{user.email}</span>
             </p>
             <p className="text-sm">
-              دور المستخدم: <span className="font-bold text-green-400">{role}</span>
+              دور المستخدم: <span className="font-bold text-green-400">{user.role}</span>
             </p>
             <Link to="/" className="block mt-6 bg-green-400 text-black font-bold py-2 px-4 rounded hover:scale-105">
               العودة للصفحة الرئيسية
