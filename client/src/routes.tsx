@@ -8,11 +8,9 @@ import PropertyAdminDashboard from "@/features/dashboard/PropertyAdminDashboard"
 import CustomerDashboard from "@/features/dashboard/CustomerDashboard";
 import HomePage from "@/features/home/HomePage";
 import NotFound from "@/pages/not-found";
-
-// Placeholder pages - these should be created as needed
-const LoginPage = () => <div className="text-white p-8">Login Page (Coming Soon)</div>;
-const SignupPage = () => <div className="text-white p-8">Signup Page (Coming Soon)</div>;
-const UnauthorizedPage = () => <div className="text-white p-8 text-center">غير مصرح بالوصول</div>;
+import LoginPage from "@/features/auth/Login";
+import SignupPage from "@/features/auth/Signup";
+import UnauthorizedPage from "@/features/auth/Unauthorized";
 
 export default function AppRoutes() {
   return (
