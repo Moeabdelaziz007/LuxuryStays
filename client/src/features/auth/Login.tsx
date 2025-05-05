@@ -226,7 +226,7 @@ export default function LoginPage() {
           ليس لديك حساب؟ <Link to="/signup" className="text-green-400 hover:underline">سجل الآن</Link>
         </p>
         
-        {useLocalAuth ? (
+        {useLocalAuth && (
           <div className="mt-6 p-3 bg-green-500/10 border border-green-400/20 rounded-lg">
             <p className="text-sm text-center text-green-400 font-bold mb-2">وضع التطوير المحلي نشط</p>
             <p className="text-xs text-center text-gray-400 mb-2">استخدم أحد الحسابات التالية للتسجيل:</p>
@@ -242,16 +242,6 @@ export default function LoginPage() {
                 <p>كلمة المرور: admin123</p>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="mt-4">
-            <button 
-              type="button"
-              onClick={() => setUseLocalAuth(true)}
-              className="text-xs text-gray-500 hover:text-green-400"
-            >
-              استخدم وضع التطوير المحلي في حالة مشاكل الاتصال بـ Firebase
-            </button>
           </div>
         )}
       </div>

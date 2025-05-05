@@ -7,10 +7,9 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useNavigate } from "react-router-dom";
-import { getLocalUser, localLogin, localLogout, initializeLocalUsers } from "@/lib/local-auth";
 
 interface UserData {
   uid: string;
@@ -54,120 +53,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [useLocalAuth, setUseLocalAuth] = useState(false);
   const navigate = useNavigate();
 
-  // Initialize local users
+  // Monitor auth state
   useEffect(() => {
-    initializeLocalUsers();
-  }, []);
-
-  // Check for local user first
-  useEffect(() => {
-    const localUser = getLocalUser();
-    if (localUser) {
-      console.log("Found local user:", localUser);
-      setUser(localUser);
-      setLoading(false);
-      setUseLocalAuth(true);
-      
-      // Only redirect if we're on the login or home page
-      const pathname = window.location.pathname;
-      if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
-        // Redirect based on role
-        if (localUser.role === "CUSTOMER") navigate("/customer");
-        else if (localUser.role === "PROPERTY_ADMIN") navigate("/property-admin");
-        else if (localUser.role === "SUPER_ADMIN") navigate("/super-admin");
-        else navigate("/unauthorized");
-      }
-    }
-  }, [navigate]);
-
-  // Monitor Firebase auth state as fallback
-  useEffect(() => {
-    // If we already have a local user, don't bother with Firebase
-    if (user) return () => {};
-
-    let isFirebaseError = false;
-    
-    const unsubscribe = onAuthStateChanged(auth, 
-      async (firebaseUser) => {
-        try {
-          if (firebaseUser) {
-            const docRef = doc(db, "users", firebaseUser.uid);
-            const docSnap = await getDoc(docRef);
-            
-            if (docSnap.exists()) {
-              const userData = docSnap.data() as UserData;
-              setUser(userData);
-
-              // Only redirect if we're on the login or home page
-              const pathname = window.location.pathname;
-              if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
-                // توجيه حسب الدور
-                if (userData.role === "CUSTOMER") navigate("/customer");
-                else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
-                else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
-                else navigate("/unauthorized");
-              }
-            } else {
-              // User exists in Firebase but not in Firestore
-              // Create a default user document
-              const newUser: UserData = {
-                uid: firebaseUser.uid,
-                email: firebaseUser.email || '',
-                name: firebaseUser.displayName || 'User',
-                role: 'CUSTOMER', // Default role
-                createdAt: new Date().toISOString(),
-              };
-              
-              await setDoc(doc(db, "users", firebaseUser.uid), newUser);
-              setUser(newUser);
-              navigate("/customer");
-            }
-          } else if (!isFirebaseError) {
-            setUser(null);
-          }
-        } catch (err) {
-          console.error("Auth state error:", err);
-          isFirebaseError = true;
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          const docRef = doc(db, "users", firebaseUser.uid);
+          const docSnap = await getDoc(docRef);
           
-          // If Firebase fails, check for local user
-          const localUser = getLocalUser();
-          if (localUser) {
-            console.log("Falling back to local user due to Firebase error");
-            setUser(localUser);
-            setUseLocalAuth(true);
+          if (docSnap.exists()) {
+            const userData = docSnap.data() as UserData;
+            setUser(userData);
+
+            // Only redirect if we're on the login or home page
+            const pathname = window.location.pathname;
+            if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
+              // توجيه حسب الدور
+              if (userData.role === "CUSTOMER") navigate("/customer");
+              else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
+              else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
+              else navigate("/unauthorized");
+            }
+          } else {
+            // User exists in Firebase but not in Firestore
+            // Create a default user document
+            const newUser: UserData = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: firebaseUser.displayName || 'User',
+              role: 'CUSTOMER', // Default role
+              createdAt: new Date().toISOString(),
+            };
+            
+            await setDoc(doc(db, "users", firebaseUser.uid), newUser);
+            setUser(newUser);
+            navigate("/customer");
           }
-        } finally {
-          setLoading(false);
+        } else {
+          setUser(null);
         }
-      },
-      (error) => {
-        console.error("Firebase auth observer error:", error);
-        isFirebaseError = true;
+      } catch (err) {
+        console.error("Auth state error:", err);
+        setError("An authentication error occurred");
+      } finally {
         setLoading(false);
       }
-    );
-    
-    // Set a timeout to switch to local auth if Firebase is taking too long
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.log("Firebase auth timeout, checking for local user");
-        const localUser = getLocalUser();
-        if (localUser) {
-          setUser(localUser);
-          setUseLocalAuth(true);
-        }
-        setLoading(false);
-      }
-    }, 3000);
-    
-    return () => {
-      unsubscribe();
-      clearTimeout(timeout);
-    };
-  }, [navigate, loading, user]);
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   // Login with email/password
   const login = async (credentials: LoginCredentials) => {
@@ -175,58 +110,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null);
     try {
       const { email, password } = credentials;
-      
-      // Try local auth first if previously we had Firebase issues
-      if (useLocalAuth) {
-        console.log("Using local authentication...");
-        try {
-          const localUser = await localLogin(email, password);
-          console.log("Local login successful:", localUser);
-          setUser(localUser);
-          
-          // Redirect based on role
-          if (localUser.role === "SUPER_ADMIN") {
-            navigate('/super-admin');
-          } else if (localUser.role === "PROPERTY_ADMIN") {
-            navigate('/property-admin');
-          } else {
-            navigate('/customer');
-          }
-          return;
-        } catch (localErr) {
-          console.error("Local login error:", localErr);
-          throw new Error("فشل تسجيل الدخول محلياً");
-        }
-      }
-      
-      // Otherwise try Firebase
       await signInWithEmailAndPassword(auth, email, password);
-      console.log("Firebase login successful");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login error:", err);
-      
-      // If Firebase error, try local auth as fallback
-      if (err.code && err.code.includes('auth/') && !useLocalAuth) {
-        try {
-          console.log("Trying local auth as fallback");
-          const localUser = await localLogin(credentials.email, credentials.password);
-          setUser(localUser);
-          setUseLocalAuth(true);
-          
-          // Redirect based on role
-          if (localUser.role === "SUPER_ADMIN") {
-            navigate('/super-admin');
-          } else if (localUser.role === "PROPERTY_ADMIN") {
-            navigate('/property-admin');
-          } else {
-            navigate('/customer');
-          }
-          return;
-        } catch (localErr) {
-          console.error("Local fallback login error:", localErr);
-        }
-      }
-      
       setError("Invalid email or password");
       throw err;
     } finally {
@@ -301,12 +187,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Logout
   const logout = async () => {
     try {
-      if (useLocalAuth) {
-        await localLogout();
-      } else {
-        await signOut(auth);
-      }
-      setUser(null);
+      await signOut(auth);
       navigate("/");
     } catch (err) {
       console.error("Logout error:", err);
