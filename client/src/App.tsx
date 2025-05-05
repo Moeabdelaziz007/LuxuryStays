@@ -11,6 +11,7 @@ import SuperAdminDashboard from "./pages/dashboard/super-admin";
 import { UserRole } from "./features/auth/types";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import { getAuth, getRedirectResult } from "firebase/auth";
 
 function Router() {
   const { user, loading } = useAuth();
@@ -49,6 +50,23 @@ function Router() {
 function App() {
   const location = useLocation()[0];
   const showHeaderFooter = !location.includes('/dashboard');
+  const auth = getAuth();
+  
+  // Handle redirect from Google sign-in
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          console.log("Google sign-in successful");
+        }
+      } catch (error) {
+        console.error("Google redirect error:", error);
+      }
+    };
+    
+    handleRedirectResult();
+  }, [auth]);
 
   return (
     <TooltipProvider>
