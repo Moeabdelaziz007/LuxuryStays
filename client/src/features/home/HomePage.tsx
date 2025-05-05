@@ -59,9 +59,56 @@ export default function HomePage() {
       </section>
 
       {/* 🏠 العقارات */}
-      <section className="py-20 px-6">
-        <h2 className="text-4xl font-bold mb-10 text-center text-green-400">عقارات مميزة</h2>
+      <section className="py-20 px-6 relative">
+        <div className="absolute top-10 right-10 hidden md:block">
+          <div className="bg-green-400 text-black rounded-full px-4 py-1 text-sm font-bold animate-pulse">
+            يتم التحديث يومياً
+          </div>
+        </div>
+        
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold mb-4 text-green-400">عقارات مميزة</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            عقارات فاخرة تم اختيارها بعناية في أفضل المناطق في الساحل الشمالي وراس الحكمة.
+            يتم إضافة عقارات جديدة بواسطة مديرين العقارات المعتمدين لدينا.
+          </p>
+        </div>
+        
+        {/* Property Filter Tabs */}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex bg-gray-800 rounded-full p-1">
+            <button className="px-6 py-2 rounded-full bg-green-400 text-black font-medium">
+              الكل
+            </button>
+            <button className="px-6 py-2 rounded-full text-white hover:bg-gray-700 transition-colors">
+              الساحل الشمالي
+            </button>
+            <button className="px-6 py-2 rounded-full text-white hover:bg-gray-700 transition-colors">
+              راس الحكمة
+            </button>
+          </div>
+        </div>
+        
         <FeaturedProperties />
+        
+        <div className="mt-12 text-center">
+          <a href="/properties" className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-black font-bold py-3 px-8 rounded-lg transition-colors">
+            عرض جميع العقارات
+            <span className="text-xl">←</span>
+          </a>
+        </div>
+        
+        <div className="mt-16 bg-gray-800 p-8 rounded-xl max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-6 md:mb-0">
+              <h3 className="text-2xl font-bold text-white mb-2">هل تملك عقارات في الساحل؟</h3>
+              <p className="text-gray-400">سجّل كمدير عقارات وأضف عقاراتك في دقائق</p>
+            </div>
+            <a href="/register/property-admin" className="bg-green-400 hover:bg-green-500 text-black font-bold py-3 px-6 rounded-lg transition-colors">
+              سجّل كمدير عقارات
+            </a>
+          </div>
+        </div>
       </section>
 
       {/* 🛎️ الخدمات */}

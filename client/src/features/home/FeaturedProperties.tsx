@@ -2,6 +2,7 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/firebase";
+import { useState } from "react";
 
 interface Property {
   id: string;
@@ -15,6 +16,8 @@ interface Property {
 }
 
 export default function FeaturedProperties() {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  
   const { data, isLoading } = useQuery({ 
     queryKey: ["featured-properties"], 
     queryFn: async () => {
@@ -25,19 +28,91 @@ export default function FeaturedProperties() {
     }
   });
 
-  if (isLoading) return <p className="text-center">جاري التحميل...</p>;
+  if (isLoading) return (
+    <div className="flex justify-center items-center h-64">
+      <div className="animate-pulse flex space-x-4">
+        <div className="rounded-xl bg-gray-800 h-12 w-12"></div>
+        <div className="flex-1 space-y-4 py-1">
+          <div className="h-4 bg-gray-800 rounded w-3/4"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-800 rounded"></div>
+            <div className="h-4 bg-gray-800 rounded w-5/6"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!data?.length) return (
+    <div className="text-center py-12">
+      <p className="text-xl text-gray-500">لم يتم العثور على عقارات مميزة</p>
+      <button className="mt-4 bg-green-400 hover:bg-green-500 text-black font-bold py-2 px-6 rounded-lg">
+        تصفح جميع العقارات
+      </button>
+    </div>
+  );
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {data?.map((property) => (
-        <div key={property.id} className="bg-white text-black rounded-xl shadow-lg overflow-hidden">
-          <img src={property.imageUrl} alt="property" className="w-full h-52 object-cover" />
-          <div className="p-4">
-            <h3 className="text-xl font-semibold mb-2">{property.name}</h3>
-            <p className="text-sm text-gray-700 mb-2">{property.description}</p>
+        <div 
+          key={property.id} 
+          className="bg-gray-800 text-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 group"
+          onMouseEnter={() => setHoveredId(property.id)}
+          onMouseLeave={() => setHoveredId(null)}
+        >
+          <div className="relative">
+            <img 
+              src={property.imageUrl} 
+              alt={property.name} 
+              className="w-full h-64 object-cover transition-transform group-hover:scale-110" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+              <div>
+                <p className="text-white font-medium mb-1">
+                  <span className="text-green-400">معروض بواسطة: </span> 
+                  مدير عقارات معتمد
+                </p>
+                <p className="text-sm text-white/80">تم التحقق بواسطة فريق StayX</p>
+              </div>
+            </div>
+            <div className="absolute top-4 right-4 bg-green-400 text-black px-3 py-1 rounded-full text-sm font-bold">
+              ${property.pricePerNight} / ليلة
+            </div>
+          </div>
+          
+          <div className="p-5">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-xl font-bold text-white">{property.name}</h3>
+              <button className="text-green-400 hover:text-green-300 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="flex items-center text-sm text-gray-400 mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {property.location}
+            </div>
+            
+            <p className="text-gray-300 text-sm mb-4 line-clamp-2">{property.description}</p>
+            
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500">{property.location}</span>
-              <span className="text-green-600 font-semibold">${property.pricePerNight}/ليلة</span>
+              <div className="flex items-center">
+                <span className="text-yellow-400 mr-1">★</span>
+                <span className="text-white">4.9</span>
+                <span className="text-gray-400 text-sm ml-1">(23 تقييم)</span>
+              </div>
+              <a 
+                href={`/properties/${property.id}`} 
+                className="bg-green-400 hover:bg-green-500 text-black font-medium py-2 px-4 rounded-lg text-sm transition-colors"
+              >
+                عرض التفاصيل
+              </a>
             </div>
           </div>
         </div>
