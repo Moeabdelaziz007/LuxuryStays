@@ -1,30 +1,42 @@
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "./firebase";
 
-// Sample property data
+// Sample property data based on the new model
 const properties = [
   {
-    name: "الفيلا الزرقاء الفاخرة",
+    name: "فيلا فاخرة في هاسيندا",
     imageUrl: "https://i.ibb.co/BzvWzbh/villa-hero.jpg",
-    description: "موقع فخم على البحر مع مسبح خاص وإطلالة ساحرة"
+    description: "إقامة فاخرة بإطلالة على البحر مع مسبح خاص وخدمة تنظيف يومية.",
+    location: "هاسيندا باي، الساحل الشمالي",
+    pricePerNight: 250,
+    featured: true,
+    ownerId: "admin123"
   },
   {
     name: "شاليه مارينا",
     imageUrl: "https://source.unsplash.com/400x300/?villa,beach,summer&sig=1",
-    description: "استمتع بغروب الشمس المذهل من شرفتك الخاصة"
+    description: "استمتع بغروب الشمس المذهل من شرفتك الخاصة",
+    location: "مارينا الساحل الشمالي",
+    pricePerNight: 180,
+    featured: true,
+    ownerId: "admin123"
   },
   {
     name: "قصر الساحل",
     imageUrl: "https://source.unsplash.com/400x300/?villa,beach,summer&sig=2",
-    description: "تصميم عصري مع حديقة خاصة وجاكوزي"
+    description: "تصميم عصري مع حديقة خاصة وجاكوزي",
+    location: "سيدي عبد الرحمن، الساحل الشمالي",
+    pricePerNight: 320,
+    featured: true,
+    ownerId: "admin123"
   }
 ];
 
-// Sample service data
+// Sample service data based on the new model
 const services = [
   {
     title: "حجز مطاعم",
-    description: "احجز طاولتك في أفضل مطاعم الساحل مجاناً",
+    description: "احجز أفضل طاولات الساحل بسهولة ومجاناً",
     status: "active"
   },
   {
@@ -33,8 +45,8 @@ const services = [
     status: "active"
   },
   {
-    title: "المساج",
-    description: "قريباً جداً... 💆‍♀️",
+    title: "المساج الفاخر",
+    description: "خدمة مساج داخل الفيلا من محترفين معتمدين",
     status: "coming-soon"
   },
   {
