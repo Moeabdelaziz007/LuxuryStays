@@ -68,6 +68,11 @@ export const logoutUser = async (): Promise<void> => {
 
 export const signInWithGoogle = async (): Promise<UserCredential> => {
   const provider = new GoogleAuthProvider();
+  // Add the custom Web client ID
+  provider.setCustomParameters({
+    client_id: '299280633489-b75p2dj5j2vk4sfav3sird268o1oofeu.apps.googleusercontent.com',
+    prompt: 'select_account'
+  });
   return signInWithPopup(auth, provider);
 };
 
