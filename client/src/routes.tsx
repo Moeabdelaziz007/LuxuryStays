@@ -21,19 +21,19 @@ export default function AppRoutes() {
       
       {/* Protected Routes with RoleGuard */}
       <Route path="/dashboard/customer">
-        <RoleGuard allowedRoles={[UserRole.CUSTOMER, UserRole.PROPERTY_ADMIN, UserRole.SUPER_ADMIN]}>
+        <RoleGuard role={UserRole.CUSTOMER}>
           <CustomerDashboard />
         </RoleGuard>
       </Route>
       
       <Route path="/dashboard/property-admin">
-        <RoleGuard allowedRoles={[UserRole.PROPERTY_ADMIN, UserRole.SUPER_ADMIN]}>
+        <RoleGuard role={UserRole.PROPERTY_ADMIN}>
           <PropertyAdminDashboard />
         </RoleGuard>
       </Route>
       
       <Route path="/dashboard/super-admin">
-        <RoleGuard allowedRoles={[UserRole.SUPER_ADMIN]}>
+        <RoleGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminDashboard />
         </RoleGuard>
       </Route>
