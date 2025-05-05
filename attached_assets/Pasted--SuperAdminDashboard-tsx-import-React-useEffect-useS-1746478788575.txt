@@ -1,0 +1,132 @@
+// ✅ SuperAdminDashboard.tsx مع صفحة المستخدمين، الخدمات، والإشعارات
+import React, { useEffect, useState } from "react";
+import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { FaUsers, FaHome, FaTools, FaBullhorn, FaPalette, FaBell } from "react-icons/fa";
+
+export default function SuperAdminDashboard() {
+  const [users, setUsers] = useState<any[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [view, setView] = useState("main");
+  const [notification, setNotification] = useState("");
+  const [target, setTarget] = useState("all");
+  const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const usersSnap = await getDocs(collection(db, "users"));
+      setUsers(usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+      const propsSnap = await getDocs(collection(db, "properties"));
+      setProperties(propsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+      const servSnap = await getDocs(collection(db, "services"));
+      setServices(servSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchData();
+  }, []);
+
+  const sendNotification = async () => {
+    if (!notification) return;
+    const payload = {
+      message: notification,
+      target,
+      createdAt: serverTimestamp(),
+    };
+    await addDoc(collection(db, "notifications"), payload);
+    setSent(true);
+    setNotification("");
+  };
+
+  if (view === "users") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">👤 إدارة المستخدمين</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="grid md:grid-cols-2 gap-4">
+          {users.map((u) => (
+            <div key={u.id} className="bg-gray-900 p-4 rounded-xl">
+              <h3 className="font-bold text-lg text-green-400">{u.name || "مستخدم بدون اسم"}</h3>
+              <p className="text-sm text-white/80">📧 {u.email}</p>
+              <p className="text-sm text-gray-400">🎭 الدور: {u.role || "غير محدد"}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "services") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">🛎️ إدارة الخدمات</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {services.map((s) => (
+            <div key={s.id} className="bg-gray-900 p-4 rounded-xl">
+              <h3 className="font-bold text-lg text-green-400">{s.title}</h3>
+              <p className="text-sm text-white/80">💬 {s.description}</p>
+              <p className="text-sm text-gray-400">💲 السعر: {s.price || 0}$</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "notifications") {
+    return (
+      <div className="bg-black text-white min-h-screen p-8">
+        <h1 className="text-3xl font-bold text-green-400 mb-6">🔔 إرسال إشعار</h1>
+        <button onClick={() => setView("main")} className="mb-6 text-sm text-green-400 underline">← رجوع</button>
+        <div className="bg-gray-900 p-6 rounded-xl max-w-xl mx-auto">
+          <label className="block mb-4">
+            <span className="text-white">📝 نص الإشعار:</span>
+            <textarea value={notification} onChange={(e) => setNotification(e.target.value)} rows={4} className="w-full mt-2 p-2 rounded bg-gray-800 text-white" />
+          </label>
+          <label className="block mb-4">
+            <span className="text-white">🎯 الفئة المستهدفة:</span>
+            <select value={target} onChange={(e) => setTarget(e.target.value)} className="w-full mt-2 p-2 rounded bg-gray-800 text-white">
+              <option value="all">جميع المستخدمين</option>
+              <option value="customer">العملاء فقط</option>
+              <option value="admin">المشرفين فقط</option>
+            </select>
+          </label>
+          <button onClick={sendNotification} className="bg-green-400 text-black font-bold py-2 px-4 rounded hover:scale-105">
+            إرسال الإشعار
+          </button>
+          {sent && <p className="text-green-400 mt-4">✅ تم إرسال الإشعار بنجاح!</p>}
+        </div>
+      </div>
+    );
+  }
+
+  const cards = [
+    { icon: <FaUsers size={24} />, label: `المستخدمين (${users.length})`, desc: "إدارة الحسابات والصلاحيات", color: "bg-gradient-to-br from-green-400 to-lime-500", onClick: () => setView("users") },
+    { icon: <FaHome size={24} />, label: `العقارات (${properties.length})`, desc: "التحكم بالعقارات المعروضة", color: "bg-gradient-to-br from-blue-400 to-cyan-500" },
+    { icon: <FaTools size={24} />, label: `الخدمات (${services.length})`, desc: "تعديل وإضافة الخدمات", color: "bg-gradient-to-br from-purple-500 to-pink-500", onClick: () => setView("services") },
+    { icon: <FaPalette size={24} />, label: "الثيم والتصميم", desc: "تخصيص الهوية البصرية", color: "bg-gradient-to-br from-yellow-400 to-orange-500" },
+    { icon: <FaBell size={24} />, label: "الإشعارات", desc: "إرسال تنبيهات عامة أو خاصة", color: "bg-gradient-to-br from-red-400 to-pink-600", onClick: () => setView("notifications") },
+    { icon: <FaBullhorn size={24} />, label: "العروض", desc: "إدارة العروض الترويجية", color: "bg-gradient-to-br from-indigo-500 to-blue-700" },
+  ];
+
+  return (
+    <div className="bg-black text-white min-h-screen p-8">
+      <h1 className="text-4xl font-bold text-green-400 mb-10 text-center">لوحة المشرف العام</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {cards.map((card, i) => (
+          <div key={i} onClick={card.onClick} className={`rounded-2xl p-6 shadow-xl ${card.color} hover:scale-105 transition-all cursor-pointer`}>
+            <div className="flex items-center gap-4">
+              <div className="bg-black bg-opacity-20 p-3 rounded-full">{card.icon}</div>
+              <div>
+                <h3 className="text-xl font-bold">{card.label}</h3>
+                <p className="text-sm text-white/80">{card.desc}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
