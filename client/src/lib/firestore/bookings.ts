@@ -14,7 +14,13 @@ import {
   limit as firestoreLimit,
   Timestamp
 } from "firebase/firestore";
-import { BookingStatus } from "@/features/auth/types";
+
+// BookingStatus enum
+export enum BookingStatus {
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  CANCELLED = "cancelled"
+}
 
 // Define the Booking type that mirrors our Firestore structure
 export interface FirestoreBooking {
