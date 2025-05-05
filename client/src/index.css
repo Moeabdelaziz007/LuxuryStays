@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Set up the root colors */
+:root {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 100%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 70%;
+  --popover: 0 0% 7%;
+  --popover-foreground: 0 0% 100%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 100%;
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --primary: 125 100% 54%;
+  --primary-foreground: 0 0% 7%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 125 100% 54%;
+  --accent-foreground: 0 0% 7%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 125 100% 54%;
+  --radius: 0.5rem;
+  
+  /* Chart colors */
+  --chart-1: 125 100% 54%;
+  --chart-2: 220 70% 50%;
+  --chart-3: 40 80% 50%;
+  --chart-4: 300 70% 50%;
+  --chart-5: 180 70% 50%;
+  
+  /* Sidebar colors (same as main theme) */
+  --sidebar-background: 0 0% 7%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 125 100% 54%;
+  --sidebar-primary-foreground: 0 0% 7%;
+  --sidebar-accent: 125 100% 54%;
+  --sidebar-accent-foreground: 0 0% 7%;
+  --sidebar-border: 0 0% 20%;
+  --sidebar-ring: 125 100% 54%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  .font-poppins {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .font-tajawal {
+    font-family: 'Tajawal', sans-serif; 
+  }
+}
+
+@layer utilities {
+  .glass-effect {
+    @apply bg-secondary/70 backdrop-blur-md border border-white/10;
+  }
+  
+  .hero-gradient {
+    background: linear-gradient(to bottom, rgba(18, 18, 18, 0.3), rgba(18, 18, 18, 0.95) 90%);
+  }
+  
+  .coming-soon-badge {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(57, 255, 20, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(57, 255, 20, 0);
+    }
+  }
+}
+
+/* RTL specific adjustments */
+[dir="rtl"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+[dir="rtl"] .ml-4 {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+[dir="rtl"] .mr-4 {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+[dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+[dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
