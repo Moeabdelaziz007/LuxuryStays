@@ -1,4 +1,4 @@
-import { useLocation } from "wouter";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "./contexts/auth-context";
@@ -11,33 +11,36 @@ import AppRoutes from "./routes";
 
 function RedirectHandler() {
   const { user, role, loading } = useAuth();
-  const [location, setLocation] = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (!loading && user && role) {
       // Redirect based on user role if user is on the home page
-      if (location === '/') {
+      if (location.pathname === '/') {
         switch (role) {
           case UserRole.CUSTOMER:
-            setLocation('/dashboard/customer');
+            navigate('/customer');
             break;
           case UserRole.PROPERTY_ADMIN:
-            setLocation('/dashboard/property-admin');
+            navigate('/property-admin');
             break;
           case UserRole.SUPER_ADMIN:
-            setLocation('/dashboard/super-admin');
+            navigate('/super-admin');
             break;
         }
       }
     }
-  }, [user, role, loading, location, setLocation]);
+  }, [user, role, loading, location, navigate]);
 
   return null;
 }
 
 function App() {
-  const [location] = useLocation();
-  const showHeaderFooter = !location.includes('/dashboard');
+  const location = useLocation();
+  const showHeaderFooter = !location.pathname.includes('/super-admin') && 
+                           !location.pathname.includes('/property-admin') && 
+                           !location.pathname.includes('/customer');
   const auth = getAuth();
   
   // Handle redirect from Google sign-in
