@@ -19,11 +19,12 @@ import { getStorage } from "firebase/storage";
 import { User, UserRole } from "@/features/auth/types";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
+  apiKey: "AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs",
+  authDomain: "staychill-3ed08.firebaseapp.com",
+  projectId: "staychill-3ed08",
+  storageBucket: "staychill-3ed08.firebasestorage.app",
+  messagingSenderId: "299280633489",
+  appId: "1:299280633489:web:2088c38e2fde210cad7930"
 };
 
 const app = initializeApp(firebaseConfig);
