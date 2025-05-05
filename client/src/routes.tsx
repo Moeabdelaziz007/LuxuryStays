@@ -4,9 +4,9 @@ import RouteGuard from "@/components/RouteGuard";
 import { UserRole } from "@shared/schema";
 
 // Dashboard components
-import SuperAdminDashboard from "@/features/dashboard/SuperAdminDashboard";
-import PropertyAdminDashboard from "@/features/dashboard/PropertyAdminDashboard";
-import CustomerDashboard from "@/features/dashboard/CustomerDashboard";
+import SuperAdminDashboard from "@/features/dashboard/super-admin";
+import PropertyAdminDashboard from "@/features/dashboard/property-admin";
+import CustomerDashboard from "@/features/dashboard/customer";
 
 // Public components
 import PublicHome from "@/features/public/Home";
