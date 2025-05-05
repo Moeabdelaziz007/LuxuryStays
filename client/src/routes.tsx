@@ -14,7 +14,7 @@ import CustomerDashboard from "@/features/dashboard/customer";
 
 // Public Page Components
 import PublicHome from "@/features/public/Home";
-import AboutUs from "@/features/about/About";
+import { AboutUs } from "@/components/AboutFooter";
 import NotFound from "@/pages/not-found";
 
 // Auth Components
