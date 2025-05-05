@@ -2,8 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --neon-green: #39FF14;
+  --neon-green-glow: 0 0 5px rgba(57, 255, 20, 0.7);
+}
+
+.text-neon-green {
+  color: var(--neon-green);
+  text-shadow: 0 0 2px rgba(57, 255, 20, 0.7);
+}
+
+.bg-neon-green {
+  background-color: var(--neon-green);
+}
+
+.border-neon-green {
+  border-color: var(--neon-green);
+  box-shadow: var(--neon-green-glow);
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.animate-neon-pulse {
+  animation: neon-pulse 3s infinite;
+}
+
 /* Set up the root colors */
 :root {
+  /* Neon Green Color Theme */
+  --neon-green-hue: 113;
+  --neon-green-sat: 100%;
+  --neon-green-light: 54%;
+  
   --background: 0 0% 7%;
   --foreground: 0 0% 100%;
   --muted: 0 0% 15%;
@@ -14,19 +51,19 @@
   --card-foreground: 0 0% 100%;
   --border: 0 0% 20%;
   --input: 0 0% 20%;
-  --primary: 125 100% 54%;
+  --primary: var(--neon-green-hue) var(--neon-green-sat) var(--neon-green-light);
   --primary-foreground: 0 0% 7%;
   --secondary: 0 0% 15%;
   --secondary-foreground: 0 0% 100%;
-  --accent: 125 100% 54%;
+  --accent: var(--neon-green-hue) var(--neon-green-sat) var(--neon-green-light);
   --accent-foreground: 0 0% 7%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 125 100% 54%;
+  --ring: var(--neon-green-hue) var(--neon-green-sat) var(--neon-green-light);
   --radius: 0.5rem;
   
   /* Chart colors */
-  --chart-1: 125 100% 54%;
+  --chart-1: var(--neon-green-hue) var(--neon-green-sat) var(--neon-green-light);
   --chart-2: 220 70% 50%;
   --chart-3: 40 80% 50%;
   --chart-4: 300 70% 50%;
@@ -35,12 +72,12 @@
   /* Sidebar colors (same as main theme) */
   --sidebar-background: 0 0% 7%;
   --sidebar-foreground: 0 0% 100%;
-  --sidebar-primary: 125 100% 54%;
+  --sidebar-primary: var(--neon-green-hue) var(--neon-green-sat) var(--neon-green-light);
   --sidebar-primary-foreground: 0 0% 7%;
-  --sidebar-accent: 125 100% 54%;
+  --sidebar-accent: var(--neon-green-hue) var(--neon-green-sat) var(--neon-green-light);
   --sidebar-accent-foreground: 0 0% 7%;
   --sidebar-border: 0 0% 20%;
-  --sidebar-ring: 125 100% 54%;
+  --sidebar-ring: var(--neon-green-hue) var(--neon-green-sat) var(--neon-green-light);
 }
 
 @layer base {

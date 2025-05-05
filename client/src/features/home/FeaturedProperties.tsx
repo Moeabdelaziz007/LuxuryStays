@@ -46,7 +46,7 @@ export default function FeaturedProperties() {
   if (!data?.length) return (
     <div className="text-center py-12">
       <p className="text-xl text-gray-500">لم يتم العثور على عقارات مميزة</p>
-      <button className="mt-4 bg-green-400 hover:bg-green-500 text-black font-bold py-2 px-6 rounded-lg">
+      <button className="mt-4 bg-[#39FF14] hover:bg-[#50FF30] text-black font-bold py-2 px-6 rounded-lg">
         تصفح جميع العقارات
       </button>
     </div>
@@ -76,7 +76,7 @@ export default function FeaturedProperties() {
                 <p className="text-sm text-white/80">تم التحقق بواسطة فريق StayX</p>
               </div>
             </div>
-            <div className="absolute top-4 right-4 bg-green-400 text-black px-3 py-1 rounded-full text-sm font-bold">
+            <div className="absolute top-4 right-4 bg-[#39FF14] text-black px-3 py-1 rounded-full text-sm font-bold">
               ${property.pricePerNight} / ليلة
             </div>
           </div>
