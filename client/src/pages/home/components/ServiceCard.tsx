@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Utensils, Wine } from "lucide-react";
+import type { Service } from "@shared/schema";
 
 interface ServiceCardProps {
-  service: {
+  service: Service | {
     id: string;
     name: string;
     description: string;

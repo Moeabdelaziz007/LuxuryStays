@@ -4,8 +4,8 @@ import { Property, Service } from '@shared/schema';
 // Function to fetch featured properties
 export async function getFeaturedProperties(): Promise<Property[]> {
   try {
-    const response = await apiRequest<Property[]>('/api/properties/featured', 'GET');
-    return response;
+    const response = await apiRequest('GET', '/api/properties/featured');
+    return await response.json();
   } catch (error) {
     console.error('Error fetching featured properties:', error);
     return [];
@@ -15,8 +15,8 @@ export async function getFeaturedProperties(): Promise<Property[]> {
 // Function to fetch active services
 export async function getActiveServices(): Promise<Service[]> {
   try {
-    const response = await apiRequest<Service[]>('/api/services/active', 'GET');
-    return response;
+    const response = await apiRequest('GET', '/api/services/active');
+    return await response.json();
   } catch (error) {
     console.error('Error fetching active services:', error);
     return [];
@@ -26,8 +26,8 @@ export async function getActiveServices(): Promise<Service[]> {
 // Function to fetch coming soon services
 export async function getComingSoonServices(): Promise<Service[]> {
   try {
-    const response = await apiRequest<Service[]>('/api/services/coming-soon', 'GET');
-    return response;
+    const response = await apiRequest('GET', '/api/services/coming-soon');
+    return await response.json();
   } catch (error) {
     console.error('Error fetching coming soon services:', error);
     return [];

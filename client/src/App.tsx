@@ -13,6 +13,8 @@ import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import { getAuth, getRedirectResult } from "firebase/auth";
 
+import RoleGuard from "./lib/RoleGuard";
+
 function Router() {
   const { user, role, loading } = useAuth();
   const [location, setLocation] = useLocation();
@@ -39,9 +41,21 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/dashboard/customer" component={CustomerDashboard} />
-      <Route path="/dashboard/property-admin" component={PropertyAdminDashboard} />
-      <Route path="/dashboard/super-admin" component={SuperAdminDashboard} />
+      <Route path="/dashboard/customer">
+        <RoleGuard allowedRoles={[UserRole.CUSTOMER, UserRole.PROPERTY_ADMIN, UserRole.SUPER_ADMIN]}>
+          <CustomerDashboard />
+        </RoleGuard>
+      </Route>
+      <Route path="/dashboard/property-admin">
+        <RoleGuard allowedRoles={[UserRole.PROPERTY_ADMIN, UserRole.SUPER_ADMIN]}>
+          <PropertyAdminDashboard />
+        </RoleGuard>
+      </Route>
+      <Route path="/dashboard/super-admin">
+        <RoleGuard allowedRoles={[UserRole.SUPER_ADMIN]}>
+          <SuperAdminDashboard />
+        </RoleGuard>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );

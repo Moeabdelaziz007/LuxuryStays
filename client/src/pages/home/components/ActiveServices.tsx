@@ -2,21 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "@/features/i18n/hooks/useTranslation";
-import { getServices } from "@/lib/firebase";
+import { getActiveServices } from "@/lib/api";
 import ServiceCard from "./ServiceCard";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  status: string;
-  iconClass: string;
-}
+import type { Service as ServiceType } from "@shared/schema";
 
 export default function ActiveServices() {
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<ServiceType[]>([]);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
 
@@ -24,10 +16,10 @@ export default function ActiveServices() {
     const fetchServices = async () => {
       try {
         setLoading(true);
-        const data = await getServices(2);
-        setServices(data as Service[]);
+        const data = await getActiveServices();
+        setServices(data);
       } catch (error) {
-        console.error("Error fetching services:", error);
+        console.error("Error fetching active services:", error);
       } finally {
         setLoading(false);
       }
