@@ -40,18 +40,18 @@ export const loginUser = async (email: string, password: string): Promise<UserCr
   return signInWithEmailAndPassword(auth, email, password);
 };
 
-export const registerUser = async (email: string, password: string, name: string): Promise<User> => {
+export const registerUser = async (email: string, password: string, name: string): Promise<UserData> => {
   // 1. Create the user in Firebase Auth
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
   
   // 2. Create a document in Firestore with additional user data
-  const userData: User = {
+  const userData: UserData = {
     uid: user.uid,
     name: name,
     email: email,
     role: UserRole.CUSTOMER, // Default role
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
   };
   
   await setDoc(doc(db, "users", user.uid), {
@@ -76,27 +76,27 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
   return signInWithPopup(auth, provider);
 };
 
-export const getUserData = async (uid: string): Promise<User | null> => {
+export const getUserData = async (uid: string): Promise<UserData | null> => {
   const docRef = doc(db, "users", uid);
   const docSnap = await getDoc(docRef);
   
   if (docSnap.exists()) {
-    const data = docSnap.data() as User;
-    // Convert Firestore timestamp to Date
+    const data = docSnap.data() as UserData;
+    // Convert Firestore timestamp to string if needed
     if (data.createdAt && typeof data.createdAt !== 'string') {
-      data.createdAt = (data.createdAt as any).toDate();
+      data.createdAt = (data.createdAt as any).toDate().toISOString();
     }
     return data;
   } else {
     // User document doesn't exist in Firestore
     // Create a basic user document with default values
     if (auth.currentUser) {
-      const basicUserData: User = {
+      const basicUserData: UserData = {
         uid,
         name: auth.currentUser.displayName || "User",
         email: auth.currentUser.email || "",
         role: UserRole.CUSTOMER,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
       
       await setDoc(doc(db, "users", uid), {
