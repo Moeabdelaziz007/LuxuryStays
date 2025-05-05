@@ -1,4 +1,4 @@
-import { apiRequest } from './queryClient';
+import { apiRequest } from './query-client';
 import { Property, Service } from '@shared/schema';
 
 // Function to fetch featured properties
