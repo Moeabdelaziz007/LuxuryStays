@@ -14,7 +14,7 @@ import CustomerDashboard from "@/features/dashboard/customer";
 
 // Public Page Components
 import PublicHome from "@/features/public/Home";
-import { AboutUs } from "@/components/AboutFooter";
+import { AboutUs, ContactUs } from "@/components/AboutFooter";
 import NotFound from "@/pages/not-found";
 
 // Auth Components
@@ -28,6 +28,7 @@ export default function AppRoutes() {
       {/* Public Routes */}
       <Route path="/" element={<PublicLayout><PublicHome /></PublicLayout>} />
       <Route path="/about" element={<PublicLayout><AboutUs /></PublicLayout>} />
+      <Route path="/contact" element={<PublicLayout><ContactUs /></PublicLayout>} />
       
       {/* Auth Routes */}
       <Route path="/login" element={<LoginPage />} />

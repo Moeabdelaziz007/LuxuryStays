@@ -11,6 +11,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <nav className="space-x-4">
             <Link to="/" className="hover:text-green-400 transition-colors">الرئيسية</Link>
             <Link to="/about" className="hover:text-green-400 transition-colors">من نحن</Link>
+            <Link to="/contact" className="hover:text-green-400 transition-colors">تواصل معنا</Link>
             <Link to="/login" className="bg-green-400 text-black px-4 py-2 rounded hover:bg-green-500 transition-colors">تسجيل الدخول</Link>
           </nav>
         </div>
