@@ -2,7 +2,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
-import { useAuth } from "./features/auth/hooks/useAuth";
+import { useAuth } from "./contexts/auth-context";
 import { useEffect } from "react";
 import Home from "./pages/home";
 import CustomerDashboard from "./pages/dashboard/customer";
@@ -14,14 +14,14 @@ import Footer from "./components/layout/Footer";
 import { getAuth, getRedirectResult } from "firebase/auth";
 
 function Router() {
-  const { user, loading } = useAuth();
+  const { user, role, loading } = useAuth();
   const [location, setLocation] = useLocation();
   
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && role) {
       // Redirect based on user role if user is on the home page
       if (location === '/') {
-        switch (user.role) {
+        switch (role) {
           case UserRole.CUSTOMER:
             setLocation('/dashboard/customer');
             break;
@@ -34,7 +34,7 @@ function Router() {
         }
       }
     }
-  }, [user, loading, location, setLocation]);
+  }, [user, role, loading, location, setLocation]);
 
   return (
     <Switch>
