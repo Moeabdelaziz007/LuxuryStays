@@ -209,7 +209,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (err.code && err.code.includes('auth/') && !useLocalAuth) {
         try {
           console.log("Trying local auth as fallback");
-          const localUser = await localLogin(email, password);
+          const localUser = await localLogin(credentials.email, credentials.password);
           setUser(localUser);
           setUseLocalAuth(true);
           
