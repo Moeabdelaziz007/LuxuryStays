@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -19,15 +19,16 @@ import { getStorage } from "firebase/storage";
 import { User, UserRole } from "@/features/auth/types";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs",
-  authDomain: "staychill-3ed08.firebaseapp.com",
-  projectId: "staychill-3ed08",
-  storageBucket: "staychill-3ed08.firebasestorage.app",
-  messagingSenderId: "299280633489",
-  appId: "1:299280633489:web:2088c38e2fde210cad7930"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only once
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
