@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import FeaturedProperties from "./FeaturedProperties";
-import ServicesSection from "./ServicesSection";
+import FeaturedProperties from "@/features/home/FeaturedProperties";
+import ServicesSection from "@/features/home/ServicesSection";
 import { seedFirestore } from "@/lib/seedFirestore";
 
 export default function HomePage() {
@@ -53,7 +53,7 @@ export default function HomePage() {
         <FeaturedProperties />
       </section>
 
-      {/* 🍽️ Services Section */}
+      {/* 🍽️ Services */}
       <section className="py-16 px-6 bg-gray-900 text-white">
         <h2 className="text-3xl font-bold mb-8 text-center text-green-400">الخدمات المتاحة</h2>
         <ServicesSection />
