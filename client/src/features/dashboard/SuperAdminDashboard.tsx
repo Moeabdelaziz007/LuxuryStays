@@ -1,43 +1,70 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { FaUsers, FaHome, FaTools, FaBullhorn, FaPalette, FaBell } from "react-icons/fa";
 
 export default function SuperAdminDashboard() {
+  const { data: users = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const snapshot = await getDocs(collection(db, "users"));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+  });
+
+  const { data: properties = [] } = useQuery({
+    queryKey: ["properties"],
+    queryFn: async () => {
+      const snapshot = await getDocs(collection(db, "properties"));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+  });
+
+  const { data: services = [] } = useQuery({
+    queryKey: ["services"],
+    queryFn: async () => {
+      const snapshot = await getDocs(collection(db, "services"));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+  });
+  
   const cards = [
     { 
       icon: <FaUsers size={24} />, 
-      label: "المستخدمين", 
+      label: `المستخدمين (${users.length})`, 
       desc: "إدارة الحسابات والصلاحيات", 
-      color: "from-[#39FF14] to-[#32CD32]" 
+      color: "bg-gradient-to-br from-green-400 to-lime-500" 
     },
     { 
       icon: <FaHome size={24} />, 
-      label: "العقارات", 
+      label: `العقارات (${properties.length})`, 
       desc: "التحكم بالعقارات المعروضة", 
-      color: "from-[#39FF14]/90 to-[#39FF14]" 
+      color: "bg-gradient-to-br from-blue-400 to-cyan-500"
     },
     { 
       icon: <FaTools size={24} />, 
-      label: "الخدمات", 
+      label: `الخدمات (${services.length})`, 
       desc: "تعديل وإضافة الخدمات", 
-      color: "from-[#39FF14]/80 to-[#39FF14]/95" 
+      color: "bg-gradient-to-br from-purple-500 to-pink-500"
     },
     { 
       icon: <FaPalette size={24} />, 
       label: "الثيم والتصميم", 
       desc: "تخصيص الهوية البصرية", 
-      color: "from-[#39FF14]/70 to-[#39FF14]/85" 
+      color: "bg-gradient-to-br from-yellow-400 to-orange-500"
     },
     { 
       icon: <FaBell size={24} />, 
       label: "الإشعارات", 
       desc: "إرسال تنبيهات عامة أو خاصة", 
-      color: "from-[#39FF14]/60 to-[#39FF14]/75" 
+      color: "bg-gradient-to-br from-red-400 to-pink-600"
     },
     { 
       icon: <FaBullhorn size={24} />, 
       label: "العروض", 
       desc: "إدارة العروض الترويجية", 
-      color: "from-[#39FF14]/50 to-[#39FF14]/65" 
+      color: "bg-gradient-to-br from-indigo-500 to-blue-700"
     },
   ];
 

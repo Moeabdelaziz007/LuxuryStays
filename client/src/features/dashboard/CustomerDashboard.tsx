@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/auth-context";
 export default function CustomerDashboard() {
   const { user } = useAuth();
 
-  const { data: bookings, isLoading } = useQuery({
+  const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["customer-bookings", user?.uid],
     queryFn: async () => {
       const q = query(collection(db, "bookings"), where("userId", "==", user?.uid));
@@ -30,7 +30,7 @@ export default function CustomerDashboard() {
         <div className="bg-gray-900 p-4 rounded-xl border border-[#39FF14]/10 hover:border-[#39FF14]/30 transition-colors">
           <div className="text-lg text-gray-400">الحجوزات النشطة</div>
           <div className="text-2xl font-bold text-white mt-1">
-            {isLoading ? "..." : bookings?.filter((b: any) => b.status === "pending" || b.status === "confirmed").length || 0}
+            {isLoading ? "..." : (bookings ? bookings.filter((b: any) => b.status === "pending" || b.status === "confirmed").length : 0)}
           </div>
         </div>
         <div className="bg-gray-900 p-4 rounded-xl border border-[#39FF14]/10">
@@ -63,7 +63,7 @@ export default function CustomerDashboard() {
               <div className="h-2 bg-gray-700 rounded w-24"></div>
             </div>
           </div>
-        ) : bookings?.length === 0 ? (
+        ) : !bookings || bookings.length === 0 ? (
           <div className="bg-gray-800/50 p-8 rounded-lg text-center">
             <div className="inline-block mb-3 p-3 bg-gray-800 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#39FF14]/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/auth-context";
 export default function PropertyAdminDashboard() {
   const { user } = useAuth();
 
-  const { data: properties, isLoading } = useQuery({
+  const { data: properties = [], isLoading } = useQuery({
     queryKey: ["owner-properties", user?.uid],
     queryFn: async () => {
       const q = query(collection(db, "properties"), where("ownerId", "==", user?.uid));
@@ -56,7 +56,7 @@ export default function PropertyAdminDashboard() {
               <div className="h-2 bg-gray-700 rounded w-24"></div>
             </div>
           </div>
-        ) : properties?.length === 0 ? (
+        ) : !properties || properties.length === 0 ? (
           <div className="bg-gray-800/50 p-8 rounded-lg text-center">
             <div className="inline-block mb-3 p-3 bg-gray-800 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#39FF14]/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
