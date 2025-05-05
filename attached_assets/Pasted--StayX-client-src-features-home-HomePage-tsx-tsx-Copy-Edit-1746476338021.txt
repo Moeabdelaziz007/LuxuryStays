@@ -1,25 +1,13 @@
-import React, { useState } from "react";
+🔥 الصفحة الرئيسية StayX (نسخة محسّنة فاخرة)
+📄 client/src/features/home/HomePage.tsx
+
+tsx
+Copy
+Edit
 import FeaturedProperties from "@/features/home/FeaturedProperties";
 import ServicesSection from "@/features/home/ServicesSection";
-import { seedFirestore } from "@/lib/seedFirestore";
 
 export default function HomePage() {
-  const [seeding, setSeeding] = useState(false);
-  const [seedResult, setSeedResult] = useState<{ success: boolean, error?: any } | null>(null);
-  
-  const handleSeedData = async () => {
-    setSeeding(true);
-    setSeedResult(null);
-    try {
-      const result = await seedFirestore();
-      setSeedResult(result);
-    } catch (error) {
-      setSeedResult({ success: false, error });
-    } finally {
-      setSeeding(false);
-    }
-  };
-  
   return (
     <div className="bg-black text-white min-h-screen">
       {/* 🧊 Hero Section */}
@@ -36,25 +24,12 @@ export default function HomePage() {
           <p className="text-2xl md:text-3xl font-light text-white mb-6 drop-shadow-md">
             إحجز إقامتك الفاخرة وخدماتك الذكية هذا الصيف ✨
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/login"
-              className="inline-block bg-green-400 text-black font-bold py-3 px-8 rounded-full text-lg hover:scale-105 transition-all"
-            >
-              تسجيل الدخول الآن
-            </a>
-            <button 
-              onClick={handleSeedData} 
-              disabled={seeding}
-              className="inline-block bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:scale-105 transition-all">
-              {seeding ? 'جاري الإضافة...' : 'إضافة بيانات تجريبية'}
-            </button>
-          </div>
-          {seedResult && (
-            <div className={`mt-4 p-2 rounded ${seedResult.success ? 'bg-green-800' : 'bg-red-800'}`}>
-              {seedResult.success ? 'تم إضافة البيانات بنجاح!' : 'حدث خطأ أثناء إضافة البيانات'}
-            </div>
-          )}
+          <a
+            href="/login"
+            className="inline-block bg-green-400 text-black font-bold py-3 px-8 rounded-full text-lg hover:scale-105 transition-all"
+          >
+            تسجيل الدخول الآن
+          </a>
         </div>
       </section>
 
