@@ -1,0 +1,55 @@
+// ✅ PropertyAdminDashboard.tsx (لوحة تحكم مدير العقارات)
+import React, { useEffect, useState } from "react";
+import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { FaPlus } from "react-icons/fa";
+
+export default function PropertyAdminDashboard() {
+  const [properties, setProperties] = useState<any[]>([]);
+  const [newProperty, setNewProperty] = useState({ name: "", location: "", pricePerNight: "" });
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      const snapshot = await getDocs(collection(db, "properties"));
+      setProperties(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchProperties();
+  }, []);
+
+  const addProperty = async () => {
+    await addDoc(collection(db, "properties"), {
+      ...newProperty,
+      pricePerNight: Number(newProperty.pricePerNight),
+      createdAt: serverTimestamp(),
+    });
+    setNewProperty({ name: "", location: "", pricePerNight: "" });
+    const snapshot = await getDocs(collection(db, "properties"));
+    setProperties(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+  };
+
+  return (
+    <div className="bg-black text-white min-h-screen p-8">
+      <h1 className="text-3xl font-bold text-green-400 mb-6">👤 لوحة مدير العقارات</h1>
+
+      <div className="bg-gray-900 p-6 rounded-xl mb-6 max-w-xl">
+        <h2 className="text-lg font-bold text-green-400 mb-4 flex items-center gap-2">
+          <FaPlus /> إضافة عقار جديد
+        </h2>
+        <input type="text" placeholder="اسم العقار" value={newProperty.name} onChange={(e) => setNewProperty({ ...newProperty, name: e.target.value })} className="w-full p-2 mb-2 rounded bg-gray-800 text-white" />
+        <input type="text" placeholder="الموقع" value={newProperty.location} onChange={(e) => setNewProperty({ ...newProperty, location: e.target.value })} className="w-full p-2 mb-2 rounded bg-gray-800 text-white" />
+        <input type="number" placeholder="السعر لكل ليلة" value={newProperty.pricePerNight} onChange={(e) => setNewProperty({ ...newProperty, pricePerNight: e.target.value })} className="w-full p-2 mb-4 rounded bg-gray-800 text-white" />
+        <button onClick={addProperty} className="bg-green-400 text-black font-bold py-2 px-4 rounded hover:scale-105">➕ حفظ العقار</button>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {properties.map((prop) => (
+          <div key={prop.id} className="bg-gray-900 p-4 rounded-xl">
+            <h3 className="font-bold text-lg text-green-400">{prop.name}</h3>
+            <p className="text-sm text-white/80">📍 {prop.location}</p>
+            <p className="text-sm text-gray-400">💲 {prop.pricePerNight}$ / ليلة</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

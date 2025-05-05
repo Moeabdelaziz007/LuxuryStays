@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-context";
+import { FaPlus } from "react-icons/fa";
 
 export default function PropertyAdminDashboard() {
   const { user } = useAuth();
@@ -44,8 +45,8 @@ export default function PropertyAdminDashboard() {
       <div className="bg-gray-900 p-6 rounded-xl shadow-lg mb-8 border border-[#39FF14]/10">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-[#39FF14]">🏠 إدارة العقارات</h3>
-          <button className="text-sm bg-[#39FF14] text-black px-3 py-1 rounded-lg hover:bg-[#50FF30] transition-colors">
-            إضافة عقار جديد
+          <button className="text-sm bg-[#39FF14] text-black px-3 py-1 rounded-lg hover:bg-[#50FF30] transition-colors flex items-center gap-1">
+            <FaPlus size={12} /> إضافة عقار جديد
           </button>
         </div>
         
@@ -64,8 +65,8 @@ export default function PropertyAdminDashboard() {
               </svg>
             </div>
             <p className="text-gray-400 mb-4">لا توجد عقارات حالياً. يمكنك البدء بإضافة واحدة جديدة.</p>
-            <button className="inline-block bg-[#39FF14] text-black font-medium py-2 px-4 rounded-lg hover:bg-[#50FF30] transition-colors">
-              إضافة عقار
+            <button className="inline-block bg-[#39FF14] text-black font-medium py-2 px-4 rounded-lg hover:bg-[#50FF30] transition-colors flex items-center gap-2 mx-auto">
+              <FaPlus size={12} /> إضافة عقار
             </button>
           </div>
         ) : (
