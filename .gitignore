@@ -1,6 +1,20 @@
+# Node
 node_modules
 dist
+.env
+
+# Replit
+.replit
+.replit-storage
+
+# Mac/Windows system
 .DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+Thumbs.db
+
+# Firebase build artifacts
+firebase-debug.log
+functions/lib/
+functions/node_modules/
+
+# Vite cache
+.vite
