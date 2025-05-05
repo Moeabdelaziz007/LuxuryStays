@@ -1,17 +1,23 @@
 import { Route, Switch } from "wouter";
-import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
 import CustomerDashboard from "@/pages/dashboard/customer";
 import PropertyAdminDashboard from "@/pages/dashboard/property-admin";
 import SuperAdminDashboard from "@/pages/dashboard/super-admin";
 import RoleGuard from "@/lib/RoleGuard";
 import { UserRole } from "@shared/schema";
+import HomePage from "@/features/home/HomePage";
 
 export default function AppRoutes() {
   return (
     <Switch>
       {/* Public Routes */}
-      <Route path="/" component={Home} />
+      <Route path="/">
+        <HomePage />
+      </Route>
+      
+      <Route path="/login">
+        <HomePage />
+      </Route>
       
       {/* Protected Routes with RoleGuard */}
       <Route path="/dashboard/customer">
