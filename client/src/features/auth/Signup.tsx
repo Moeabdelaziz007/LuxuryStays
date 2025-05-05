@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
+// Simple signup page without advanced form components
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +18,10 @@ export default function SignupPage() {
     setLoading(true);
     
     try {
+      if (!name || name.length < 3) {
+        throw new Error("يجب أن يكون الاسم 3 أحرف على الأقل");
+      }
+      
       const res = await createUserWithEmailAndPassword(auth, email, password);
       if (res.user) {
         await setDoc(doc(db, "users", res.user.uid), {
@@ -30,7 +35,17 @@ export default function SignupPage() {
       }
     } catch (err: any) {
       console.error("Signup error:", err);
-      setError(err.message || "Failed to create account");
+      
+      // Custom Arabic error messages
+      if (err.code === 'auth/email-already-in-use') {
+        setError("البريد الإلكتروني مستخدم بالفعل");
+      } else if (err.code === 'auth/weak-password') {
+        setError("كلمة المرور ضعيفة جداً، يجب أن تحتوي على 6 أحرف على الأقل");
+      } else if (err.code === 'auth/invalid-email') {
+        setError("البريد الإلكتروني غير صالح");
+      } else {
+        setError(err.message || "فشل إنشاء الحساب");
+      }
     } finally {
       setLoading(false);
     }
@@ -55,6 +70,8 @@ export default function SignupPage() {
             value={name} 
             onChange={(e) => setName(e.target.value)}
             required
+            autoComplete="name"
+            minLength={3}
           />
           <input 
             type="email" 
@@ -63,6 +80,7 @@ export default function SignupPage() {
             value={email} 
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
           />
           <input 
             type="password" 
@@ -71,6 +89,7 @@ export default function SignupPage() {
             value={password} 
             onChange={(e) => setPassword(e.target.value)}
             required 
+            autoComplete="new-password"
             minLength={6}
           />
           <button 

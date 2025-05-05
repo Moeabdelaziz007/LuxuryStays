@@ -4,6 +4,7 @@ import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
+// Simple login page without advanced form components
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +22,11 @@ export default function LoginPage() {
       // Navigation is handled by auth context
     } catch (err: any) {
       console.error("Login error:", err);
-      setError(err.message || "Failed to login");
+      if (err.code === 'auth/invalid-credential') {
+        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      } else {
+        setError(err.message || "فشل تسجيل الدخول");
+      }
     } finally {
       setLoading(false);
     }
@@ -51,7 +56,11 @@ export default function LoginPage() {
       // Navigation is handled by auth context
     } catch (err: any) {
       console.error("Google login error:", err);
-      setError(err.message || "Failed to login with Google");
+      if (err.code === 'auth/unauthorized-domain') {
+        setError("هذا النطاق غير مصرح له بتسجيل الدخول باستخدام Google. الرجاء إضافة النطاق في إعدادات Firebase Authentication.");
+      } else {
+        setError(err.message || "فشل تسجيل الدخول باستخدام Google");
+      }
     } finally {
       setGoogleLoading(false);
     }
@@ -76,6 +85,7 @@ export default function LoginPage() {
             value={email} 
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
           />
           <input 
             type="password" 
@@ -84,6 +94,8 @@ export default function LoginPage() {
             value={password} 
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="current-password"
+            minLength={6}
           />
           <button 
             type="submit" 
