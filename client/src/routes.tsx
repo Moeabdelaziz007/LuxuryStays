@@ -1,13 +1,18 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import RoleGuard from "@/lib/RoleGuard";
+import RouteGuard from "@/components/RouteGuard";
 import { UserRole } from "@shared/schema";
 
+// Dashboard components
 import SuperAdminDashboard from "@/features/dashboard/SuperAdminDashboard";
 import PropertyAdminDashboard from "@/features/dashboard/PropertyAdminDashboard";
 import CustomerDashboard from "@/features/dashboard/CustomerDashboard";
-import HomePage from "@/features/home/HomePage";
+
+// Public components
+import PublicHome from "@/features/public/Home";
 import NotFound from "@/pages/not-found";
+
+// Auth components
 import LoginPage from "@/features/auth/Login";
 import SignupPage from "@/features/auth/Signup";
 import UnauthorizedPage from "@/features/auth/Unauthorized";
@@ -15,7 +20,7 @@ import UnauthorizedPage from "@/features/auth/Unauthorized";
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<PublicHome />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
@@ -23,27 +28,27 @@ export default function AppRoutes() {
       <Route
         path="/customer"
         element={
-          <RoleGuard role={UserRole.CUSTOMER}>
+          <RouteGuard role={UserRole.CUSTOMER}>
             <CustomerDashboard />
-          </RoleGuard>
+          </RouteGuard>
         }
       />
 
       <Route
         path="/property-admin"
         element={
-          <RoleGuard role={UserRole.PROPERTY_ADMIN}>
+          <RouteGuard role={UserRole.PROPERTY_ADMIN}>
             <PropertyAdminDashboard />
-          </RoleGuard>
+          </RouteGuard>
         }
       />
 
       <Route
         path="/super-admin"
         element={
-          <RoleGuard role={UserRole.SUPER_ADMIN}>
+          <RouteGuard role={UserRole.SUPER_ADMIN}>
             <SuperAdminDashboard />
-          </RoleGuard>
+          </RouteGuard>
         }
       />
       
