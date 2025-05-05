@@ -1,0 +1,66 @@
+// ✅ 2. BookingPage.tsx
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/contexts/auth-context";
+
+export default function BookingPage() {
+  const { state } = useLocation();
+  const propertyId = state?.propertyId || "";
+  const { user } = useAuth();
+
+  const [date, setDate] = useState("");
+  const [guests, setGuests] = useState(1);
+  const [notes, setNotes] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    await addDoc(collection(db, "bookings"), {
+      propertyId,
+      userId: user.uid,
+      date,
+      guests,
+      notes,
+      status: "pending",
+      createdAt: serverTimestamp(),
+    });
+
+    setSuccess(true);
+  };
+
+  return (
+    <div className="bg-black text-white min-h-screen py-12 px-6">
+      <div className="max-w-lg mx-auto bg-gray-900 p-8 rounded-2xl shadow-lg">
+        <h2 className="text-3xl font-bold text-green-400 mb-6">تأكيد الحجز</h2>
+        {success ? (
+          <div className="text-center text-green-400 text-xl font-bold">✅ تم إرسال طلب الحجز بنجاح!</div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <p className="text-sm text-gray-400 mb-4">🔐 خاص بالعقار رقم: {propertyId}</p>
+            <label className="block mb-4">
+              <span>🗓️ التاريخ:</span>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-2 w-full p-2 rounded bg-gray-800 text-white" required />
+            </label>
+            <label className="block mb-4">
+              <span>👥 عدد الضيوف:</span>
+              <input type="number" min="1" value={guests} onChange={(e) => setGuests(Number(e.target.value))} className="mt-2 w-full p-2 rounded bg-gray-800 text-white" required />
+            </label>
+            <label className="block mb-4">
+              <span>📌 ملاحظات إضافية:</span>
+              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-2 w-full p-2 rounded bg-gray-800 text-white"></textarea>
+            </label>
+            <button type="submit" className="bg-green-400 text-black font-bold py-3 px-6 rounded-full text-lg hover:scale-105 transition-all">
+              تأكيد الحجز ✅
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ✅ باقي الصفحات كما هي، سيتم ربطها لاحقًا مع Firestore حسب الدور والوظيفة

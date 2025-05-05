@@ -70,7 +70,7 @@ export default function FeaturedProperties() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
               <div>
                 <p className="text-white font-medium mb-1">
-                  <span className="text-green-400">معروض بواسطة: </span> 
+                  <span className="text-[#39FF14]">معروض بواسطة: </span> 
                   مدير عقارات معتمد
                 </p>
                 <p className="text-sm text-white/80">تم التحقق بواسطة فريق StayX</p>
@@ -84,7 +84,7 @@ export default function FeaturedProperties() {
           <div className="p-5">
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-xl font-bold text-white">{property.name}</h3>
-              <button className="text-green-400 hover:text-green-300 transition-colors">
+              <button className="text-[#39FF14] hover:text-[#50FF30] transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>

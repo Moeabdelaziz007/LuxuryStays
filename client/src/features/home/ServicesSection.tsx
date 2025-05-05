@@ -62,11 +62,11 @@ export default function ServicesSection() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
                   {service.title.includes("مطاعم") ? (
-                    <div className="p-3 bg-gradient-to-br from-green-400 to-green-600 rounded-full mr-4">
+                    <div className="p-3 bg-gradient-to-br from-[#39FF14] to-[#2ac70d] rounded-full mr-4">
                       <span className="text-3xl">🍽️</span>
                     </div>
                   ) : (
-                    <div className="p-3 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full mr-4">
+                    <div className="p-3 bg-gradient-to-br from-[#39FF14]/80 to-[#39FF14] rounded-full mr-4">
                       <span className="text-3xl">💃</span>
                     </div>
                   )}
@@ -74,7 +74,7 @@ export default function ServicesSection() {
                 </div>
                 
                 <div className="flex-shrink-0">
-                  <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold ${service.title.includes("مطاعم") ? "bg-green-400 text-black" : "bg-purple-400 text-black"}`}>
+                  <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold ${service.title.includes("مطاعم") ? "bg-[#39FF14] text-black" : "bg-[#39FF14] text-black"}`}>
                     {service.title.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
                   </span>
                 </div>
