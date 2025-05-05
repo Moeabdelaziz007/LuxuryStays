@@ -1,29 +1,27 @@
+// User role enum matching the backend schema
 export enum UserRole {
   CUSTOMER = "CUSTOMER",
   PROPERTY_ADMIN = "PROPERTY_ADMIN",
   SUPER_ADMIN = "SUPER_ADMIN"
 }
 
-export interface User {
+// User data interface
+export interface UserData {
   uid: string;
-  name: string;
   email: string;
+  name: string;
   role: UserRole;
-  profileImage?: string;
-  createdAt: Date;
+  createdAt: string;
+  [key: string]: any;
 }
 
-export interface AuthState {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-}
-
+// Login credentials interface
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
+// Register credentials interface
 export interface RegisterCredentials {
   name: string;
   email: string;

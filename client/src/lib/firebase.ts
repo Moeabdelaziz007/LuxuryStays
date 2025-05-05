@@ -16,7 +16,7 @@ import {
   serverTimestamp 
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { User, UserRole } from "@/features/auth/types";
+import { UserData, UserRole } from "@/features/auth/types";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,

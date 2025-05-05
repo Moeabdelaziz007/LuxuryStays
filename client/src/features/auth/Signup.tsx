@@ -22,15 +22,22 @@ export default function SignupPage() {
         throw new Error("يجب أن يكون الاسم 3 أحرف على الأقل");
       }
       
+      console.log("Creating user with email:", email);
       const res = await createUserWithEmailAndPassword(auth, email, password);
+      
       if (res.user) {
-        await setDoc(doc(db, "users", res.user.uid), {
+        console.log("User created successfully:", res.user.uid);
+        const userData = {
           uid: res.user.uid,
           email,
           name,
           role: "CUSTOMER", // Using uppercase to match our schema enums
           createdAt: new Date().toISOString(),
-        });
+        };
+        
+        console.log("Saving user data to Firestore:", userData);
+        await setDoc(doc(db, "users", res.user.uid), userData);
+        console.log("User data saved to Firestore");
         // Navigation is handled by auth context
       }
     } catch (err: any) {
