@@ -5,6 +5,7 @@ import { useAuth } from "./contexts/auth-context";
 import { useEffect } from "react";
 import { UserRole } from "./features/auth/types";
 import Header from "./components/layout/Header";
+import SmartHeader from "./components/layout/SmartHeader";
 import Footer from "./components/layout/Footer";
 import { getAuth, getRedirectResult } from "firebase/auth";
 import AppRoutes from "./routes";
@@ -63,7 +64,7 @@ function App() {
     <TooltipProvider>
       <Toaster />
       <RedirectHandler />
-      {showHeaderFooter && <Header />}
+      {showHeaderFooter && <SmartHeader />}
       <AppRoutes />
       {showHeaderFooter && <Footer />}
     </TooltipProvider>
