@@ -2,22 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "@/features/i18n/hooks/useTranslation";
-import { getProperties } from "@/lib/firebase";
+import { getFeaturedProperties } from "@/lib/api";
 import PropertyCard from "./PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface Property {
-  id: string;
-  name: string;
-  location: string;
-  price: number;
-  imageUrl: string;
-  beds: number;
-  baths: number;
-  size: number;
-  rating: number;
-  featured: boolean;
-}
+import type { Property } from "@shared/schema";
 
 export default function FeaturedProperties() {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -28,8 +16,8 @@ export default function FeaturedProperties() {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        const data = await getProperties(3);
-        setProperties(data as Property[]);
+        const data = await getFeaturedProperties();
+        setProperties(data);
       } catch (error) {
         console.error("Error fetching properties:", error);
       } finally {

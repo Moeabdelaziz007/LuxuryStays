@@ -2,20 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/features/i18n/hooks/useTranslation";
 import { Bed, Bath, Ruler, Star } from "lucide-react";
+import type { Property } from "@shared/schema";
 
 interface PropertyProps {
-  property: {
-    id: string;
-    name: string;
-    location: string;
-    price: number;
-    imageUrl: string;
-    beds: number;
-    baths: number;
-    size: number;
-    rating: number;
-    featured?: boolean;
-  };
+  property: Property;
 }
 
 export default function PropertyCard({ property }: PropertyProps) {
@@ -52,7 +42,7 @@ export default function PropertyCard({ property }: PropertyProps) {
           <p className="text-accent font-semibold">${property.price} {t("home.featured.price")}</p>
           <div className="flex items-center">
             <Star className="text-accent mr-1" size={16} />
-            <span>{property.rating}</span>
+            <span>{property.rating ? property.rating / 10 : 4.5}</span>
           </div>
         </div>
         <div className="flex mt-4 border-t border-white/10 pt-4 text-white/70">
