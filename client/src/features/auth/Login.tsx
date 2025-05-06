@@ -3,12 +3,12 @@ import { Link } from "wouter";
 import { useLocation } from "wouter";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 // Simple login page without advanced form components
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -66,15 +66,52 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      console.log("جاري تسجيل الدخول باستخدام Firebase:", email);
+      console.log("جاري تسجيل الدخول باستخدام Firebase:", emailOrUsername);
       
       // التحقق من توفر Firebase
-      if (!auth) {
+      if (!auth || !db) {
         throw new Error("خدمة المصادقة غير متوفرة حالياً، الرجاء المحاولة لاحقاً");
       }
       
-      // محاولة تسجيل الدخول
-      await signInWithEmailAndPassword(auth, email, password);
+      // التحقق مما إذا كان القيمة المدخلة هي بريد إلكتروني أو اسم مستخدم
+      const isEmail = emailOrUsername.includes('@');
+      
+      if (isEmail) {
+        // إذا كان بريد إلكتروني، استخدم تسجيل الدخول المباشر
+        await signInWithEmailAndPassword(auth, emailOrUsername, password);
+      } else {
+        // إذا كان اسم مستخدم، ابحث عن المستخدم في Firestore أولاً
+        try {
+          // البحث عن المستخدم بواسطة اسم المستخدم
+          // هذا يفترض وجود مجموعة "users" تحتوي على وثائق المستخدمين مع حقل "username"
+          const usersRef = collection(db, "users");
+          const q = query(usersRef, where("username", "==", emailOrUsername));
+          const querySnapshot = await getDocs(q);
+          
+          if (querySnapshot.empty) {
+            throw { code: 'auth/user-not-found', message: 'لم يتم العثور على المستخدم' };
+          }
+          
+          // استخدام البريد الإلكتروني المخزن لتسجيل الدخول
+          const userDoc = querySnapshot.docs[0];
+          const userData = userDoc.data();
+          
+          if (!userData.email) {
+            throw { code: 'auth/invalid-user-data', message: 'بيانات المستخدم غير مكتملة' };
+          }
+          
+          await signInWithEmailAndPassword(auth, userData.email, password);
+        } catch (firestoreErr) {
+          console.error("خطأ في البحث عن المستخدم:", firestoreErr);
+          // إذا فشل البحث في Firestore، نحاول التسجيل بالطريقة العادية عن طريق البريد الإلكتروني
+          try {
+            await signInWithEmailAndPassword(auth, emailOrUsername, password);
+          } catch (authErr) {
+            // إذا فشل كلا الطريقتين، نعرض خطأ للمستخدم
+            throw authErr;
+          }
+        }
+      }
       
       // ستتم عملية التوجيه من خلال مراقب حالة المصادقة في AuthContext
       // دعنا نعطي بعض الوقت للمعالجة قبل إظهار رسالة خطأ إذا لم يتم التوجيه
@@ -93,7 +130,7 @@ export default function LoginPage() {
       
       // رسائل خطأ مخصصة أكثر وضوحاً للمستخدم
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found') {
-        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة، الرجاء التحقق والمحاولة مرة أخرى");
+        setError("اسم المستخدم/البريد الإلكتروني أو كلمة المرور غير صحيحة");
       } else if (err.code === 'auth/wrong-password') {
         setError("كلمة المرور غير صحيحة، الرجاء التحقق منها والمحاولة مرة أخرى");
       } else if (err.code === 'auth/too-many-requests') {
@@ -237,16 +274,16 @@ export default function LoginPage() {
           
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="group">
-              <label className="block text-sm font-medium text-gray-400 mb-1.5 transition group-focus-within:text-[#39FF14]">البريد الإلكتروني</label>
+              <label className="block text-sm font-medium text-gray-400 mb-1.5 transition group-focus-within:text-[#39FF14]">البريد الإلكتروني أو اسم المستخدم</label>
               <div className="relative">
                 <input 
-                  type="email" 
-                  placeholder="أدخل بريدك الإلكتروني" 
+                  type="text" 
+                  placeholder="أدخل بريدك الإلكتروني أو اسم المستخدم" 
                   className="w-full p-3 rounded-lg bg-black/60 border border-gray-700 text-white focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14]/50 transition-all" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={emailOrUsername} 
+                  onChange={(e) => setEmailOrUsername(e.target.value)}
                   required
-                  autoComplete="email"
+                  autoComplete="username email"
                 />
                 <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
                      style={{ boxShadow: "0 0 8px rgba(57, 255, 20, 0.3)" }}></div>
