@@ -189,3 +189,47 @@
 [dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 1;
 }
+
+/* خلفية النجوم لصفحة SplashScreen */
+.stars, .stars2, .stars3 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAAWdEVYdENyZWF0aW9uIFRpbWUAMTEvMTMvMTKswDp5AAAAk0lEQVRYhe2RwQ6AIAxDe/b/f7kXQ6JBXBTs5mGSJiCtgQx1nOOck5Upqnmetx1wBnRRF/3p9r3Deec8Z5I0dMmacpIWSnKSBklB0iJJ0kuSe83PI8sCLpKsAUvvYSaazgDeGgMWfEAEHJkBHHPSAHKSDNhXnx8x64gkhcLntPfABcTTALoEyvj28QBN4SMsIxacNGDXH2s3HJ8E+B1vP5MAAAAASUVORK5CYII=) repeat top center;
+  z-index: 0;
+}
+
+.stars {
+  animation: starry 200s linear infinite;
+  opacity: 0.3;
+}
+
+.stars2 {
+  animation: starry 150s linear infinite;
+  opacity: 0.2;
+}
+
+.stars3 {
+  animation: starry 100s linear infinite;
+  opacity: 0.1;
+}
+
+@keyframes starry {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-1000px);
+  }
+}
+
+/* دعم للنصوص من اليمين إلى اليسار (RTL) */
+.rtl-text {
+  direction: rtl;
+  text-align: center;
+}

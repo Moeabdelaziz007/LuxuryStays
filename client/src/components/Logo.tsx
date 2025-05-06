@@ -75,9 +75,10 @@ export default function Logo({
       : 'animate-pulse'
     : '';
 
-  return (
+  // Content wrapper based on linkToHome
+  const LogoContent = () => (
     <div className={cn(
-      'flex items-center', 
+      'flex items-center cursor-pointer', 
       positionClasses[position],
       animationClass,
       className
@@ -111,5 +112,14 @@ export default function Logo({
         </div>
       )}
     </div>
+  );
+
+  // Return with or without Link based on linkToHome prop
+  return linkToHome ? (
+    <Link to="/">
+      <LogoContent />
+    </Link>
+  ) : (
+    <LogoContent />
   );
 }
