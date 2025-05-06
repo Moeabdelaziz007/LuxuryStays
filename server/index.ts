@@ -59,12 +59,47 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  // Add fallback ports in case 5000 is already in use
+  let port = parseInt(process.env.PORT || "5000");
+  
+  const startServer = () => {
+    server.listen({
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    }, () => {
+      log(`serving on port ${port}`);
+    }).on('error', (err: any) => {
+      if (err.code === 'EADDRINUSE') {
+        log(`Port ${port} is already in use, trying another port...`);
+        port = port + 1;
+        if (port > 5010) {
+          log('Failed to find an available port. Exiting.');
+          process.exit(1);
+        }
+        setTimeout(startServer, 1000);
+      } else {
+        log(`Server error: ${err.message}`);
+        throw err;
+      }
+    });
+  };
+  
+  // Add process termination handlers
+  process.on('SIGINT', () => {
+    log('SIGINT received, shutting down gracefully');
+    server.close(() => {
+      log('Server closed');
+      process.exit(0);
+    });
+    
+    // Force close after 5 seconds
+    setTimeout(() => {
+      log('Forcing server shutdown...');
+      process.exit(1);
+    }, 5000);
   });
+  
+  // Start server
+  startServer();
 })();
