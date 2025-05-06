@@ -253,6 +253,7 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
           <Link 
             to={user ? `/${user.role.toLowerCase().replace('_', '-')}` : "/"} 
             className="relative group"
+            title={user ? "الذهاب إلى لوحة التحكم" : "الصفحة الرئيسية"}
           >
             <span className="text-2xl font-bold inline-block transition-all">
               <span className="text-[#39FF14] animate-neon-pulse" 
@@ -324,8 +325,9 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
                     to="/login" 
                     className="relative group overflow-hidden"
                   >
-                    <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-black text-[#39FF14] border border-[#39FF14]/50 group-hover:border-[#39FF14] transition-colors">
-                      تسجيل الدخول
+                    <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-black text-[#39FF14] border border-[#39FF14]/50 group-hover:border-[#39FF14] transition-colors flex items-center gap-1.5">
+                      <LogOut size={16} className="inline-block transform rotate-180" />
+                      <span>تسجيل الدخول</span>
                     </span>
                     <div className="absolute inset-0 bg-[#39FF14]/10 blur group-hover:bg-[#39FF14]/20 rounded-lg transition-colors"></div>
                   </Link>
@@ -334,8 +336,9 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
                     to="/signup" 
                     className="relative group overflow-hidden"
                   >
-                    <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-[#39FF14] text-black font-medium transform group-hover:scale-[1.03] transition-transform">
-                      إنشاء حساب
+                    <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-[#39FF14] text-black font-medium transform group-hover:scale-[1.03] transition-transform flex items-center gap-1.5">
+                      <User size={16} className="inline-block" />
+                      <span>إنشاء حساب</span>
                     </span>
                     <div className="absolute inset-0 bg-[#39FF14] blur-sm opacity-50 group-hover:opacity-70 rounded-lg transition-opacity"></div>
                   </Link>
