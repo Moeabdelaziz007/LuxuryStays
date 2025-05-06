@@ -40,7 +40,7 @@ export default function Sidebar() {
   } else if (user?.role === "PROPERTY_ADMIN") {
     links = [
       { to: "/property-admin", icon: <LayoutDashboard className="h-5 w-5" />, label: "لوحة التحكم" },
-      { to: "/property-admin/properties", icon: <Home className="h-5 w-5" />, label: "العقارات" },
+      { to: "/property-admin/properties", icon: <Building className="h-5 w-5" />, label: "العقارات" },
       { to: "/property-admin/bookings", icon: <BookOpen className="h-5 w-5" />, label: "الحجوزات" },
       { to: "/property-admin/calendar", icon: <Calendar className="h-5 w-5" />, label: "التقويم" },
       { to: "/property-admin/analytics", icon: <BarChart3 className="h-5 w-5" />, label: "التحليلات" },
@@ -51,7 +51,7 @@ export default function Sidebar() {
     links = [
       { to: "/super-admin", icon: <LayoutDashboard className="h-5 w-5" />, label: "لوحة التحكم" },
       { to: "/super-admin/users", icon: <Users className="h-5 w-5" />, label: "المستخدمين" },
-      { to: "/super-admin/properties", icon: <Home className="h-5 w-5" />, label: "العقارات" },
+      { to: "/super-admin/properties", icon: <Building className="h-5 w-5" />, label: "العقارات" },
       { to: "/super-admin/bookings", icon: <Calendar className="h-5 w-5" />, label: "الحجوزات" },
       { to: "/super-admin/services", icon: <ShoppingBag className="h-5 w-5" />, label: "الخدمات" },
       { to: "/super-admin/revenue", icon: <CreditCard className="h-5 w-5" />, label: "الإيرادات" },
