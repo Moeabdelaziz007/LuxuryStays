@@ -148,35 +148,104 @@ if (app) {
   }
 }
 
-// Helper function to safely handle Firestore operations
+// Helper function to safely handle Firestore operations with advanced error handling and retry logic
 // This ensures we don't crash the app if Firestore is unavailable
-export const safeDoc = async (operation: () => Promise<any>, fallback: any = null): Promise<any> => {
+export const safeDoc = async (operation: () => Promise<any>, fallback: any = null, maxRetries = 3): Promise<any> => {
   if (!db) {
     console.error("Firestore not initialized, operation skipped");
     return fallback;
   }
-  
-  try {
-    return await operation();
-  } catch (error: any) {
-    // Log detailed error information
-    console.error("Error accessing Firestore:", error);
-    
-    if (error.code === "unavailable") {
-      console.warn("Firestore is currently unavailable. This may be due to network issues or Firestore rules.");
-      console.warn("Please check your internet connection and Firebase console settings.");
-      
-      // Check for common issues and provide guidance
+
+  let retriesLeft = maxRetries;
+  let lastError: any = null;
+
+  while (retriesLeft > 0) {
+    try {
+      // Check network status before trying the operation
       if (window.navigator.onLine === false) {
-        console.warn("You appear to be offline. Please check your internet connection.");
+        console.warn("Browser reports device is offline. Attempting operation anyway as Firestore has offline capabilities...");
+      }
+
+      // Try to re-enable network if it might have been disabled
+      try {
+        await enableNetwork(db);
+      } catch (networkError) {
+        console.warn("Failed to ensure network is enabled:", networkError);
+        // Continue anyway, the operation might work with offline persistence
+      }
+
+      // Attempt the operation
+      const result = await operation();
+      if (retriesLeft < maxRetries) {
+        console.log(`✅ Operation succeeded after ${maxRetries - retriesLeft} retries`);
+      }
+      return result;
+    } catch (error: any) {
+      lastError = error;
+      
+      // Detailed error information
+      console.error(`Error accessing Firestore (${maxRetries - retriesLeft + 1}/${maxRetries} attempts):`, error);
+      
+      // Handle different error types with specific recovery strategies
+      if (error.code === "unavailable" || error.code === "resource-exhausted") {
+        console.warn(`Firestore is currently unavailable (${error.code}). Retrying in 2 seconds...`);
+        
+        // Implement exponential backoff
+        const backoffTime = Math.min(1000 * Math.pow(1.5, maxRetries - retriesLeft), 10000);
+        await new Promise(resolve => setTimeout(resolve, backoffTime));
+        
+        // Try re-enabling network before next retry
+        try {
+          await enableNetwork(db);
+          console.log("Successfully re-enabled Firestore network connection");
+        } catch (networkError) {
+          console.warn("Failed to re-enable network:", networkError);
+        }
+      } else if (error.code === "permission-denied") {
+        console.error("Permission denied by Firestore security rules. Check your authentication status and security rules.");
+        // No retry for permission issues, they won't resolve themselves
+        break;
+      } else if (error.code === "not-found") {
+        console.warn("Document or collection not found in Firestore.");
+        // No retry for missing documents, they won't appear magically
+        break;
+      } else if (error.code === "aborted" || error.code === "cancelled") {
+        // These errors can be transient, worth retrying
+        console.warn(`Operation ${error.code}, will retry...`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
       } else {
-        console.warn("If you're using a development environment, ensure your Firebase project allows local testing.");
-        console.warn("You might need to check your Firebase rules and allow reads/writes for your use case.");
+        // For unknown errors, add a small delay but keep retrying
+        console.error(`Unexpected Firestore error (${error.code}):`, error.message);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      retriesLeft--;
+    }
+  }
+  
+  // If all retries failed, log additional diagnostic information
+  if (lastError) {
+    console.error("All Firestore operation attempts failed:", lastError);
+    
+    // Display specific guidance based on error type
+    if (lastError.code === "unavailable") {
+      console.warn("✋ GUIDANCE: Firestore is currently unavailable. This usually indicates:");
+      console.warn("1. Network connectivity issues");
+      console.warn("2. Firebase project may be experiencing issues");
+      console.warn("3. Security rules might be blocking access");
+      
+      if (window.navigator.onLine === false) {
+        console.warn("🔴 You appear to be offline. Please check your internet connection.");
+      } else {
+        console.warn("🟡 Your device appears to be online, but cannot reach Firestore.");
+        console.warn("   - Check Firebase console for service disruptions");
+        console.warn("   - Verify your Firebase project ID and configuration");
+        console.warn("   - Ensure your security rules allow the operation");
       }
     }
-    
-    return fallback;
   }
+  
+  return fallback;
 };
 
 export { auth, db, storage };

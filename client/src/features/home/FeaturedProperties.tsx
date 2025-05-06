@@ -55,52 +55,84 @@ export default function FeaturedProperties() {
   
   const { data, isLoading, isError } = useQuery({ 
     queryKey: ["featured-properties"], 
-    retry: 3,  // زيادة عدد محاولات إعادة الاتصال
-    retryDelay: 1000, // مهلة بين المحاولات
+    retry: 5,  // زيادة عدد محاولات إعادة الاتصال إلى 5
+    retryDelay: (attemptIndex) => Math.min(1000 * Math.pow(1.5, attemptIndex), 10000), // تأخير تكيفي
+    staleTime: 5 * 60 * 1000, // 5 دقائق قبل اعتبار البيانات قديمة
+    refetchOnWindowFocus: false, // لا تعيد جلب البيانات عند استعادة التركيز لتقليل عمليات الاتصال
     queryFn: async () => {
       try {
-        // استخدام وظيفة safeDoc للتعامل الآمن مع Firestore
-        return await safeDoc(async () => {
-          if (!db) {
-            throw new Error("Firestore is not initialized");
-          }
-          
-          console.log("Fetching featured properties from Firestore...");
-          
-          // Get only featured properties
-          const featuredQuery = query(collection(db, "properties"), where("featured", "==", true));
-          const snapshot = await getDocs(featuredQuery);
-          
-          if (snapshot.empty) {
-            console.log("No featured properties found in Firestore, attempting to seed data");
-            
-            // محاولة إضافة البيانات الأولية
-            try {
-              const { seedFirestore } = await import('@/lib/seedFirestore');
-              const result = await seedFirestore();
-              if (result.success) {
-                console.log("تمت إضافة البيانات الأولية بنجاح. ستظهر في المرة القادمة.");
-              }
-            } catch (seedError) {
-              console.error("فشل إضافة البيانات الأولية:", seedError);
+        // تنفيذ عملية الاسترداد مع safeDoc المُحسّنة مع 3 محاولات كحد أقصى
+        return await safeDoc(
+          async () => {
+            if (!db) {
+              throw new Error("Firestore is not initialized");
             }
             
-            return localProperties;
-          }
-          
-          console.log(`Found ${snapshot.docs.length} featured properties in Firestore`);
-          
-          // تحويل وثائق Firestore إلى كائنات Property
-          const properties = snapshot.docs.map(doc => ({ 
-            id: doc.id, 
-            ...doc.data() 
-          })) as Property[];
-          
-          return properties;
-        }, localProperties); // استخدام localProperties كقيمة افتراضية في حالة فشل Firestore
+            console.log("Fetching featured properties from Firestore...");
+            
+            // الحصول على العقارات المميزة فقط
+            const featuredQuery = query(
+              collection(db, "properties"), 
+              where("featured", "==", true)
+            );
+            
+            // استخدام تجميع الاتصالات لتقليل عدد الاتصالات المطلوبة
+            const snapshot = await getDocs(featuredQuery);
+            
+            if (snapshot.empty) {
+              console.log("No featured properties found in Firestore, attempting to seed data");
+              
+              // محاولة بذر البيانات الأولية (تجربة مرة واحدة فقط)
+              try {
+                const { seedFirestore } = await import('@/lib/seedFirestore');
+                const result = await seedFirestore();
+                if (result.success) {
+                  console.log("✅ Property seed data added successfully. Will appear next time.");
+                  
+                  // محاولة قراءة البيانات المضافة مباشرة
+                  const freshSnapshot = await getDocs(featuredQuery);
+                  if (!freshSnapshot.empty) {
+                    console.log(`Found ${freshSnapshot.docs.length} properties after seeding`);
+                    return freshSnapshot.docs.map(doc => ({
+                      id: doc.id,
+                      ...doc.data()
+                    })) as Property[];
+                  }
+                }
+              } catch (seedError) {
+                console.error("Failed to seed initial data:", seedError);
+              }
+              
+              // إذا فشلت عملية البذر، استخدم البيانات المحلية
+              return localProperties;
+            }
+            
+            console.log(`Found ${snapshot.docs.length} featured properties in Firestore`);
+            
+            // تحويل وثائق Firestore إلى كائنات Property مع تدقيق وتصحيح البيانات
+            const properties = snapshot.docs.map(doc => {
+              const docData = doc.data();
+              // ضمان وجود جميع الحقول المطلوبة مع قيم افتراضية
+              return {
+                id: doc.id,
+                name: docData.name || "عقار بدون اسم",
+                imageUrl: docData.imageUrl || "https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1200", // صورة افتراضية
+                description: docData.description || "لا يوجد وصف متاح",
+                location: docData.location || "موقع غير محدد",
+                pricePerNight: docData.pricePerNight || 0,
+                featured: true, // نحن نفترض أنها مميزة لأننا نبحث عن العقارات المميزة
+                ownerId: docData.ownerId || "unknown"
+              } as Property;
+            });
+            
+            return properties;
+          }, 
+          localProperties, // استخدام البيانات المحلية كاحتياطي
+          5 // محاولات أكثر لأهمية هذه البيانات
+        );
       } catch (error: any) {
         console.error("Error in query function:", error);
-        setError("حدث خطأ غير متوقع. جاري استخدام البيانات المحلية.");
+        setError(`حدث خطأ في الوصول إلى بيانات العقارات: ${error.message || "خطأ غير معروف"}`);
         return localProperties;
       }
     }
@@ -144,7 +176,7 @@ export default function FeaturedProperties() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {data?.map((property) => (
+      {data?.map((property: Property) => (
         <div 
           key={property.id} 
           className="bg-gray-800 text-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 group"
