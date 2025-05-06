@@ -20,6 +20,8 @@ interface Property {
   rating?: number;
   reviewCount?: number;
   ownerId: string;
+  ownerRole?: string; // نوع المالك (CUSTOMER, PROPERTY_ADMIN, SUPER_ADMIN)
+  verified?: boolean; // هل تم التحقق من العقار من قبل النظام
 }
 
 // بيانات العقارات الواقعية في الساحل الشمالي وراس الحكمة
@@ -38,7 +40,9 @@ const localProperties: Property[] = [
     maxGuests: 10,
     rating: 4.9,
     reviewCount: 28,
-    ownerId: "owner1"
+    ownerId: "owner1",
+    ownerRole: "PROPERTY_ADMIN",
+    verified: true
   },
   {
     id: "property2",
