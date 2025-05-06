@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
 import { UserRole } from "@shared/schema";
 import { db, safeDoc } from "@/lib/firebase";
@@ -60,7 +60,7 @@ const CHART_COLORS = {
  */
 export default function SuperAdminDashboard() {
   const { user } = useAuth();
-  const location = useLocation();
+  const [location] = useLocation();
   
   // حالات البيانات للإحصائيات والأرقام
   const [stats, setStats] = useState({
@@ -75,25 +75,50 @@ export default function SuperAdminDashboard() {
   });
   
   // بيانات الإيرادات الشهرية
-  const [revenueData, setRevenueData] = useState([]);
+  const [revenueData, setRevenueData] = useState<Array<{
+    name: string;
+    إيرادات: number;
+    حجوزات: number;
+  }>>([]);
   
   // بيانات المستخدمين حسب الدور
-  const [usersByRole, setUsersByRole] = useState([]);
+  const [usersByRole, setUsersByRole] = useState<Array<{
+    name: string;
+    value: number;
+    fill: string;
+  }>>([]);
   
   // بيانات حالة الحجوزات 
-  const [bookingStatus, setBookingStatus] = useState([]);
+  const [bookingStatus, setBookingStatus] = useState<Array<{
+    name: string;
+    value: number;
+    fill: string;
+  }>>([]);
   
   // آخر الحجوزات
-  const [recentBookings, setRecentBookings] = useState([]);
+  const [recentBookings, setRecentBookings] = useState<Array<{
+    id: string;
+    property: string;
+    customer: string;
+    date: string;
+    amount: number;
+    status: string;
+  }>>([]);
   
   // آخر المستخدمين المسجلين
-  const [recentUsers, setRecentUsers] = useState([]);
+  const [recentUsers, setRecentUsers] = useState<Array<{
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    date: string;
+  }>>([]);
   
   // حالة التحميل للبيانات
   const [loading, setLoading] = useState(true);
   
   // معالجة توجيه لوحة القيادة للمواقع المحددة
-  const isSubPage = location.pathname !== "/super-admin";
+  const isSubPage = location !== "/super-admin";
   
   useEffect(() => {
     // جلب البيانات للإحصائيات
@@ -180,7 +205,7 @@ export default function SuperAdminDashboard() {
   
   // إذا كانت هذه صفحة فرعية، اعرض المحتوى المناسب
   if (isSubPage) {
-    const subPath = location.pathname.split('/super-admin/')[1];
+    const subPath = location.split('/super-admin/')[1];
     
     return (
       <div className="p-6">

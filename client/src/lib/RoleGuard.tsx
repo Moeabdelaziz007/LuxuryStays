@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/auth-context";
-import { Navigate } from "react-router-dom";
+import { Redirect } from "wouter";
 
 export default function RoleGuard({
   role,
@@ -17,7 +17,7 @@ export default function RoleGuard({
 
   // Redirect to login if not authenticated
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Redirect to="/login" />;
   }
 
   // Allow super admin to access all routes
@@ -27,7 +27,7 @@ export default function RoleGuard({
 
   // Redirect unauthorized users
   if (!user.role || user.role !== role) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Redirect to="/unauthorized" />;
   }
 
   // Render children if authentication and authorization pass
