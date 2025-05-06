@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -13,13 +14,12 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
   // استخراج مسار إعادة التوجيه من معلمات URL
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
+    const searchParams = new URLSearchParams(window.location.search);
     const redirect = searchParams.get('redirect');
     
     if (redirect) {
@@ -32,7 +32,7 @@ export default function LoginPage() {
         variant: "default",
       });
     }
-  }, [location, toast]);
+  }, [toast]);
   
   // عرض رسالة ترحيبية مع معلومات حول إعادة التوجيه
   const renderRedirectMessage = () => {

@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "./contexts/auth-context";
@@ -12,18 +12,17 @@ import AppRoutes from "./routes";
 
 function RedirectHandler() {
   const { user, loading } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [location, navigate] = useLocation();
   
   useEffect(() => {
-    console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location.pathname });
+    console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location });
     
     // سنقوم فقط بتوجيه المستخدم المسجل إذا كان في صفحة تسجيل الدخول أو التسجيل
     if (!loading && user) {
       const authPages = ['/login', '/signup'];
       
       // قم بالتوجيه فقط إذا كان المستخدم على صفحة مصادقة ولديه صلاحيات
-      if (authPages.includes(location.pathname) && user.role) {
+      if (authPages.includes(location) && user.role) {
         let dashboardPath;
         
         switch (user.role) {
@@ -51,10 +50,10 @@ function RedirectHandler() {
 }
 
 function App() {
-  const location = useLocation();
-  const showHeaderFooter = !location.pathname.includes('/super-admin') && 
-                           !location.pathname.includes('/property-admin') && 
-                           !location.pathname.includes('/customer');
+  const [location] = useLocation();
+  const showHeaderFooter = !location.includes('/super-admin') && 
+                           !location.includes('/property-admin') && 
+                           !location.includes('/customer');
   const auth = getAuth();
   
   // Handle redirect from Google sign-in

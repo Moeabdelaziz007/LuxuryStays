@@ -11,7 +11,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp, Firestore } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 
 interface UserData {
   uid: string;
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const redirectAfterLoginRef = useRef<string | null>(null);
-  const navigate = useNavigate();
+  const [locationPath, setLocation] = useLocation();
 
   // دالة مساعدة للحصول على مسار إعادة التوجيه من عنوان URL
   const getRedirectParam = (): string | null => {
@@ -113,13 +113,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     if (redirectPath) {
                       // إعادة تعيين المرجع بعد استخدامه
                       redirectAfterLoginRef.current = null;
-                      navigate(decodeURIComponent(redirectPath));
+                      setLocation(decodeURIComponent(redirectPath));
                     } else {
                       // توجيه تلقائي إلى لوحة التحكم المناسبة
-                      if (userData.role === "CUSTOMER") navigate("/customer");
-                      else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
-                      else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
-                      else navigate("/unauthorized");
+                      if (userData.role === "CUSTOMER") setLocation("/customer");
+                      else if (userData.role === "PROPERTY_ADMIN") setLocation("/property-admin");
+                      else if (userData.role === "SUPER_ADMIN") setLocation("/super-admin");
+                      else setLocation("/unauthorized");
                     }
                   }
                 } else if (db) {
@@ -140,9 +140,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   const redirectPath = redirectAfterLoginRef.current;
                   if (redirectPath) {
                     redirectAfterLoginRef.current = null;
-                    navigate(decodeURIComponent(redirectPath));
+                    setLocation(decodeURIComponent(redirectPath));
                   } else {
-                    navigate("/customer");
+                    setLocation("/customer");
                   }
                 }
               } else {
@@ -173,7 +173,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       unsubscribe();
     };
-  }, [navigate]);
+  }, [setLocation]);
 
   // تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور (Firebase فقط)
   const login = async (credentials: LoginCredentials) => {
@@ -364,7 +364,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       await signOut(auth);
       setUser(null);
-      navigate("/");
+      setLocation("/");
     } catch (err) {
       console.error("Logout error:", err);
       setError("Logout failed");
