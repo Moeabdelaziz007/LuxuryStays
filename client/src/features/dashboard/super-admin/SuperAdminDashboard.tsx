@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { collection, getDocs, doc, updateDoc, deleteDoc, query, where, limit, orderBy } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, deleteDoc, query, where, limit, orderBy, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-context";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -219,6 +219,83 @@ export default function SuperAdminDashboard() {
         description: "فشل في حذف العقار.",
         variant: "destructive",
       });
+    }
+  };
+  
+  // Function to promote user from customer to property admin
+  const handlePromoteUser = async () => {
+    if (!db || !promoteUserInput.trim()) {
+      toast({
+        title: "خطأ",
+        description: "يرجى إدخال معرف المستخدم أو البريد الإلكتروني",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setIsPromoting(true);
+      
+      // Check if input is email or id
+      const isEmail = promoteUserInput.includes("@");
+      
+      let userToPromote;
+      
+      if (isEmail) {
+        // Find user by email
+        const q = query(collection(db, "users"), where("email", "==", promoteUserInput));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+          throw new Error("لم يتم العثور على مستخدم بهذا البريد الإلكتروني");
+        }
+        
+        userToPromote = { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+      } else {
+        // Find user by ID
+        const userDoc = await getDoc(doc(db, "users", promoteUserInput));
+        
+        if (!userDoc.exists()) {
+          throw new Error("لم يتم العثور على مستخدم بهذا المعرف");
+        }
+        
+        userToPromote = { id: userDoc.id, ...userDoc.data() };
+      }
+      
+      // Verify user has CUSTOMER role
+      if ((userToPromote as any).role !== UserRole.CUSTOMER) {
+        toast({
+          title: "غير مسموح",
+          description: "يمكن فقط ترقية العملاء إلى مدراء عقارات",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Promote user
+      await updateDoc(doc(db, "users", userToPromote.id), {
+        role: UserRole.PROPERTY_ADMIN
+      });
+      
+      setPromoteUserInput("");
+      
+      toast({
+        title: "تمت الترقية بنجاح",
+        description: `تم ترقية ${(userToPromote as any).name || (userToPromote as any).email} إلى مدير عقارات`,
+      });
+      
+      // Refresh users list
+      refetchUsers();
+      
+    } catch (error: any) {
+      console.error("Error promoting user:", error);
+      toast({
+        title: "حدث خطأ",
+        description: error.message || "لم نتمكن من ترقية المستخدم. حاول مرة أخرى.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPromoting(false);
     }
   };
   
@@ -1022,15 +1099,27 @@ export default function SuperAdminDashboard() {
                           type="text"
                           placeholder="معرف المستخدم أو البريد الإلكتروني"
                           className="px-3 py-1.5 flex-1 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-[#39FF14]"
+                          value={promoteUserInput}
+                          onChange={(e) => setPromoteUserInput(e.target.value)}
+                          disabled={isPromoting}
                         />
                         <Button
                           variant="outline"
                           size="sm"
                           className="border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14]/10"
+                          onClick={handlePromoteUser}
+                          disabled={isPromoting || !promoteUserInput.trim()}
                         >
-                          ترقية
+                          {isPromoting ? (
+                            <FaSpinner className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "ترقية"
+                          )}
                         </Button>
                       </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        يمكنك ترقية المستخدمين العاديين (عملاء) إلى مدراء عقارات من خلال إدخال معرّف المستخدم أو البريد الإلكتروني
+                      </p>
                     </div>
                     <div className="pt-2">
                       <h3 className="text-sm font-medium mb-2">صلاحيات المشرفين</h3>
