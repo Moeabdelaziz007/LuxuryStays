@@ -19,26 +19,42 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      console.log("Attempting login with Firebase:", email);
+      console.log("جاري تسجيل الدخول باستخدام Firebase:", email);
       
-      // Check if Firebase auth is available
+      // التحقق من توفر Firebase
       if (!auth) {
-        throw new Error("Firebase authentication is not available");
+        throw new Error("خدمة المصادقة غير متوفرة حالياً، الرجاء المحاولة لاحقاً");
       }
       
-      // Firebase authentication
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Firebase login successful:", userCredential.user.uid);
-      // Navigation is handled by auth context
-    } catch (err: any) {
-      console.error("Login error:", err);
+      // محاولة تسجيل الدخول
+      await signInWithEmailAndPassword(auth, email, password);
       
+      // ستتم عملية التوجيه من خلال مراقب حالة المصادقة في AuthContext
+      // دعنا نعطي بعض الوقت للمعالجة قبل إظهار رسالة خطأ إذا لم يتم التوجيه
+      const redirectTimeout = setTimeout(() => {
+        if (loading) {
+          console.warn("لم يتم التوجيه بعد تسجيل الدخول بنجاح، قد تكون هناك مشكلة في قاعدة البيانات");
+          setError("تم تسجيل الدخول بنجاح ولكن هناك مشكلة في استرجاع بيانات المستخدم");
+          setLoading(false);
+        }
+      }, 5000);
+      
+      // سنقوم بتنظيف المؤقت إذا تم الانتقال للصفحة التالية
+      return () => clearTimeout(redirectTimeout);
+    } catch (err: any) {
+      console.error("خطأ في تسجيل الدخول:", err);
+      
+      // رسائل خطأ مخصصة أكثر وضوحاً للمستخدم
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found') {
-        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة، الرجاء التحقق والمحاولة مرة أخرى");
       } else if (err.code === 'auth/wrong-password') {
-        setError("كلمة المرور غير صحيحة");
+        setError("كلمة المرور غير صحيحة، الرجاء التحقق منها والمحاولة مرة أخرى");
+      } else if (err.code === 'auth/too-many-requests') {
+        setError("تم إجراء عدة محاولات خاطئة، الرجاء المحاولة بعد قليل");
+      } else if (err.code === 'auth/network-request-failed') {
+        setError("يبدو أن هناك مشكلة في الاتصال بالإنترنت، الرجاء التحقق من اتصالك");
       } else {
-        setError(err.message || "فشل تسجيل الدخول");
+        setError(err.message || "حدث خطأ أثناء تسجيل الدخول، الرجاء المحاولة مرة أخرى");
       }
     } finally {
       setLoading(false);
@@ -51,40 +67,71 @@ export default function LoginPage() {
     
     if (!auth || !db) {
       setError("تسجيل الدخول عبر Google غير متاح حالياً. الرجاء استخدام البريد الإلكتروني وكلمة المرور.");
-      console.error("Google login not available: Firebase services not initialized");
+      console.error("خدمة Google غير متوفرة: لم يتم تهيئة خدمات Firebase");
       setGoogleLoading(false);
       return;
     }
     
     const provider = new GoogleAuthProvider();
+    // إضافة نطاقات إضافية للحصول على مزيد من المعلومات
+    provider.addScope('profile');
+    provider.addScope('email');
     
     try {
+      console.log("بدء تسجيل الدخول باستخدام Google...");
       const res = await signInWithPopup(auth, provider);
       
-      // Check if user exists in Firestore
+      // التحقق من وجود المستخدم في Firestore
       const userRef = doc(db, "users", res.user.uid);
       const userSnap = await getDoc(userRef);
       
       if (!userSnap.exists()) {
-        // Create new user document
-        await setDoc(userRef, {
+        // إنشاء مستخدم جديد
+        const userProfile = {
           uid: res.user.uid,
           email: res.user.email,
-          name: res.user.displayName,
-          role: "CUSTOMER", // Default role
+          name: res.user.displayName || 'مستخدم جديد',
+          role: "CUSTOMER", // دور افتراضي
           createdAt: new Date().toISOString(),
-        });
-        console.log("New user created in Firestore");
+          photoURL: res.user.photoURL || null,
+        };
+        
+        console.log("إنشاء مستخدم جديد في Firestore:", userProfile.email);
+        await setDoc(userRef, userProfile);
+        
+        // إضافة المزيد من المعلومات للتسجيل
+        console.log("تم إنشاء حساب جديد بنجاح");
+      } else {
+        // تسجيل دخول مستخدم موجود
+        console.log("تسجيل دخول مستخدم موجود:", res.user.email);
       }
       
-      // Navigation will be handled by auth context
+      // ستتم عملية التوجيه من خلال مراقب حالة المصادقة في AuthContext
+      const redirectTimeout = setTimeout(() => {
+        if (googleLoading) {
+          console.warn("لم يتم التوجيه بعد تسجيل الدخول بنجاح، قد تكون هناك مشكلة في قاعدة البيانات");
+          setError("تم تسجيل الدخول بنجاح ولكن هناك مشكلة في استرجاع بيانات المستخدم");
+          setGoogleLoading(false);
+        }
+      }, 5000);
+      
+      return () => clearTimeout(redirectTimeout);
     } catch (err: any) {
-      console.error("Google login error:", err);
+      console.error("خطأ في تسجيل الدخول عبر Google:", err);
+      
       if (err.code === 'auth/unauthorized-domain') {
-        setError("جاري العمل على تفعيل الدخول بواسطة Google. الرجاء استخدام البريد الإلكتروني وكلمة المرور بدلاً من ذلك.");
-        console.error(`Please add ${window.location.origin} to Firebase authorized domains`);
+        setError("نأسف، هذا النطاق غير مسموح به للمصادقة عبر Google. الرجاء استخدام البريد الإلكتروني وكلمة المرور بدلاً من ذلك.");
+        console.error(`يرجى إضافة ${window.location.origin} إلى نطاقات Firebase المصرح بها`);
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError("تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError("تم إلغاء طلب النافذة المنبثقة. الرجاء المحاولة مرة أخرى.");
+      } else if (err.code === 'auth/popup-blocked') {
+        setError("تم حظر النافذة المنبثقة. الرجاء السماح بالنوافذ المنبثقة والمحاولة مرة أخرى.");
+      } else if (err.code === 'auth/network-request-failed') {
+        setError("فشل في الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.");
       } else {
-        setError(err.message || "فشل تسجيل الدخول باستخدام Google");
+        setError(err.message || "فشل تسجيل الدخول باستخدام Google، الرجاء المحاولة مرة أخرى.");
       }
     } finally {
       setGoogleLoading(false);
