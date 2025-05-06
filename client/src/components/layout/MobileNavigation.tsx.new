@@ -27,7 +27,7 @@ interface NavItem {
 
 export default function MobileNavigation() {
   const { user, logout } = useAuth();
-  const [currentPath] = useLocation();
+  const [path] = useLocation();
   const [activeSection, setActiveSection] = useState<string>('dashboard');
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   
@@ -94,17 +94,16 @@ export default function MobileNavigation() {
   
   // تحديد القسم النشط بناءً على المسار الحالي
   useEffect(() => {
-    const path = currentPath || '';
-    if (
-      path.includes('/super-admin') || 
-      path.includes('/property-admin') || 
-      path.includes('/customer')
-    ) {
+    const isDashboardPath = ['/super-admin', '/property-admin', '/customer'].some(prefix => 
+      path.startsWith(prefix)
+    );
+    
+    if (isDashboardPath) {
       setActiveSection('dashboard');
     } else {
       setActiveSection('public');
     }
-  }, [currentPath]);
+  }, [path]);
   
   // فلترة العناصر حسب القسم النشط
   const filteredItems = navItems
@@ -117,7 +116,7 @@ export default function MobileNavigation() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 shadow-lg z-50">
         <div className="flex justify-around items-center h-16">
           {filteredItems.map((item) => {
-            const isActive = currentPath === item.to;
+            const isActive = path === item.to;
             return (
               <Link
                 key={item.to}

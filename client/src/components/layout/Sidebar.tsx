@@ -95,16 +95,17 @@ export default function Sidebar() {
   // تأثير للتحقق من المسار الحالي وضبط القسم المناسب
   useEffect(() => {
     // تحديد القسم النشط بناءً على المسار
-    if (location && (
-      location.includes('/super-admin') || 
-      location.includes('/property-admin') || 
-      location.includes('/customer')
-    )) {
+    const path = location || '';
+    if (
+      path.includes('/super-admin') || 
+      path.includes('/property-admin') || 
+      path.includes('/customer')
+    ) {
       setExpandedSection("dashboard");
     } else if (
-      location === '/' || 
-      location.includes('/properties') || 
-      location.includes('/services')
+      path === '/' || 
+      path.includes('/properties') || 
+      path.includes('/services')
     ) {
       setExpandedSection("public");
     }
