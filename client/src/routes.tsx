@@ -185,7 +185,7 @@ export default function AppRoutes() {
       <Route path="/super-admin">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <SuperAdminDashboard />
+            <NewSuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
       </Route>
@@ -193,7 +193,15 @@ export default function AppRoutes() {
       <Route path="/super-admin/users">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <SuperAdminDashboard />
+            <NewSuperAdminDashboard />
+          </SuperAdminLayout>
+        </RouteGuard>
+      </Route>
+      
+      <Route path="/super-admin/users/add">
+        <RouteGuard role={UserRole.SUPER_ADMIN}>
+          <SuperAdminLayout>
+            <NewSuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
       </Route>
@@ -201,7 +209,15 @@ export default function AppRoutes() {
       <Route path="/super-admin/properties">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <SuperAdminDashboard />
+            <NewSuperAdminDashboard />
+          </SuperAdminLayout>
+        </RouteGuard>
+      </Route>
+      
+      <Route path="/super-admin/properties/add">
+        <RouteGuard role={UserRole.SUPER_ADMIN}>
+          <SuperAdminLayout>
+            <NewSuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
       </Route>
@@ -209,7 +225,15 @@ export default function AppRoutes() {
       <Route path="/super-admin/bookings">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <SuperAdminDashboard />
+            <NewSuperAdminDashboard />
+          </SuperAdminLayout>
+        </RouteGuard>
+      </Route>
+      
+      <Route path="/super-admin/bookings/manage">
+        <RouteGuard role={UserRole.SUPER_ADMIN}>
+          <SuperAdminLayout>
+            <NewSuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
       </Route>
@@ -217,7 +241,7 @@ export default function AppRoutes() {
       <Route path="/super-admin/services">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <SuperAdminDashboard />
+            <NewSuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
       </Route>
@@ -225,7 +249,7 @@ export default function AppRoutes() {
       <Route path="/super-admin/revenue">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <SuperAdminDashboard />
+            <NewSuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
       </Route>
@@ -233,7 +257,7 @@ export default function AppRoutes() {
       <Route path="/super-admin/issues">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <SuperAdminDashboard />
+            <NewSuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
       </Route>
@@ -241,9 +265,35 @@ export default function AppRoutes() {
       <Route path="/super-admin/settings">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <SuperAdminDashboard />
+            <NewSuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
+      </Route>
+      
+      <Route path="/super-admin/notifications">
+        <RouteGuard role={UserRole.SUPER_ADMIN}>
+          <SuperAdminLayout>
+            <NewSuperAdminDashboard />
+          </SuperAdminLayout>
+        </RouteGuard>
+      </Route>
+      
+      <Route path="/super-admin/security">
+        <RouteGuard role={UserRole.SUPER_ADMIN}>
+          <SuperAdminLayout>
+            <NewSuperAdminDashboard />
+          </SuperAdminLayout>
+        </RouteGuard>
+      </Route>
+      
+      <Route path="/super-admin/reports/:reportType">
+        {(params) => (
+          <RouteGuard role={UserRole.SUPER_ADMIN}>
+            <SuperAdminLayout>
+              <NewSuperAdminDashboard />
+            </SuperAdminLayout>
+          </RouteGuard>
+        )}
       </Route>
       
       {/* مسار للصفحات غير الموجودة */}
