@@ -23,11 +23,13 @@ import { db, storage } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-context";
 import { insertPropertySchema } from "@shared/schema";
 
-// Extend the schema with client-side validation
+// نمد نموذج التحقق مع إضافة حقول خاصة بواجهة المستخدم
 const propertyFormSchema = insertPropertySchema.extend({
-  imageFile: z.instanceof(FileList).optional()
+  id: z.union([z.string(), z.number()]).optional(), // إضافة حقل الهوية كرقم أو نص اختياري
+  imageFile: z.instanceof(FileList).optional(),
+  featured: z.boolean().nullable().optional().transform(val => val === true) // معالجة قيم null لخاصية featured
 }).superRefine((data, ctx) => {
-  // If it's a new property (no id), require an image
+  // إذا كان العقار جديداً (بدون معرف)، نطلب صورة
   if (!data.id && (!data.imageFile || data.imageFile.length === 0) && !data.imageUrl) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -399,8 +401,8 @@ export default function PropertyForm({ property, onSuccess, onCancel }: Property
                     <FormControl>
                       <input
                         type="checkbox"
-                        checked={field.value}
-                        onChange={field.onChange}
+                        checked={field.value === true}
+                        onChange={(e) => field.onChange(e.target.checked)}
                         className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-[#39FF14]"
                       />
                     </FormControl>
