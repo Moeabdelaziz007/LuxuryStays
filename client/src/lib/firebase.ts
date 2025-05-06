@@ -41,14 +41,13 @@ console.log("Initializing Firebase with project ID:", import.meta.env.VITE_FIREB
 // Use the correct Firebase configuration directly in the code
 // for immediate effect
 
-// تكوين Firebase - استخدام القيم من ملف .env مباشرةً
+// تكوين Firebase - استخدام القيم من متغيرات البيئة
 const firebaseConfig = {
-  apiKey: "AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs",
-  authDomain: "stay-chill-e3743.firebaseapp.com", // Updated to match project ID
-  projectId: "stay-chill-e3743", // Fixed to match the actual project ID from logs
-  storageBucket: "stay-chill-e3743.appspot.com", // Updated to match project ID
-  messagingSenderId: "299280633489",
-  appId: "1:299280633489:web:2088c38e2fde210cad7930"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // طباعة جميع قيم التكوين للتأكد من صحتها
@@ -58,7 +57,7 @@ console.log("Auth Domain:", firebaseConfig.authDomain);
 console.log("Project ID:", firebaseConfig.projectId);
 console.log("Storage Bucket:", firebaseConfig.storageBucket);
 
-console.log("Using hardcoded Firebase configuration for immediate effect");
+console.log("Using Firebase configuration from environment variables");
 
 // Initialize Firebase only once with error handling
 let app;
