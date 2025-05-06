@@ -11,9 +11,42 @@ import { getAuth, getRedirectResult } from "firebase/auth";
 import AppRoutes from "./routes";
 
 function RedirectHandler() {
-  const { user, loading } = useAuth();
+  const { user, loading, updateUserInfo } = useAuth();
   const [location, setLocation] = useLocation();
+  const auth = getAuth();
   
+  // Handle redirect result from Google sign-in
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        console.log("Checking for redirect result...");
+        const result = await getRedirectResult(auth);
+        
+        if (result) {
+          console.log("Redirect result found, user signed in:", result.user.email);
+          
+          // Get saved redirect path if any
+          const savedRedirectPath = localStorage.getItem('googleAuthRedirectPath');
+          if (savedRedirectPath) {
+            console.log("Redirecting to saved path after Google login:", savedRedirectPath);
+            localStorage.removeItem('googleAuthRedirectPath'); // Clear it after use
+            setLocation(savedRedirectPath);
+          } else {
+            // Default to homepage if no specific redirect
+            setLocation('/');
+          }
+        }
+      } catch (error) {
+        console.error("Error handling redirect result:", error);
+      }
+    };
+    
+    if (!user && !loading) {
+      handleRedirectResult();
+    }
+  }, [auth, user, loading, setLocation]);
+  
+  // Regular auth state redirect handling
   useEffect(() => {
     console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location });
     
@@ -27,13 +60,13 @@ function RedirectHandler() {
         
         switch (user.role) {
           case UserRole.CUSTOMER:
-            dashboardPath = '/customer';
+            dashboardPath = '/dashboard/customer';
             break;
           case UserRole.PROPERTY_ADMIN:
-            dashboardPath = '/property-admin';
+            dashboardPath = '/dashboard/property-admin';
             break;
           case UserRole.SUPER_ADMIN:
-            dashboardPath = '/super-admin';
+            dashboardPath = '/dashboard/super-admin';
             break;
           default:
             dashboardPath = '/';

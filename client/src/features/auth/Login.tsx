@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useLocation } from "wouter";
 import { auth, db, safeDoc } from "@/lib/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signInAnonymously, sendPasswordResetEmail } from "firebase/auth";
 import { doc, getDoc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
@@ -304,96 +304,55 @@ export default function LoginPage() {
       ));
     }
     
-    const provider = new GoogleAuthProvider();
-    // إضافة نطاقات إضافية للحصول على مزيد من المعلومات
-    provider.addScope('profile');
-    provider.addScope('email');
-    
     try {
-      console.log("بدء تسجيل الدخول باستخدام Google...");
-      const res = await signInWithPopup(auth, provider);
+      // إنشاء مزود المصادقة عبر Google
+      const provider = new GoogleAuthProvider();
+      // إضافة نطاقات إضافية للحصول على مزيد من المعلومات
+      provider.addScope('profile');
+      provider.addScope('email');
       
-      // التحقق من وجود المستخدم في Firestore ومحاولة حفظ البيانات بطريقة آمنة
-      if (db) {
-        try {
-          const userRef = doc(db, "users", res.user.uid);
-          const userSnap = await getDoc(userRef);
-          
-          if (!userSnap.exists()) {
-            // إنشاء مستخدم جديد
-            const userProfile = {
-              uid: res.user.uid,
-              email: res.user.email,
-              name: res.user.displayName || 'مستخدم جديد',
-              role: "CUSTOMER", // دور افتراضي
-              createdAt: new Date().toISOString(),
-              photoURL: res.user.photoURL || null,
-            };
-            
-            console.log("إنشاء مستخدم جديد في Firestore:", userProfile.email);
-            
-            // محاولة حفظ البيانات في Firestore
-            try {
-              await setDoc(userRef, userProfile);
-              console.log("تم حفظ بيانات المستخدم بنجاح في Firestore");
-              toast(getSuccessToast(
-                "تم تسجيل الدخول بنجاح",
-                "مرحباً بك في منصة StayX!"
-              ));
-            } catch (firestoreError) {
-              console.error("فشل حفظ بيانات المستخدم في Firestore:", firestoreError);
-              toast(getWarningToast(
-                "تم تسجيل الدخول لكن مع تحذير",
-                "تم تسجيل دخولك بنجاح ولكن قد تكون هناك مشكلة في حفظ بياناتك. ستظل قادراً على استخدام الموقع."
-              ));
-            }
-          } else {
-            // تسجيل دخول مستخدم موجود
-            console.log("تسجيل دخول مستخدم موجود:", res.user.email);
-            toast(getSuccessToast(
-              "تم تسجيل الدخول بنجاح",
-              `مرحباً بعودتك ${res.user.displayName || "عزيزي المستخدم"}!`
-            ));
-          }
-        } catch (firestoreError) {
-          console.error("خطأ في التفاعل مع Firestore:", firestoreError);
-          toast(getWarningToast(
-            "تم تسجيل الدخول مع تحذير",
-            "تم تسجيل دخولك ولكن قد تكون هناك مشكلة في الوصول إلى بياناتك."
-          ));
-        }
+      // حفظ مسار إعادة التوجيه في localStorage قبل تنفيذ عملية إعادة التوجيه
+      if (redirectPath) {
+        localStorage.setItem('googleAuthRedirectPath', redirectPath);
       }
       
-      // ستتم عملية التوجيه من خلال مراقب حالة المصادقة في AuthContext
-      const redirectTimeout = setTimeout(() => {
-        if (googleLoading) {
-          console.warn("لم يتم التوجيه بعد تسجيل الدخول بنجاح، قد تكون هناك مشكلة في قاعدة البيانات");
-          setError("تم تسجيل الدخول بنجاح ولكن هناك مشكلة في استرجاع بيانات المستخدم");
-          setGoogleLoading(false);
-        }
-      }, 5000);
+      console.log("بدء تسجيل الدخول باستخدام Google (طريقة إعادة التوجيه)...");
+      console.log("Current domain:", window.location.host);
+      console.log("Firebase project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
       
-      // بعد تسجيل الدخول توجيه المستخدم للصفحة الرئيسية أو صفحة إعادة التوجيه بعد فترة زمنية
-      setTimeout(() => {
-        if (redirectPath) {
-          navigate(redirectPath); // الانتقال للصفحة التي كان يحاول الوصول إليها
-        } else {
-          navigate("/"); // الانتقال للصفحة الرئيسية
-        }
-      }, 1000);
+      // استخدام طريقة إعادة التوجيه بدلاً من النافذة المنبثقة
+      await signInWithRedirect(auth, provider);
       
-      return () => clearTimeout(redirectTimeout);
+      // لن يتم تنفيذ أي كود بعد هذا السطر، لأن إعادة التوجيه ستتم على الفور
+      // سيتم معالجة نتيجة تسجيل الدخول في App.tsx (مكون RedirectHandler)
+      
+      // NOTE: The rest of the code won't be executed because the page will be redirected
     } catch (err: any) {
       console.error("خطأ في تسجيل الدخول عبر Google:", err);
       
       if (err.code === 'auth/unauthorized-domain') {
         const domainOnly = window.location.host;
-        const allDomainEnvs = ["workspace.mohamedabdela18.repl.co", "f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev", "luxury-stays-mohamedabdela18.replit.app"];
+        // Update with all possible Replit domains
+        const allDomainEnvs = [
+          "workspace.mohamedabdela18.repl.co", 
+          "f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev", 
+          "luxury-stays-mohamedabdela18.replit.app",
+          "luxury-property-booking.mohamedabdela18.replit.app",
+          domainOnly
+        ];
         
         console.error(`خطأ المجال غير المصرح به: ${domainOnly}`);
         console.error(`يرجى إضافة "${domainOnly}" (بدون https:// أو http://) إلى نطاقات Firebase المصرح بها`);
         console.error(`المجالات المحتملة للإضافة: ${domainOnly}, ${window.location.hostname}, ${allDomainEnvs.join(', ')}`);
         console.error(`للإضافة، انتقل إلى لوحة تحكم Firebase > Authentication > Settings > Authorized domains`);
+        
+        // Show more descriptive error for administrators
+        console.error(`=== FIREBASE DOMAIN ERROR FIX INSTRUCTIONS ===`);
+        console.error(`1. Go to Firebase Console: https://console.firebase.google.com/`);
+        console.error(`2. Select project: ${import.meta.env.VITE_FIREBASE_PROJECT_ID || "stay-chill-e3743"}`);
+        console.error(`3. Go to Authentication > Settings > Authorized domains`);
+        console.error(`4. Add domain: ${domainOnly}`);
+        console.error(`5. Click "Add domain" button`);
         
         // إخفاء زر جوجل وإظهار رسالة للمستخدم
         toast(getWarningToast(
