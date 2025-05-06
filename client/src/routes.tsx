@@ -29,6 +29,9 @@ import UnauthorizedPage from "@/features/auth/Unauthorized";
 // Booking Components
 import BookingConfirmation from "@/features/booking/BookingConfirmation";
 
+// Admin Components
+import AdminPage from "@/pages/admin-page";
+
 export default function AppRoutes() {
   return (
     <Switch>
@@ -101,6 +104,11 @@ export default function AppRoutes() {
       
       <Route path="/unauthorized">
         <UnauthorizedPage />
+      </Route>
+      
+      {/* ===== صفحة الإدارة المبسطة - للمشرفين فقط ===== */}
+      <Route path="/admin">
+        <AdminPage />
       </Route>
       
       {/* ===== مسارات الدفع - يمكن استخدامها من قبل جميع المستخدمين ===== */}
