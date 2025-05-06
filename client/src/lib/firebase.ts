@@ -6,17 +6,32 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
-  UserCredential
+  UserCredential,
+  connectAuthEmulator,
+  Auth 
 } from "firebase/auth";
 import { 
   getFirestore, 
   doc, 
   getDoc, 
   setDoc,
-  serverTimestamp 
+  serverTimestamp,
+  connectFirestoreEmulator,
+  Firestore
 } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { getStorage, connectStorageEmulator, Storage } from "firebase/storage";
 import { UserData, UserRole } from "@/features/auth/types";
+import { neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
+
+// Configure WebSocket for any database connections (needed for Neon DB)
+if (typeof window === "undefined") {
+  // Node.js environment
+  neonConfig.webSocketConstructor = ws;
+}
+
+// Add extra initialization code to troubleshoot Firebase connection issues
+console.log("Initializing Firebase with project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -27,31 +42,56 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Initialize Firebase only once
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// Initialize Firebase only once with error handling
+let app;
+try {
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+    console.log("Firebase app initialized successfully");
+  } else {
+    app = getApp();
+    console.log("Using existing Firebase app");
+  }
+} catch (error) {
+  console.error("Error initializing Firebase:", error);
+  // Don't throw here, let the app continue with local auth as fallback
+  app = null;
+}
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+// Export Firebase services with error handling
+export const auth: Auth | null = app ? getAuth(app) : null;
+export const db: Firestore | null = app ? getFirestore(app) : null;
+export const storage: Storage | null = app ? getStorage(app) : null;
+
+// Useful debug information for Firebase connection
+if (app) {
+  console.log("Firebase auth initialized:", !!auth);
+  console.log("Firebase Firestore initialized:", !!db);
+  console.log("Firebase Storage initialized:", !!storage);
+}
 
 // Firebase authentication functions
 
 export const loginUser = async (email: string, password: string): Promise<UserCredential> => {
+  if (!auth) throw new Error("Firebase Auth not initialized");
   return signInWithEmailAndPassword(auth, email, password);
 };
 
-export const registerUser = async (email: string, password: string, name: string): Promise<User> => {
+export const registerUser = async (email: string, password: string, name: string): Promise<UserData> => {
+  if (!auth) throw new Error("Firebase Auth not initialized");
+  if (!db) throw new Error("Firestore not initialized");
+  
   // 1. Create the user in Firebase Auth
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
   
   // 2. Create a document in Firestore with additional user data
-  const userData: User = {
+  const userData: UserData = {
     uid: user.uid,
     name: name,
     email: email,
     role: UserRole.CUSTOMER, // Default role
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
   };
   
   await setDoc(doc(db, "users", user.uid), {
@@ -63,10 +103,13 @@ export const registerUser = async (email: string, password: string, name: string
 };
 
 export const logoutUser = async (): Promise<void> => {
+  if (!auth) throw new Error("Firebase Auth not initialized");
   return signOut(auth);
 };
 
 export const signInWithGoogle = async (): Promise<UserCredential> => {
+  if (!auth) throw new Error("Firebase Auth not initialized");
+  
   const provider = new GoogleAuthProvider();
   // Add the custom Web client ID
   provider.setCustomParameters({
@@ -76,33 +119,37 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
   return signInWithPopup(auth, provider);
 };
 
-export const getUserData = async (uid: string): Promise<User | null> => {
+export const getUserData = async (uid: string): Promise<UserData | null> => {
+  if (!db) throw new Error("Firestore not initialized");
+  
   const docRef = doc(db, "users", uid);
   const docSnap = await getDoc(docRef);
   
   if (docSnap.exists()) {
-    const data = docSnap.data() as User;
-    // Convert Firestore timestamp to Date
+    const data = docSnap.data() as UserData;
+    // Convert Firestore timestamp to Date string if needed
     if (data.createdAt && typeof data.createdAt !== 'string') {
-      data.createdAt = (data.createdAt as any).toDate();
+      data.createdAt = new Date((data.createdAt as any).toDate()).toISOString();
     }
     return data;
   } else {
     // User document doesn't exist in Firestore
     // Create a basic user document with default values
-    if (auth.currentUser) {
-      const basicUserData: User = {
+    if (auth && auth.currentUser) {
+      const basicUserData: UserData = {
         uid,
         name: auth.currentUser.displayName || "User",
         email: auth.currentUser.email || "",
         role: UserRole.CUSTOMER,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
       
-      await setDoc(doc(db, "users", uid), {
-        ...basicUserData,
-        createdAt: serverTimestamp()
-      });
+      if (db) {
+        await setDoc(doc(db, "users", uid), {
+          ...basicUserData,
+          createdAt: serverTimestamp()
+        });
+      }
       
       return basicUserData;
     }

@@ -2,7 +2,7 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/firebase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Location {
   name: string;
@@ -17,19 +17,73 @@ interface Service {
   locations?: Location[];
 }
 
+// Local fallback data
+const localServices: Service[] = [
+  {
+    id: "service1",
+    title: "مطاعم فاخرة",
+    description: "توصيل وحجز في أفضل المطاعم الفاخرة في المنطقة. استمتع بوجبات مجانية وخصومات حصرية عند الحجز من خلال تطبيقنا.",
+    status: "active",
+    locations: [
+      { name: "مطعم فيش الساحل", area: "الساحل الشمالي" },
+      { name: "اوشن فيو", area: "راس الحكمة" },
+      { name: "مرينا دايموند", area: "الساحل الشمالي" },
+      { name: "المطعم الإيطالي", area: "راس الحكمة" }
+    ]
+  },
+  {
+    id: "service2",
+    title: "نوادي ليلية",
+    description: "احصل على أولوية الدخول والطاولات المحجوزة في أشهر النوادي الليلية والحفلات الصيفية في راس الحكمة والساحل الشمالي.",
+    status: "active",
+    locations: [
+      { name: "بونساي", area: "الساحل الشمالي" },
+      { name: "باليو", area: "راس الحكمة" },
+      { name: "سكرلا", area: "الساحل الشمالي" }
+    ]
+  }
+];
+
 export default function ServicesSection() {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [localFallback, setLocalFallback] = useState(false);
+  const [servicesList, setServicesList] = useState<Service[]>([]);
   
   const { data: activeServices, isLoading: activeLoading } = useQuery({
     queryKey: ["services", "active"],
     queryFn: async () => {
-      const activeQuery = query(collection(db, "services"), where("status", "==", "active"));
-      const snapshot = await getDocs(activeQuery);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Service[];
+      try {
+        if (!db) {
+          setLocalFallback(true);
+          return localServices;
+        }
+        
+        const activeQuery = query(collection(db, "services"), where("status", "==", "active"));
+        const snapshot = await getDocs(activeQuery);
+        
+        if (snapshot.empty) {
+          setLocalFallback(true);
+          return localServices;
+        }
+        
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Service[];
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        setLocalFallback(true);
+        return localServices;
+      }
     }
   });
+  
+  useEffect(() => {
+    if (activeServices) {
+      setServicesList(activeServices);
+    } else if (localFallback) {
+      setServicesList(localServices);
+    }
+  }, [activeServices, localFallback]);
 
-  if (activeLoading) return (
+  if (activeLoading && !servicesList.length) return (
     <div className="flex justify-center items-center h-40">
       <div className="animate-pulse flex space-x-4">
         <div className="rounded-full bg-gray-700 h-10 w-10"></div>
