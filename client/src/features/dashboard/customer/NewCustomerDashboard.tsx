@@ -653,46 +653,29 @@ export default function NewCustomerDashboard() {
                 
                 {/* Right Sidebar Content */}
                 <div className="md:col-span-1">
-                  {/* Weather Card */}
+                  {/* Quick Links */}
                   <Card className="bg-[#292C35] border-0 rounded-xl overflow-hidden mb-6">
-                    <CardContent className="p-0">
-                      <div className="relative">
-                        {/* Background Image */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-[#1c1e25]/70 to-[#1c1e25] z-10"></div>
-                        <img 
-                          src="https://images.unsplash.com/photo-1591017683260-c0493cee1d8b?q=80&w=1074" 
-                          alt="الساحل الشمالي" 
-                          className="w-full h-48 object-cover object-center"
-                        />
-                        
-                        {/* Content */}
-                        <div className="absolute inset-0 p-5 z-20 flex flex-col justify-between">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="text-xs text-gray-300 mb-1">الطقس الآن</p>
-                              <h3 className="text-2xl font-bold text-white">الساحل الشمالي</h3>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-3xl font-semibold text-white">29°</div>
-                              <p className="text-sm text-gray-300">مشمس</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center justify-between mt-4 bg-black/30 rounded-lg px-4 py-3 backdrop-blur-sm">
-                            <div className="text-center">
-                              <p className="text-xs text-gray-400">الرطوبة</p>
-                              <p className="text-sm text-white font-medium">65%</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-xs text-gray-400">الرياح</p>
-                              <p className="text-sm text-white font-medium">12 كم/س</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-xs text-gray-400">الأشعة UV</p>
-                              <p className="text-sm text-white font-medium">متوسطة</p>
-                            </div>
-                          </div>
-                        </div>
+                    <CardHeader className="px-5 pt-5 pb-3">
+                      <CardTitle className="text-lg font-medium">روابط سريعة</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button variant="outline" className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto">
+                          <FaHome className="h-5 w-5 mb-2" />
+                          <span className="text-xs">الرئيسية</span>
+                        </Button>
+                        <Button variant="outline" className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto">
+                          <FaBed className="h-5 w-5 mb-2" />
+                          <span className="text-xs">عقارات</span>
+                        </Button>
+                        <Button variant="outline" className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto">
+                          <FaCalendarAlt className="h-5 w-5 mb-2" />
+                          <span className="text-xs">حجز</span>
+                        </Button>
+                        <Button variant="outline" className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto">
+                          <FaRegStar className="h-5 w-5 mb-2" />
+                          <span className="text-xs">خدمات</span>
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -803,14 +786,30 @@ export default function NewCustomerDashboard() {
                       <div className="space-y-2">
                         {favorites.slice(0, 3).map(favorite => (
                           <div key={favorite.id} className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
-                            <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0">
-                              <img src={favorite.propertyImage || "https://placehold.co/100"} alt={favorite.propertyName} className="w-full h-full object-cover" />
+                            <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0 bg-gray-800">
+                              {favorite.propertyImage ? (
+                                <img 
+                                  src={favorite.propertyImage} 
+                                  alt={favorite.propertyName} 
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // استبدال الصورة عند حدوث خطأ في التحميل
+                                    const target = e.target as HTMLImageElement;
+                                    target.onerror = null;
+                                    target.src = "https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=240";
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[#39FF14]">
+                                  <FaHome />
+                                </div>
+                              )}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h4 className="text-sm font-medium text-white truncate">{favorite.propertyName}</h4>
-                              <p className="text-xs text-gray-400 truncate">{favorite.location}</p>
+                              <h4 className="text-sm font-medium text-white truncate">{favorite.propertyName || "عقار بدون اسم"}</h4>
+                              <p className="text-xs text-gray-400 truncate">{favorite.location || "موقع غير محدد"}</p>
                             </div>
-                            <div className="text-sm font-medium text-[#39FF14]">${favorite.price}</div>
+                            <div className="text-sm font-medium text-[#39FF14]">${favorite.price || 0}</div>
                           </div>
                         ))}
                       </div>
@@ -956,6 +955,12 @@ export default function NewCustomerDashboard() {
                                   src={fav.propertyImage} 
                                   alt={fav.propertyName} 
                                   className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // استبدال الصورة عند حدوث خطأ في التحميل
+                                    const target = e.target as HTMLImageElement;
+                                    target.onerror = null;
+                                    target.src = "https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=240";
+                                  }}
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-gray-800 text-[#39FF14]">
@@ -965,13 +970,13 @@ export default function NewCustomerDashboard() {
                             </div>
                             <div className="flex-1">
                               <div className="flex justify-between">
-                                <h3 className="text-base font-bold">{fav.propertyName}</h3>
-                                <span className="text-[#39FF14] font-mono font-bold">${fav.price}</span>
+                                <h3 className="text-base font-bold">{fav.propertyName || "عقار بدون اسم"}</h3>
+                                <span className="text-[#39FF14] font-mono font-bold">${fav.price || 0}</span>
                               </div>
                               <div className="text-sm text-gray-400 mt-1">
                                 <span className="inline-flex items-center gap-1">
                                   <FaMapMarkerAlt className="h-3 w-3" /> 
-                                  {fav.location}
+                                  {fav.location || "موقع غير محدد"}
                                 </span>
                               </div>
                             </div>
