@@ -157,6 +157,17 @@ export default function Header() {
                       <span className="absolute bottom-0 left-0 right-0 h-[1px] bg-[#39FF14]/30 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
                     </Link>
                     
+                    {/* Admin Link for Admin Users */}
+                    {(user.role === UserRole.SUPER_ADMIN || user.role === UserRole.PROPERTY_ADMIN) && (
+                      <Link 
+                        to="/admin" 
+                        className="text-[#39FF14] hover:text-[#39FF14]/80 relative group px-3 py-2"
+                      >
+                        <span className="relative z-10">{language === "en" ? "Admin Panel" : "لوحة الإدارة"}</span>
+                        <span className="absolute bottom-0 left-0 right-0 h-[1px] bg-[#39FF14]/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                      </Link>
+                    )}
+                    
                     <Button
                       variant="outline"
                       className="border-[#39FF14]/70 text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative overflow-hidden group"

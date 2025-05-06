@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/features/i18n/hooks/useTranslation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { UserRole } from "@shared/schema";
 import Logo from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { 
@@ -171,6 +172,22 @@ export default function MobileMenu({ isOpen, onClose, onLogin, onRegister }: Mob
                   {t("nav.dashboard")}
                 </span>
               </Link>
+              
+              {/* Admin Link for Admin Users */}
+              {(user.role === UserRole.SUPER_ADMIN || user.role === UserRole.PROPERTY_ADMIN) && (
+                <Link 
+                  href="/admin"
+                  className="flex items-center px-2 py-3 rounded-md hover:bg-[#39FF14]/10 group transition-colors duration-200"
+                  onClick={handleMenuItemClick}
+                >
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-black/30 mr-3 border border-[#39FF14]/20 group-hover:border-[#39FF14]/60 transition-colors">
+                    <AlertCircle className="w-5 h-5 text-[#39FF14]/70 group-hover:text-[#39FF14] transition-colors" />
+                  </div>
+                  <span className="text-[#39FF14] group-hover:text-[#39FF14] transition-colors">
+                    {t && t.language === "en" ? "Admin Panel" : "لوحة الإدارة"}
+                  </span>
+                </Link>
+              )}
               
               <Button
                 variant="outline"
