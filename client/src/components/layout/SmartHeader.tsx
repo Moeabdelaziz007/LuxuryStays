@@ -66,9 +66,6 @@ export default function SmartHeader() {
             <Link to="/#about" className="text-white hover:text-[#39FF14] transition-colors duration-300">
               عن التطبيق 
             </Link>
-            <Link to="/debug" className="text-white hover:text-[#39FF14] transition-colors duration-300 bg-gray-900/50 px-2 py-1 rounded-md">
-              تصحيح التوجيه
-            </Link>
           </div>
 
           {/* User Section */}
