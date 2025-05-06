@@ -31,7 +31,33 @@ export async function getFeaturedProperties(): Promise<Property[]> {
         });
       }
     }
-    console.log("No featured properties found in Firestore, using local data");
+    console.log("No featured properties found in Firestore, seeding data");
+    try {
+      // Try to seed the data
+      const seedResult = await seedFirestore();
+      if (seedResult.success) {
+        console.log("Successfully seeded initial data");
+        // Try fetching again after seeding
+        if (db) {
+          const featuredQuery = query(collection(db, "properties"), where("featured", "==", true));
+          const snapshot = await getDocs(featuredQuery);
+          
+          if (!snapshot.empty) {
+            return snapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                ...data,
+              } as unknown as Property;
+            });
+          }
+        }
+      }
+    } catch (seedError) {
+      console.error("Error seeding initial data:", seedError);
+    }
+    
+    // Return empty array if all attempts fail
     return [];
   } catch (error) {
     console.error('Error fetching featured properties:', error);
@@ -66,7 +92,33 @@ export async function getActiveServices(): Promise<Service[]> {
         });
       }
     }
-    console.log("No active services found in Firestore, using local data");
+    console.log("No active services found in Firestore, seeding data");
+    try {
+      // Try to seed the data
+      const seedResult = await seedFirestore();
+      if (seedResult.success) {
+        console.log("Successfully seeded initial data");
+        // Try fetching again after seeding
+        if (db) {
+          const activeQuery = query(collection(db, "services"), where("status", "==", "active"));
+          const snapshot = await getDocs(activeQuery);
+          
+          if (!snapshot.empty) {
+            return snapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                ...data,
+              } as unknown as Service;
+            });
+          }
+        }
+      }
+    } catch (seedError) {
+      console.error("Error seeding initial data:", seedError);
+    }
+    
+    // Return empty array if all attempts fail
     return [];
   } catch (error) {
     console.error('Error fetching active services:', error);
@@ -101,7 +153,33 @@ export async function getComingSoonServices(): Promise<Service[]> {
         });
       }
     }
-    console.log("No coming soon services found in Firestore, using local data");
+    console.log("No coming soon services found in Firestore, seeding data");
+    try {
+      // Try to seed the data
+      const seedResult = await seedFirestore();
+      if (seedResult.success) {
+        console.log("Successfully seeded initial data");
+        // Try fetching again after seeding
+        if (db) {
+          const comingSoonQuery = query(collection(db, "services"), where("status", "==", "coming-soon"));
+          const snapshot = await getDocs(comingSoonQuery);
+          
+          if (!snapshot.empty) {
+            return snapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                ...data,
+              } as unknown as Service;
+            });
+          }
+        }
+      }
+    } catch (seedError) {
+      console.error("Error seeding initial data:", seedError);
+    }
+    
+    // Return empty array if all attempts fail
     return [];
   } catch (error) {
     console.error('Error fetching coming soon services:', error);

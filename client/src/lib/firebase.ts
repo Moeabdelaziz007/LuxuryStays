@@ -44,9 +44,9 @@ console.log("Initializing Firebase with project ID:", import.meta.env.VITE_FIREB
 // تكوين Firebase - استخدام القيم من ملف .env مباشرةً
 const firebaseConfig = {
   apiKey: "AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs",
-  authDomain: "staychill-3ed08.firebaseapp.com",
-  projectId: "staychill-3ed08",
-  storageBucket: "staychill-3ed08.firebasestorage.app",
+  authDomain: "stay-chill-e3743.firebaseapp.com", // Updated to match project ID
+  projectId: "stay-chill-e3743", // Fixed to match the actual project ID from logs
+  storageBucket: "stay-chill-e3743.appspot.com", // Updated to match project ID
   messagingSenderId: "299280633489",
   appId: "1:299280633489:web:2088c38e2fde210cad7930"
 };
@@ -96,18 +96,8 @@ if (app) {
     console.log("Setting up Firestore connection with retry logic...");
     
     // محاولة تحسين الاتصال بـ Firestore عند التشغيل
-    // لكن تخطي المحاكي المحلي في بيئة الإنتاج
-    if (import.meta.env.DEV) {
-      try {
-        console.log("Development environment detected. Trying local emulator...");
-        if (db) {
-          connectFirestoreEmulator(db, "localhost", 8080);
-          console.log("Connected to Firestore local emulator");
-        }
-      } catch (emulatorError) {
-        console.warn("Could not connect to Firestore emulator:", emulatorError);
-      }
-    }
+    // Skip local emulators completely - we'll use the real Firebase instance
+    console.log("Using production Firebase instance - skipping local emulators");
     
     // تكوين متقدم للتخزين المحلي وإدارة الشبكة لتحسين الأداء في كل الظروف
     if (db) {
