@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User profiles can be read by anyone but only edited by the user
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Properties can be read by anyone
+    // Property admins can create, update, delete their own properties
+    match /properties/{propertyId} {
+      allow read: if true;
+      allow create: if request.auth != null && 
+                     (request.resource.data.ownerId == request.auth.uid ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+      allow update, delete: if request.auth != null && 
+                             (resource.data.ownerId == request.auth.uid || 
+                              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+    }
+    
+    // Services can be read by anyone
+    // Only super admins can create/edit services
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
+    }
+    
+    // Bookings can be read/written by the customer who made them or the property owner
+    match /bookings/{bookingId} {
+      allow read: if request.auth != null && 
+                   (resource.data.userId == request.auth.uid || 
+                    resource.data.propertyOwnerId == request.auth.uid ||
+                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+                             (resource.data.userId == request.auth.uid || 
+                              resource.data.propertyOwnerId == request.auth.uid ||
+                              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+    }
+  }
+}

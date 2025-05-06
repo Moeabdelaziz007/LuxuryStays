@@ -7,9 +7,9 @@ import { UserRole } from "@shared/schema";
 import Layout from "@/components/layout/Layout";
 
 // Dashboard Components
-import SuperAdminDashboard from "@/features/dashboard/super-admin";
-import PropertyAdminDashboard from "@/features/dashboard/property-admin";
-import CustomerDashboard from "@/features/dashboard/customer";
+import SuperAdminDashboard from "@/features/dashboard/super-admin/SuperAdminDashboard";
+import PropertyAdminDashboard from "@/features/dashboard/PropertyAdminDashboard";
+import CustomerDashboard from "@/features/dashboard/customer/CustomerDashboard";
 
 // Public Components
 import PublicHome from "@/features/public/Home";
