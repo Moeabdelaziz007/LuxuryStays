@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useLocation } from "wouter";
 import { auth, db, safeDoc } from "@/lib/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously, sendPasswordResetEmail } from "firebase/auth";
 import { doc, getDoc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
@@ -434,7 +434,14 @@ export default function LoginPage() {
           {/* عرض رسالة إعادة التوجيه إذا كانت موجودة */}
           {renderRedirectMessage()}
           
-          <form onSubmit={(e) => {e.preventDefault(); const emailInput = document.getElementById('email-input') as HTMLInputElement; const passwordInput = document.getElementById('password-input') as HTMLInputElement; if (emailInput && passwordInput) { handleLogin(e, emailInput.value, passwordInput.value); }}} className="space-y-5">
+          <form onSubmit={(e) => {
+            e.preventDefault(); 
+            const emailInput = document.getElementById('email-input') as HTMLInputElement; 
+            const passwordInput = document.getElementById('password-input') as HTMLInputElement; 
+            if (emailInput && passwordInput) { 
+              handleLogin(e, emailInput.value, passwordInput.value); 
+            }
+          }} className="space-y-5">
             <div className="group">
               <label className="block text-sm font-medium text-gray-400 mb-1.5 transition group-focus-within:text-[#39FF14]">البريد الإلكتروني</label>
               <div className="relative">
@@ -544,12 +551,56 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-sm mt-6 text-center text-gray-400">
-            ليس لديك حساب؟{" "}
-            <Link to="/signup" className="text-[#39FF14] hover:text-white transition-colors">
-              سجل الآن
-            </Link>
-          </p>
+          <div className="space-y-4 mt-6">
+            <p className="text-sm text-center text-gray-400">
+              ليس لديك حساب؟{" "}
+              <Link to="/signup" className="text-[#39FF14] hover:text-white transition-colors">
+                سجل الآن
+              </Link>
+            </p>
+            
+            <p className="text-sm text-center text-gray-400">
+              نسيت كلمة المرور؟{" "}
+              <button 
+                type="button"
+                onClick={() => {
+                  const emailInput = document.getElementById('email-input') as HTMLInputElement;
+                  if (emailInput && emailInput.value && emailInput.validity.valid) {
+                    if (!auth) {
+                      setError("خدمة إعادة تعيين كلمة المرور غير متاحة حالياً");
+                      return;
+                    }
+                    
+                    setLoading(true);
+                    sendPasswordResetEmail(auth, emailInput.value)
+                      .then(() => {
+                        toast(getSuccessToast(
+                          "تم إرسال رابط إعادة تعيين كلمة المرور",
+                          "يرجى التحقق من بريدك الإلكتروني للحصول على تعليمات إعادة تعيين كلمة المرور"
+                        ));
+                      })
+                      .catch((error: any) => {
+                        console.error("خطأ في إرسال رابط إعادة تعيين كلمة المرور:", error);
+                        if (error.code === 'auth/user-not-found') {
+                          setError("لا يوجد حساب مرتبط بهذا البريد الإلكتروني");
+                        } else {
+                          setError("حدث خطأ في إرسال رابط إعادة تعيين كلمة المرور");
+                        }
+                      })
+                      .finally(() => {
+                        setLoading(false);
+                      });
+                  } else {
+                    setError("يرجى إدخال بريد إلكتروني صالح أولاً");
+                    emailInput?.focus();
+                  }
+                }}
+                className="text-[#39FF14] hover:text-white transition-colors"
+              >
+                إعادة تعيين كلمة المرور
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>
