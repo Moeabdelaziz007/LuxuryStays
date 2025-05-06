@@ -194,56 +194,54 @@ export default function HomePage() {
         <ServicesSection />
       </section>
 
-      {/* 🚀 Coming Soon Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 text-center relative bg-gradient-to-b from-black to-gray-900">
-        <h2 className="text-3xl sm:text-5xl font-bold mb-8 sm:mb-12 text-neon-green">ترقبوا قريباً 🔥</h2>
+      {/* 🚀 Coming Soon Section - مبسط */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 text-center relative bg-gradient-to-b from-black to-gray-900">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-neon-green">ترقبوا قريباً 🔥</h2>
         
-        <div className="grid md:grid-cols-2 gap-6 sm:gap-10 max-w-5xl mx-auto mb-12 sm:mb-16">
-          {/* ChillRoom */}
-          <div className="bg-gray-800 rounded-xl p-5 sm:p-8 transform transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg border border-gray-700 relative overflow-hidden group">
+        <div className="max-w-3xl mx-auto mb-8 sm:mb-10">
+          {/* ChillRoom - مكون واحد فقط */}
+          <div className="bg-gray-800 rounded-xl p-6 sm:p-8 transform transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg border border-gray-700 relative overflow-hidden group">
             <div className="relative z-10">
-              <h3 className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4 text-[#39FF14]">ChillRoom 🧊</h3>
-              <p className="text-lg sm:text-xl mb-4 sm:mb-6 text-white">
+              <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-[#39FF14]">ChillRoom 🧊</h3>
+              <p className="text-lg mb-4 text-white">
                 مساحة ترفيه ذكية داخل StayX لمشاركة اللحظات، الموسيقى، والفيديوهات
               </p>
-              <ul className="text-right sm:text-left text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
-                <li className="mb-2">✨ دردشة مباشرة مع ضيوف آخرين</li>
-                <li className="mb-2">✨ مشاركة تجربتك مع الأصدقاء</li>
-                <li className="mb-2">✨ مشاهدة فيديوهات حصرية</li>
-              </ul>
-              <span className="bg-[#39FF14] text-black px-3 sm:px-5 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold tracking-widest">
-                قريباً - صيف 2025
-              </span>
+              
+              <div className="flex flex-wrap justify-center gap-6 mb-6">
+                <div className="bg-black/50 backdrop-blur-sm p-3 rounded-lg text-center w-full sm:w-auto">
+                  <span className="text-[#39FF14] text-xl block mb-1">🌊</span>
+                  <span className="text-white font-medium">دردشة مباشرة</span>
+                </div>
+                <div className="bg-black/50 backdrop-blur-sm p-3 rounded-lg text-center w-full sm:w-auto">
+                  <span className="text-[#39FF14] text-xl block mb-1">🥂</span>
+                  <span className="text-white font-medium">حفلات خاصة</span>
+                </div>
+              </div>
+              
+              <div className="flex justify-center">
+                <a href="/signup" className="inline-block bg-[#39FF14] hover:bg-[#50FF30] text-black font-bold py-2 px-6 rounded-lg transition-all active:scale-[0.98]">
+                  سجل اهتمامك الآن
+                </a>
+              </div>
+              
+              <div className="text-center mt-4">
+                <span className="bg-[#39FF14]/20 text-[#39FF14] px-3 py-1 rounded-full text-xs font-bold tracking-widest inline-block">
+                  قريباً - صيف 2025
+                </span>
+              </div>
             </div>
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-black/90 to-black/70"></div>
             <img
               src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1112"
               alt="ChillRoom"
-              className="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-15 transition-opacity"
+              className="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-15 transition-opacity -z-20"
             />
-          </div>
-          
-          {/* Coming Soon Services */}
-          <div className="bg-gray-800 rounded-xl p-5 sm:p-8 transform transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg border border-gray-700">
-            <h3 className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4 text-[#39FF14]">خدمات حصرية 💎</h3>
-            <p className="text-lg sm:text-xl mb-4 sm:mb-6 text-white">
-              استعد لتجربة مستوى جديد من الرفاهية مع خدماتنا القادمة
-            </p>
-            <ul className="text-right sm:text-left text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
-              <li className="mb-2 sm:mb-3">🌊 <span className="text-white font-semibold">المساج الفاخر</span> - خدمة مساج متكاملة داخل الفيلا</li>
-              <li className="mb-2 sm:mb-3">⛵ <span className="text-white font-semibold">رحلات بحرية</span> - تأجير يخوت وقوارب خاصة</li>
-              <li className="mb-2 sm:mb-3">🥂 <span className="text-white font-semibold">حفلات خاصة</span> - تنظيم وإدارة الحفلات في الشاليه</li>
-            </ul>
-            <div className="text-center">
-              <a href="/signup" className="inline-block bg-[#39FF14] hover:bg-[#50FF30] text-black font-bold py-2 px-6 rounded-full transition-all active:scale-[0.98]">
-                سجل اهتمامك الآن
-              </a>
-            </div>
           </div>
         </div>
         
         <div className="max-w-xl mx-auto px-2 sm:px-0">
-          <p className="text-base sm:text-lg text-gray-400 mb-6 sm:mb-8">
-            سجّل الآن لتكون من أول المستخدمين وللحصول على إشعارات حصرية عند إطلاق الخدمات الجديدة. المستخدمين المسجلين سيحصلون على خصومات خاصة!
+          <p className="text-base text-gray-400 mb-5">
+            سجّل الآن لتكون من أول المستخدمين وللحصول على إشعارات حصرية!
           </p>
           <form className="flex flex-col sm:flex-row gap-3 justify-center">
             <input type="email" placeholder="بريدك الإلكتروني" className="px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39FF14]" />
