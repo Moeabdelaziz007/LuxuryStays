@@ -546,119 +546,326 @@ export default function NewCustomerDashboard() {
           {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
             <div className="space-y-6">
-              {/* Welcome Card */}
-              <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)] relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent opacity-70"></div>
-                <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
-                <div className="absolute top-20 left-20 w-32 h-32 bg-[#39FF14]/5 rounded-full blur-2xl"></div>
+              {/* Travel Summary & Welcome Card */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Welcome Card - Left Column */}
+                <div className="md:col-span-2">
+                  <Card className="bg-[#292C35] border-0 rounded-xl shadow-xl overflow-hidden relative">
+                    {/* Background Elements */}
+                    <div className="absolute inset-0 overflow-hidden">
+                      <div className="absolute right-0 top-0 w-64 h-64 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
+                      <div className="absolute left-0 bottom-0 w-32 h-32 bg-[#39FF14]/10 rounded-full blur-2xl"></div>
+                    </div>
+                    
+                    {/* Content */}
+                    <CardContent className="p-8 relative z-10">
+                      <div className="flex flex-col gap-6">
+                        {/* Greeting */}
+                        <div>
+                          <div className="flex items-center gap-4 mb-3">
+                            <Avatar className="h-14 w-14 border-2 border-[#39FF14]/30 shadow-lg">
+                              <AvatarImage src={user?.photoURL || ""} alt={user?.name || "العميل"} />
+                              <AvatarFallback className="bg-[#1F2128] text-[#39FF14] text-lg">
+                                {user?.name?.charAt(0) || user?.email?.charAt(0) || "م"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h1 className="text-2xl font-bold text-white">
+                                مرحباً، <span className="text-[#39FF14] drop-shadow-[0_0_2px_rgba(57,255,20,0.7)]">{user?.name || "العميل"}</span>
+                              </h1>
+                              <p className="text-gray-400 text-sm mt-1">
+                                {(() => {
+                                  const hour = new Date().getHours();
+                                  if (hour < 12) return "صباح الخير! نتمنى لك يوماً سعيداً";
+                                  if (hour < 17) return "ظهر الخير! نتمنى لك يوماً سعيداً";
+                                  return "مساء الخير! نتمنى لك سهرة سعيدة";
+                                })()}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          {/* Progress Towards Next Trip */}
+                          <div className="bg-gradient-to-r from-[#1F2128] to-[#1F2128]/60 rounded-xl p-5 space-y-3 border border-gray-800">
+                            <div className="flex justify-between items-center">
+                              <h3 className="text-lg font-semibold text-white">خطط رحلتك القادمة</h3>
+                              <Badge className="bg-[#39FF14]/20 text-[#39FF14] hover:bg-[#39FF14]/30 border-none">جديد</Badge>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-300">اكتملت 2 من أصل 4 خطوات</span>
+                                <span className="text-[#39FF14]">50%</span>
+                              </div>
+                              <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div className="h-full bg-[#39FF14] w-1/2 rounded-full"></div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-3 mt-4">
+                              <Button className="bg-[#39FF14] text-black hover:bg-[#50FF30] shadow-md">
+                                <FaBed className="mr-2 h-4 w-4" /> حجز عقار
+                              </Button>
+                              <Button variant="outline" className="border-[#39FF14]/40 text-[#39FF14] hover:bg-[#39FF14]/10">
+                                <FaUser className="mr-2 h-4 w-4" /> تحديث الملف
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Quick Access Links */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          <div className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group">
+                            <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
+                              <FaCalendarAlt className="h-5 w-5 text-[#39FF14]" />
+                            </div>
+                            <div className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">حجوزاتي</div>
+                            <div className="text-xs text-gray-500 mt-1">{bookings.length} حجز</div>
+                          </div>
+                          
+                          <div className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group">
+                            <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
+                              <FaHeart className="h-5 w-5 text-[#39FF14]" />
+                            </div>
+                            <div className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">المفضلة</div>
+                            <div className="text-xs text-gray-500 mt-1">{favorites.length} عقار</div>
+                          </div>
+                          
+                          <div className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group">
+                            <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
+                              <FaCreditCard className="h-5 w-5 text-[#39FF14]" />
+                            </div>
+                            <div className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">المدفوعات</div>
+                            <div className="text-xs text-gray-500 mt-1">$0 USD</div>
+                          </div>
+                          
+                          <div className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group">
+                            <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
+                              <FaRegStar className="h-5 w-5 text-[#39FF14]" />
+                            </div>
+                            <div className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">الخدمات</div>
+                            <div className="text-xs text-gray-500 mt-1">3 خدمات</div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
                 
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-16 w-16 border-2 border-[#39FF14]/30 shadow-lg shadow-[#39FF14]/10">
-                        <AvatarImage src={user?.photoURL || ""} alt={user?.name || "العميل"} />
-                        <AvatarFallback className="bg-gray-800 text-[#39FF14] animate-pulse">
-                          {user?.name?.charAt(0) || user?.email?.charAt(0) || "م"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h1 className="text-2xl font-bold text-white">
-                          مرحباً، <span className="text-[#39FF14] drop-shadow-[0_0_2px_rgba(57,255,20,0.7)]">{user?.name || "العميل"}</span>
-                        </h1>
-                        <p className="text-gray-400 text-sm">نتمنى لك يوماً سعيداً</p>
+                {/* Right Sidebar Content */}
+                <div className="md:col-span-1">
+                  {/* Weather Card */}
+                  <Card className="bg-[#292C35] border-0 rounded-xl overflow-hidden mb-6">
+                    <CardContent className="p-0">
+                      <div className="relative">
+                        {/* Background Image */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#1c1e25]/70 to-[#1c1e25] z-10"></div>
+                        <img 
+                          src="https://images.unsplash.com/photo-1591017683260-c0493cee1d8b?q=80&w=1074" 
+                          alt="الساحل الشمالي" 
+                          className="w-full h-48 object-cover object-center"
+                        />
+                        
+                        {/* Content */}
+                        <div className="absolute inset-0 p-5 z-20 flex flex-col justify-between">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-xs text-gray-300 mb-1">الطقس الآن</p>
+                              <h3 className="text-2xl font-bold text-white">الساحل الشمالي</h3>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-3xl font-semibold text-white">29°</div>
+                              <p className="text-sm text-gray-300">مشمس</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mt-4 bg-black/30 rounded-lg px-4 py-3 backdrop-blur-sm">
+                            <div className="text-center">
+                              <p className="text-xs text-gray-400">الرطوبة</p>
+                              <p className="text-sm text-white font-medium">65%</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-xs text-gray-400">الرياح</p>
+                              <p className="text-sm text-white font-medium">12 كم/س</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-xs text-gray-400">الأشعة UV</p>
+                              <p className="text-sm text-white font-medium">متوسطة</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Local Activities */}
+                  <Card className="bg-[#292C35] border-0 rounded-xl overflow-hidden">
+                    <CardHeader className="px-5 pt-5 pb-3">
+                      <CardTitle className="text-lg font-medium">أنشطة مقترحة</CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-5 py-0">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 bg-[#1F2128] rounded-lg hover:bg-[#1F2128]/80 cursor-pointer transition-colors">
+                          <div className="w-10 h-10 rounded-md bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xl">🏊‍♂️</span>
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-white">غوص في البحر الأبيض المتوسط</h4>
+                            <p className="text-xs text-gray-400 mt-0.5">من 50$ للشخص</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 p-3 bg-[#1F2128] rounded-lg hover:bg-[#1F2128]/80 cursor-pointer transition-colors">
+                          <div className="w-10 h-10 rounded-md bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xl">🏄‍♂️</span>
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-white">ركوب الأمواج في راس الحكمة</h4>
+                            <p className="text-xs text-gray-400 mt-0.5">من 35$ للشخص</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 p-3 bg-[#1F2128] rounded-lg hover:bg-[#1F2128]/80 cursor-pointer transition-colors">
+                          <div className="w-10 h-10 rounded-md bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xl">🍹</span>
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-white">حفلة على الشاطئ</h4>
+                            <p className="text-xs text-gray-400 mt-0.5">من 25$ للشخص</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center mt-4 mb-3">
+                        <Button variant="ghost" className="text-[#39FF14] hover:bg-[#39FF14]/10 w-full">
+                          عرض المزيد
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+              
+              {/* Stats and Analytics Section */}
+              <div className="mt-6">
+                <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  <FaChartLine className="h-4 w-4 text-[#39FF14]" />
+                  إحصائيات وتحليلات
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Booking Stats */}
+                  <div className="bg-[#292C35] rounded-xl p-5 border border-gray-800">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-base font-medium text-white flex items-center gap-2">
+                        <FaCalendarAlt className="h-4 w-4 text-[#39FF14]" />
+                        الحجوزات
+                      </h3>
+                      <Badge className="bg-[#39FF14]/10 text-[#39FF14] hover:bg-[#39FF14]/20 border-none">
+                        {bookings.length} حجز
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center justify-between px-3 py-2 bg-[#1F2128] rounded-lg mb-2">
+                      <div className="text-sm text-white">حجوزات مؤكدة</div>
+                      <div className="text-sm font-medium text-white">
+                        {bookings.filter(booking => booking.status === 'confirmed').length}
                       </div>
                     </div>
                     
-                    <div className="flex flex-wrap gap-3">
-                      <Button className="bg-[#39FF14] text-black hover:bg-[#50FF30] shadow-[0_0_10px_rgba(57,255,20,0.3)]">
-                        <FaBed className="mr-2 h-4 w-4" /> احجز عقاراً
-                      </Button>
-                      <Button variant="outline" className="border-[#39FF14]/50 text-[#39FF14] hover:bg-[#39FF14]/10">
-                        <FaUser className="mr-2 h-4 w-4" /> تحديث الملف الشخصي
-                      </Button>
+                    <div className="flex items-center justify-between px-3 py-2 bg-[#1F2128] rounded-lg mb-2">
+                      <div className="text-sm text-white">حجوزات قيد الانتظار</div>
+                      <div className="text-sm font-medium text-white">
+                        {bookings.filter(booking => booking.status === 'pending').length}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between px-3 py-2 bg-[#1F2128] rounded-lg">
+                      <div className="text-sm text-white">حجوزات ملغاة</div>
+                      <div className="text-sm font-medium text-white">
+                        {bookings.filter(booking => booking.status === 'cancelled').length}
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-              
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* الحجوزات */}
-                <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.1)] transition-shadow relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent opacity-70"></div>
-                  <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#39FF14]/5 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
                   
-                  <CardHeader className="flex flex-row items-center justify-between pb-1">
-                    <div className="flex items-center gap-2">
-                      <FaCalendarAlt className="h-5 w-5 text-[#39FF14]" />
-                      <CardTitle className="text-lg font-medium">الحجوزات</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-4xl font-bold text-[#39FF14] drop-shadow-[0_0_2px_rgba(57,255,20,0.3)]">{bookings.length}</div>
-                    <div className="text-sm text-gray-400 mt-1">إجمالي الحجوزات</div>
-                  </CardContent>
-                </Card>
-                
-                {/* المفضلة */}
-                <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.1)] transition-shadow relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent opacity-70"></div>
-                  <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#39FF14]/5 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-                  
-                  <CardHeader className="flex flex-row items-center justify-between pb-1">
-                    <div className="flex items-center gap-2">
-                      <FaHeart className="h-5 w-5 text-[#39FF14]" />
-                      <CardTitle className="text-lg font-medium">المفضلة</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-4xl font-bold text-[#39FF14] drop-shadow-[0_0_2px_rgba(57,255,20,0.3)]">{favorites.length}</div>
-                    <div className="text-sm text-gray-400 mt-1">العقارات المفضلة</div>
-                  </CardContent>
-                </Card>
-                
-                {/* المدفوعات */}
-                <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.1)] transition-shadow relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent opacity-70"></div>
-                  <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#39FF14]/5 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-                  
-                  <CardHeader className="flex flex-row items-center justify-between pb-1">
-                    <div className="flex items-center gap-2">
-                      <FaCreditCard className="h-5 w-5 text-[#39FF14]" />
-                      <CardTitle className="text-lg font-medium">المدفوعات</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-4xl font-bold text-[#39FF14] drop-shadow-[0_0_2px_rgba(57,255,20,0.3)]">$0</div>
-                    <div className="text-sm text-gray-400 mt-1">إجمالي المدفوعات</div>
-                  </CardContent>
-                </Card>
-                
-                {/* خدمات مميزة */}
-                <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.1)] transition-shadow relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent opacity-70"></div>
-                  <div className="absolute -top-12 -right-12 w-36 h-36 bg-[#39FF14]/10 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-                  
-                  <CardHeader className="flex flex-row items-center justify-between pb-1">
-                    <div className="flex items-center gap-2">
-                      <FaRegStar className="h-5 w-5 text-[#39FF14]" />
-                      <CardTitle className="text-lg font-medium">خدمات مميزة</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col items-start gap-2">
-                      <Badge className="bg-[#39FF14]/10 hover:bg-[#39FF14]/20 text-[#39FF14] border-none">
-                        مساج
-                      </Badge>
-                      <Badge className="bg-[#39FF14]/10 hover:bg-[#39FF14]/20 text-[#39FF14] border-none">
-                        رحلات بحرية
-                      </Badge>
-                      <Badge className="bg-[#39FF14]/10 hover:bg-[#39FF14]/20 text-[#39FF14] border-none">
-                        حفلات
+                  {/* Favorite Properties */}
+                  <div className="bg-[#292C35] rounded-xl p-5 border border-gray-800">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-base font-medium text-white flex items-center gap-2">
+                        <FaHeart className="h-4 w-4 text-[#39FF14]" />
+                        المفضلة
+                      </h3>
+                      <Badge className="bg-[#39FF14]/10 text-[#39FF14] hover:bg-[#39FF14]/20 border-none">
+                        {favorites.length} عقار
                       </Badge>
                     </div>
-                  </CardContent>
-                </Card>
+                    
+                    {favorites.length > 0 ? (
+                      <div className="space-y-2">
+                        {favorites.slice(0, 3).map(favorite => (
+                          <div key={favorite.id} className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
+                            <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0">
+                              <img src={favorite.propertyImage || "https://placehold.co/100"} alt={favorite.propertyName} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="text-sm font-medium text-white truncate">{favorite.propertyName}</h4>
+                              <p className="text-xs text-gray-400 truncate">{favorite.location}</p>
+                            </div>
+                            <div className="text-sm font-medium text-[#39FF14]">${favorite.price}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 bg-[#1F2128] rounded-lg">
+                        <p className="text-sm text-gray-400">لا توجد عقارات في المفضلة</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Recent Activity */}
+                  <div className="bg-[#292C35] rounded-xl p-5 border border-gray-800">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-base font-medium text-white flex items-center gap-2">
+                        <FaChartLine className="h-4 w-4 text-[#39FF14]" />
+                        النشاط الأخير
+                      </h3>
+                      <Badge className="bg-[#39FF14]/10 text-[#39FF14] hover:bg-[#39FF14]/20 border-none">
+                        جديد
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
+                          <FaCalendarAlt className="h-4 w-4 text-[#39FF14]" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-white">تسجيل دخول</h4>
+                          <p className="text-xs text-gray-400">منذ 5 دقائق</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
+                          <FaHeart className="h-4 w-4 text-[#39FF14]" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-white">تحديث الملف الشخصي</h4>
+                          <p className="text-xs text-gray-400">منذ 3 ساعات</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
+                          <FaUser className="h-4 w-4 text-[#39FF14]" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-white">زيارة صفحة الموقع</h4>
+                          <p className="text-xs text-gray-400">منذ يوم واحد</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               
               {/* Activity & Favorites */}
