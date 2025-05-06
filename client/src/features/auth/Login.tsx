@@ -17,17 +17,32 @@ export default function LoginPage() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
+  // Helper function to get a unique ID for toast notifications
+  // Helper function for toast styling - we don't actually need random IDs
+  const getSuccessToast = (title: string, description: string) => ({
+    title,
+    description,
+    variant: "default" as const,
+    className: "bg-gradient-to-r from-green-900/80 to-green-800/80 border-green-600/50 text-white",
+  });
+  
+  const getWarningToast = (title: string, description: string) => ({
+    title,
+    description,
+    variant: "default" as const,
+    className: "bg-gradient-to-r from-amber-900/80 to-amber-800/80 border-amber-600/50 text-white",
+  });
+
   // التحقق من إذا كان المستخدم قد وصل من صفحة التسجيل
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const registered = searchParams.get('registered');
     
     if (registered === 'true') {
-      toast({
-        title: "تم تسجيل الحساب بنجاح",
-        description: "يمكنك الآن تسجيل الدخول باستخدام بياناتك",
-        variant: "default",
-      });
+      toast(getSuccessToast(
+        "تم تسجيل الحساب بنجاح ✅",
+        "يمكنك الآن تسجيل الدخول باستخدام بريدك الإلكتروني أو اسم المستخدم"
+      ));
     }
   }, [toast]);
   
@@ -40,11 +55,10 @@ export default function LoginPage() {
       setRedirectPath(redirect);
       
       // عرض رسالة للمستخدم
-      toast({
-        title: "تحتاج إلى تسجيل الدخول",
-        description: "يرجى تسجيل الدخول للوصول إلى الصفحة المطلوبة",
-        variant: "default",
-      });
+      toast(getWarningToast(
+        "تحتاج إلى تسجيل الدخول ⚠️",
+        "يرجى تسجيل الدخول للوصول إلى الصفحة المطلوبة"
+      ));
     }
   }, [toast]);
   
