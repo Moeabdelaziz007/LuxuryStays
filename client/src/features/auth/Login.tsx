@@ -18,6 +18,9 @@ export default function LoginPage() {
   
   // Initialize test users for local authentication
   useEffect(() => {
+    // Force reset local users (only needed for this update)
+    localStorage.removeItem('stayx_local_users');
+    
     // Initialize local users for testing when Firebase is unavailable
     initializeLocalUsers();
     
@@ -230,11 +233,16 @@ export default function LoginPage() {
           <div className="mt-6 p-3 bg-green-500/10 border border-green-400/20 rounded-lg">
             <p className="text-sm text-center text-green-400 font-bold mb-2">وضع التطوير المحلي نشط</p>
             <p className="text-xs text-center text-gray-400 mb-2">استخدم أحد الحسابات التالية للتسجيل:</p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="bg-gray-800 p-2 rounded">
                 <p className="font-bold text-green-400">مستخدم:</p>
                 <p>البريد: user@example.com</p>
                 <p>كلمة المرور: user123</p>
+              </div>
+              <div className="bg-gray-800 p-2 rounded">
+                <p className="font-bold text-green-400">مالك العقار:</p>
+                <p>البريد: host@example.com</p>
+                <p>كلمة المرور: host123</p>
               </div>
               <div className="bg-gray-800 p-2 rounded">
                 <p className="font-bold text-green-400">مدير:</p>

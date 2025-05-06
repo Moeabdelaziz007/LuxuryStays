@@ -120,6 +120,15 @@ export function initializeLocalUsers(): void {
         createdAt: new Date().toISOString()
       };
       
+      // Create test property admin user
+      const propertyAdminUser: LocalUser = {
+        uid: 'host123',
+        email: 'host@example.com',
+        name: 'مالك العقار',
+        role: UserRole.PROPERTY_ADMIN,
+        createdAt: new Date().toISOString()
+      };
+      
       // Create test customer user
       const customerUser: LocalUser = {
         uid: 'customer123',
@@ -132,6 +141,11 @@ export function initializeLocalUsers(): void {
       users[adminUser.uid] = {
         user: adminUser,
         password: 'admin123'
+      };
+      
+      users[propertyAdminUser.uid] = {
+        user: propertyAdminUser,
+        password: 'host123'
       };
       
       users[customerUser.uid] = {
