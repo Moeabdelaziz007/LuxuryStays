@@ -27,59 +27,75 @@ import BookingConfirmation from "@/features/booking/BookingConfirmation";
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* ===== المسارات العامة - لا تحتاج إلى تسجيل دخول ===== */}
       <Route path="/" element={<PublicHome />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/properties" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة العقارات */}
+      <Route path="/services" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة الخدمات */}
+      <Route path="/about" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة عن الشركة */}
+      <Route path="/contact" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة التواصل */}
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
-
-      {/* مسار لوحة تحكم العميل مع التخطيط المخصص للعملاء */}
-      <Route
-        path="/customer"
-        element={
-          <RouteGuard role={UserRole.CUSTOMER}>
-            <CustomerLayout>
-              <CustomerDashboard />
-            </CustomerLayout>
-          </RouteGuard>
-        }
-      />
-
-      {/* مسار لوحة تحكم مدير العقارات مع التخطيط المخصص لمديري العقارات */}
-      <Route
-        path="/property-admin"
-        element={
-          <RouteGuard role={UserRole.PROPERTY_ADMIN}>
-            <PropertyAdminLayout>
-              <PropertyAdminDashboard />
-            </PropertyAdminLayout>
-          </RouteGuard>
-        }
-      />
-
-      {/* مسار لوحة تحكم المسؤول الرئيسي مع التخطيط المخصص للمسؤولين الرئيسيين */}
-      <Route
-        path="/super-admin"
-        element={
-          <RouteGuard role={UserRole.SUPER_ADMIN}>
-            <SuperAdminLayout>
-              <SuperAdminDashboard />
-            </SuperAdminLayout>
-          </RouteGuard>
-        }
-      />
       
-      {/* مسارات الحجز مع تخطيط العميل المناسب */}
-      <Route
-        path="/booking/confirmation/:bookingId"
-        element={
-          <RouteGuard role={UserRole.CUSTOMER}>
-            <CustomerLayout>
-              <BookingConfirmation />
-            </CustomerLayout>
-          </RouteGuard>
-        }
-      />
+      {/* ===== مسارات الدفع - يمكن استخدامها من قبل جميع المستخدمين ===== */}
+      <Route path="/payment-success" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة نجاح الدفع */}
+      <Route path="/payment-cancel" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة إلغاء الدفع */}
+
+      {/* ===== مسارات لوحة تحكم العميل ===== */}
+      <Route path="/customer/*" element={
+        <RouteGuard role={UserRole.CUSTOMER}>
+          <CustomerLayout>
+            <Routes>
+              <Route path="/" element={<CustomerDashboard />} />
+              <Route path="/bookings" element={<CustomerDashboard />} /> {/* سيتم استبدالها بصفحة الحجوزات */}
+              <Route path="/favorites" element={<CustomerDashboard />} /> {/* سيتم استبدالها بصفحة المفضلة */}
+              <Route path="/profile" element={<CustomerDashboard />} /> {/* سيتم استبدالها بصفحة الملف الشخصي */}
+              <Route path="/settings" element={<CustomerDashboard />} /> {/* سيتم استبدالها بصفحة الإعدادات */}
+              <Route path="/booking/confirmation/:bookingId" element={<BookingConfirmation />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </CustomerLayout>
+        </RouteGuard>
+      } />
+
+      {/* ===== مسارات لوحة تحكم مدير العقارات ===== */}
+      <Route path="/property-admin/*" element={
+        <RouteGuard role={UserRole.PROPERTY_ADMIN}>
+          <PropertyAdminLayout>
+            <Routes>
+              <Route path="/" element={<PropertyAdminDashboard />} />
+              <Route path="/properties" element={<PropertyAdminDashboard />} /> {/* سيتم استبدالها بصفحة إدارة العقارات */}
+              <Route path="/bookings" element={<PropertyAdminDashboard />} /> {/* سيتم استبدالها بصفحة الحجوزات */}
+              <Route path="/calendar" element={<PropertyAdminDashboard />} /> {/* سيتم استبدالها بصفحة التقويم */}
+              <Route path="/analytics" element={<PropertyAdminDashboard />} /> {/* سيتم استبدالها بصفحة التحليلات */}
+              <Route path="/profile" element={<PropertyAdminDashboard />} /> {/* سيتم استبدالها بصفحة الملف الشخصي */}
+              <Route path="/settings" element={<PropertyAdminDashboard />} /> {/* سيتم استبدالها بصفحة الإعدادات */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </PropertyAdminLayout>
+        </RouteGuard>
+      } />
+
+      {/* ===== مسارات لوحة تحكم المشرف العام ===== */}
+      <Route path="/super-admin/*" element={
+        <RouteGuard role={UserRole.SUPER_ADMIN}>
+          <SuperAdminLayout>
+            <Routes>
+              <Route path="/" element={<SuperAdminDashboard />} />
+              <Route path="/users" element={<SuperAdminDashboard />} /> {/* سيتم استبدالها بصفحة إدارة المستخدمين */}
+              <Route path="/properties" element={<SuperAdminDashboard />} /> {/* سيتم استبدالها بصفحة إدارة العقارات */}
+              <Route path="/bookings" element={<SuperAdminDashboard />} /> {/* سيتم استبدالها بصفحة الحجوزات */}
+              <Route path="/services" element={<SuperAdminDashboard />} /> {/* سيتم استبدالها بصفحة الخدمات */}
+              <Route path="/revenue" element={<SuperAdminDashboard />} /> {/* سيتم استبدالها بصفحة الإيرادات */}
+              <Route path="/issues" element={<SuperAdminDashboard />} /> {/* سيتم استبدالها بصفحة المشكلات */}
+              <Route path="/settings" element={<SuperAdminDashboard />} /> {/* سيتم استبدالها بصفحة الإعدادات */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </SuperAdminLayout>
+        </RouteGuard>
+      } />
       
+      {/* مسار للصفحات غير الموجودة */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

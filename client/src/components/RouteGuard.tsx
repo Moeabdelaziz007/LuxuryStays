@@ -1,7 +1,8 @@
 // ✅ RouteGuard.tsx — مكون حماية المسارات باستخدام الصلاحيات
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/auth-context";
+import { UserRole } from "@/features/auth/types";
 
 interface RouteGuardProps {
   children: React.ReactNode;
@@ -10,15 +11,36 @@ interface RouteGuardProps {
 
 export default function RouteGuard({ children, role }: RouteGuardProps) {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true);
 
-  // عرض حالة التحميل
-  if (loading) {
-    return <div className="text-white text-center mt-10">⏳ جاري التحقق من الوصول...</div>;
+  // تحسين تجربة التحميل مع تأخير بسيط
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLoadingAnimation(false);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // عرض حالة التحميل بأسلوب أكثر جاذبية
+  if (loading || (showLoadingAnimation && loading)) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-white">
+        <div className="relative h-24 w-24">
+          <div className="absolute inset-0 rounded-full border-t-4 border-[#39FF14] animate-spin"></div>
+        </div>
+        <div className="mt-4 text-lg font-medium">جاري التحقق من صلاحياتك...</div>
+        <div className="mt-1 text-sm text-gray-400">هذا قد يستغرق بضع ثوانٍ</div>
+      </div>
+    );
   }
 
   // التوجيه إلى صفحة تسجيل الدخول إذا لم يكن المستخدم مسجل
   if (!user) {
-    return <Navigate to="/login" replace />;
+    // احفظ مسار التوجيه الحالي للعودة إليه بعد تسجيل الدخول
+    const redirectPath = location.pathname + location.search;
+    return <Navigate to={`/login?redirect=${encodeURIComponent(redirectPath)}`} replace />;
   }
 
   // التحقق من أن المستخدم لديه دور صالح
@@ -27,12 +49,40 @@ export default function RouteGuard({ children, role }: RouteGuardProps) {
   }
   
   // السماح للمشرف العام بالوصول إلى جميع المسارات
-  if (user.role === "SUPER_ADMIN") {
-    return <>{children}</>;
+  // إضافة استثناء للمسارات الخاصة بأدوار أخرى إذا تم تحديد ذلك
+  if (user.role === UserRole.SUPER_ADMIN) {
+    // على سبيل المثال، إذا كان المسار الحالي يحتوي على /customer وتم تحديد دور CUSTOMER، اسمح للمشرف العام بالوصول
+    if ((role === UserRole.CUSTOMER && location.pathname.includes('/customer')) ||
+        (role === UserRole.PROPERTY_ADMIN && location.pathname.includes('/property-admin')) ||
+        role === UserRole.SUPER_ADMIN) {
+      return <>{children}</>;
+    }
   }
 
-  // توجيه المستخدمين غير المصرح لهم
-  if (!user.role || user.role !== role) {
+  // توجيه المستخدمين غير المصرح لهم مع تحديد رسالة مخصصة
+  if (user.role !== role) {
+    // إعداد رسالة مخصصة بناءً على دور المستخدم والمسار المطلوب
+    let errorMessage = "";
+    let recommendedPath = "";
+    
+    switch(user.role) {
+      case UserRole.CUSTOMER:
+        errorMessage = "ليس لديك صلاحيات للوصول إلى لوحة تحكم المسؤولين.";
+        recommendedPath = "/customer";
+        break;
+      case UserRole.PROPERTY_ADMIN:
+        errorMessage = "ليس لديك صلاحيات للوصول إلى هذا المسار.";
+        recommendedPath = "/property-admin";
+        break;
+      default:
+        errorMessage = "ليس لديك الصلاحيات المطلوبة للوصول إلى هذه الصفحة.";
+        recommendedPath = "/";
+    }
+    
+    // حفظ رسالة الخطأ في sessionStorage لعرضها في صفحة غير مصرح
+    sessionStorage.setItem('authErrorMessage', errorMessage);
+    sessionStorage.setItem('recommendedPath', recommendedPath);
+    
     return <Navigate to="/unauthorized" replace />;
   }
 
