@@ -4,8 +4,12 @@ import { storage } from "./storage";
 import { properties, services } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
+import adminRoutes from './routes/admin';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register admin routes
+  app.use('/api/admin', adminRoutes);
+  
   // API endpoint to check server status
   app.get("/api/status", (_req, res) => {
     res.json({ status: "ok" });

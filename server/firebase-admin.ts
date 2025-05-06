@@ -4,6 +4,11 @@ import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM compatibility for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Initializes Firebase Admin SDK for server-side operations
@@ -11,7 +16,7 @@ import * as path from 'path';
  */
 
 // Initialize variables for Firebase services
-let adminApp: admin.app.App;
+let adminApp: admin.app.App | null = null;
 let db: FirebaseFirestore.Firestore;
 let auth: admin.auth.Auth;
 let storage: admin.storage.Storage;
@@ -31,7 +36,7 @@ const getServiceAccountPath = () => {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     try {
       // Create a temporary file with the service account contents
-      const tempFile = path.join(__dirname, 'temp-service-account.json');
+      const tempFile = path.join(process.cwd(), 'temp-service-account.json');
       fs.writeFileSync(tempFile, process.env.FIREBASE_SERVICE_ACCOUNT);
       console.log('Using service account from environment variable');
       return tempFile;
@@ -42,19 +47,43 @@ const getServiceAccountPath = () => {
   
   // Look for the service account file in different possible locations
   const possiblePaths = [
-    path.join(__dirname, '../attached_assets/staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json'),
-    path.join(__dirname, '../staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json'),
-    path.join(process.cwd(), 'staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json')
+    path.join(process.cwd(), 'attached_assets/staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json'),
+    path.join(process.cwd(), 'staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json'),
+    '/home/runner/workspace/staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json',
+    '/home/runner/workspace/attached_assets/staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json',
   ];
   
   for (const filePath of possiblePaths) {
-    if (fs.existsSync(filePath)) {
-      console.log('Found service account at:', filePath);
-      return filePath;
+    try {
+      if (fs.existsSync(filePath)) {
+        console.log('Found service account at:', filePath);
+        return filePath;
+      }
+    } catch (err) {
+      console.log(`Error checking path ${filePath}:`, err);
     }
   }
   
-  throw new Error('Firebase Admin service account file not found');
+  // Last resort: try to manually find the service account file
+  console.log('Searching for service account file in current directory...');
+  try {
+    const files = fs.readdirSync(process.cwd());
+    console.log('Files in current directory:', files);
+    
+    // Look for service account files
+    for (const file of files) {
+      if (file.includes('firebase-adminsdk') && file.endsWith('.json')) {
+        const fullPath = path.join(process.cwd(), file);
+        console.log('Found potential service account file:', fullPath);
+        return fullPath;
+      }
+    }
+  } catch (err) {
+    console.error('Error searching for service account file:', err);
+  }
+  
+  console.error('Unable to find service account file, using credential-less initialization');
+  return null;
 };
 
 try {
@@ -66,14 +95,59 @@ try {
   console.log('Using service account from:', serviceAccountPath);
   
   // Initialize Firebase Admin
-  if (admin.apps.length === 0) {
-    adminApp = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccountPath),
-      projectId,
-      storageBucket: `${projectId}.appspot.com`
-    });
-  } else {
-    adminApp = admin.app();
+  try {
+    // Check if an app is already initialized
+    const existingApps = admin.apps || [];
+    const existingApp = existingApps.length > 0 ? admin.app() : null;
+    
+    if (!existingApp) {
+      // Configure app with or without service account
+      const appConfig: any = {
+        projectId,
+        storageBucket: `${projectId}.appspot.com`
+      };
+      
+      // Add credential only if we found a service account
+      if (serviceAccountPath) {
+        try {
+          const serviceAccount = require(serviceAccountPath);
+          appConfig.credential = admin.credential.cert(serviceAccount);
+        } catch (certError) {
+          console.error('Error loading service account:', certError);
+          // Try to create a credential from environment variables as fallback
+          if (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
+            try {
+              appConfig.credential = admin.credential.cert({
+                projectId,
+                privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL
+              });
+              console.log('Using credential from environment variables');
+            } catch (envCredError) {
+              console.error('Error creating credential from environment:', envCredError);
+            }
+          }
+        }
+      }
+      
+      adminApp = admin.initializeApp(appConfig);
+      console.log('Created new Firebase Admin app');
+    } else {
+      adminApp = existingApp;
+      console.log('Using existing Firebase Admin app');
+    }
+  } catch (err) {
+    console.error('Error during Firebase Admin initialization check:', err);
+    
+    // Initialize new app as fallback with minimal configuration
+    try {
+      adminApp = admin.initializeApp({
+        projectId
+      });
+      console.warn('Created minimal Firebase Admin app as fallback');
+    } catch (fallbackErr) {
+      console.error('Fallback initialization failed:', fallbackErr);
+    }
   }
   
   // Initialize services
@@ -86,18 +160,29 @@ try {
   console.error('Error initializing Firebase Admin:', error);
   
   // Create fallback initialization to prevent crashes
-  if (admin.apps.length === 0) {
-    try {
+  try {
+    // Check if we already have an app
+    const existingApp = admin.apps && admin.apps.length > 0 ? admin.app() : null;
+    
+    if (existingApp) {
+      adminApp = existingApp;
+      console.warn('Using existing Firebase Admin app in fallback mode');
+    } else {
       const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || 'staychill-3ed08';
       adminApp = admin.initializeApp({
         projectId
       });
       console.warn('Firebase Admin initialized in limited mode with project ID:', projectId);
-    } catch (initError) {
-      console.error('Failed to initialize Firebase Admin even in limited mode:', initError);
     }
-  } else {
-    adminApp = admin.app();
+  } catch (initError) {
+    console.error('Failed to initialize Firebase Admin even in limited mode:', initError);
+    // Last resort - create a default app with minimal configuration
+    try {
+      adminApp = admin.initializeApp();
+      console.warn('Created default Firebase Admin app as last resort');
+    } catch (lastError) {
+      console.error('Could not create any Firebase Admin app:', lastError);
+    }
   }
   
   // Initialize services even in fallback mode
