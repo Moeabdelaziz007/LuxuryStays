@@ -20,6 +20,7 @@ import {
   enableIndexedDbPersistence,
   enableNetwork,
   disableNetwork,
+  setLogLevel,
   Firestore 
 } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
@@ -108,31 +109,66 @@ if (app) {
       }
     }
     
-    // تمكين التخزين المحلي لدعم الوضع غير المتصل (استخدام وعد للتعامل مع الخطأ)
+    // تكوين متقدم للتخزين المحلي وإدارة الشبكة لتحسين الأداء في كل الظروف
     if (db) {
-      console.log("Enabling offline persistence for Firestore...");
+      console.log("Enabling advanced offline capabilities for Firestore...");
       
-      // استخدام وعد للتمكن من معالجة الخطأ دون تعطيل التطبيق
+      // تفعيل تخزين IndexedDB مع معالجة أفضل للأخطاء
       enableIndexedDbPersistence(db)
         .then(() => {
           console.log("✅ Firestore offline persistence enabled successfully");
+          
+          // إضافة مستمع لحالة الاتصال للتعامل بشكل أفضل مع تغييرات الاتصال
+          window.addEventListener('online', () => {
+            console.log("📶 Device came online. Re-enabling Firestore network...");
+            if (db) {
+              enableNetwork(db)
+                .then(() => console.log("✅ Firestore network re-enabled after reconnection"))
+                .catch(err => console.warn("⚠️ Failed to re-enable network after reconnection:", err));
+            }
+          });
+          
+          window.addEventListener('offline', () => {
+            console.log("🔌 Device went offline. Firestore will use cached data.");
+          });
         })
         .catch((persistenceError: any) => {
           console.warn("⚠️ Could not enable Firestore offline persistence:", persistenceError);
           
           if (persistenceError.code === 'failed-precondition') {
-            console.warn("Multiple tabs open. Persistence can only be enabled in one tab at a time.");
+            console.warn("Multiple tabs open. Persistence is limited to one tab at a time.");
+            console.warn("The application will still work, but offline capabilities might be limited.");
           } else if (persistenceError.code === 'unimplemented') {
-            console.warn("Browser doesn't support IndexedDB or is in private mode.");
+            console.warn("This browser doesn't support IndexedDB or is in private/incognito mode.");
+            console.warn("Please note: offline functionality will be limited in this browser.");
+          } else {
+            console.error("Unknown persistence error:", persistenceError);
           }
         });
       
-      // إختبار الاتصال عن طريق إيقاف وتمكين الشبكة
-      enableNetwork(db).then(() => {
-        console.log("Firestore network enabled");
-      }).catch(networkError => {
-        console.error("Error enabling Firestore network:", networkError);
-      });
+      // تمكين إعادة المحاولة التلقائية للعمليات الفاشلة بسبب مشاكل الشبكة
+      try {
+        setLogLevel('error'); // تقليل كمية السجلات غير الضرورية
+      } catch (error) {
+        console.warn("Could not set log level:", error);
+      }
+      
+      // إختبار الاتصال وتمكين الشبكة مع آلية إعادة المحاولة
+      const attemptNetworkConnection = (retries = 3) => {
+        if (db) {
+          enableNetwork(db).then(() => {
+            console.log("Firestore network enabled");
+          }).catch(networkError => {
+            console.error("Error enabling Firestore network:", networkError);
+            if (retries > 0 && window.navigator.onLine) {
+              console.log(`Retrying network connection (${retries} attempts left)...`);
+              setTimeout(() => attemptNetworkConnection(retries - 1), 2000);
+            }
+          });
+        }
+      };
+      
+      attemptNetworkConnection();
     }
     
     console.log("Firebase Firestore initialized successfully");

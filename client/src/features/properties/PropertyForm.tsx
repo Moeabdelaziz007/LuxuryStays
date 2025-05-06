@@ -17,9 +17,21 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { doc, setDoc, addDoc, collection } from "firebase/firestore";
-import { db, storage } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast"; 
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL, 
+  deleteObject 
+} from "firebase/storage";
+import { 
+  doc, 
+  setDoc, 
+  addDoc, 
+  collection, 
+  serverTimestamp 
+} from "firebase/firestore";
+import { db, storage, safeDoc } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-context";
 import { insertPropertySchema } from "@shared/schema";
 
@@ -75,46 +87,157 @@ export default function PropertyForm({ property, onSuccess, onCancel }: Property
       if (!user?.uid) throw new Error("يجب تسجيل الدخول لإضافة عقار");
       if (!db) throw new Error("قاعدة البيانات غير متاحة حالياً");
       
-      // Handle image upload
+      // Handle image upload with improved error handling
       let imageUrl = data.imageUrl;
       if (data.imageFile && data.imageFile.length > 0) {
-        setIsUploading(true);
-        const file = data.imageFile[0];
-        
-        // Create a storage reference
-        const storageRef = ref(storage!, `properties/${user.uid}/${Date.now()}_${file.name}`);
-        
-        // Upload the file
-        const snapshot = await uploadBytes(storageRef, file);
-        
-        // Get download URL
-        imageUrl = await getDownloadURL(snapshot.ref);
-        setIsUploading(false);
+        try {
+          setIsUploading(true);
+          const file = data.imageFile[0];
+          
+          if (!storage) {
+            throw new Error("خدمة تخزين الصور غير متاحة حالياً، يرجى استخدام رابط صورة خارجي بدلاً من ذلك");
+          }
+          
+          // Validate file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            throw new Error("حجم الملف كبير جداً. الحد الأقصى المسموح به هو 5 ميجابايت");
+          }
+          
+          // Validate file type
+          const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+          if (!validTypes.includes(file.type)) {
+            throw new Error("نوع الملف غير مدعوم. يُرجى استخدام صور بتنسيق JPEG أو PNG أو WebP أو GIF");
+          }
+          
+          console.log("بدأ رفع الصورة إلى Firebase Storage...");
+          
+          // Create a storage reference with a unique name to avoid conflicts
+          const storageRef = ref(storage, `properties/${user.uid}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+          
+          // Upload the file with retry logic
+          let uploadAttempts = 0;
+          let snapshot;
+          
+          while (uploadAttempts < 3) {
+            try {
+              snapshot = await uploadBytes(storageRef, file);
+              console.log("تم رفع الصورة بنجاح");
+              break;
+            } catch (uploadError: any) {
+              uploadAttempts++;
+              console.error(`فشل محاولة رفع الصورة ${uploadAttempts}/3:`, uploadError);
+              
+              if (uploadAttempts >= 3) {
+                throw new Error(`فشل رفع الصورة: ${uploadError.message || "خطأ غير معروف"}`);
+              }
+              
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+          
+          if (!snapshot) {
+            throw new Error("فشل رفع الصورة بعد عدة محاولات");
+          }
+          
+          // Get download URL with retry logic
+          let urlAttempts = 0;
+          while (urlAttempts < 3) {
+            try {
+              imageUrl = await getDownloadURL(snapshot.ref);
+              console.log("تم الحصول على رابط الصورة بنجاح");
+              break;
+            } catch (urlError: any) {
+              urlAttempts++;
+              console.error(`فشل محاولة الحصول على رابط الصورة ${urlAttempts}/3:`, urlError);
+              
+              if (urlAttempts >= 3) {
+                throw new Error(`فشل الحصول على رابط الصورة: ${urlError.message || "خطأ غير معروف"}`);
+              }
+              
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+        } catch (imageError: any) {
+          setIsUploading(false);
+          toast({
+            title: "خطأ في رفع الصورة",
+            description: imageError.message || "حدث خطأ أثناء رفع الصورة، يرجى المحاولة مرة أخرى أو استخدام رابط صورة",
+            variant: "destructive"
+          });
+          throw imageError;
+        } finally {
+          setIsUploading(false);
+        }
       }
       
-      // Prepare the property data
+      // Prepare the property data with validation
       const propertyData = {
-        name: data.name,
-        description: data.description,
-        location: data.location,
-        price: data.price,
-        currency: data.currency,
-        imageUrl: imageUrl || "",
-        beds: data.beds,
-        baths: data.baths,
-        size: data.size,
+        name: data.name.trim(),
+        description: data.description.trim(),
+        location: data.location.trim(),
+        price: Number(data.price) || 0,
+        currency: data.currency || "USD",
+        imageUrl: imageUrl || "https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1200", // صورة افتراضية
+        beds: Number(data.beds) || 1,
+        baths: Number(data.baths) || 1,
+        size: Number(data.size) || 0,
         featured: !!data.featured,
         adminId: user.id ? parseInt(user.id) : null,
-        ownerId: user.uid // For Firestore query by owner
+        ownerId: user.uid, // For Firestore query by owner
+        createdAt: serverTimestamp(), // إضافة طابع زمني للإنشاء
+        updatedAt: serverTimestamp() // إضافة طابع زمني للتحديث
       };
       
-      // Add to Firestore
-      const docRef = await addDoc(collection(db, "properties"), propertyData);
-      return { id: docRef.id, ...propertyData };
+      try {
+        console.log("جاري إضافة العقار إلى Firestore...");
+        
+        // استخدام وظيفة safeDoc للتعامل مع الأخطاء المحتملة
+        return await safeDoc(async () => {
+          // Add to Firestore
+          const docRef = await addDoc(collection(db, "properties"), propertyData);
+          console.log("تم إضافة العقار بنجاح بمعرف:", docRef.id);
+          
+          // إرجاع البيانات الكاملة مع المعرف
+          return { id: docRef.id, ...propertyData };
+        }, null, 3); // 3 محاولات كحد أقصى
+      } catch (firestoreError: any) {
+        console.error("خطأ في إضافة العقار إلى Firestore:", firestoreError);
+        
+        // محاولة حذف الصورة التي تم رفعها في حالة فشل إضافة العقار
+        if (imageUrl && imageUrl !== data.imageUrl && storage) {
+          try {
+            const imageRef = ref(storage, imageUrl);
+            await deleteObject(imageRef);
+            console.log("تم حذف الصورة المرفوعة بعد فشل إضافة العقار");
+          } catch (deleteError) {
+            console.error("فشل حذف الصورة بعد فشل إضافة العقار:", deleteError);
+          }
+        }
+        
+        throw new Error(`فشلت عملية إضافة العقار: ${firestoreError.message || "خطأ غير معروف في قاعدة البيانات"}`);
+      }
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["owner-properties"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-properties"] });
+      if (result?.featured) {
+        queryClient.invalidateQueries({ queryKey: ["featured-properties"] });
+      }
+      toast({
+        title: "تم إضافة العقار بنجاح",
+        description: "تم إضافة العقار الجديد إلى قائمة عقاراتك",
+        variant: "default"
+      });
       if (onSuccess) onSuccess();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "فشلت عملية إضافة العقار",
+        description: error.message || "حدث خطأ أثناء إضافة العقار، يرجى المحاولة مرة أخرى",
+        variant: "destructive"
+      });
     }
   });
 
@@ -124,46 +247,185 @@ export default function PropertyForm({ property, onSuccess, onCancel }: Property
       if (!db) throw new Error("قاعدة البيانات غير متاحة حالياً");
       if (!data.id) throw new Error("معرف العقار غير موجود");
       
-      // Handle image upload
+      // Handle image upload with improved error handling
       let imageUrl = data.imageUrl;
       if (data.imageFile && data.imageFile.length > 0) {
-        setIsUploading(true);
-        const file = data.imageFile[0];
-        
-        // Create a storage reference
-        const storageRef = ref(storage!, `properties/${user.uid}/${Date.now()}_${file.name}`);
-        
-        // Upload the file
-        const snapshot = await uploadBytes(storageRef, file);
-        
-        // Get download URL
-        imageUrl = await getDownloadURL(snapshot.ref);
-        setIsUploading(false);
+        try {
+          setIsUploading(true);
+          const file = data.imageFile[0];
+          
+          if (!storage) {
+            throw new Error("خدمة تخزين الصور غير متاحة حالياً، يرجى استخدام رابط صورة خارجي بدلاً من ذلك");
+          }
+          
+          // Validate file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            throw new Error("حجم الملف كبير جداً. الحد الأقصى المسموح به هو 5 ميجابايت");
+          }
+          
+          // Validate file type
+          const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+          if (!validTypes.includes(file.type)) {
+            throw new Error("نوع الملف غير مدعوم. يُرجى استخدام صور بتنسيق JPEG أو PNG أو WebP أو GIF");
+          }
+          
+          console.log("بدأ رفع الصورة إلى Firebase Storage للتحديث...");
+          
+          // Create a storage reference with a unique name to avoid conflicts
+          const storageRef = ref(storage, `properties/${user.uid}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+          
+          // Upload the file with retry logic
+          let uploadAttempts = 0;
+          let snapshot;
+          
+          while (uploadAttempts < 3) {
+            try {
+              snapshot = await uploadBytes(storageRef, file);
+              console.log("تم رفع الصورة بنجاح");
+              break;
+            } catch (uploadError: any) {
+              uploadAttempts++;
+              console.error(`فشل محاولة رفع الصورة ${uploadAttempts}/3:`, uploadError);
+              
+              if (uploadAttempts >= 3) {
+                throw new Error(`فشل رفع الصورة: ${uploadError.message || "خطأ غير معروف"}`);
+              }
+              
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+          
+          if (!snapshot) {
+            throw new Error("فشل رفع الصورة بعد عدة محاولات");
+          }
+          
+          // Get download URL with retry logic
+          let urlAttempts = 0;
+          while (urlAttempts < 3) {
+            try {
+              imageUrl = await getDownloadURL(snapshot.ref);
+              console.log("تم الحصول على رابط الصورة بنجاح");
+              break;
+            } catch (urlError: any) {
+              urlAttempts++;
+              console.error(`فشل محاولة الحصول على رابط الصورة ${urlAttempts}/3:`, urlError);
+              
+              if (urlAttempts >= 3) {
+                throw new Error(`فشل الحصول على رابط الصورة: ${urlError.message || "خطأ غير معروف"}`);
+              }
+              
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+        } catch (imageError: any) {
+          setIsUploading(false);
+          toast({
+            title: "خطأ في رفع الصورة",
+            description: imageError.message || "حدث خطأ أثناء رفع الصورة، يرجى المحاولة مرة أخرى أو استخدام رابط صورة",
+            variant: "destructive"
+          });
+          throw imageError;
+        } finally {
+          setIsUploading(false);
+        }
       }
       
-      // Prepare the property data
+      // حفظ رابط الصورة القديم قبل التحديث
+      const oldImageUrl = data.imageUrl;
+      
+      // Prepare the property data with validation
       const propertyData = {
-        name: data.name,
-        description: data.description,
-        location: data.location,
-        price: data.price,
-        currency: data.currency,
+        name: data.name.trim(),
+        description: data.description.trim(),
+        location: data.location.trim(),
+        price: Number(data.price) || 0,
+        currency: data.currency || "USD",
         imageUrl: imageUrl || data.imageUrl,
-        beds: data.beds,
-        baths: data.baths,
-        size: data.size,
+        beds: Number(data.beds) || 1,
+        baths: Number(data.baths) || 1,
+        size: Number(data.size) || 0,
         featured: !!data.featured,
         adminId: user.id ? parseInt(user.id) : null,
-        ownerId: user.uid // For Firestore query by owner
+        ownerId: user.uid, // For Firestore query by owner
+        updatedAt: serverTimestamp() // إضافة طابع زمني للتحديث
       };
       
-      // Update in Firestore
-      await setDoc(doc(db, "properties", data.id.toString()), propertyData, { merge: true });
-      return { id: data.id, ...propertyData };
+      try {
+        console.log("جاري تحديث العقار في Firestore...");
+        
+        // استخدام وظيفة safeDoc للتعامل مع الأخطاء المحتملة
+        return await safeDoc(async () => {
+          // Update in Firestore
+          if (db) {
+            const docRef = doc(db, "properties", data.id!.toString());
+            await setDoc(docRef, propertyData, { merge: true });
+            console.log("تم تحديث العقار بنجاح");
+            
+            // محاولة حذف الصورة القديمة إذا تم تغييرها
+            if (imageUrl && oldImageUrl && imageUrl !== oldImageUrl && storage && oldImageUrl.includes("firebasestorage")) {
+              try {
+                // استخراج المسار من URL الكامل للصورة
+                // عادةً تكون URLs من Firebase بالشكل التالي:
+                // https://firebasestorage.googleapis.com/v0/b/[project-id].appspot.com/o/[path]?alt=media&token=[token]
+                const oldRef = ref(storage, decodeURIComponent(
+                  oldImageUrl.split("/o/")[1].split("?")[0]
+                ));
+                await deleteObject(oldRef);
+                console.log("تم حذف الصورة القديمة بنجاح");
+              } catch (deleteError) {
+                console.warn("لم يتم حذف الصورة القديمة:", deleteError);
+                // لا نريد إلغاء العملية كاملة إذا فشل حذف الصورة القديمة
+              }
+            }
+            
+            // إرجاع البيانات الكاملة مع المعرف
+            return { id: data.id, ...propertyData };
+          } else {
+            throw new Error("قاعدة البيانات غير متاحة حالياً");
+          }
+        }, null, 3); // 3 محاولات كحد أقصى
+      } catch (firestoreError: any) {
+        console.error("خطأ في تحديث العقار في Firestore:", firestoreError);
+        
+        // محاولة حذف الصورة الجديدة التي تم رفعها في حالة فشل التحديث
+        if (imageUrl && imageUrl !== oldImageUrl && storage) {
+          try {
+            const imageRef = ref(storage, imageUrl);
+            await deleteObject(imageRef);
+            console.log("تم حذف الصورة الجديدة بعد فشل التحديث");
+          } catch (deleteError) {
+            console.error("فشل حذف الصورة الجديدة بعد فشل التحديث:", deleteError);
+          }
+        }
+        
+        throw new Error(`فشلت عملية تحديث العقار: ${firestoreError.message || "خطأ غير معروف في قاعدة البيانات"}`);
+      }
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["owner-properties"] });
+      queryClient.invalidateQueries({ queryKey: ["property", result?.id] });
+      
+      // تحديث قائمة العقارات المميزة إذا كان العقار مميزاً
+      if (result?.featured) {
+        queryClient.invalidateQueries({ queryKey: ["featured-properties"] });
+      }
+      
+      toast({
+        title: "تم تحديث العقار بنجاح",
+        description: "تم تحديث تفاصيل العقار بنجاح",
+        variant: "default"
+      });
+      
       if (onSuccess) onSuccess();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "فشلت عملية تحديث العقار",
+        description: error.message || "حدث خطأ أثناء تحديث العقار، يرجى المحاولة مرة أخرى",
+        variant: "destructive"
+      });
     }
   });
 
