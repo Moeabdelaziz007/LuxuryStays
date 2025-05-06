@@ -1,6 +1,10 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { auth, db } from "@/lib/firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 // صفحة التسجيل للمستخدمين الجدد
 export default function SignupPage() {
@@ -8,9 +12,11 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const { register } = useAuth();
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
+  const { toast } = useToast();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +42,7 @@ export default function SignupPage() {
       });
       
       // التوجيه إلى صفحة تسجيل الدخول مع إشارة إلى نجاح التسجيل
-      navigate('/login?registered=true');
+      setLocation('/login?registered=true');
     } catch (err: any) {
       console.error("خطأ في التسجيل:", err);
       

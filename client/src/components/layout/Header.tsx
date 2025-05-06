@@ -46,22 +46,22 @@ export default function Header() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-white font-poppins">
+              <Link to="/" className="text-2xl font-bold text-white font-poppins">
                 Stay<span className="text-accent">X</span>
               </Link>
             </div>
             
             <div className="hidden md:flex items-center space-x-6">
-              <Link href="#featured" className="text-white hover:text-accent transition-colors duration-300">
+              <Link to="#featured" className="text-white hover:text-accent transition-colors duration-300">
                 {t("nav.properties")}
               </Link>
-              <Link href="#services" className="text-white hover:text-accent transition-colors duration-300">
+              <Link to="#services" className="text-white hover:text-accent transition-colors duration-300">
                 {t("nav.services")}
               </Link>
-              <Link href="#coming-soon" className="text-white hover:text-accent transition-colors duration-300">
+              <Link to="#coming-soon" className="text-white hover:text-accent transition-colors duration-300">
                 {t("nav.comingSoon")}
               </Link>
-              <Link href="#about" className="text-white hover:text-accent transition-colors duration-300">
+              <Link to="#about" className="text-white hover:text-accent transition-colors duration-300">
                 {t("nav.about")}
               </Link>
             </div>
