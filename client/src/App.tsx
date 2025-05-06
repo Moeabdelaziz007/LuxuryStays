@@ -12,7 +12,7 @@ import AppRoutes from "./routes";
 
 function RedirectHandler() {
   const { user, loading } = useAuth();
-  const [location, navigate] = useLocation();
+  const [location, setLocation] = useLocation();
   
   useEffect(() => {
     console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location });
@@ -41,10 +41,10 @@ function RedirectHandler() {
         }
         
         console.log(`[DEBUG] Redirecting authenticated user to dashboard: ${dashboardPath}`);
-        navigate(dashboardPath);
+        setLocation(dashboardPath);
       }
     }
-  }, [user, loading, location, navigate]);
+  }, [user, loading, location, setLocation]);
 
   return null;
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
@@ -15,8 +15,11 @@ interface BookingDetails {
   createdAt: any;
 }
 
-export default function BookingConfirmation() {
-  const { bookingId } = useParams<{ bookingId: string }>();
+interface BookingConfirmationProps {
+  bookingId: string;
+}
+
+export default function BookingConfirmation({ bookingId }: BookingConfirmationProps) {
   const [booking, setBooking] = useState<BookingDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
