@@ -58,7 +58,9 @@ const localProperties: Property[] = [
     maxGuests: 6,
     rating: 4.7,
     reviewCount: 45,
-    ownerId: "owner2"
+    ownerId: "owner2",
+    ownerRole: "PROPERTY_ADMIN",
+    verified: true
   },
   {
     id: "property3",
@@ -74,7 +76,9 @@ const localProperties: Property[] = [
     maxGuests: 8,
     rating: 4.8,
     reviewCount: 32,
-    ownerId: "owner3"
+    ownerId: "owner3",
+    ownerRole: "PROPERTY_ADMIN",
+    verified: true
   },
   {
     id: "property4",
@@ -90,7 +94,9 @@ const localProperties: Property[] = [
     maxGuests: 5,
     rating: 4.5,
     reviewCount: 19,
-    ownerId: "owner4"
+    ownerId: "owner4",
+    ownerRole: "CUSTOMER",
+    verified: false
   },
   {
     id: "property5",
@@ -106,7 +112,9 @@ const localProperties: Property[] = [
     maxGuests: 12,
     rating: 4.9,
     reviewCount: 23,
-    ownerId: "owner5"
+    ownerId: "owner5",
+    ownerRole: "PROPERTY_ADMIN",
+    verified: true
   },
   {
     id: "property6",
@@ -171,22 +179,50 @@ export default function PropertiesPage() {
       try {
         if (!db) {
           console.log("Firebase DB not available, using local properties data");
-          return localProperties;
+          // تصفية البيانات المحلية بحيث تعرض فقط العقارات المملوكة من قبل مديري العقارات
+          const filteredLocalProperties = localProperties.filter(property => 
+            property.ownerRole === "PROPERTY_ADMIN" || property.ownerRole === "SUPER_ADMIN"
+          );
+          
+          // إذا لم تكن هناك بيانات بعد التصفية، نعرض العقار الأول الذي أضفنا له ownerRole
+          return filteredLocalProperties.length > 0 
+            ? filteredLocalProperties 
+            : [localProperties[0]];
         }
         
-        const propertiesQuery = query(collection(db, "properties"));
+        // استعلام Firestore للعقارات المملوكة من قبل مديري العقارات فقط
+        const propertiesQuery = query(
+          collection(db, "properties"),
+          where("ownerRole", "in", ["PROPERTY_ADMIN", "SUPER_ADMIN"])
+        );
+        
         const snapshot = await getDocs(propertiesQuery);
         
         if (snapshot.empty) {
-          console.log("No properties found in Firestore, using local data");
-          return localProperties;
+          console.log("No properties found in Firestore, using filtered local data");
+          // تصفية البيانات المحلية
+          const filteredLocalProperties = localProperties.filter(property => 
+            property.ownerRole === "PROPERTY_ADMIN" || property.ownerRole === "SUPER_ADMIN"
+          );
+          
+          return filteredLocalProperties.length > 0 
+            ? filteredLocalProperties 
+            : [localProperties[0]];
         }
         
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Property[];
       } catch (error: any) {
         console.error("Error fetching properties:", error);
         setError("حدث خطأ أثناء جلب بيانات العقارات. يرجى المحاولة مرة أخرى لاحقًا.");
-        return localProperties;
+        
+        // تصفية البيانات المحلية
+        const filteredLocalProperties = localProperties.filter(property => 
+          property.ownerRole === "PROPERTY_ADMIN" || property.ownerRole === "SUPER_ADMIN"
+        );
+        
+        return filteredLocalProperties.length > 0 
+          ? filteredLocalProperties 
+          : [localProperties[0]];
       }
     }
   });
