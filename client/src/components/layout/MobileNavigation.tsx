@@ -21,14 +21,22 @@ export default function MobileNavigation() {
   if (!user) return null; // Don't show for unauthenticated users
   
   // Define navigation items based on user role
-  let navItems = [];
+  // إضافة عناصر الصفحات العامة والتنقل المخصص حسب دور المستخدم
+  const publicItems = [
+    { to: '/', label: 'الرئيسية', icon: <Home size={20} /> },
+    { to: '/properties', label: 'العقارات', icon: <Building2 size={20} /> },
+    { to: '/services', label: 'الخدمات', icon: <BookOpenCheck size={20} /> },
+  ];
+  
+  // عناصر التنقل الخاصة بكل دور
+  let roleItems = [];
   
   switch (user.role) {
     case 'SUPER_ADMIN':
-      navItems = [
-        { to: '/super-admin', label: 'الرئيسية', icon: <Home size={20} /> },
+      roleItems = [
+        { to: '/super-admin', label: 'لوحة التحكم', icon: <PanelLeftOpen size={20} /> },
         { to: '/super-admin/users', label: 'المستخدمين', icon: <Users size={20} /> },
-        { to: '/super-admin/properties', label: 'العقارات', icon: <Building2 size={20} /> },
+        { to: '/super-admin/properties', label: 'إدارة العقارات', icon: <Building2 size={20} /> },
         { to: '/super-admin/bookings', label: 'الحجوزات', icon: <Calendar size={20} /> },
         { to: '/super-admin/revenue', label: 'الإيرادات', icon: <CircleDollarSign size={20} /> },
         { to: '/super-admin/settings', label: 'الإعدادات', icon: <Settings size={20} /> },
@@ -36,11 +44,10 @@ export default function MobileNavigation() {
       break;
       
     case 'PROPERTY_ADMIN':
-      navItems = [
-        { to: '/property-admin', label: 'الرئيسية', icon: <Home size={20} /> },
+      roleItems = [
+        { to: '/property-admin', label: 'لوحة التحكم', icon: <PanelLeftOpen size={20} /> },
         { to: '/property-admin/properties', label: 'عقاراتي', icon: <Building2 size={20} /> },
         { to: '/property-admin/bookings', label: 'الحجوزات', icon: <Calendar size={20} /> },
-        { to: '/property-admin/calendar', label: 'التقويم', icon: <Calendar size={20} /> },
         { to: '/property-admin/dashboard', label: 'الإحصائيات', icon: <BarChart size={20} /> },
         { to: '/property-admin/profile', label: 'الملف', icon: <UserCircle size={20} /> },
       ];
@@ -48,13 +55,21 @@ export default function MobileNavigation() {
       
     case 'CUSTOMER':
     default:
-      navItems = [
-        { to: '/customer', label: 'الرئيسية', icon: <Home size={20} /> },
+      roleItems = [
+        { to: '/customer', label: 'لوحة التحكم', icon: <PanelLeftOpen size={20} /> },
         { to: '/customer/bookings', label: 'حجوزاتي', icon: <Calendar size={20} /> },
         { to: '/customer/favorites', label: 'المفضلة', icon: <BookOpenCheck size={20} /> },
         { to: '/customer/profile', label: 'حسابي', icon: <UserCircle size={20} /> },
       ];
       break;
+  }
+  
+  // دمج الصفحات العامة مع صفحات دور المستخدم (اختيار العناصر الأكثر أهمية لتناسب الشاشة)
+  // نظرًا لمحدودية المساحة في الجوال، سنختار 5 عناصر فقط بحد أقصى
+  let navItems = [...roleItems];
+  if (navItems.length < 5) {
+    // إضافة الصفحات العامة حتى نصل إلى 5 عناصر
+    navItems = [...navItems, ...publicItems.slice(0, 5 - navItems.length)];
   }
   
   return (

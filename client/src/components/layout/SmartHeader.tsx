@@ -59,31 +59,35 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
   
   // تحديد خيارات القائمة والروابط اعتمادًا على نوع المستخدم
   const renderNavLinks = () => {
-    // للصفحات العامة
-    if (isPublicPage) {
-      return (
-        <div className="hidden md:flex items-center gap-6">
-          <Link to="/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-            العقارات
-          </Link>
-          <Link to="/services" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-            الخدمات
-          </Link>
-          <Link to="/about" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-            عن التطبيق 
-          </Link>
-        </div>
-      );
-    }
+    // روابط الصفحات العامة - متاحة دائمًا
+    const publicLinks = (
+      <>
+        <Link to="/" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+          الصفحة الرئيسية
+        </Link>
+        <Link to="/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+          العقارات
+        </Link>
+        <Link to="/services" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+          الخدمات
+        </Link>
+        <Link to="/about" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+          عن التطبيق
+        </Link>
+      </>
+    );
+
+    // الروابط الخاصة بكل دور
+    let roleLinks = null;
     
-    // للوحات التحكم، نعرض خيارات متعلقة بالدور
-    if (role && !isMobile) {
-      switch (role) {
+    if (user && !isMobile) {
+      // تحديد الروابط حسب دور المستخدم
+      switch (user.role) {
         case "SUPER_ADMIN":
-          return (
-            <div className="hidden md:flex items-center gap-4">
-              <Link to="/super-admin" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                الرئيسية
+          roleLinks = (
+            <>
+              <Link to="/super-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4">
+                لوحة تحكم المدير
               </Link>
               <Link to="/super-admin/users" className="text-white hover:text-[#39FF14] transition-colors duration-300">
                 المستخدمين
@@ -97,20 +101,18 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
               <Link to="/super-admin/revenue" className="text-white hover:text-[#39FF14] transition-colors duration-300">
                 الإيرادات
               </Link>
-              <Link to="/super-admin/settings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                الإعدادات
-              </Link>
-            </div>
+            </>
           );
+          break;
         
         case "PROPERTY_ADMIN":
-          return (
-            <div className="hidden md:flex items-center gap-4">
-              <Link to="/property-admin" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                الرئيسية
+          roleLinks = (
+            <>
+              <Link to="/property-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4">
+                لوحة تحكم المالك
               </Link>
               <Link to="/property-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                العقارات
+                عقاراتي
               </Link>
               <Link to="/property-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
                 الحجوزات
@@ -118,30 +120,44 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
               <Link to="/property-admin/dashboard" className="text-white hover:text-[#39FF14] transition-colors duration-300">
                 الإحصائيات
               </Link>
-            </div>
+            </>
           );
+          break;
           
         case "CUSTOMER":
-          return (
-            <div className="hidden md:flex items-center gap-4">
-              <Link to="/customer" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                الرئيسية
+          roleLinks = (
+            <>
+              <Link to="/customer" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4">
+                لوحة تحكم العميل
               </Link>
               <Link to="/customer/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
                 حجوزاتي
               </Link>
+              <Link to="/customer/favorites" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                المفضلة
+              </Link>
               <Link to="/customer/profile" className="text-white hover:text-[#39FF14] transition-colors duration-300">
                 حسابي
               </Link>
-            </div>
+            </>
           );
+          break;
         
         default:
-          return null;
+          break;
       }
     }
     
-    return null;
+    // عرض القائمة المناسبة حسب حالة المستخدم ونوع الصفحة
+    return (
+      <div className="hidden md:flex items-center gap-4">
+        {/* دائمًا نعرض روابط لوحة التحكم أولاً إذا كان المستخدم مسجل الدخول */}
+        {roleLinks}
+        
+        {/* عرض الروابط العامة إذا كنا في الصفحة العامة أو لم يكن هناك روابط خاصة بالدور */}
+        {(isPublicPage || !roleLinks) && publicLinks}
+      </div>
+    );
   };
   
   // زر القائمة المنسدلة أو زر الإشعارات للواجهة المتوافقة مع الأجهزة المحمولة
