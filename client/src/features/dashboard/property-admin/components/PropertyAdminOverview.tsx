@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Building, Calendar, DollarSign, Star, Users, ChevronRight, TrendingUp, Eye, Plus } from "lucide-react";
 import { FaBuilding, FaCalendarAlt, FaMoneyBillWave, FaStar, FaChartLine } from "react-icons/fa";
 import PropertyAdminStatsCard from './PropertyAdminStatsCard';

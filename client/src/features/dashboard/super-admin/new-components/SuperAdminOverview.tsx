@@ -318,7 +318,7 @@ export const SuperAdminOverview: React.FC<SuperAdminOverviewProps> = ({
                         borderRadius: '0.5rem',
                         color: '#f3f4f6'
                       }}
-                      formatter={(value, name) => [`${value} (${Math.round((value / totalBookings) * 100)}%)`, name]}
+                      formatter={(value: number, name) => [`${value} (${Math.round((value / (totalBookings || 1)) * 100)}%)`, name]}
                     />
                     <Legend 
                       layout="vertical" 

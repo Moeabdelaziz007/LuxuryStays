@@ -38,42 +38,42 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ usersByRole, recentUs
     setShowRoleOptions(null);
   };
 
+  // تحويل قيم التعداد إلى أسماء عربية للعرض
+  const getRoleDisplayName = (role: string): string => {
+    switch (role) {
+      case UserRole.PROPERTY_ADMIN:
+        return 'مدير عقارات';
+      case UserRole.SUPER_ADMIN:
+        return 'مشرف عام';
+      case UserRole.CUSTOMER:
+      default:
+        return 'عميل';
+    }
+  };
+
+  // الحصول على لون خلفية الدور
   const getRoleStatusColor = (role: string) => {
     switch (role) {
-      case 'مدير عقارات':
-      case 'مشرف': 
+      case UserRole.PROPERTY_ADMIN:
         return 'bg-blue-500/20 text-blue-400';
-      case 'مشرف عام': 
+      case UserRole.SUPER_ADMIN:
         return 'bg-purple-500/20 text-purple-400';
-      case 'عميل':
+      case UserRole.CUSTOMER:
       default:
         return 'bg-emerald-500/20 text-emerald-400';
     }
   };
 
+  // الحصول على لون نص الدور
   const getRoleClass = (role: string) => {
     switch (role) {
-      case 'مدير عقارات':
-      case 'مشرف': 
+      case UserRole.PROPERTY_ADMIN:
         return 'text-blue-400';
-      case 'مشرف عام': 
+      case UserRole.SUPER_ADMIN:
         return 'text-purple-400';
-      case 'عميل':
+      case UserRole.CUSTOMER:
       default:
         return 'text-emerald-400';
-    }
-  };
-
-  const getRoleEnumValue = (role: string): UserRole => {
-    switch (role) {
-      case 'مدير عقارات':
-      case 'مشرف': 
-        return UserRole.PROPERTY_ADMIN;
-      case 'مشرف عام': 
-        return UserRole.SUPER_ADMIN;
-      case 'عميل':
-      default:
-        return UserRole.CUSTOMER;
     }
   };
 
@@ -178,7 +178,7 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ usersByRole, recentUs
                     <div className="relative">
                       <Badge className={`${getRoleStatusColor(user.role)} cursor-pointer`} onClick={() => toggleRoleOptions(user.id)}>
                         <span className="flex items-center">
-                          {user.role}
+                          {getRoleDisplayName(user.role)}
                           <ChevronDown size={14} className="ml-1" />
                         </span>
                       </Badge>
@@ -188,26 +188,26 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ usersByRole, recentUs
                           <div className="rounded-md py-1">
                             <button 
                               onClick={() => handleRoleChange(user.id, UserRole.CUSTOMER)}
-                              className={`block w-full text-right px-4 py-2 text-xs ${user.role === 'عميل' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+                              className={`block w-full text-right px-4 py-2 text-xs ${user.role === UserRole.CUSTOMER ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
                             >
-                              <span className={user.role === 'عميل' ? 'text-emerald-400 font-bold' : 'text-gray-300'}>
-                                عميل {user.role === 'عميل' && <CheckCircle size={12} className="inline ml-1" />}
+                              <span className={user.role === UserRole.CUSTOMER ? 'text-emerald-400 font-bold' : 'text-gray-300'}>
+                                عميل {user.role === UserRole.CUSTOMER && <CheckCircle size={12} className="inline ml-1" />}
                               </span>
                             </button>
                             <button 
                               onClick={() => handleRoleChange(user.id, UserRole.PROPERTY_ADMIN)}
-                              className={`block w-full text-right px-4 py-2 text-xs ${user.role === 'مدير عقارات' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+                              className={`block w-full text-right px-4 py-2 text-xs ${user.role === UserRole.PROPERTY_ADMIN ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
                             >
-                              <span className={user.role === 'مدير عقارات' ? 'text-blue-400 font-bold' : 'text-gray-300'}>
-                                مدير عقارات {user.role === 'مدير عقارات' && <CheckCircle size={12} className="inline ml-1" />}
+                              <span className={user.role === UserRole.PROPERTY_ADMIN ? 'text-blue-400 font-bold' : 'text-gray-300'}>
+                                مدير عقارات {user.role === UserRole.PROPERTY_ADMIN && <CheckCircle size={12} className="inline ml-1" />}
                               </span>
                             </button>
                             <button 
                               onClick={() => handleRoleChange(user.id, UserRole.SUPER_ADMIN)}
-                              className={`block w-full text-right px-4 py-2 text-xs ${user.role === 'مشرف عام' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+                              className={`block w-full text-right px-4 py-2 text-xs ${user.role === UserRole.SUPER_ADMIN ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
                             >
-                              <span className={user.role === 'مشرف عام' ? 'text-purple-400 font-bold' : 'text-gray-300'}>
-                                مشرف عام {user.role === 'مشرف عام' && <CheckCircle size={12} className="inline ml-1" />}
+                              <span className={user.role === UserRole.SUPER_ADMIN ? 'text-purple-400 font-bold' : 'text-gray-300'}>
+                                مشرف عام {user.role === UserRole.SUPER_ADMIN && <CheckCircle size={12} className="inline ml-1" />}
                               </span>
                             </button>
                           </div>
