@@ -188,26 +188,41 @@ export default function NewSuperAdminDashboard() {
       // محاولة جلب البيانات من Firestore
       if (db) {
         // جلب عدد المستخدمين
-        const usersCountSnap = await safeDoc(() => getCountFromServer(collection(db, "users")), null);
+        const usersCountSnap = await safeDoc(() => {
+          if (!db) throw new Error("Firestore not initialized");
+          return getCountFromServer(collection(db, "users"));
+        }, null);
         const usersCount = usersCountSnap?.data().count || 0;
         
         // جلب عدد العقارات
-        const propertiesCountSnap = await safeDoc(() => getCountFromServer(collection(db, "properties")), null);
+        const propertiesCountSnap = await safeDoc(() => {
+          if (!db) throw new Error("Firestore not initialized");
+          return getCountFromServer(collection(db, "properties"));
+        }, null);
         const propertiesCount = propertiesCountSnap?.data().count || 0;
         
         // جلب عدد الحجوزات
-        const bookingsCountSnap = await safeDoc(() => getCountFromServer(collection(db, "bookings")), null);
+        const bookingsCountSnap = await safeDoc(() => {
+          if (!db) throw new Error("Firestore not initialized");
+          return getCountFromServer(collection(db, "bookings"));
+        }, null);
         const bookingsCount = bookingsCountSnap?.data().count || 0;
         
         // جلب المستخدمين الجدد
-        const recentUsersQuery = await safeDoc(() => getDocs(
-          query(collection(db, "users"), orderBy("createdAt", "desc"), limit(5))
-        ), null);
+        const recentUsersQuery = await safeDoc(() => {
+          if (!db) throw new Error("Firestore not initialized");
+          return getDocs(
+            query(collection(db, "users"), orderBy("createdAt", "desc"), limit(5))
+          );
+        }, null);
         
         // جلب الحجوزات الأخيرة
-        const recentBookingsQuery = await safeDoc(() => getDocs(
-          query(collection(db, "bookings"), orderBy("createdAt", "desc"), limit(5))
-        ), null);
+        const recentBookingsQuery = await safeDoc(() => {
+          if (!db) throw new Error("Firestore not initialized");
+          return getDocs(
+            query(collection(db, "bookings"), orderBy("createdAt", "desc"), limit(5))
+          );
+        }, null);
         
         // إذا تم جلب البيانات بنجاح، قم بتحديث حالة المكون
         if (usersCount || propertiesCount || bookingsCount) {
@@ -225,7 +240,7 @@ export default function NewSuperAdminDashboard() {
           
           // تحديث المستخدمين الجدد
           if (recentUsersQuery && !recentUsersQuery.empty) {
-            const usersData = recentUsersQuery.docs.map(doc => {
+            const usersData = recentUsersQuery.docs.map((doc: any) => {
               const data = doc.data();
               return {
                 id: doc.id,
