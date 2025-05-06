@@ -6,6 +6,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useTranslation } from "@/features/i18n/hooks/useTranslation";
 import MobileMenu from "./MobileMenu";
 import { Menu, X } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -46,8 +47,8 @@ export default function Header() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Link to="/" className="text-2xl font-bold text-white font-poppins">
-                Stay<span className="text-accent">X</span>
+              <Link to="/" className="flex items-center">
+                <Logo size="lg" variant="neon" withText={true} />
               </Link>
             </div>
             

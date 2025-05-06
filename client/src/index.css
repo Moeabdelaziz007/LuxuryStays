@@ -34,6 +34,39 @@
   animation: neon-pulse 3s infinite;
 }
 
+@keyframes neon-flicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 0.99;
+    filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.9));
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 4px rgba(57, 255, 20, 0.4));
+  }
+}
+
+.animate-neon-flicker {
+  animation: neon-flicker 2s linear infinite;
+}
+
+/* Custom animation durations */
+.duration-2000 {
+  transition-duration: 2000ms;
+}
+
+/* Splash screen glow effects */
+.splash-logo-glow {
+  filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.8))
+         drop-shadow(0 0 20px rgba(57, 255, 20, 0.4))
+         drop-shadow(0 0 30px rgba(57, 255, 20, 0.2));
+}
+
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(57, 255, 20, 0.1);
+}
+
 /* Set up the root colors */
 :root {
   /* Neon Green Color Theme */
