@@ -359,12 +359,12 @@ export default function NewPropertyAdminDashboard() {
             </div>
             
             {/* Stats Summary */}
-            <div className="space-y-3 bg-gray-900/50 backdrop-blur-sm p-4 rounded-xl border border-gray-800/50">
-              <h3 className="text-xs text-gray-400 uppercase">ملخص الإحصائيات</h3>
+            <div className="space-y-3 bg-black/50 backdrop-blur-sm p-4 rounded-xl border border-gray-800/50 shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
+              <h3 className="text-xs text-[#39FF14]/70 uppercase font-semibold tracking-wider">ملخص الإحصائيات</h3>
               
-              <div className="flex items-center justify-between py-2 border-b border-gray-800">
+              <div className="flex items-center justify-between py-2 border-b border-gray-800/50">
                 <div className="flex items-center">
-                  <div className="w-7 h-7 rounded-md bg-indigo-500/20 flex items-center justify-center text-indigo-400 ml-3">
+                  <div className="w-7 h-7 rounded-md bg-[#39FF14]/10 flex items-center justify-center text-[#39FF14] ml-3 shadow-[0_0_8px_rgba(57,255,20,0.2)]">
                     <Building size={14} />
                   </div>
                   <span className="text-sm text-gray-300">العقارات</span>
@@ -372,9 +372,9 @@ export default function NewPropertyAdminDashboard() {
                 <span className="text-sm font-medium text-white">{dashboardStats?.propertiesCount || 0}</span>
               </div>
               
-              <div className="flex items-center justify-between py-2 border-b border-gray-800">
+              <div className="flex items-center justify-between py-2 border-b border-gray-800/50">
                 <div className="flex items-center">
-                  <div className="w-7 h-7 rounded-md bg-amber-500/20 flex items-center justify-center text-amber-400 ml-3">
+                  <div className="w-7 h-7 rounded-md bg-[#39FF14]/10 flex items-center justify-center text-[#39FF14] ml-3 shadow-[0_0_8px_rgba(57,255,20,0.2)]">
                     <Calendar size={14} />
                   </div>
                   <span className="text-sm text-gray-300">الحجوزات</span>
@@ -382,9 +382,9 @@ export default function NewPropertyAdminDashboard() {
                 <span className="text-sm font-medium text-white">{dashboardStats?.bookingsCount || 0}</span>
               </div>
               
-              <div className="flex items-center justify-between py-2 border-b border-gray-800">
+              <div className="flex items-center justify-between py-2 border-b border-gray-800/50">
                 <div className="flex items-center">
-                  <div className="w-7 h-7 rounded-md bg-green-500/20 flex items-center justify-center text-green-400 ml-3">
+                  <div className="w-7 h-7 rounded-md bg-[#39FF14]/10 flex items-center justify-center text-[#39FF14] ml-3 shadow-[0_0_8px_rgba(57,255,20,0.2)]">
                     <FaMoneyBillWave size={14} />
                   </div>
                   <span className="text-sm text-gray-300">الإيرادات</span>
@@ -394,7 +394,7 @@ export default function NewPropertyAdminDashboard() {
               
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center">
-                  <div className="w-7 h-7 rounded-md bg-rose-500/20 flex items-center justify-center text-rose-400 ml-3">
+                  <div className="w-7 h-7 rounded-md bg-[#39FF14]/10 flex items-center justify-center text-[#39FF14] ml-3 shadow-[0_0_8px_rgba(57,255,20,0.2)]">
                     <FaStar size={14} />
                   </div>
                   <span className="text-sm text-gray-300">التقييمات</span>
@@ -438,7 +438,7 @@ export default function NewPropertyAdminDashboard() {
                   <h2 className="text-2xl font-bold text-white mb-6">إدارة الحجوزات</h2>
                   
                   {/* Booking filters */}
-                  <div className="mb-6 bg-gradient-to-r from-indigo-900/20 to-indigo-800/10 border border-indigo-800/30 rounded-xl p-5">
+                  <div className="mb-6 bg-black/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-5 shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
                     <div className="flex flex-col md:flex-row justify-between gap-4">
                       <div>
                         <h3 className="text-lg font-semibold text-white mb-1">الحجوزات</h3>
@@ -448,25 +448,25 @@ export default function NewPropertyAdminDashboard() {
                       <div className="flex flex-wrap gap-3">
                         <Button 
                           variant="outline" 
-                          className="text-indigo-400 border-indigo-500/50 hover:bg-indigo-500/10"
+                          className="text-[#39FF14] border-[#39FF14]/50 hover:bg-[#39FF14]/10 hover:shadow-[0_0_10px_rgba(57,255,20,0.2)] transition-all"
                         >
                           جميع الحجوزات
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="text-amber-400 border-amber-500/50 hover:bg-amber-500/10"
+                          className="text-amber-400 border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-all"
                         >
                           قيد الانتظار
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="text-green-400 border-green-500/50 hover:bg-green-500/10"
+                          className="text-green-400 border-green-500/50 hover:bg-green-500/10 hover:shadow-[0_0_10px_rgba(74,222,128,0.2)] transition-all"
                         >
                           مؤكدة
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="text-red-400 border-red-500/50 hover:bg-red-500/10"
+                          className="text-red-400 border-red-500/50 hover:bg-red-500/10 hover:shadow-[0_0_10px_rgba(248,113,113,0.2)] transition-all"
                         >
                           ملغية
                         </Button>
@@ -503,16 +503,16 @@ export default function NewPropertyAdminDashboard() {
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">تحليلات الأداء</h2>
                   
-                  <Card className="border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950">
+                  <Card className="border-gray-800/50 bg-black/50 backdrop-blur-sm shadow-[0_10px_25px_rgba(0,0,0,0.3)]">
                     <CardHeader>
-                      <CardTitle className="text-lg text-white">قريباً</CardTitle>
+                      <CardTitle className="text-lg text-[#39FF14]">قريباً</CardTitle>
                       <CardDescription className="text-gray-400">
                         سيتم إضافة تحليلات مفصلة قريباً
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="text-center py-12">
-                        <PieChart className="h-16 w-16 mx-auto text-indigo-400 mb-4" />
+                        <PieChart className="h-16 w-16 mx-auto text-[#39FF14] mb-4 opacity-60" />
                         <h3 className="text-lg font-medium text-white mb-2">تحليلات متقدمة</h3>
                         <p className="text-gray-400 mb-4">سيتم إضافة تحليلات متقدمة للإشغال والإيرادات قريباً</p>
                       </div>
@@ -525,16 +525,16 @@ export default function NewPropertyAdminDashboard() {
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">الرسائل</h2>
                   
-                  <Card className="border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950">
+                  <Card className="border-gray-800/50 bg-black/50 backdrop-blur-sm shadow-[0_10px_25px_rgba(0,0,0,0.3)]">
                     <CardHeader>
-                      <CardTitle className="text-lg text-white">قريباً</CardTitle>
+                      <CardTitle className="text-lg text-[#39FF14]">قريباً</CardTitle>
                       <CardDescription className="text-gray-400">
                         سيتم إضافة نظام المراسلات قريباً
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="text-center py-12">
-                        <MessageSquare className="h-16 w-16 mx-auto text-indigo-400 mb-4" />
+                        <MessageSquare className="h-16 w-16 mx-auto text-[#39FF14] mb-4 opacity-60" />
                         <h3 className="text-lg font-medium text-white mb-2">نظام المراسلات</h3>
                         <p className="text-gray-400 mb-4">سيتم إضافة نظام للتواصل مع العملاء والمشرفين قريباً</p>
                       </div>
@@ -547,16 +547,16 @@ export default function NewPropertyAdminDashboard() {
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">الإعدادات</h2>
                   
-                  <Card className="border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950">
+                  <Card className="border-gray-800/50 bg-black/50 backdrop-blur-sm shadow-[0_10px_25px_rgba(0,0,0,0.3)]">
                     <CardHeader>
-                      <CardTitle className="text-lg text-white">قريباً</CardTitle>
+                      <CardTitle className="text-lg text-[#39FF14]">قريباً</CardTitle>
                       <CardDescription className="text-gray-400">
                         سيتم إضافة صفحة الإعدادات قريباً
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="text-center py-12">
-                        <Settings2 className="h-16 w-16 mx-auto text-indigo-400 mb-4" />
+                        <Settings2 className="h-16 w-16 mx-auto text-[#39FF14] mb-4 opacity-60" />
                         <h3 className="text-lg font-medium text-white mb-2">إعدادات الحساب</h3>
                         <p className="text-gray-400 mb-4">سيتم إضافة إعدادات متقدمة للحساب قريباً</p>
                       </div>
