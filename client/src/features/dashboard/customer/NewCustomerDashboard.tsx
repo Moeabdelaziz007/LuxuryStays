@@ -56,58 +56,98 @@ export default function NewCustomerDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   
   // Fetch user's bookings
-  const { data: bookings = [], isLoading: bookingsLoading } = useQuery({
+  const { data: bookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery({
     queryKey: ["customer-bookings", user?.uid],
     queryFn: async () => {
       if (!user?.uid || !db) return [];
       
       try {
+        // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
+        const bookingsCollectionRef = collection(db, "bookings");
+        if (!bookingsCollectionRef) {
+          console.error("مجموعة الحجوزات غير متوفرة في Firestore");
+          return [];
+        }
+        
+        // إعداد الاستعلام لجلب حجوزات المستخدم، مرتبة حسب تاريخ الإنشاء تنازلياً
         const q = query(
-          collection(db, "bookings"), 
+          bookingsCollectionRef, 
           where("userId", "==", user.uid),
           orderBy("createdAt", "desc")
         );
+        
+        // تنفيذ الاستعلام واستخراج المستندات
         const snapshot = await getDocs(q);
         
-        // Get bookings with property details
+        // استخراج البيانات والمعلومات التفصيلية
         const bookingsWithDetails = [];
+        const propertyCache = {};
         
+        // معالجة كل مستند حجز
         for (const docSnap of snapshot.docs) {
+          if (!docSnap.exists()) continue; // تخطي المستندات غير الموجودة
+          
           const bookingData = docSnap.data();
           
-          // Get property details
+          // تعيين القيم الافتراضية
           let propertyName = "عقار غير معروف";
           let propertyImage = "";
           
+          // استرجاع معلومات العقار إذا كان معرف العقار موجود
           if (bookingData.propertyId) {
             try {
-              const propertyDocRef = doc(db, "properties", bookingData.propertyId);
-              const propertyDocSnap = await getDoc(propertyDocRef);
-              if (propertyDocSnap.exists()) {
-                const propertyData = propertyDocSnap.data();
-                propertyName = propertyData.name;
-                propertyImage = propertyData.imageUrl;
+              // التحقق من الكاش أولاً للحد من طلبات Firestore
+              if (propertyCache[bookingData.propertyId]) {
+                const cachedData = propertyCache[bookingData.propertyId];
+                propertyName = cachedData.name;
+                propertyImage = cachedData.imageUrl;
+              } else {
+                // استرجاع بيانات العقار من Firestore
+                const propertyDocRef = doc(db, "properties", bookingData.propertyId);
+                const propertyDocSnap = await getDoc(propertyDocRef);
+                
+                if (propertyDocSnap.exists()) {
+                  const propertyData = propertyDocSnap.data();
+                  propertyName = propertyData.name || propertyName;
+                  propertyImage = propertyData.imageUrl || "";
+                  
+                  // تخزين البيانات في الكاش للاستخدام اللاحق
+                  propertyCache[bookingData.propertyId] = {
+                    name: propertyName,
+                    imageUrl: propertyImage
+                  };
+                }
               }
             } catch (error) {
-              console.error("Error fetching property details:", error);
+              console.error("خطأ في استرجاع تفاصيل العقار:", error);
+              // نستمر بدون أي تأثير على تجربة المستخدم
             }
           }
           
+          // إضافة الحجز مع بيانات العقار المستخرجة
           bookingsWithDetails.push({
             id: docSnap.id,
             ...bookingData,
             propertyName,
-            propertyImage
+            propertyImage,
+            // التأكد من وجود حالة صالحة
+            status: ["pending", "confirmed", "cancelled"].includes(bookingData.status) 
+              ? bookingData.status 
+              : "pending"
           });
         }
         
+        console.log(`تم استرجاع ${bookingsWithDetails.length} حجز بنجاح`);
         return bookingsWithDetails;
       } catch (error) {
-        console.error("Error fetching bookings:", error);
+        console.error("خطأ في استرجاع الحجوزات:", error);
+        // إرجاع مصفوفة فارغة لتجنب انهيار التطبيق
         return [];
       }
     },
-    enabled: !!user?.uid && !!db
+    enabled: !!user?.uid && !!db,
+    staleTime: 5 * 60 * 1000, // تخزين البيانات لمدة 5 دقائق قبل إعادة الاستعلام
+    retry: 2 // محاولة إعادة الاستعلام مرتين في حالة الفشل
   });
   
   // Fetch user's favorite properties
@@ -167,13 +207,41 @@ export default function NewCustomerDashboard() {
     if (!dateObj) return "غير محدد";
     
     try {
-      const date = dateObj.toDate ? dateObj.toDate() : new Date(dateObj);
-      return date.toLocaleDateString('ar-EG', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+      // تعامل مع Firestore Timestamp
+      if (dateObj && typeof dateObj === 'object' && 'toDate' in dateObj && typeof dateObj.toDate === 'function') {
+        const date = dateObj.toDate();
+        return date.toLocaleDateString('ar-EG', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      
+      // تعامل مع كائن Date
+      if (dateObj instanceof Date) {
+        return dateObj.toLocaleDateString('ar-EG', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      
+      // تعامل مع سلسلة نصية أو timestamp
+      if (typeof dateObj === 'string' || typeof dateObj === 'number') {
+        const date = new Date(dateObj);
+        if (!isNaN(date.getTime())) { // تحقق من أن التاريخ صالح
+          return date.toLocaleDateString('ar-EG', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+        }
+      }
+      
+      // إذا فشلت كل المحاولات السابقة
+      return "غير محدد";
     } catch (e) {
+      console.error("خطأ في تنسيق التاريخ:", e);
       return "غير محدد";
     }
   };
