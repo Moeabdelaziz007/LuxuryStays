@@ -51,6 +51,7 @@ function RedirectHandler() {
 
 function App() {
   const [location] = useLocation();
+  // نعرض Header و Footer فقط في الصفحات العامة
   const showHeaderFooter = !location.includes('/super-admin') && 
                            !location.includes('/property-admin') && 
                            !location.includes('/customer');
