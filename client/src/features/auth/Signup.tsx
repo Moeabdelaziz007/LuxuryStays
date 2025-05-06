@@ -89,14 +89,13 @@ export default function SignupPage() {
         // عرض رسالة نجاح
         toast({
           title: "تم إنشاء الحساب بنجاح",
-          description: "سيتم توجيهك لتسجيل الدخول...",
+          description: "سيتم توجيهك للصفحة الرئيسية...",
         });
         
-        // تسجيل الخروج من الحساب الجديد لضمان تسجيل الدخول بشكل صحيح
-        await auth.signOut();
-        
-        // التوجيه إلى صفحة تسجيل الدخول مع إشارة إلى نجاح التسجيل
-        setLocation('/login?registered=true');
+        // مباشرة توجيه المستخدم للصفحة الرئيسية بعد التسجيل، دون تسجيل الخروج
+        setTimeout(() => {
+          setLocation('/');
+        }, 1500);
       } catch (authError: any) {
         console.error("خطأ في إنشاء المستخدم في Firebase Auth:", authError);
         throw authError;
@@ -178,8 +177,10 @@ export default function SignupPage() {
           }
         } else if (popupError.code === 'auth/unauthorized-domain') {
           // معالجة خاصة لخطأ النطاق غير المصرح به
-          console.error(`يرجى التأكد من إضافة ${window.location.origin} إلى نطاقات Firebase المصرح بها`);
-          console.error(`تأكد أيضًا من إضافة ${window.location.host} (بدون https://) كنطاق مصرح به`);
+          const domainOnly = window.location.host;
+          console.error(`يرجى إضافة "${domainOnly}" (بدون https:// أو http://) إلى نطاقات Firebase المصرح بها`);
+          console.error(`للإضافة، انتقل إلى لوحة تحكم Firebase > Authentication > Sign-in method > Authorized domains`);
+          console.error(`يجب إضافة "${domainOnly}" فقط بدون بروتوكول`);
           
           // تقديم رسالة مفصلة للمستخدم
           toast(getWarningToast(

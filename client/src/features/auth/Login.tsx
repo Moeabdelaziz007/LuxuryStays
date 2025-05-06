@@ -233,7 +233,10 @@ export default function LoginPage() {
       
       if (err.code === 'auth/unauthorized-domain') {
         setError("نأسف، هذا النطاق غير مسموح به للمصادقة عبر Google. الرجاء استخدام البريد الإلكتروني وكلمة المرور بدلاً من ذلك.");
-        console.error(`يرجى إضافة ${window.location.origin} إلى نطاقات Firebase المصرح بها`);
+        const domainOnly = window.location.host;
+        console.error(`يرجى إضافة "${domainOnly}" (بدون https:// أو http://) إلى نطاقات Firebase المصرح بها`);
+        console.error(`للإضافة، انتقل إلى لوحة تحكم Firebase > Authentication > Sign-in method > Authorized domains`);
+        console.error(`يجب إضافة "${domainOnly}" فقط بدون بروتوكول`);
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError("تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
       } else if (err.code === 'auth/cancelled-popup-request') {
