@@ -6,15 +6,28 @@ import {
   Home, Settings, Users, ChevronRight, ChevronLeft, 
   BarChart3, Calendar, BookOpen, LogOut, Menu, X, 
   ShoppingBag, Heart, CreditCard, Bell, LayoutDashboard, 
-  CircleUser
+  CircleUser, Building
 } from "lucide-react";
+
+// تعريف نوع عنصر القائمة
+interface SidebarLink {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+}
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const [location] = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   
-  let links = [];
+  type NavLink = {
+    to: string;
+    icon: React.ReactNode;
+    label: string;
+  };
+  
+  let links: NavLink[] = [];
   
   if (user?.role === "CUSTOMER") {
     links = [
@@ -38,7 +51,7 @@ export default function Sidebar() {
     links = [
       { to: "/super-admin", icon: <LayoutDashboard className="h-5 w-5" />, label: "لوحة التحكم" },
       { to: "/super-admin/users", icon: <Users className="h-5 w-5" />, label: "المستخدمين" },
-      { to: "/super-admin/properties", icon: <Building className="h-5 w-5" />, label: "العقارات" },
+      { to: "/super-admin/properties", icon: <Home className="h-5 w-5" />, label: "العقارات" },
       { to: "/super-admin/bookings", icon: <Calendar className="h-5 w-5" />, label: "الحجوزات" },
       { to: "/super-admin/services", icon: <ShoppingBag className="h-5 w-5" />, label: "الخدمات" },
       { to: "/super-admin/revenue", icon: <CreditCard className="h-5 w-5" />, label: "الإيرادات" },
