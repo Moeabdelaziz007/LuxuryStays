@@ -5,6 +5,7 @@ import { UserRole } from "@shared/schema";
 
 // Layout Components
 import Layout from "@/components/layout/Layout";
+import { CustomerLayout, PropertyAdminLayout, SuperAdminLayout } from "@/components/layout/RoleLayouts";
 
 // Dashboard Components
 import SuperAdminDashboard from "@/features/dashboard/super-admin/SuperAdminDashboard";
@@ -31,45 +32,50 @@ export default function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
+      {/* مسار لوحة تحكم العميل مع التخطيط المخصص للعملاء */}
       <Route
         path="/customer"
         element={
           <RouteGuard role={UserRole.CUSTOMER}>
-            <Layout>
+            <CustomerLayout>
               <CustomerDashboard />
-            </Layout>
+            </CustomerLayout>
           </RouteGuard>
         }
       />
 
+      {/* مسار لوحة تحكم مدير العقارات مع التخطيط المخصص لمديري العقارات */}
       <Route
         path="/property-admin"
         element={
           <RouteGuard role={UserRole.PROPERTY_ADMIN}>
-            <Layout>
+            <PropertyAdminLayout>
               <PropertyAdminDashboard />
-            </Layout>
+            </PropertyAdminLayout>
           </RouteGuard>
         }
       />
 
+      {/* مسار لوحة تحكم المسؤول الرئيسي مع التخطيط المخصص للمسؤولين الرئيسيين */}
       <Route
         path="/super-admin"
         element={
           <RouteGuard role={UserRole.SUPER_ADMIN}>
-            <Layout>
+            <SuperAdminLayout>
               <SuperAdminDashboard />
-            </Layout>
+            </SuperAdminLayout>
           </RouteGuard>
         }
       />
       
-      {/* Booking routes */}
+      {/* مسارات الحجز مع تخطيط العميل المناسب */}
       <Route
         path="/booking/confirmation/:bookingId"
         element={
           <RouteGuard role={UserRole.CUSTOMER}>
-            <BookingConfirmation />
+            <CustomerLayout>
+              <BookingConfirmation />
+            </CustomerLayout>
           </RouteGuard>
         }
       />

@@ -6,6 +6,7 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  updateProfile,
   Auth
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp, Firestore } from "firebase/firestore";
@@ -167,11 +168,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // سيتم التوجيه تلقائياً من خلال المراقب في useEffect
       console.log("تم تسجيل الدخول بنجاح، في انتظار التوجيه...");
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ في تسجيل الدخول:", err);
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+      if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/user-not-found' || err?.code === 'auth/wrong-password') {
         setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
-      } else if (err.code === 'auth/too-many-requests') {
+      } else if (err?.code === 'auth/too-many-requests') {
         setError("عدة محاولات فاشلة، يرجى المحاولة مرة أخرى بعد فترة");
       } else {
         setError("حدث خطأ أثناء تسجيل الدخول");
