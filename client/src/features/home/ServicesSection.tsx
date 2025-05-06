@@ -3,6 +3,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/firebase";
 import { useState, useEffect } from "react";
+import { HolographicCard } from "@/components/ui/holographic-card";
 
 interface ServiceLocation {
   name: string;
@@ -142,9 +143,14 @@ export default function ServicesSection() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {servicesList.map((service) => (
-          <div
+          <HolographicCard
             key={service.id}
-            className="bg-gradient-to-br from-gray-800/90 to-gray-900 text-white rounded-xl overflow-hidden shadow-xl transform transition-all duration-300 hover:scale-[1.02] border border-gray-700 hover:border-[#39FF14]/30 group"
+            className="overflow-hidden h-full"
+            glowColor="#39FF14"
+            glowIntensity="medium"
+            withBorder={true}
+            interactive={true}
+            variant="transparent"
           >
             {/* Service Header with Background Image */}
             <div className="relative h-40 overflow-hidden">
@@ -157,12 +163,22 @@ export default function ServicesSection() {
                 className="absolute inset-0 w-full h-full object-cover filter brightness-[0.6] transform group-hover:scale-105 transition-transform duration-700" 
               />
               
+              {/* إضافة تأثير التكنو-فضائي */}
+              <div 
+                className="absolute inset-0 opacity-10 pointer-events-none" 
+                style={{
+                  backgroundImage: 'linear-gradient(to right, rgba(57, 255, 20, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(57, 255, 20, 0.1) 1px, transparent 1px)',
+                  backgroundSize: '20px 20px',
+                  mixBlendMode: 'overlay'
+                }}
+              ></div>
+              
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-gray-900/50 to-transparent"></div>
               
               {/* Price Badge - Top Right */}
               <div className="absolute top-0 right-0 z-10 m-4">
-                <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold bg-[#39FF14] text-black shadow-md`}>
+                <span className="inline-block px-4 py-1 rounded-full text-sm font-bold bg-[#39FF14] text-black shadow-[0_0_15px_rgba(57,255,20,0.3)] backdrop-blur-sm border border-[#39FF14]/20">
                   {service.name?.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
                 </span>
               </div>
@@ -170,67 +186,71 @@ export default function ServicesSection() {
               {/* Icon and Service Title - Positioned at Bottom */}
               <div className="absolute bottom-0 left-0 right-0 p-4 z-10 flex items-center">
                 {/* Icon Container */}
-                <div className={`p-3 rounded-full mr-4 ${service.name?.includes("مطاعم") 
-                  ? "bg-gradient-to-br from-[#39FF14] to-[#2ac70d]" 
-                  : "bg-gradient-to-br from-[#39FF14] to-[#39FF14]"} shadow-md`}
-                >
+                <div className="p-3 rounded-full mr-4 bg-gradient-to-br from-[#39FF14] to-[#39FF14]/80 shadow-[0_0_15px_rgba(57,255,20,0.4)] border border-[#39FF14]">
                   <span className="text-2xl">
                     {service.name?.includes("مطاعم") ? "🍽️" : "💃"}
                   </span>
                 </div>
                 
                 {/* Service Title */}
-                <h3 className="text-2xl font-bold text-white group-hover:text-[#39FF14] transition-colors">{service.name}</h3>
+                <h3 className="text-2xl font-bold text-white group-hover:text-[#39FF14] transition-colors drop-shadow-md">{service.name}</h3>
               </div>
             </div>
             
             {/* Service Content */}
             <div className="p-5">
               {/* Description */}
-              <div className="bg-black/20 rounded-lg p-4 mb-5">
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 mb-5 border border-[#39FF14]/10">
                 <p className="text-md text-gray-300">{service.description}</p>
               </div>
               
               {/* Location Filter Pills */}
               {service.locations && (
                 <div className="mb-5">
-                  <h4 className="text-sm font-semibold text-[#39FF14] mb-2">تصفية حسب المنطقة:</h4>
+                  <h4 className="text-sm font-semibold text-[#39FF14] mb-2 flex items-center">
+                    <span className="w-4 h-0.5 bg-[#39FF14] mr-2 opacity-70 rounded-full"></span>
+                    تصفية حسب المنطقة:
+                    <span className="w-4 h-0.5 bg-[#39FF14] ml-2 opacity-70 rounded-full"></span>
+                  </h4>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <button
                       onClick={() => setSelectedLocation(null)}
                       className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation === null 
-                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.3)]' 
-                        : 'bg-gray-800 text-white border border-gray-700 hover:border-[#39FF14]/50'}`}
+                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
+                        : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
                     >
                       الكل
                     </button>
                     <button
                       onClick={() => setSelectedLocation("راس الحكمة")}
                       className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation?.includes("راس الحكمة") 
-                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.3)]' 
-                        : 'bg-gray-800 text-white border border-gray-700 hover:border-[#39FF14]/50'}`}
+                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
+                        : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
                     >
                       راس الحكمة
                     </button>
                     <button
                       onClick={() => setSelectedLocation("الساحل الشمالي")}
                       className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation?.includes("الساحل") 
-                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.3)]' 
-                        : 'bg-gray-800 text-white border border-gray-700 hover:border-[#39FF14]/50'}`}
+                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
+                        : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
                     >
                       الساحل الشمالي
                     </button>
                   </div>
                   
                   {/* Locations List */}
-                  <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
-                    <h5 className="text-sm font-semibold text-white mb-3">الأماكن المتاحة:</h5>
+                  <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-[#39FF14]/20">
+                    <h5 className="text-sm font-semibold text-white mb-3 flex items-center">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#39FF14] mr-2 animate-pulse-subtle"></span>
+                      الأماكن المتاحة:
+                    </h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {service.locations
                         .filter(loc => selectedLocation ? loc.area.includes(selectedLocation) : true)
                         .map((location, idx) => (
-                        <div key={idx} className="flex items-center text-sm bg-black/20 rounded-md p-2">
-                          <span className="w-2 h-2 rounded-full bg-[#39FF14] mr-2 flex-shrink-0"></span>
+                        <div key={idx} className="flex items-center text-sm bg-black/50 backdrop-blur-sm rounded-md p-2 border border-gray-800 hover:border-[#39FF14]/30 transition-colors">
+                          <span className="w-2 h-2 rounded-full bg-[#39FF14] mr-2 flex-shrink-0 shadow-[0_0_5px_rgba(57,255,20,0.7)]"></span>
                           <div className="flex flex-col flex-grow">
                             <span className="font-medium text-white">{location.name}</span>
                             <span className="text-gray-400 text-xs">({location.area})</span>
@@ -242,16 +262,22 @@ export default function ServicesSection() {
                 </div>
               )}
               
-              {/* Divider Line */}
-              <div className="border-t border-gray-700 my-4"></div>
+              {/* Divider Line - futuristic divider */}
+              <div className="relative h-px my-4">
+                <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/40 to-transparent"></div>
+                <div className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full bg-[#39FF14] transform -translate-x-1/2 -translate-y-1/2 animate-pulse-subtle"></div>
+              </div>
               
               {/* Footer with Availability & CTA */}
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-gray-400 block mb-1">أماكن متاحة اليوم</span>
                   <div className="flex items-center">
-                    <div className="h-2 w-32 bg-gray-800 rounded-full overflow-hidden">
-                      <div className={`h-full ${service.name?.includes("مطاعم") ? "bg-[#39FF14] w-3/4" : "bg-[#39FF14] w-1/2"}`}></div>
+                    <div className="h-2 w-32 bg-black/50 rounded-full overflow-hidden border border-[#39FF14]/10">
+                      <div className={`h-full ${service.name?.includes("مطاعم") 
+                        ? "bg-gradient-to-r from-[#39FF14] to-[#2ac70d] w-3/4" 
+                        : "bg-gradient-to-r from-[#39FF14] to-[#45ff25] w-1/2"}`}>
+                      </div>
                     </div>
                     <span className="text-sm text-white ml-2 font-medium">
                       {service.name?.includes("مطاعم") ? "75%" : "50%"}
@@ -259,12 +285,16 @@ export default function ServicesSection() {
                   </div>
                 </div>
                 
-                <a href={`/services/${service.id}`} className="bg-[#39FF14] hover:bg-[#45ff25] text-black font-bold py-2.5 px-5 rounded-lg transition-all transform hover:translate-y-[-2px] hover:shadow-[0_0_15px_rgba(57,255,20,0.4)]">
-                  احجز الآن
+                <a 
+                  href={`/services/${service.id}`} 
+                  className="relative overflow-hidden bg-[#39FF14] hover:bg-[#45ff25] text-black font-bold py-2.5 px-5 rounded-lg transition-all shadow-[0_0_15px_rgba(57,255,20,0.2)] hover:shadow-[0_0_15px_rgba(57,255,20,0.5)] group"
+                >
+                  <span className="relative z-10">احجز الآن</span>
+                  <span className="absolute inset-0 w-full h-full bg-white/30 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                 </a>
               </div>
             </div>
-          </div>
+          </HolographicCard>
         ))}
       </div>
       
