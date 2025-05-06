@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { 
   addDoc, 
   collection, 
@@ -27,8 +27,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function BookingPage() {
   // Parse propertyId from query string
-  const [location] = useLocation();
-  const navigate = useNavigate();
+  const [location, navigate] = useLocation();
   const params = new URLSearchParams(location.split('?')[1]);
   const propertyId = params.get('propertyId') || "";
   
@@ -337,16 +336,17 @@ export default function BookingPage() {
     );
   }
 
+  // صفحة الحجز الرئيسية
   return (
     <div className="bg-black text-white min-h-screen">
-      {/* ✨ Animated Background for Booking Page */}
+      {/* ✨ خلفية متحركة لصفحة الحجز */}
       <div className="relative overflow-hidden">
-        {/* Enhanced Animated Gradient Background - Similar to Homepage */}
+        {/* تحسين خلفية التدرج المتحركة - مشابهة للصفحة الرئيسية */}
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0">
           <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1610641818989-c2051b5e2cfd?q=80&w=2070')] bg-cover bg-center"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
           
-          {/* Subtle Grid Lines */}
+          {/* خطوط شبكة خفيفة */}
           <div className="absolute inset-0 opacity-5">
             <div className="w-full h-full" style={{
               backgroundImage: 'linear-gradient(to right, rgba(57, 255, 20, 0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(57, 255, 20, 0.2) 1px, transparent 1px)',
@@ -354,7 +354,7 @@ export default function BookingPage() {
             }}></div>
           </div>
           
-          {/* Floating Neon Elements */}
+          {/* عناصر نيون عائمة */}
           <div className="absolute inset-0 overflow-hidden hidden md:block">
             <div className="absolute top-[15%] right-[10%] w-20 h-20 rounded-full bg-[#39FF14]/10 blur-xl animate-neon-pulse"></div>
             <div className="absolute bottom-[20%] left-[15%] w-32 h-32 rounded-full bg-[#39FF14]/5 blur-xl animate-neon-pulse"></div>
@@ -419,171 +419,173 @@ export default function BookingPage() {
                       </div>
                     </div>
                 
-                <div>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-1">
-                      <label className="block text-sm font-medium">
-                        <FaCalendarAlt className="inline-block mr-2 text-[#39FF14]" /> تاريخ الوصول:
-                      </label>
-                      <input 
-                        type="date" 
-                        value={checkInDate} 
-                        onChange={(e) => setCheckInDate(e.target.value)} 
-                        min={getTodayDate()}
-                        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14] transition-colors" 
-                        required 
-                      />
+                    <div>
+                      <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-1">
+                          <label className="block text-sm font-medium">
+                            <FaCalendarAlt className="inline-block mr-2 text-[#39FF14]" /> تاريخ الوصول:
+                          </label>
+                          <input 
+                            type="date" 
+                            value={checkInDate} 
+                            onChange={(e) => setCheckInDate(e.target.value)} 
+                            min={getTodayDate()}
+                            className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14] transition-colors" 
+                            required 
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <label className="block text-sm font-medium">
+                            <FaCalendarAlt className="inline-block mr-2 text-[#39FF14]" /> تاريخ المغادرة:
+                          </label>
+                          <input 
+                            type="date" 
+                            value={checkOutDate} 
+                            onChange={(e) => setCheckOutDate(e.target.value)} 
+                            min={getMinCheckoutDate()}
+                            className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14] transition-colors" 
+                            required 
+                            disabled={!checkInDate}
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <label className="block text-sm font-medium">
+                            <FaUsers className="inline-block mr-2 text-[#39FF14]" /> عدد الضيوف:
+                          </label>
+                          <input 
+                            type="number" 
+                            min="1" 
+                            max={property.maxGuests || 10}
+                            value={guests} 
+                            onChange={(e) => setGuests(Number(e.target.value))} 
+                            className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14] transition-colors" 
+                            required 
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <label className="block text-sm font-medium">
+                            <FaStickyNote className="inline-block mr-2 text-[#39FF14]" /> ملاحظات إضافية:
+                          </label>
+                          <textarea 
+                            value={notes} 
+                            onChange={(e) => setNotes(e.target.value)} 
+                            className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14] transition-colors min-h-[80px]"
+                          ></textarea>
+                        </div>
+                        
+                        <Separator className="bg-gray-800 my-6" />
+                        
+                        <div className="bg-gray-800 rounded-lg p-4">
+                          <h4 className="font-medium mb-3">ملخص الحجز</h4>
+                          <div className="space-y-2">
+                            {checkInDate && checkOutDate && new Date(checkOutDate) > new Date(checkInDate) ? (
+                              <>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">السعر لكل ليلة:</span>
+                                  <span>${property.price || 0}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400">عدد الليالي:</span>
+                                  <span>{Math.ceil(
+                                    Math.abs(new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / 
+                                    (1000 * 60 * 60 * 24)
+                                  )}</span>
+                                </div>
+                                <Separator className="bg-gray-700 my-2" />
+                                <div className="flex justify-between font-bold">
+                                  <span>الإجمالي:</span>
+                                  <span className="text-[#39FF14]">${totalPrice}</span>
+                                </div>
+                              </>
+                            ) : (
+                              <p className="text-gray-400 text-center py-2">
+                                يرجى اختيار تواريخ الوصول والمغادرة لعرض التفاصيل
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="text-xs text-gray-500 mt-4">
+                          * بالضغط على زر متابعة الحجز، أنت توافق على شروط وأحكام استخدام الخدمة.
+                        </div>
+                        
+                        <Button 
+                          type="submit" 
+                          className="w-full bg-[#39FF14] text-black font-bold py-6 text-lg hover:bg-[#50FF30] transition-colors"
+                          disabled={isLoading || !checkInDate || !checkOutDate || new Date(checkOutDate) <= new Date(checkInDate)}
+                        >
+                          {isLoading ? (
+                            <>
+                              <FaSpinner className="animate-spin mr-2" /> جاري معالجة الطلب...
+                            </>
+                          ) : (
+                            "متابعة الحجز والدفع"
+                          )}
+                        </Button>
+                      </form>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <label className="block text-sm font-medium">
-                        <FaCalendarAlt className="inline-block mr-2 text-[#39FF14]" /> تاريخ المغادرة:
-                      </label>
-                      <input 
-                        type="date" 
-                        value={checkOutDate} 
-                        onChange={(e) => setCheckOutDate(e.target.value)} 
-                        min={getMinCheckoutDate()}
-                        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14] transition-colors" 
-                        required 
-                        disabled={!checkInDate}
-                      />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <label className="block text-sm font-medium">
-                        <FaUsers className="inline-block mr-2 text-[#39FF14]" /> عدد الضيوف:
-                      </label>
-                      <input 
-                        type="number" 
-                        min="1" 
-                        max={property.maxGuests || 10}
-                        value={guests} 
-                        onChange={(e) => setGuests(Number(e.target.value))} 
-                        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14] transition-colors" 
-                        required 
-                      />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <label className="block text-sm font-medium">
-                        <FaStickyNote className="inline-block mr-2 text-[#39FF14]" /> ملاحظات إضافية:
-                      </label>
-                      <textarea 
-                        value={notes} 
-                        onChange={(e) => setNotes(e.target.value)} 
-                        className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14] transition-colors min-h-[80px]"
-                      ></textarea>
-                    </div>
-                    
-                    <Separator className="bg-gray-800 my-6" />
-                    
-                    <div className="bg-gray-800 rounded-lg p-4">
-                      <h4 className="font-medium mb-3">ملخص الحجز</h4>
-                      <div className="space-y-2">
-                        {checkInDate && checkOutDate && new Date(checkOutDate) > new Date(checkInDate) ? (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">السعر لكل ليلة:</span>
-                              <span>${property.price || 0}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">عدد الليالي:</span>
-                              <span>{Math.ceil(
-                                Math.abs(new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / 
-                                (1000 * 60 * 60 * 24)
-                              )}</span>
-                            </div>
-                            <Separator className="bg-gray-700 my-2" />
-                            <div className="flex justify-between font-bold">
-                              <span>الإجمالي:</span>
-                              <span className="text-[#39FF14]">${totalPrice}</span>
-                            </div>
-                          </>
-                        ) : (
-                          <p className="text-gray-400 text-center py-2">
-                            يرجى اختيار تواريخ الوصول والمغادرة لعرض التفاصيل
-                          </p>
-                        )}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-black/60 backdrop-blur-md border border-[#39FF14]/20 shadow-[0_0_15px_rgba(0,0,0,0.3)]">
+                <CardContent className="pt-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-[#39FF14]">إتمام الدفع</h2>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setStep(1)}
+                      className="text-gray-400 hover:text-white"
+                      disabled={isLoading}
+                    >
+                      <FaArrowLeft className="mr-2" /> العودة للحجز
+                    </Button>
+                  </div>
+                  
+                  <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-4 mb-6 border border-gray-700/30">
+                    <h3 className="font-medium mb-3 text-[#39FF14]">ملخص الحجز</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-gray-400 text-sm mb-1">العقار:</p>
+                        <p className="font-medium">{property.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm mb-1">الموقع:</p>
+                        <p>{property.location}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm mb-1">تاريخ الوصول:</p>
+                        <p>{new Date(checkInDate).toLocaleDateString('ar-EG')}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm mb-1">تاريخ المغادرة:</p>
+                        <p>{new Date(checkOutDate).toLocaleDateString('ar-EG')}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm mb-1">عدد الضيوف:</p>
+                        <p>{guests}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm mb-1">المبلغ الإجمالي:</p>
+                        <p className="font-bold text-[#39FF14]">${totalPrice}</p>
                       </div>
                     </div>
-                    
-                    <div className="text-xs text-gray-500 mt-4">
-                      * بالضغط على زر متابعة الحجز، أنت توافق على شروط وأحكام استخدام الخدمة.
-                    </div>
-                    
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-[#39FF14] text-black font-bold py-6 text-lg hover:bg-[#50FF30] transition-colors"
-                      disabled={isLoading || !checkInDate || !checkOutDate || new Date(checkOutDate) <= new Date(checkInDate)}
-                    >
-                      {isLoading ? (
-                        <>
-                          <FaSpinner className="animate-spin mr-2" /> جاري معالجة الطلب...
-                        </>
-                      ) : (
-                        "متابعة الحجز والدفع"
-                      )}
-                    </Button>
-                  </form>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="bg-gray-900 border-gray-800">
-            <CardContent className="pt-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-[#39FF14]">إتمام الدفع</h2>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setStep(1)}
-                  className="text-gray-400 hover:text-white"
-                  disabled={isLoading}
-                >
-                  <FaArrowLeft className="mr-2" /> العودة للحجز
-                </Button>
-              </div>
-              
-              <div className="bg-gray-800 rounded-lg p-4 mb-6">
-                <h3 className="font-medium mb-3">ملخص الحجز</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">العقار:</p>
-                    <p className="font-medium">{property.name}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">الموقع:</p>
-                    <p>{property.location}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">تاريخ الوصول:</p>
-                    <p>{new Date(checkInDate).toLocaleDateString('ar-EG')}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">تاريخ المغادرة:</p>
-                    <p>{new Date(checkOutDate).toLocaleDateString('ar-EG')}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">عدد الضيوف:</p>
-                    <p>{guests}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">المبلغ الإجمالي:</p>
-                    <p className="font-bold text-[#39FF14]">${totalPrice}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <PaymentMethods 
-                amount={totalPrice} 
-                onSuccess={handlePaymentSuccess}
-                onCancel={handlePaymentCancel}
-                bookingId={bookingId || undefined}
-              />
-            </CardContent>
-          </Card>
-        )}
+                  
+                  <PaymentMethods 
+                    amount={totalPrice} 
+                    onSuccess={handlePaymentSuccess}
+                    onCancel={handlePaymentCancel}
+                    bookingId={bookingId || undefined}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
