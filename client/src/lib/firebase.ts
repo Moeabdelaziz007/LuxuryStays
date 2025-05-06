@@ -34,14 +34,19 @@ if (typeof window === "undefined") {
 // Add extra initialization code to troubleshoot Firebase connection issues
 console.log("Initializing Firebase with project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
 
+// Use the correct Firebase configuration directly in the code
+// for immediate effect
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs",
+  authDomain: "staychill-3ed08.firebaseapp.com",
+  projectId: "staychill-3ed08",
+  storageBucket: "staychill-3ed08.firebasestorage.app",
+  messagingSenderId: "299280633489",
+  appId: "1:299280633489:web:2088c38e2fde210cad7930"
 };
+
+console.log("Using hardcoded Firebase configuration for immediate effect");
 
 // Initialize Firebase only once with error handling
 let app;
@@ -59,10 +64,36 @@ try {
   app = null;
 }
 
+let auth = null;
+let db = null;
+let storage = null;
+
 // Export Firebase services with error handling
-export const auth: Auth | null = app ? getAuth(app) : null;
-export const db: Firestore | null = app ? getFirestore(app) : null;
-export const storage: Storage | null = app ? getStorage(app) : null;
+if (app) {
+  try {
+    auth = getAuth(app);
+    console.log("Firebase Auth initialized successfully");
+  } catch (error) {
+    console.error("Error initializing Firebase Auth:", error);
+  }
+  
+  try {
+    db = getFirestore(app);
+    // Add configuration for Firestore to handle connectivity issues
+    console.log("Firebase Firestore initialized successfully");
+  } catch (error) {
+    console.error("Error initializing Firebase Firestore:", error);
+  }
+  
+  try {
+    storage = getStorage(app);
+    console.log("Firebase Storage initialized successfully");
+  } catch (error) {
+    console.error("Error initializing Firebase Storage:", error);
+  }
+}
+
+export { auth, db, storage };
 
 // Useful debug information for Firebase connection
 if (app) {

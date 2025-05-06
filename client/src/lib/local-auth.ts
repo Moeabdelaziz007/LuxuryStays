@@ -29,21 +29,50 @@ export function getLocalUser(): LocalUser | null {
 export function localLogin(email: string, password: string): Promise<LocalUser> {
   return new Promise((resolve, reject) => {
     try {
-      const usersData = localStorage.getItem(USERS_KEY);
-      const users: Record<string, { user: LocalUser, password: string }> = usersData ? JSON.parse(usersData) : {};
+      if (!email || !password) {
+        reject(new Error('Email and password are required'));
+        return;
+      }
       
-      // Find user by email
-      const userEntry = Object.values(users).find(entry => entry.user.email === email);
+      const usersData = localStorage.getItem(USERS_KEY);
+      
+      if (!usersData) {
+        console.warn('No local users found. Initializing users...');
+        initializeLocalUsers();
+        reject(new Error('Please try again. Local users have been initialized.'));
+        return;
+      }
+      
+      let users: Record<string, { user: LocalUser, password: string }>;
+      
+      try {
+        users = JSON.parse(usersData);
+      } catch (parseError) {
+        console.error('Error parsing local users data:', parseError);
+        localStorage.removeItem(USERS_KEY);
+        initializeLocalUsers();
+        reject(new Error('Error in user data. Please try again.'));
+        return;
+      }
+      
+      // Find user by email (case insensitive)
+      const userEntry = Object.values(users).find(
+        entry => entry.user.email.toLowerCase() === email.toLowerCase()
+      );
       
       if (!userEntry) {
-        reject(new Error('User not found'));
+        console.log(`User with email ${email} not found in local storage`);
+        reject(new Error('Invalid email or password'));
         return;
       }
       
       if (userEntry.password !== password) {
-        reject(new Error('Invalid password'));
+        console.log(`Invalid password for user ${email}`);
+        reject(new Error('Invalid email or password'));
         return;
       }
+      
+      console.log(`Local login successful for user: ${userEntry.user.email} with role: ${userEntry.user.role}`);
       
       // Store logged in user
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userEntry.user));
@@ -51,7 +80,7 @@ export function localLogin(email: string, password: string): Promise<LocalUser> 
       resolve(userEntry.user);
     } catch (error) {
       console.error('Error in local login:', error);
-      reject(error);
+      reject(new Error('Login failed. Please try again.'));
     }
   });
 }
