@@ -1,6 +1,6 @@
 // ✅ RouteGuard.tsx — مكون حماية المسارات باستخدام الصلاحيات
 import React, { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { useLocation, Redirect } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
 import { UserRole } from "@/features/auth/types";
 
@@ -11,19 +11,19 @@ interface RouteGuardProps {
 
 export default function RouteGuard({ children, role }: RouteGuardProps) {
   const { user, loading } = useAuth();
-  const location = useLocation();
+  const [location] = useLocation();
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(true);
   
   // تسجيل معلومات التصحيح
   useEffect(() => {
     console.log("[DEBUG] RouteGuard:", { 
       role, 
-      path: location.pathname, 
+      path: location, 
       isAuthenticated: !!user, 
       userRole: user?.role || 'none',
       loading
     });
-  }, [role, location.pathname, user, loading]);
+  }, [role, location, user, loading]);
 
   // تحسين تجربة التحميل مع تأخير بسيط
   useEffect(() => {
@@ -50,13 +50,16 @@ export default function RouteGuard({ children, role }: RouteGuardProps) {
   // التوجيه إلى صفحة تسجيل الدخول إذا لم يكن المستخدم مسجل
   if (!user) {
     // احفظ مسار التوجيه الحالي للعودة إليه بعد تسجيل الدخول
-    const redirectPath = location.pathname + location.search;
-    return <Navigate to={`/login?redirect=${encodeURIComponent(redirectPath)}`} replace />;
+    const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
+    const redirectPath = currentPath + currentSearch;
+    
+    return <Redirect to={`/login?redirect=${encodeURIComponent(redirectPath)}`} />;
   }
 
   // التحقق من أن المستخدم لديه دور صالح
   if (!user.role) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Redirect to="/unauthorized" />;
   }
   
   // السماح للمشرف العام بالوصول إلى جميع المسارات
@@ -96,5 +99,5 @@ export default function RouteGuard({ children, role }: RouteGuardProps) {
   sessionStorage.setItem('authErrorMessage', errorMessage);
   sessionStorage.setItem('recommendedPath', recommendedPath);
   
-  return <Navigate to="/unauthorized" replace />;
+  return <Redirect to="/unauthorized" />;
 }

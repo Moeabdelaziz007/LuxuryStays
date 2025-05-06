@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
 import { FaLock, FaExclamationTriangle, FaHome, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
