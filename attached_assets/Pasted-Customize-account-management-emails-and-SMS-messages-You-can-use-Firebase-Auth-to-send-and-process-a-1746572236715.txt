@@ -1,0 +1,32 @@
+Customize account management emails and SMS messages
+You can use Firebase Auth to send and process account management emails and SMS messages. These messages allow your users to complete the following account management tasks:
+
+Resetting a forgotten password
+Reverting an email address change (for example, if an email address change was unsolicited)
+Verifying the user's email address
+To learn how to send account management messages, see the developer documentation for iOS, Android, and web sites.
+
+For each email type, you can customize the email's sender name, sender address, reply-to address, subject line, and—for password reset emails—the message.
+
+Customize email fields
+When you customize an email template's subject line and message, you can use the following placeholder strings to represent values that will be filled in before sending:
+
+%DISPLAY_NAME%	The recipient's display name
+%APP_NAME%	The name of your app. You can set this value by editing the Public-facing name field on the Settings page
+%LINK%	The URL that the recipient must visit to complete the account management task. See Customize the action link URL
+%EMAIL%	The recipient's email address
+%NEW_EMAIL%	The new email address to set as the recipient's primary address. Used only in the Email Address Change template
+Customize the action link URL
+To use your own server to handle account management emails, specify the URL to your server's account management page:
+
+Click an email type.
+Click the pencil icon to begin editing the email template.
+Click customize action URL.
+Specify the URL to your server's account management page. Two parameters, mode and oobCode, will be appended to the URL when emails are sent. For example: https://example.com/acctmgmt/__/auth/action?mode=<action>&oobCode=<code>.
+Customize the sender domain
+To specify a sender address with a custom domain:
+
+Click an email type.
+Click the pencil icon to begin editing the email template.
+Click customize domain.
+Specify the domain you want to use and follow the provided instructions to verify that you own the domain.

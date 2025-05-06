@@ -2,16 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useLocation } from "wouter";
 import { auth, db, safeDoc } from "@/lib/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously } from "firebase/auth";
 import { doc, getDoc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 // Simple login page without advanced form components
 export default function LoginPage() {
-  const [emailOrUsername, setEmailOrUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
   const [error, setError] = useState("");
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [location, navigate] = useLocation();
@@ -88,88 +87,82 @@ export default function LoginPage() {
     );
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGuestLogin = async () => {
     setError("");
-    setLoading(true);
+    setGuestLoading(true);
+    
+    if (!auth || !db) {
+      setError("تسجيل الدخول كزائر غير متاح حالياً. الرجاء المحاولة لاحقاً.");
+      console.error("خدمة المصادقة غير متوفرة: لم يتم تهيئة خدمات Firebase");
+      setGuestLoading(false);
+      return;
+    }
     
     try {
-      console.log("جاري تسجيل الدخول باستخدام Firebase:", emailOrUsername);
+      console.log("بدء تسجيل الدخول كزائر...");
+      const res = await signInAnonymously(auth);
       
-      // التحقق من توفر Firebase
-      if (!auth || !db) {
-        throw new Error("خدمة المصادقة غير متوفرة حالياً، الرجاء المحاولة لاحقاً");
-      }
-      
-      // التحقق مما إذا كان القيمة المدخلة هي بريد إلكتروني أو اسم مستخدم
-      const isEmail = emailOrUsername.includes('@');
-      
-      if (isEmail) {
-        // إذا كان بريد إلكتروني، استخدم تسجيل الدخول المباشر
-        await signInWithEmailAndPassword(auth, emailOrUsername, password);
-      } else {
-        // إذا كان اسم مستخدم، ابحث عن المستخدم في Firestore أولاً
+      // إنشاء ملف بيانات للمستخدم الزائر
+      if (db) {
         try {
-          // البحث عن المستخدم بواسطة اسم المستخدم
-          // هذا يفترض وجود مجموعة "users" تحتوي على وثائق المستخدمين مع حقل "username"
-          const usersRef = collection(db, "users");
-          const q = query(usersRef, where("username", "==", emailOrUsername));
-          const querySnapshot = await getDocs(q);
+          const guestRef = doc(db, "users", res.user.uid);
+          const guestSnap = await getDoc(guestRef);
           
-          if (querySnapshot.empty) {
-            throw { code: 'auth/user-not-found', message: 'لم يتم العثور على المستخدم' };
+          if (!guestSnap.exists()) {
+            // إنشاء مستخدم زائر جديد
+            const guestProfile = {
+              uid: res.user.uid,
+              email: null,
+              name: 'زائر',
+              role: "CUSTOMER", // دور افتراضي
+              createdAt: new Date().toISOString(),
+              photoURL: null,
+              isGuest: true
+            };
+            
+            console.log("إنشاء حساب زائر جديد في Firestore");
+            
+            try {
+              await setDoc(guestRef, guestProfile);
+              console.log("تم حفظ بيانات المستخدم الزائر بنجاح");
+              toast(getSuccessToast(
+                "تم تسجيل الدخول كزائر",
+                "مرحباً بك في منصة StayX! يمكنك تصفح المنصة بدون إنشاء حساب."
+              ));
+            } catch (firestoreError) {
+              console.error("فشل حفظ بيانات المستخدم الزائر:", firestoreError);
+              toast(getWarningToast(
+                "تم تسجيل الدخول كزائر مع تحذير",
+                "تم تسجيل دخولك بنجاح ولكن قد تكون هناك مشكلة في حفظ بياناتك."
+              ));
+            }
           }
-          
-          // استخدام البريد الإلكتروني المخزن لتسجيل الدخول
-          const userDoc = querySnapshot.docs[0];
-          const userData = userDoc.data();
-          
-          if (!userData.email) {
-            throw { code: 'auth/invalid-user-data', message: 'بيانات المستخدم غير مكتملة' };
-          }
-          
-          await signInWithEmailAndPassword(auth, userData.email, password);
-        } catch (firestoreErr) {
-          console.error("خطأ في البحث عن المستخدم:", firestoreErr);
-          // إذا فشل البحث في Firestore، نحاول التسجيل بالطريقة العادية عن طريق البريد الإلكتروني
-          try {
-            await signInWithEmailAndPassword(auth, emailOrUsername, password);
-          } catch (authErr) {
-            // إذا فشل كلا الطريقتين، نعرض خطأ للمستخدم
-            throw authErr;
-          }
+        } catch (error) {
+          console.error("خطأ في التفاعل مع Firestore:", error);
         }
       }
       
-      // ستتم عملية التوجيه من خلال مراقب حالة المصادقة في AuthContext
-      // دعنا نعطي بعض الوقت للمعالجة قبل إظهار رسالة خطأ إذا لم يتم التوجيه
-      const redirectTimeout = setTimeout(() => {
-        if (loading) {
-          console.warn("لم يتم التوجيه بعد تسجيل الدخول بنجاح، قد تكون هناك مشكلة في قاعدة البيانات");
-          setError("تم تسجيل الدخول بنجاح ولكن هناك مشكلة في استرجاع بيانات المستخدم");
-          setLoading(false);
+      // التوجيه بعد تسجيل الدخول
+      setTimeout(() => {
+        if (redirectPath) {
+          navigate(redirectPath);
+        } else {
+          navigate("/");
         }
-      }, 5000);
+      }, 1000);
       
-      // سنقوم بتنظيف المؤقت إذا تم الانتقال للصفحة التالية
-      return () => clearTimeout(redirectTimeout);
     } catch (err: any) {
-      console.error("خطأ في تسجيل الدخول:", err);
+      console.error("خطأ في تسجيل الدخول كزائر:", err);
       
-      // رسائل خطأ مخصصة أكثر وضوحاً للمستخدم
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found') {
-        setError("اسم المستخدم/البريد الإلكتروني أو كلمة المرور غير صحيحة");
-      } else if (err.code === 'auth/wrong-password') {
-        setError("كلمة المرور غير صحيحة، الرجاء التحقق منها والمحاولة مرة أخرى");
-      } else if (err.code === 'auth/too-many-requests') {
-        setError("تم إجراء عدة محاولات خاطئة، الرجاء المحاولة بعد قليل");
+      if (err.code === 'auth/operation-not-allowed') {
+        setError("تسجيل الدخول كزائر غير مُفعل في هذا التطبيق.");
       } else if (err.code === 'auth/network-request-failed') {
-        setError("يبدو أن هناك مشكلة في الاتصال بالإنترنت، الرجاء التحقق من اتصالك");
+        setError("فشل في الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت.");
       } else {
-        setError(err.message || "حدث خطأ أثناء تسجيل الدخول، الرجاء المحاولة مرة أخرى");
+        setError(err.message || "فشل تسجيل الدخول كزائر، الرجاء المحاولة مرة أخرى.");
       }
     } finally {
-      setLoading(false);
+      setGuestLoading(false);
     }
   };
 
@@ -178,7 +171,7 @@ export default function LoginPage() {
     setGoogleLoading(true);
     
     if (!auth || !db) {
-      setError("تسجيل الدخول عبر Google غير متاح حالياً. الرجاء استخدام البريد الإلكتروني وكلمة المرور.");
+      setError("تسجيل الدخول عبر Google غير متاح حالياً. الرجاء المحاولة لاحقاً.");
       console.error("خدمة Google غير متوفرة: لم يتم تهيئة خدمات Firebase");
       setGoogleLoading(false);
       return;
@@ -275,19 +268,11 @@ export default function LoginPage() {
         // إخفاء زر جوجل وإظهار رسالة للمستخدم
         toast(getWarningToast(
           "تسجيل الدخول بحساب Google غير متاح",
-          "هذه الميزة غير متاحة حالياً. الرجاء استخدام البريد الإلكتروني وكلمة المرور."
+          "نحاول تفعيل هذه الميزة. يمكنك تصفح الموقع كضيف في الوقت الحالي."
         ));
         
         // رسالة خطأ واضحة
-        setError("نأسف، ميزة تسجيل الدخول بحساب Google غير متاحة حالياً. الرجاء استخدام البريد الإلكتروني وكلمة المرور بدلاً من ذلك.");
-        
-        // التركيز على حقل البريد الإلكتروني لتحسين تجربة المستخدم
-        setTimeout(() => {
-          const emailInput = document.querySelector('input[type="text"]') as HTMLInputElement;
-          if (emailInput) {
-            emailInput.focus();
-          }
-        }, 800);
+        setError("عذراً، ميزة تسجيل الدخول بحساب Google غير متاحة حالياً. يمكنك تصفح الموقع كضيف.");
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError("تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
       } else if (err.code === 'auth/cancelled-popup-request') {
@@ -354,99 +339,68 @@ export default function LoginPage() {
           {/* عرض رسالة إعادة التوجيه إذا كانت موجودة */}
           {renderRedirectMessage()}
           
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div className="group">
-              <label className="block text-sm font-medium text-gray-400 mb-1.5 transition group-focus-within:text-[#39FF14]">البريد الإلكتروني أو اسم المستخدم</label>
-              <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder="أدخل بريدك الإلكتروني أو اسم المستخدم" 
-                  className="w-full p-3 rounded-lg bg-black/60 border border-gray-700 text-white focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14]/50 transition-all" 
-                  value={emailOrUsername} 
-                  onChange={(e) => setEmailOrUsername(e.target.value)}
-                  required
-                  autoComplete="username email"
-                />
-                <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
-                     style={{ boxShadow: "0 0 8px rgba(57, 255, 20, 0.3)" }}></div>
-              </div>
-            </div>
-
-            <div className="group">
-              <label className="block text-sm font-medium text-gray-400 mb-1.5 transition group-focus-within:text-[#39FF14]">كلمة المرور</label>
-              <div className="relative">
-                <input 
-                  type="password" 
-                  placeholder="••••••••" 
-                  className="w-full p-3 rounded-lg bg-black/60 border border-gray-700 text-white focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14]/50 transition-all" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  minLength={6}
-                />
-                <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
-                     style={{ boxShadow: "0 0 8px rgba(57, 255, 20, 0.3)" }}></div>
-              </div>
+          <div className="space-y-5">
+            <p className="text-center text-gray-400 mb-4">
+              يمكنك تسجيل الدخول باستخدام إحدى الطرق التالية:
+            </p>
+            
+            <button 
+              onClick={handleGoogleLogin} 
+              className="relative flex items-center justify-center gap-2 bg-white/5 border border-white/10 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-lg w-full hover:bg-white/10 transition-all active:scale-[0.98]"
+              disabled={googleLoading}
+            >
+              {googleLoading ? (
+                <div className="flex items-center justify-center gap-3">
+                  <span>جاري تسجيل الدخول</span>
+                  <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                </div>
+              ) : (
+                <>
+                  <svg className="h-5 w-5" viewBox="0 0 24 24">
+                    <path
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"
+                    />
+                    <path
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      fill="#EA4335"
+                    />
+                  </svg>
+                  <span>تسجيل الدخول بواسطة Google</span>
+                </>
+              )}
+            </button>
+            
+            <div className="my-4 flex items-center">
+              <div className="flex-1 border-t border-gray-700/50"></div>
+              <span className="px-4 text-sm text-gray-500">أو</span>
+              <div className="flex-1 border-t border-gray-700/50"></div>
             </div>
             
             <button 
-              type="submit" 
+              onClick={handleGuestLogin} 
               className="relative group w-full"
-              disabled={loading}
+              disabled={guestLoading}
             >
-              <div className="relative z-10 bg-[#39FF14] text-black font-bold py-3 rounded-lg w-full text-center transform transition-all active:scale-[0.98] hover:scale-[1.01]">
-                {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
-                {loading && (
+              <div className="relative z-10 bg-transparent border-[1px] border-[#39FF14]/60 text-[#39FF14] hover:bg-[#39FF14]/10 font-medium py-3 rounded-lg w-full text-center transform transition-all active:scale-[0.98]">
+                {guestLoading ? "جاري تسجيل الدخول..." : "تصفح كضيف"}
+                {guestLoading && (
                   <div className="absolute right-5 top-1/2 transform -translate-y-1/2">
-                    <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
+                    <div className="animate-spin h-5 w-5 border-2 border-[#39FF14] border-t-transparent rounded-full"></div>
                   </div>
                 )}
               </div>
-              <div className="absolute inset-0 bg-[#39FF14] blur-sm opacity-50 group-hover:opacity-70 rounded-lg transition-opacity"></div>
+              <div className="absolute inset-0 bg-[#39FF14]/5 blur-sm opacity-0 group-hover:opacity-70 rounded-lg transition-opacity"></div>
             </button>
-          </form>
-
-          <div className="my-8 flex items-center">
-            <div className="flex-1 border-t border-gray-700/50"></div>
-            <span className="px-4 text-sm text-gray-500">أو</span>
-            <div className="flex-1 border-t border-gray-700/50"></div>
           </div>
-
-          <button 
-            onClick={handleGoogleLogin} 
-            className="relative flex items-center justify-center gap-2 bg-white/5 border border-white/10 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-lg w-full hover:bg-white/10 transition-all active:scale-[0.98]"
-            disabled={googleLoading}
-          >
-            {googleLoading ? (
-              <div className="flex items-center justify-center gap-3">
-                <span>جاري تسجيل الدخول</span>
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-              </div>
-            ) : (
-              <>
-                <svg className="h-5 w-5" viewBox="0 0 24 24">
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335"
-                  />
-                </svg>
-                <span>دخول باستخدام Google</span>
-              </>
-            )}
-          </button>
 
           <p className="text-sm mt-6 text-center text-gray-400">
             ليس لديك حساب؟{" "}
