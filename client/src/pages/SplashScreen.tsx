@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import Logo from '@/components/Logo';
 
 export default function SplashScreen() {
   const [animate, setAnimate] = useState(false);
-  const navigate = useNavigate()[1];
+  const [_, navigate] = useLocation();
 
   useEffect(() => {
     // Start animation after a short delay

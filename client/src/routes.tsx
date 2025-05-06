@@ -19,6 +19,7 @@ import ServicesPage from "@/features/public/ServicesPage";
 import PropertiesPage from "@/features/public/PropertiesPage";
 import NotFound from "@/pages/not-found";
 import RoutingDebugPage from "@/features/public/RoutingDebugPage";
+import SplashScreen from "@/pages/SplashScreen";
 
 // Auth Components
 import LoginPage from "@/features/auth/Login";
@@ -32,6 +33,10 @@ export default function AppRoutes() {
   return (
     <Switch>
       {/* ===== المسارات العامة - لا تحتاج إلى تسجيل دخول ===== */}
+      <Route path="/splash">
+        <SplashScreen />
+      </Route>
+      
       <Route path="/">
         <PublicHome />
       </Route>
