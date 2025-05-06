@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useLocation } from "wouter";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, safeDoc } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, getDoc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
@@ -193,29 +193,55 @@ export default function LoginPage() {
       console.log("بدء تسجيل الدخول باستخدام Google...");
       const res = await signInWithPopup(auth, provider);
       
-      // التحقق من وجود المستخدم في Firestore
-      const userRef = doc(db, "users", res.user.uid);
-      const userSnap = await getDoc(userRef);
-      
-      if (!userSnap.exists()) {
-        // إنشاء مستخدم جديد
-        const userProfile = {
-          uid: res.user.uid,
-          email: res.user.email,
-          name: res.user.displayName || 'مستخدم جديد',
-          role: "CUSTOMER", // دور افتراضي
-          createdAt: new Date().toISOString(),
-          photoURL: res.user.photoURL || null,
-        };
-        
-        console.log("إنشاء مستخدم جديد في Firestore:", userProfile.email);
-        await setDoc(userRef, userProfile);
-        
-        // إضافة المزيد من المعلومات للتسجيل
-        console.log("تم إنشاء حساب جديد بنجاح");
-      } else {
-        // تسجيل دخول مستخدم موجود
-        console.log("تسجيل دخول مستخدم موجود:", res.user.email);
+      // التحقق من وجود المستخدم في Firestore ومحاولة حفظ البيانات بطريقة آمنة
+      if (db) {
+        try {
+          const userRef = doc(db, "users", res.user.uid);
+          const userSnap = await getDoc(userRef);
+          
+          if (!userSnap.exists()) {
+            // إنشاء مستخدم جديد
+            const userProfile = {
+              uid: res.user.uid,
+              email: res.user.email,
+              name: res.user.displayName || 'مستخدم جديد',
+              role: "CUSTOMER", // دور افتراضي
+              createdAt: new Date().toISOString(),
+              photoURL: res.user.photoURL || null,
+            };
+            
+            console.log("إنشاء مستخدم جديد في Firestore:", userProfile.email);
+            
+            // محاولة حفظ البيانات في Firestore
+            try {
+              await setDoc(userRef, userProfile);
+              console.log("تم حفظ بيانات المستخدم بنجاح في Firestore");
+              toast(getSuccessToast(
+                "تم تسجيل الدخول بنجاح",
+                "مرحباً بك في منصة StayX!"
+              ));
+            } catch (firestoreError) {
+              console.error("فشل حفظ بيانات المستخدم في Firestore:", firestoreError);
+              toast(getWarningToast(
+                "تم تسجيل الدخول لكن مع تحذير",
+                "تم تسجيل دخولك بنجاح ولكن قد تكون هناك مشكلة في حفظ بياناتك. ستظل قادراً على استخدام الموقع."
+              ));
+            }
+          } else {
+            // تسجيل دخول مستخدم موجود
+            console.log("تسجيل دخول مستخدم موجود:", res.user.email);
+            toast(getSuccessToast(
+              "تم تسجيل الدخول بنجاح",
+              `مرحباً بعودتك ${res.user.displayName || "عزيزي المستخدم"}!`
+            ));
+          }
+        } catch (firestoreError) {
+          console.error("خطأ في التفاعل مع Firestore:", firestoreError);
+          toast(getWarningToast(
+            "تم تسجيل الدخول مع تحذير",
+            "تم تسجيل دخولك ولكن قد تكون هناك مشكلة في الوصول إلى بياناتك."
+          ));
+        }
       }
       
       // ستتم عملية التوجيه من خلال مراقب حالة المصادقة في AuthContext
@@ -227,16 +253,41 @@ export default function LoginPage() {
         }
       }, 5000);
       
+      // بعد تسجيل الدخول توجيه المستخدم للصفحة الرئيسية أو صفحة إعادة التوجيه بعد فترة زمنية
+      setTimeout(() => {
+        if (redirectPath) {
+          setLocation(redirectPath); // الانتقال للصفحة التي كان يحاول الوصول إليها
+        } else {
+          setLocation("/"); // الانتقال للصفحة الرئيسية
+        }
+      }, 1000);
+      
       return () => clearTimeout(redirectTimeout);
     } catch (err: any) {
       console.error("خطأ في تسجيل الدخول عبر Google:", err);
       
       if (err.code === 'auth/unauthorized-domain') {
-        setError("نأسف، هذا النطاق غير مسموح به للمصادقة عبر Google. الرجاء استخدام البريد الإلكتروني وكلمة المرور بدلاً من ذلك.");
         const domainOnly = window.location.host;
         console.error(`يرجى إضافة "${domainOnly}" (بدون https:// أو http://) إلى نطاقات Firebase المصرح بها`);
         console.error(`للإضافة، انتقل إلى لوحة تحكم Firebase > Authentication > Sign-in method > Authorized domains`);
         console.error(`يجب إضافة "${domainOnly}" فقط بدون بروتوكول`);
+        
+        // إخفاء زر جوجل وإظهار رسالة للمستخدم
+        toast(getWarningToast(
+          "تسجيل الدخول بحساب Google غير متاح",
+          "هذه الميزة غير متاحة حالياً. الرجاء استخدام البريد الإلكتروني وكلمة المرور."
+        ));
+        
+        // رسالة خطأ واضحة
+        setError("نأسف، ميزة تسجيل الدخول بحساب Google غير متاحة حالياً. الرجاء استخدام البريد الإلكتروني وكلمة المرور بدلاً من ذلك.");
+        
+        // التركيز على حقل البريد الإلكتروني لتحسين تجربة المستخدم
+        setTimeout(() => {
+          const emailInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+          if (emailInput) {
+            emailInput.focus();
+          }
+        }, 800);
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError("تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
       } else if (err.code === 'auth/cancelled-popup-request') {
