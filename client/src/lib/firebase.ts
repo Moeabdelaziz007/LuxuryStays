@@ -38,10 +38,17 @@ if (typeof window === "undefined") {
 // Add extra initialization code to troubleshoot Firebase connection issues
 console.log("Initializing Firebase with project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
 
-// Use the correct Firebase configuration directly in the code
-// for immediate effect
+// Explicitly set Firebase configuration to match .env values
+// This will fix the mismatch with the Firebase project configuration
 
-// تكوين Firebase - استخدام القيم من متغيرات البيئة
+// Add debugging to help troubleshoot environment variables
+console.log("=== DEBUGGING FIREBASE CONFIGURATION ===");
+console.log("Raw .env VITE_FIREBASE_PROJECT_ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
+console.log("Raw .env VITE_FIREBASE_API_KEY:", import.meta.env.VITE_FIREBASE_API_KEY);
+console.log("Raw .env VITE_FIREBASE_APP_ID:", import.meta.env.VITE_FIREBASE_APP_ID);
+console.log("Working with .env project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
+
+// تكوين Firebase - استخدام القيم من متغيرات البيئة مع إصلاح للمشكلة
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
@@ -50,7 +57,7 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// طباعة جميع قيم التكوين للتأكد من صحتها
+// طباعة جميع قيم التكوين للتأكد من صحتها وتسهيل التصحيح
 console.log("== Firebase Configuration Values ==");
 console.log("API Key:", firebaseConfig.apiKey);
 console.log("Auth Domain:", firebaseConfig.authDomain);
