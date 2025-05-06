@@ -25,8 +25,8 @@ import {
 interface Booking {
   id: string;
   propertyId: string;
-  propertyName?: string;
-  propertyImage?: string;
+  propertyName: string;
+  propertyImage: string;
   checkInDate: any;
   checkOutDate: any;
   totalPrice: number;
@@ -93,6 +93,17 @@ export default function CustomerDashboard() {
     enabled: !!user?.uid && !!db
   });
   
+  // Define favorite property type
+  interface FavoriteProperty {
+    id: string;
+    propertyId: string;
+    propertyName: string;
+    propertyImage: string;
+    price: number;
+    location: string;
+    addedAt: any;
+  }
+
   // Fetch user's favorite properties
   const { data: favorites = [], isLoading: favoritesLoading } = useQuery({
     queryKey: ["customer-favorites", user?.uid],
@@ -107,7 +118,7 @@ export default function CustomerDashboard() {
         const snapshot = await getDocs(q);
         
         // Get favorites with property details
-        const favoritesWithDetails = [];
+        const favoritesWithDetails: FavoriteProperty[] = [];
         
         for (const docSnap of snapshot.docs) {
           const favoriteData = docSnap.data();
@@ -115,21 +126,21 @@ export default function CustomerDashboard() {
           // Get property details
           if (favoriteData.propertyId) {
             try {
-              const propertyDocRef = doc(db, "properties", favoriteData.propertyId);
-              const propertyDocSnap = await getDoc(propertyDocRef);
-              if (propertyDocSnap.exists()) {
-                const propertyData = propertyDocSnap.data();
-                favoritesWithDetails.push({
-                  id: docSnap.id,
-                  ...favoriteData,
-                  property: {
-                    id: favoriteData.propertyId,
-                    name: propertyData.name || 'عقار غير معروف',
-                    imageUrl: propertyData.imageUrl || '',
+              if (db) {
+                const propertyDocRef = doc(db, "properties", favoriteData.propertyId);
+                const propertyDocSnap = await getDoc(propertyDocRef);
+                if (propertyDocSnap.exists()) {
+                  const propertyData = propertyDocSnap.data();
+                  favoritesWithDetails.push({
+                    id: docSnap.id,
+                    propertyId: favoriteData.propertyId,
+                    propertyName: propertyData.name || 'عقار غير معروف',
+                    propertyImage: propertyData.imageUrl || '',
                     price: propertyData.price || 0,
                     location: propertyData.location || '',
-                  }
-                });
+                    addedAt: favoriteData.createdAt || new Date()
+                  });
+                }
               }
             } catch (error) {
               console.error("Error fetching property details:", error);
