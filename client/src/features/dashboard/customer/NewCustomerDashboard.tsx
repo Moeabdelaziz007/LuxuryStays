@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, safeDoc } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-context";
 import Logo from "@/components/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,19 +55,20 @@ export default function NewCustomerDashboard() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
   
-  // Fetch user's bookings
+  // Fetch user's bookings with better error handling and fallback
   const { data: bookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery({
     queryKey: ["customer-bookings", user?.uid],
     queryFn: async () => {
       if (!user?.uid || !db) return [];
       
       try {
-        // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
-        const bookingsCollectionRef = collection(db, "bookings");
-        if (!bookingsCollectionRef) {
-          console.error("مجموعة الحجوزات غير متوفرة في Firestore");
-          return [];
-        }
+        return await safeDoc(async () => {
+          // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
+          const bookingsCollectionRef = collection(db, "bookings");
+          if (!bookingsCollectionRef) {
+            console.error("مجموعة الحجوزات غير متوفرة في Firestore");
+            return [];
+          }
         
         // إعداد الاستعلام لجلب حجوزات المستخدم، مرتبة حسب تاريخ الإنشاء تنازلياً
         const q = query(
@@ -146,6 +147,7 @@ export default function NewCustomerDashboard() {
         
         console.log(`تم استرجاع ${bookingsWithDetails.length} حجز بنجاح`);
         return bookingsWithDetails;
+      }, []);
       } catch (error) {
         console.error("خطأ في استرجاع الحجوزات:", error);
         // إرجاع مصفوفة فارغة لتجنب انهيار التطبيق
