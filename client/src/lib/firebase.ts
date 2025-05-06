@@ -64,9 +64,9 @@ try {
   app = null;
 }
 
-let auth = null;
-let db = null;
-let storage = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
+let storage: Storage | null = null;
 
 // Export Firebase services with error handling
 if (app) {

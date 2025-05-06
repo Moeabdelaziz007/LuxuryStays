@@ -48,12 +48,14 @@ export default function ServicesSection() {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [localFallback, setLocalFallback] = useState(false);
   const [servicesList, setServicesList] = useState<Service[]>([]);
+  const [error, setError] = useState<string | null>(null);
   
   const { data: activeServices, isLoading: activeLoading } = useQuery({
     queryKey: ["services", "active"],
     queryFn: async () => {
       try {
         if (!db) {
+          console.log("Firebase DB not available, using local services data");
           setLocalFallback(true);
           return localServices;
         }
@@ -62,13 +64,23 @@ export default function ServicesSection() {
         const snapshot = await getDocs(activeQuery);
         
         if (snapshot.empty) {
+          console.log("No active services found in Firestore, using local data");
           setLocalFallback(true);
           return localServices;
         }
         
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Service[];
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching services:", error);
+        
+        // Handle specific Firebase errors
+        if (error.code === "permission-denied") {
+          setError("Firebase security rules prevent access to services data. Using local data instead.");
+          console.warn("Firebase permission denied. Make sure Firestore rules allow read access to the services collection.");
+        } else if (error.name === "FirebaseError") {
+          setError("Firebase error: " + error.message);
+        }
+        
         setLocalFallback(true);
         return localServices;
       }

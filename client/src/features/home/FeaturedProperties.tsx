@@ -15,16 +15,74 @@ interface Property {
   ownerId: string;
 }
 
+// Fallback properties for when Firebase fails
+const localProperties: Property[] = [
+  {
+    id: "prop1",
+    name: "فيلا الحلم - كمباوند ماونتن فيو",
+    imageUrl: "https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&q=85&w=1200",
+    description: "فيلا فاخرة مع مسبح خاص وإطلالة رائعة على البحر. مناسبة للعائلات والمجموعات الكبيرة.",
+    location: "الساحل الشمالي - سيدي عبد الرحمن",
+    pricePerNight: 250,
+    featured: true,
+    ownerId: "owner1"
+  },
+  {
+    id: "prop2",
+    name: "شاليه مطل على البحر",
+    imageUrl: "https://images.unsplash.com/photo-1615571022219-eb45cf7faa9d?ixlib=rb-4.0.3&q=85&w=1200",
+    description: "شاليه حديث مع إطلالة مباشرة على البحر. يقع على بعد خطوات من الشاطئ الخاص.",
+    location: "راس الحكمة - لافيستا باي",
+    pricePerNight: 180,
+    featured: true,
+    ownerId: "owner2"
+  },
+  {
+    id: "prop3",
+    name: "فيلا بونساي الفاخرة",
+    imageUrl: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&q=85&w=1200",
+    description: "فيلا مستقلة في قلب بونساي، تتميز بديكور عصري وحديقة خاصة ومسبح.",
+    location: "الساحل الشمالي - بونساي",
+    pricePerNight: 320,
+    featured: true,
+    ownerId: "owner3"
+  }
+];
+
 export default function FeaturedProperties() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const { data, isLoading } = useQuery({ 
     queryKey: ["featured-properties"], 
     queryFn: async () => {
-      // Get only featured properties
-      const featuredQuery = query(collection(db, "properties"), where("featured", "==", true));
-      const snapshot = await getDocs(featuredQuery);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Property[];
+      try {
+        if (!db) {
+          console.log("Firebase DB not available, using local data");
+          return localProperties;
+        }
+        
+        // Get only featured properties
+        const featuredQuery = query(collection(db, "properties"), where("featured", "==", true));
+        const snapshot = await getDocs(featuredQuery);
+        
+        if (snapshot.empty) {
+          console.log("No featured properties found in Firestore, using local data");
+          return localProperties;
+        }
+        
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Property[];
+      } catch (error: any) {
+        console.error("Error fetching featured properties:", error);
+        
+        // Check for permission errors
+        if (error.code === "permission-denied") {
+          setError("Firebase rules prevent access to properties data. Using local data instead.");
+        }
+        
+        // Return local data as fallback
+        return localProperties;
+      }
     }
   });
 
