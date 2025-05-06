@@ -189,11 +189,41 @@ export default function CustomerDashboard() {
   return (
     <div className="bg-black text-white min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header with Neon Effect */}
-        <h1 className="text-4xl font-bold text-[#39FF14] mb-6 relative inline-block">
-          لوحة تحكم العميل
-          <div className="absolute -bottom-2 left-0 right-0 h-[1px] bg-[#39FF14]/40"></div>
-        </h1>
+        {/* مساحة عرض الملخص */}
+        <div className="mb-8 bg-gray-900/70 backdrop-blur-md rounded-xl p-6 border border-gray-800 relative overflow-hidden">
+          {/* خلفية التأثير الضوئي */}
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-10 left-10 w-32 h-32 bg-[#39FF14]/10 rounded-full blur-2xl"></div>
+          
+          {/* معلومات العميل */}
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div className="flex items-center space-x-4 rtl:space-x-reverse">
+              <Avatar className="h-16 w-16 border-2 border-[#39FF14]/20 shadow-lg shadow-[#39FF14]/10">
+                <AvatarImage src={user?.photoURL || ""} alt={user?.name || "العميل"} />
+                <AvatarFallback className="bg-gray-800 text-[#39FF14]">
+                  {user?.name?.charAt(0) || user?.email?.charAt(0) || "م"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-2xl font-bold text-white">
+                  مرحباً، <span className="text-[#39FF14]">{user?.name || "العميل"}</span>
+                </h1>
+                <p className="text-gray-400 text-sm">{user?.email}</p>
+              </div>
+            </div>
+            
+            <div className="col-span-2 md:text-left text-center">
+              <div className="flex flex-wrap gap-3 justify-center md:justify-end">
+                <Button size="sm" variant="outline" className="border-[#39FF14]/50 text-[#39FF14] hover:bg-[#39FF14]/10">
+                  <FaBed className="mr-2 h-4 w-4" /> احجز عقاراً
+                </Button>
+                <Button size="sm" variant="outline" className="border-[#39FF14]/50 text-[#39FF14] hover:bg-[#39FF14]/10">
+                  <FaUser className="mr-2 h-4 w-4" /> تحديث الملف الشخصي
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {/* Bookings Card */}
@@ -439,25 +469,47 @@ export default function CustomerDashboard() {
           {/* Profile Tab */}
           <TabsContent value="profile" className="pt-6">
             <div className="bg-gray-900 rounded-xl p-6">
-              <div className="flex flex-col md:flex-row md:items-start gap-8 mb-8">
-                <div className="md:w-1/4 flex flex-col items-center">
-                  <div className="mb-4">
-                    <Avatar className="h-32 w-32 border-4 border-[#39FF14]/20">
-                      <AvatarImage src={user?.profileImage || ""} alt={user?.name} />
+              {/* معلومات تعريفية */}
+              <div className="mb-8 bg-gray-800/70 rounded-xl p-6">
+                <div className="flex flex-col md:flex-row items-start gap-8">
+                  <div className="w-full md:w-1/3 flex flex-col items-center">
+                    <Avatar className="h-32 w-32 border-2 border-[#39FF14]/20 shadow-lg shadow-[#39FF14]/10 mb-4">
+                      <AvatarImage src={user?.photoURL || ""} alt={user?.name || "العميل"} />
                       <AvatarFallback className="bg-gray-800 text-[#39FF14] text-4xl">
-                        <FaUser />
+                        {user?.name?.charAt(0) || user?.email?.charAt(0) || "م"}
                       </AvatarFallback>
                     </Avatar>
+                    <Button variant="outline" size="sm" className="border-[#39FF14]/50 text-[#39FF14] hover:bg-[#39FF14]/10 mt-2">
+                      تغيير الصورة
+                    </Button>
                   </div>
-                  <h2 className="text-2xl font-bold text-[#39FF14] mb-1">{user?.name}</h2>
-                  <p className="text-gray-400 mb-4">{user?.email}</p>
-                  <Badge>{user?.role || "CUSTOMER"}</Badge>
+                  
+                  <div className="w-full md:w-2/3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                      <div>
+                        <h3 className="text-gray-400 text-sm mb-1">الاسم</h3>
+                        <p className="text-white font-medium">{user?.name || "غير محدد"}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-gray-400 text-sm mb-1">البريد الإلكتروني</h3>
+                        <p className="text-white">{user?.email || "غير محدد"}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-gray-400 text-sm mb-1">رقم الهاتف</h3>
+                        <p className="text-white">{user?.phone || "غير محدد"}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-gray-400 text-sm mb-1">العضوية</h3>
+                        <p className="text-[#39FF14] font-medium">عضو منذ {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-EG') : "غير محدد"}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="md:w-3/4">
-                  <h3 className="text-xl font-semibold text-[#39FF14] mb-4">معلومات الملف الشخصي</h3>
-                  <UserProfileForm />
-                </div>
+              </div>
+              
+              <div className="mb-4">
+                <h3 className="text-xl font-medium text-white mb-4">تعديل المعلومات الشخصية</h3>
+                <UserProfileForm />
               </div>
             </div>
           </TabsContent>
@@ -465,7 +517,44 @@ export default function CustomerDashboard() {
           {/* Settings Tab */}
           <TabsContent value="settings" className="pt-6">
             <div className="bg-gray-900 rounded-xl p-6">
-              <h2 className="text-xl font-bold text-[#39FF14] mb-6">الإعدادات</h2>
+              <h2 className="text-xl font-bold text-[#39FF14] mb-6">إعدادات الحساب</h2>
+              
+              {/* قسم خلاصة الإعدادات */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <Card className="bg-gray-800 border-gray-700 text-white">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg font-medium">اللغة</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-base font-medium text-[#39FF14]">{user?.settings?.language === 'ar' ? "العربية" : "English"}</div>
+                    <div className="text-xs text-gray-400 mt-1">لغة الواجهة الحالية</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-800 border-gray-700 text-white">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg font-medium">الإشعارات</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-base font-medium text-[#39FF14]">{user?.settings?.emailNotifications ? "مفعلة" : "غير مفعلة"}</div>
+                    <div className="text-xs text-gray-400 mt-1">حالة إشعارات البريد الإلكتروني</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-800 border-gray-700 text-white">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg font-medium">السمة</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-base font-medium text-[#39FF14]">
+                      {user?.settings?.theme === 'dark' ? "داكنة" : 
+                        user?.settings?.theme === 'light' ? "فاتحة" : "تلقائية"}
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">سمة التطبيق الحالية</div>
+                  </CardContent>
+                </Card>
+              </div>
+              
               <UserSettingsForm />
             </div>
           </TabsContent>
