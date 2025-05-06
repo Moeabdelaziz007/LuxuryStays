@@ -55,11 +55,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const redirectAfterLoginRef = useRef<string | null>(null);
   const navigate = useNavigate();
+
+  // دالة مساعدة للحصول على مسار إعادة التوجيه من عنوان URL
+  const getRedirectParam = (): string | null => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('redirect');
+  };
 
   // Monitor auth state - Firebase only
   useEffect(() => {
     let unsubscribe = () => {};
+    
+    // تخزين مسار إعادة التوجيه من URL إذا كان موجودًا
+    if (window.location.pathname === '/login') {
+      redirectAfterLoginRef.current = getRedirectParam();
+    }
     
     if (auth) {
       unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -75,28 +87,53 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   const userData = docSnap.data() as UserData;
                   setUser(userData);
                   
-                  // Only redirect if we're on the login or home page
+                  // التوجيه بناءً على الموقع الحالي
                   const pathname = window.location.pathname;
-                  if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
+                  
+                  // إذا كنا على صفحة تسجيل الدخول ولدينا مسار إعادة توجيه
+                  if (pathname === "/login" || pathname === "/signup") {
+                    const redirectPath = redirectAfterLoginRef.current;
+                    
+                    if (redirectPath) {
+                      // إعادة تعيين المرجع بعد استخدامه
+                      redirectAfterLoginRef.current = null;
+                      navigate(decodeURIComponent(redirectPath));
+                    } else {
+                      // توجيه تلقائي إلى لوحة التحكم المناسبة
+                      if (userData.role === "CUSTOMER") navigate("/customer");
+                      else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
+                      else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
+                      else navigate("/unauthorized");
+                    }
+                  }
+                  // إذا كنا على الصفحة الرئيسية
+                  else if (pathname === "/") {
                     if (userData.role === "CUSTOMER") navigate("/customer");
                     else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
                     else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
-                    else navigate("/unauthorized");
                   }
                 } else if (db) {
-                  // User exists in Firebase but not in Firestore
-                  // Create a default user document
+                  // المستخدم موجود في Firebase لكن ليس في Firestore
+                  // إنشاء وثيقة مستخدم افتراضية
                   const newUser: UserData = {
                     uid: firebaseUser.uid,
                     email: firebaseUser.email || '',
-                    name: firebaseUser.displayName || 'User',
-                    role: 'CUSTOMER', // Default role
+                    name: firebaseUser.displayName || 'مستخدم',
+                    role: 'CUSTOMER', // الدور الافتراضي
                     createdAt: new Date().toISOString(),
                   };
                   
                   await setDoc(doc(db, "users", firebaseUser.uid), newUser);
                   setUser(newUser);
-                  navigate("/customer");
+                  
+                  // التحقق من مسار إعادة التوجيه أولاً
+                  const redirectPath = redirectAfterLoginRef.current;
+                  if (redirectPath) {
+                    redirectAfterLoginRef.current = null;
+                    navigate(decodeURIComponent(redirectPath));
+                  } else {
+                    navigate("/customer");
+                  }
                 }
               } else {
                 // Firestore not available

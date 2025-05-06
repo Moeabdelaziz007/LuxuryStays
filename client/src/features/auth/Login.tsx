@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 // Simple login page without advanced form components
 export default function LoginPage() {
@@ -11,7 +12,53 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
+  
+  // استخراج مسار إعادة التوجيه من معلمات URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const redirect = searchParams.get('redirect');
+    
+    if (redirect) {
+      setRedirectPath(redirect);
+      
+      // عرض رسالة للمستخدم
+      toast({
+        title: "تحتاج إلى تسجيل الدخول",
+        description: "يرجى تسجيل الدخول للوصول إلى الصفحة المطلوبة",
+        variant: "default",
+      });
+    }
+  }, [location, toast]);
+  
+  // عرض رسالة ترحيبية مع معلومات حول إعادة التوجيه
+  const renderRedirectMessage = () => {
+    if (!redirectPath) return null;
+    
+    let pageName = "الصفحة المطلوبة";
+    
+    // تحديد نوع الصفحة بناءً على مسار إعادة التوجيه
+    if (redirectPath.includes('booking')) {
+      pageName = "صفحة الحجز";
+    } else if (redirectPath.includes('property')) {
+      pageName = "صفحة العقار";
+    } else if (redirectPath.includes('customer')) {
+      pageName = "صفحة العميل";
+    } else if (redirectPath.includes('property-admin')) {
+      pageName = "صفحة إدارة العقارات";
+    } else if (redirectPath.includes('super-admin')) {
+      pageName = "صفحة المشرف العام";
+    }
+    
+    return (
+      <div className="mb-6 p-3 rounded-lg border border-[#39FF14]/30 bg-[#39FF14]/10 text-sm">
+        بعد تسجيل الدخول، سيتم توجيهك مباشرةً إلى {pageName}.
+      </div>
+    );
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,6 +231,9 @@ export default function LoginPage() {
               {error}
             </div>
           )}
+          
+          {/* عرض رسالة إعادة التوجيه إذا كانت موجودة */}
+          {renderRedirectMessage()}
           
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="group">
