@@ -37,28 +37,27 @@ export default function FeaturedProperties() {
               throw new Error("Firestore is not initialized");
             }
             
-            console.log("Fetching featured properties from Firestore...");
+            console.log("جاري جلب جميع العقارات من Firestore...");
             
-            // الحصول على العقارات المميزة فقط
-            const featuredQuery = query(
-              collection(db, "properties"), 
-              where("featured", "==", true)
+            // الحصول على جميع العقارات المضافة بواسطة مدراء العقارات
+            const allPropertiesQuery = query(
+              collection(db, "properties")
             );
             
             // استخدام تجميع الاتصالات لتقليل عدد الاتصالات المطلوبة
-            const snapshot = await getDocs(featuredQuery);
+            const snapshot = await getDocs(allPropertiesQuery);
             
             if (snapshot.empty) {
-              console.log("No featured properties found in Firestore");
+              console.log("لم يتم العثور على أي عقارات في Firestore");
               // لا نقوم بإضافة بيانات أولية - نعرض فقط العقارات المضافة من مدراء العقارات
               return localProperties; // مصفوفة فارغة
             }
             
-            console.log(`Found ${snapshot.docs.length} featured properties in Firestore`);
+            console.log(`تم العثور على ${snapshot.docs.length} عقار في Firestore`);
             
             // تحويل وثائق Firestore إلى كائنات Property مع تدقيق وتصحيح البيانات
             const properties = snapshot.docs.map(doc => {
-              const docData = doc.data();
+              const docData = doc.data() as Record<string, any>;
               // ضمان وجود جميع الحقول المطلوبة مع قيم افتراضية
               return {
                 id: doc.id,
@@ -67,7 +66,7 @@ export default function FeaturedProperties() {
                 description: docData.description || "لا يوجد وصف متاح",
                 location: docData.location || "موقع غير محدد",
                 pricePerNight: docData.pricePerNight || 0,
-                featured: true, // نحن نفترض أنها مميزة لأننا نبحث عن العقارات المميزة
+                featured: docData.featured || false, // احتفظ بقيمة featured الفعلية
                 ownerId: docData.ownerId || "unknown"
               } as Property;
             });
