@@ -3,8 +3,8 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { auth, db } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, updateProfile, signInWithRedirect } from "firebase/auth";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 // صفحة التسجيل للمستخدمين الجدد
 export default function SignupPage() {
@@ -18,6 +18,21 @@ export default function SignupPage() {
   const { register } = useAuth();
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Helper functions for toast styling
+  const getSuccessToast = (title: string, description: string) => ({
+    title,
+    description,
+    variant: "default" as const,
+    className: "bg-gradient-to-r from-green-900/80 to-green-800/80 border-green-600/50 text-white",
+  });
+  
+  const getWarningToast = (title: string, description: string) => ({
+    title,
+    description,
+    variant: "default" as const,
+    className: "bg-gradient-to-r from-amber-900/80 to-amber-800/80 border-amber-600/50 text-white",
+  });
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,81 +125,201 @@ export default function SignupPage() {
     setError("");
     setGoogleLoading(true);
     
+    // التحقق من توفر خدمة Firebase
     if (!auth || !db) {
       setError("تسجيل الدخول عبر Google غير متاح حالياً. الرجاء استخدام البريد الإلكتروني وكلمة المرور.");
+      console.error("خدمة Google غير متوفرة: لم يتم تهيئة خدمات Firebase");
       setGoogleLoading(false);
       return;
     }
     
     const provider = new GoogleAuthProvider();
-    // إضافة نطاقات إضافية للحصول على مزيد من المعلومات
+    
+    // تحسين الخبرة بإضافة الإعدادات المناسبة
+    provider.setCustomParameters({
+      // طلب اختيار الحساب دائماً لتجنب التسجيل التلقائي بحساب خاطئ
+      prompt: 'select_account',
+      // تحديد لغة الواجهة إلى العربية إذا كان المستخدم يستخدم واجهة عربية
+      login_hint: window.navigator.language.includes('ar') ? 'ar' : undefined
+    });
+    
+    // إضافة نطاقات لجلب معلومات إضافية
     provider.addScope('profile');
     provider.addScope('email');
     
     try {
-      const res = await signInWithPopup(auth, provider);
+      console.log("بدء تسجيل الدخول باستخدام Google...");
+      
+      // استخدام طريقة إعادة التوجيه إذا فشلت النافذة المنبثقة في المرة الأولى
+      let res;
+      try {
+        // محاولة استخدام النافذة المنبثقة أولاً (أفضل تجربة مستخدم)
+        res = await signInWithPopup(auth, provider);
+      } catch (popupError: any) {
+        // التعامل مع أخطاء محددة لتحديد ما إذا كان يجب استخدام طريقة إعادة التوجيه
+        if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(popupError.code)) {
+          console.log("فشلت طريقة النافذة المنبثقة، جاري المحاولة بطريقة إعادة التوجيه...");
+          setError("جاري فتح صفحة Google للمصادقة... الرجاء الانتظار...");
+          
+          try {
+            // محاولة استخدام طريقة إعادة التوجيه بدلاً من النافذة المنبثقة
+            await signInWithRedirect(auth, provider);
+            // هذا الكود لن يتم تنفيذه مباشرة لأن إعادة التوجيه سيقطع تنفيذ البرنامج
+            return;
+          } catch (redirectError: any) {
+            console.error("فشلت محاولة إعادة التوجيه:", redirectError);
+            // إعادة إلقاء خطأ إعادة التوجيه للتعامل معه في جزء التعامل مع الأخطاء
+            throw redirectError;
+          }
+        } else if (popupError.code === 'auth/unauthorized-domain') {
+          // معالجة خاصة لخطأ النطاق غير المصرح به
+          console.error(`يرجى التأكد من إضافة ${window.location.origin} إلى نطاقات Firebase المصرح بها`);
+          console.error(`تأكد أيضًا من إضافة ${window.location.host} (بدون https://) كنطاق مصرح به`);
+          
+          // تقديم رسالة مفصلة للمستخدم
+          toast(getWarningToast(
+            "خطأ في نطاق المصادقة",
+            "تم تعطيل تسجيل الدخول بحساب Google مؤقتًا. سنقوم بتسجيل دخولك باستخدام البريد الإلكتروني وكلمة المرور."
+          ));
+          
+          setError(`يبدو أن هناك مشكلة في إعدادات المصادقة. الرجاء استخدام طريقة البريد الإلكتروني وكلمة المرور للتسجيل.`);
+          setGoogleLoading(false);
+          return;
+        } else {
+          // إعادة إلقاء الأخطاء الأخرى
+          throw popupError;
+        }
+      }
+      
+      if (!res || !res.user) {
+        throw new Error("لم يتم استلام بيانات المستخدم من Google");
+      }
       
       // التحقق من وجود المستخدم في Firestore
       const userRef = doc(db, "users", res.user.uid);
       const userSnap = await getDoc(userRef);
       
       if (!userSnap.exists()) {
-        // إنشاء اسم مستخدم فريد بناءً على البريد الإلكتروني
+        // إنشاء اسم مستخدم فريد بناءً على البريد الإلكتروني أو الاسم
         let autoUsername = '';
+        
         if (res.user.email) {
           // استخراج الجزء قبل علامة @ من البريد الإلكتروني
           autoUsername = res.user.email.split('@')[0];
-          // إضافة بعض الأرقام العشوائية لزيادة فرصة أن يكون فريداً
-          autoUsername += Math.floor(Math.random() * 1000);
+        } else if (res.user.displayName) {
+          // استخدام الاسم كأساس إذا لم يكن هناك بريد إلكتروني
+          // إزالة المسافات والحروف الخاصة
+          autoUsername = res.user.displayName.toLowerCase().replace(/[^a-z0-9]/gi, '');
         } else {
-          // إذا لم يكن هناك بريد إلكتروني، استخدم اسم عشوائي
-          autoUsername = 'user_' + Math.floor(Math.random() * 10000);
+          // إذا لم يكن هناك بريد إلكتروني أو اسم، استخدم اسم عشوائي
+          autoUsername = 'user';
         }
         
-        // إنشاء مستخدم جديد
+        // إضافة مزيج من الحروف والأرقام العشوائية لضمان التفرد
+        const randomSuffix = Math.random().toString(36).substring(2, 6);
+        autoUsername += randomSuffix;
+        
+        // إنشاء مستخدم جديد بمعلومات كاملة
         const userProfile = {
           uid: res.user.uid,
           email: res.user.email,
           name: res.user.displayName || 'مستخدم جديد',
-          username: autoUsername, // إضافة اسم المستخدم المولد تلقائياً
+          username: autoUsername, // اسم المستخدم الفريد
           role: "CUSTOMER", // دور افتراضي
           createdAt: new Date().toISOString(),
           photoURL: res.user.photoURL || null,
+          // بيانات إضافية تساعد في تحسين تجربة المستخدم
+          lastLogin: new Date().toISOString(),
+          provider: 'google',
+          emailVerified: res.user.emailVerified,
         };
         
-        await setDoc(userRef, userProfile);
-        
-        toast({
-          title: "تم إنشاء الحساب بنجاح",
-          description: `مرحباً بك في StayX! اسم المستخدم الخاص بك هو: ${autoUsername}`,
-        });
-        
-        console.log("تم حفظ بيانات المستخدم في Firestore (تسجيل Google):", userProfile);
+        // حفظ بيانات المستخدم في Firestore
+        try {
+          await setDoc(userRef, userProfile);
+          console.log("تم حفظ بيانات المستخدم بنجاح في Firestore:", userProfile);
+          
+          // عرض إشعار للمستخدم مع اسم المستخدم الجديد
+          toast(getSuccessToast(
+            "تم إنشاء الحساب بنجاح ✅", 
+            `مرحباً بك في StayX! اسم المستخدم الخاص بك هو: ${autoUsername}`
+          ));
+          
+          // توجيه المستخدم بعد التسجيل بنجاح
+          setTimeout(() => {
+            setLocation("/"); // الانتقال للصفحة الرئيسية
+          }, 1500);
+        } catch (firestoreError) {
+          console.error("حدث خطأ أثناء حفظ بيانات المستخدم:", firestoreError);
+          setError("تم التسجيل بنجاح ولكن حدث خطأ في حفظ بياناتك. سيتم توجيهك للصفحة الرئيسية.");
+          
+          // رغم الخطأ، نوجه المستخدم للصفحة الرئيسية بعد فترة قصيرة
+          setTimeout(() => {
+            setLocation("/");
+          }, 3000);
+        }
       } else {
-        // المستخدم موجود بالفعل
+        // المستخدم موجود بالفعل - تحديث بيانات آخر تسجيل دخول
         const userData = userSnap.data();
-        toast({
-          title: "تم تسجيل الدخول بنجاح",
-          description: `مرحباً بعودتك ${userData.name || ''}!`,
-        });
+        
+        try {
+          // تحديث تاريخ آخر تسجيل دخول
+          await updateDoc(userRef, { 
+            lastLogin: new Date().toISOString(),
+            // تحديث الصورة الشخصية إذا تغيرت
+            photoURL: res.user.photoURL || userData.photoURL
+          });
+          
+          // عرض رسالة ترحيب للمستخدم العائد
+          toast(getSuccessToast(
+            "تم تسجيل الدخول بنجاح ✅", 
+            `مرحباً بعودتك ${userData.name || 'مستخدم StayX'}!`
+          ));
+          
+          // توجيه المستخدم بعد تسجيل الدخول بنجاح
+          setTimeout(() => {
+            setLocation("/"); // الانتقال للصفحة الرئيسية
+          }, 1500);
+        } catch (updateError) {
+          console.warn("لم يتم تحديث بيانات آخر تسجيل دخول:", updateError);
+          
+          // رغم خطأ التحديث، نقوم بتسجيل دخول المستخدم وتوجيهه
+          toast(getSuccessToast(
+            "تم تسجيل الدخول بنجاح ✅", 
+            `مرحباً بعودتك ${userData.name || 'مستخدم StayX'}!`
+          ));
+          
+          setTimeout(() => {
+            setLocation("/");
+          }, 1500);
+        }
       }
-      
     } catch (err: any) {
       console.error("خطأ في تسجيل الدخول عبر Google:", err);
       
+      // تحسين عرض رسائل الخطأ للمستخدم
       if (err.code === 'auth/unauthorized-domain') {
         setError("نأسف، هذا النطاق غير مسموح به للمصادقة عبر Google. الرجاء استخدام البريد الإلكتروني وكلمة المرور بدلاً من ذلك.");
-        console.error(`يرجى إضافة ${window.location.origin} إلى نطاقات Firebase المصرح بها`);
+        console.error(`يرجى إضافة ${window.location.origin} إلى نطاقات Firebase المصرح بها في لوحة تحكم Firebase`);
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError("تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
       } else if (err.code === 'auth/cancelled-popup-request') {
         // هذا خطأ عادي عند إلغاء الطلب، لا نحتاج لعرضه للمستخدم
       } else if (err.code === 'auth/popup-blocked') {
-        setError("تم حظر النافذة المنبثقة. الرجاء السماح بالنوافذ المنبثقة والمحاولة مرة أخرى.");
+        setError("تم حظر النافذة المنبثقة. الرجاء السماح بالنوافذ المنبثقة والمحاولة مرة أخرى أو استخدم طريقة تسجيل الدخول بالبريد الإلكتروني.");
       } else if (err.code === 'auth/network-request-failed') {
         setError("فشل في الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.");
+      } else if (err.code === 'auth/account-exists-with-different-credential') {
+        setError("هناك حساب موجود بالفعل بنفس البريد الإلكتروني ولكن بطريقة تسجيل دخول مختلفة. حاول تسجيل الدخول بطريقة أخرى.");
+      } else if (err.code === 'auth/user-disabled') {
+        setError("تم تعطيل هذا الحساب. الرجاء التواصل مع الدعم الفني.");
+      } else if (err.code === 'auth/user-token-expired') {
+        setError("انتهت صلاحية جلستك. الرجاء تسجيل الدخول مرة أخرى.");
+      } else if (err.code === 'auth/web-storage-unsupported') {
+        setError("متصفحك لا يدعم تخزين الجلسات. الرجاء تمكين ملفات تعريف الارتباط أو استخدام متصفح آخر.");
       } else {
-        setError(err.message || "فشل تسجيل الدخول باستخدام Google، الرجاء المحاولة مرة أخرى.");
+        // رسالة عامة للأخطاء غير المعروفة
+        setError(err.message || "حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google. الرجاء المحاولة لاحقاً أو استخدام طريقة أخرى للتسجيل.");
       }
     } finally {
       setGoogleLoading(false);
