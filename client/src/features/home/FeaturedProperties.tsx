@@ -53,8 +53,10 @@ export default function FeaturedProperties() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   
-  const { data, isLoading } = useQuery({ 
+  const { data, isLoading, isError } = useQuery({ 
     queryKey: ["featured-properties"], 
+    retry: 2,  // زيادة عدد محاولات إعادة الاتصال
+    retryDelay: 1000, // مهلة بين المحاولات
     queryFn: async () => {
       try {
         if (!db) {
@@ -62,25 +64,44 @@ export default function FeaturedProperties() {
           return localProperties;
         }
         
-        // Get only featured properties
-        const featuredQuery = query(collection(db, "properties"), where("featured", "==", true));
-        const snapshot = await getDocs(featuredQuery);
-        
-        if (snapshot.empty) {
-          console.log("No featured properties found in Firestore, using local data");
+        try {
+          // Get only featured properties
+          const featuredQuery = query(collection(db, "properties"), where("featured", "==", true));
+          const snapshot = await getDocs(featuredQuery);
+          
+          if (snapshot.empty) {
+            console.log("No featured properties found in Firestore, using local data");
+            return localProperties;
+          }
+          
+          return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Property[];
+        } catch (firestoreError: any) {
+          console.error("Firestore query error:", firestoreError);
+          
+          // محاولة إضافة البيانات الأولية في حالة عدم وجود بيانات
+          if (firestoreError.code === "permission-denied") {
+            setError("خطأ في الوصول إلى البيانات: ليس لديك صلاحيات كافية.");
+          } else if (firestoreError.code === "unavailable" || firestoreError.code === "deadline-exceeded") {
+            setError("خطأ في الاتصال بقاعدة البيانات. جاري استخدام البيانات المحلية.");
+          }
+          
+          try {
+            // محاولة إضافة البيانات الأولية
+            const { seedFirestore } = await import('@/lib/seedFirestore');
+            const result = await seedFirestore();
+            if (result.success) {
+              console.log("تمت إضافة البيانات الأولية بنجاح. يرجى تحديث الصفحة.");
+            }
+          } catch (seedError) {
+            console.error("فشل إضافة البيانات الأولية:", seedError);
+          }
+          
+          // Return local data as fallback
           return localProperties;
         }
-        
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Property[];
       } catch (error: any) {
-        console.error("Error fetching featured properties:", error);
-        
-        // Check for permission errors
-        if (error.code === "permission-denied") {
-          setError("Firebase rules prevent access to properties data. Using local data instead.");
-        }
-        
-        // Return local data as fallback
+        console.error("Error in query function:", error);
+        setError("حدث خطأ غير متوقع. جاري استخدام البيانات المحلية.");
         return localProperties;
       }
     }
@@ -100,6 +121,18 @@ export default function FeaturedProperties() {
       </div>
     </div>
   );
+
+  // نعرض رسالة في حالة حدوث خطأ
+  if (error) {
+    return (
+      <div className="text-center py-12 bg-gray-800 rounded-xl p-6 mb-8">
+        <div className="text-yellow-400 mb-4">⚠️</div>
+        <p className="text-lg text-yellow-400 font-semibold mb-2">تنبيه</p>
+        <p className="text-white mb-4">{error}</p>
+        <p className="text-sm text-gray-400 mb-4">نعرض لك بدلاً من ذلك بعض العقارات المميزة المتاحة.</p>
+      </div>
+    );
+  }
 
   if (!data?.length) return (
     <div className="text-center py-12">

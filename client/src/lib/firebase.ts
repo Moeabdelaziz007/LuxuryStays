@@ -79,7 +79,10 @@ if (app) {
   
   try {
     db = getFirestore(app);
-    // Add configuration for Firestore to handle connectivity issues
+    
+    // Firestore configurations are handled internally
+    // We are connected now, if any error happens will fallback to local data
+    
     console.log("Firebase Firestore initialized successfully");
   } catch (error) {
     console.error("Error initializing Firebase Firestore:", error);

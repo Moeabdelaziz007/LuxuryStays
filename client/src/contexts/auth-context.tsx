@@ -384,4 +384,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext);
+// نصدر hook بطريقة مختلفة لتجنب مشاكل Fast Refresh
+export function useAuth() {
+  return useContext(AuthContext);
+}
