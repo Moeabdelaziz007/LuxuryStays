@@ -11,14 +11,6 @@ import {
 import { doc, getDoc, setDoc, serverTimestamp, Firestore } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useNavigate } from "react-router-dom";
-import { getLocalUser, localLogin, localRegister, localLogout, initializeLocalUsers } from "@/lib/local-auth";
-
-// Storage keys for local authentication
-const LOCAL_STORAGE_KEY = 'stayx_local_auth';
-const USERS_KEY = 'stayx_local_users';
-
-// Initialize test users for local auth
-initializeLocalUsers();
 
 interface UserData {
   uid: string;
@@ -62,48 +54,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [useLocalAuth, setUseLocalAuth] = useState(false);
-  const firebaseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  // On component mount, check if we already have a local user
-  useEffect(() => {
-    const localUser = getLocalUser();
-    if (localUser) {
-      setUser(localUser);
-      setUseLocalAuth(true);
-      setLoading(false);
-    }
-  }, []);
-
-  // Monitor auth state with timeout
+  // Monitor auth state - Firebase only
   useEffect(() => {
     let unsubscribe = () => {};
-    
-    // Set a timeout for Firebase connection
-    firebaseTimeoutRef.current = setTimeout(() => {
-      if (loading && !user) {
-        console.warn("Firebase auth connection timeout, falling back to local auth");
-        setUseLocalAuth(true);
-        
-        // Check for existing local user
-        const localUser = getLocalUser();
-        if (localUser) {
-          setUser(localUser);
-        }
-        
-        setLoading(false);
-      }
-    }, 5000); // 5 second timeout
     
     if (auth) {
       unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         try {
-          // Clear the timeout since Firebase responded
-          if (firebaseTimeoutRef.current) {
-            clearTimeout(firebaseTimeoutRef.current);
-            firebaseTimeoutRef.current = null;
-          }
           
           if (firebaseUser) {
             try {
@@ -139,20 +98,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   navigate("/customer");
                 }
               } else {
-                // Firestore not available, use local auth
-                setUseLocalAuth(true);
-                const localUser = getLocalUser();
-                if (localUser) {
-                  setUser(localUser);
-                }
+                // Firestore not available
+                console.error("Firestore is not available");
+                setUser(null);
               }
             } catch (error) {
               console.error("Error accessing Firestore:", error);
-              setUseLocalAuth(true);
-              const localUser = getLocalUser();
-              if (localUser) {
-                setUser(localUser);
-              }
+              setUser(null);
             }
           } else {
             setUser(null);
@@ -160,100 +112,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } catch (err) {
           console.error("Auth state error:", err);
           setError("An authentication error occurred");
-          setUseLocalAuth(true);
         } finally {
           setLoading(false);
         }
       });
     } else {
       // Firebase auth not available
-      setUseLocalAuth(true);
+      console.error("Firebase auth is not available");
       setLoading(false);
     }
     
     return () => {
       unsubscribe();
-      if (firebaseTimeoutRef.current) {
-        clearTimeout(firebaseTimeoutRef.current);
-      }
     };
   }, [navigate]);
 
-  // Login with email/password
+  // Login with email/password - Firebase only
   const login = async (credentials: LoginCredentials) => {
     setLoading(true);
     setError(null);
     try {
       const { email, password } = credentials;
       
-      console.log("Attempting login with:", email);
+      console.log("Attempting login with Firebase:", email);
       
-      if (useLocalAuth || !auth) {
-        console.log("Using local authentication...");
-        try {
-          // First, force a refresh of local users to ensure latest data
-          initializeLocalUsers();
-          
-          const localUser = await localLogin(email, password);
-          setUser(localUser);
-          
-          // Redirect based on role
-          if (localUser.role === "CUSTOMER") navigate("/customer");
-          else if (localUser.role === "PROPERTY_ADMIN") navigate("/property-admin");
-          else if (localUser.role === "SUPER_ADMIN") navigate("/super-admin");
-        } catch (localError) {
-          console.error("Local login error:", localError);
-          
-          // For amrikyy@gmail.com specifically, provide a special fallback
-          if (email === 'amrikyy@gmail.com') {
-            console.log("Using special fallback for amrikyy@gmail.com");
-            // Reset local storage and recreate the user
-            localStorage.removeItem(USERS_KEY);
-            localStorage.removeItem(LOCAL_STORAGE_KEY);
-            localStorage.setItem('reset_stayx_local_storage', 'true');
-            
-            // Create a new user directly
-            initializeLocalUsers();
-            
-            // Try login again
-            try {
-              const localUser = await localLogin('amrikyy@gmail.com', 'password123');
-              setUser(localUser);
-              navigate("/customer");
-              return;
-            } catch (retryError) {
-              console.error("Retry login failed:", retryError);
-            }
-          }
-          
-          throw localError;
-        }
-      } else {
-        // Try Firebase auth first
-        try {
-          await signInWithEmailAndPassword(auth, email, password);
-          // Redirect will happen in the auth state change handler
-        } catch (firebaseError) {
-          console.error("Firebase login error:", firebaseError);
-          
-          // If Firebase fails, try local auth as fallback
-          if (email === 'amrikyy@gmail.com') {
-            console.log("Firebase auth failed, using local fallback for amrikyy@gmail.com");
-            initializeLocalUsers();
-            try {
-              const localUser = await localLogin('amrikyy@gmail.com', 'password123');
-              setUser(localUser);
-              navigate("/customer");
-              return;
-            } catch (localError) {
-              console.error("Local fallback failed:", localError);
-              throw firebaseError; // Throw original error if fallback fails
-            }
-          } else {
-            throw firebaseError;
-          }
-        }
+      if (!auth) {
+        throw new Error("Firebase auth is not available");
       }
+      
+      // Use Firebase auth only
+      await signInWithEmailAndPassword(auth, email, password);
+      // Redirect will happen in the auth state change handler
+      
     } catch (err) {
       console.error("Login error:", err);
       setError("Invalid email or password");
@@ -263,43 +153,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Register new user
+  // Register new user - Firebase only
   const register = async (credentials: RegisterCredentials) => {
     setLoading(true);
     setError(null);
     try {
       const { name, email, password } = credentials;
       
-      if (useLocalAuth || !auth || !db) {
-        console.log("Using local registration...");
-        try {
-          const localUser = await localRegister(name, email, password);
-          setUser(localUser);
-          
-          // Redirect based on role
-          if (localUser.role === "CUSTOMER") navigate("/customer");
-          else if (localUser.role === "PROPERTY_ADMIN") navigate("/property-admin");
-          else if (localUser.role === "SUPER_ADMIN") navigate("/super-admin");
-        } catch (localError) {
-          console.error("Local registration error:", localError);
-          throw localError;
-        }
-      } else {
-        // Create user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        
-        // Create user document in Firestore
-        const userData: UserData = {
-          uid: user.uid,
-          email: email,
-          name: name,
-          role: 'CUSTOMER', // Default role for new users
-          createdAt: new Date().toISOString(),
-        };
-        
-        await setDoc(doc(db, "users", user.uid), userData);
+      if (!auth || !db) {
+        throw new Error("Firebase auth or Firestore is not available");
       }
+      
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Create user document in Firestore
+      const userData: UserData = {
+        uid: user.uid,
+        email: email,
+        name: name,
+        role: 'CUSTOMER', // Default role for new users
+        createdAt: new Date().toISOString(),
+      };
+      
+      await setDoc(doc(db, "users", user.uid), userData);
     } catch (err) {
       console.error("Register error:", err);
       setError("Registration failed");
@@ -309,14 +187,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Login with Google
+  // Login with Google - Firebase only
   const loginWithGoogle = async () => {
     setLoading(true);
     setError(null);
     try {
-      if (!auth || !db || useLocalAuth) {
-        console.error("Google login not available in local mode");
-        throw new Error("Google login is not available right now");
+      if (!auth || !db) {
+        throw new Error("Firebase auth or Firestore is not available");
       }
       
       const provider = new GoogleAuthProvider();
@@ -353,15 +230,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Logout
+  // Logout - Firebase only
   const logout = async () => {
     try {
-      if (useLocalAuth || !auth) {
-        await localLogout();
-        setUser(null);
-      } else {
-        await signOut(auth);
+      if (!auth) {
+        throw new Error("Firebase auth is not available");
       }
+      
+      await signOut(auth);
+      setUser(null);
       navigate("/");
     } catch (err) {
       console.error("Logout error:", err);
