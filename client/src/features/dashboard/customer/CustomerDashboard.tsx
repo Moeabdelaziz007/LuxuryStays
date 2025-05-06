@@ -21,7 +21,7 @@ import {
   FaUser
 } from "react-icons/fa";
 
-// Define booking type
+// Define types
 interface Booking {
   id: string;
   propertyId: string;
@@ -32,6 +32,7 @@ interface Booking {
   totalPrice: number;
   status: 'pending' | 'confirmed' | 'cancelled';
   createdAt: any;
+  [key: string]: any; // Allow additional properties
 }
 
 export default function CustomerDashboard() {
@@ -227,7 +228,7 @@ export default function CustomerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-[#39FF14]">
-                ${bookings.reduce((sum, booking) => sum + (booking.totalPrice || 0), 0)}
+                ${bookings.reduce((sum, booking: any) => sum + (booking.totalPrice || 0), 0)}
               </div>
               <div className="text-xs text-gray-400 mt-1">إجمالي المدفوعات</div>
             </CardContent>
@@ -299,7 +300,7 @@ export default function CustomerDashboard() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {bookings.map((booking: Booking) => (
+                  {bookings.map((booking: any) => (
                     <div key={booking.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-[#39FF14]/20 transition-colors group">
                       <div className="flex flex-col md:flex-row">
                         <div className="w-full md:w-2/5 h-40 md:h-auto bg-gray-700 relative">
@@ -387,14 +388,14 @@ export default function CustomerDashboard() {
                   </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {favorites.map((favorite: any) => (
-                    <div key={favorite.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-[#39FF14]/20 transition-colors group">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {favorites.map((property: FavoriteProperty) => (
+                    <div key={property.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-[#39FF14]/20 transition-colors group">
                       <div className="relative h-48 overflow-hidden">
-                        {favorite.property?.imageUrl ? (
+                        {property.propertyImage ? (
                           <img 
-                            src={favorite.property.imageUrl}
-                            alt={favorite.property.name}
+                            src={property.propertyImage}
+                            alt={property.propertyName}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
                         ) : (
@@ -403,37 +404,24 @@ export default function CustomerDashboard() {
                           </div>
                         )}
                         <div className="absolute top-2 right-2 bg-[#39FF14] text-black px-3 py-1 rounded-full text-sm font-bold">
-                          ${favorite.property?.price || 0} / ليلة
+                          ${property.price || 0} / ليلة
                         </div>
                       </div>
                       
                       <div className="p-4">
                         <h3 className="text-lg font-bold text-[#39FF14] mb-2">
-                          {favorite.property?.name || "عقار غير معروف"}
+                          {property.propertyName || "عقار غير معروف"}
                         </h3>
                         
                         <div className="flex items-center text-sm text-gray-300 mb-2">
                           <FaMapMarkerAlt className="h-3 w-3 mr-2 text-[#39FF14]" />
-                          {favorite.property?.location || "موقع غير معروف"}
-                        </div>
-                        
-                        <div className="flex gap-3 mb-3">
-                          {favorite.property?.beds && (
-                            <div className="flex items-center text-xs text-gray-400">
-                              <FaBed className="h-3 w-3 mr-1" />
-                              {favorite.property.beds} أسرة
-                            </div>
-                          )}
+                          {property.location || "موقع غير معروف"}
                         </div>
                         
                         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-400 hover:text-red-500 hover:bg-transparent p-0"
-                          >
-                            <FaHeart className="h-4 w-4" />
-                          </Button>
+                          <div className="text-xs text-gray-400">
+                            تاريخ الإضافة: {formatDate(property.addedAt)}
+                          </div>
                           <Button
                             className="bg-[#39FF14] hover:bg-[#50FF30] text-black font-medium text-sm"
                           >
