@@ -65,18 +65,16 @@ export default function ServicesSection() {
     queryFn: async () => {
       try {
         if (!db) {
-          console.log("Firebase DB not available, using local services data");
-          setLocalFallback(true);
-          return localServices;
+          console.log("Firebase DB not available");
+          return []; // لا نعرض بيانات محلية
         }
         
         const activeQuery = query(collection(db, "services"), where("status", "==", "active"));
         const snapshot = await getDocs(activeQuery);
         
         if (snapshot.empty) {
-          console.log("No active services found in Firestore, using local data");
-          setLocalFallback(true);
-          return localServices;
+          console.log("No active services found in Firestore");
+          return []; // لا نعرض بيانات محلية
         }
         
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Service[];
@@ -85,14 +83,13 @@ export default function ServicesSection() {
         
         // Handle specific Firebase errors
         if (error.code === "permission-denied") {
-          setError("Firebase security rules prevent access to services data. Using local data instead.");
+          setError("قواعد أمان Firebase تمنع الوصول إلى بيانات الخدمات.");
           console.warn("Firebase permission denied. Make sure Firestore rules allow read access to the services collection.");
         } else if (error.name === "FirebaseError") {
-          setError("Firebase error: " + error.message);
+          setError("خطأ في Firebase: " + error.message);
         }
         
-        setLocalFallback(true);
-        return localServices;
+        return []; // لا نعرض بيانات محلية
       }
     }
   });
@@ -119,6 +116,40 @@ export default function ServicesSection() {
       </div>
     </div>
   );
+
+  // نعرض رسالة في حالة حدوث خطأ
+  if (error) {
+    return (
+      <div className="text-center py-12 bg-gray-800 rounded-xl p-6 mb-8">
+        <div className="text-yellow-400 mb-4">⚠️</div>
+        <p className="text-lg text-yellow-400 font-semibold mb-2">تنبيه</p>
+        <p className="text-white mb-4">{error}</p>
+        <p className="text-sm text-gray-400 mb-4">
+          نحن نعرض فقط الخدمات الرسمية المقدمة من قبل StayX.
+          قد تكون الخدمة غير متاحة حاليًا، يرجى المحاولة لاحقًا.
+        </p>
+      </div>
+    );
+  }
+
+  // عندما لا توجد خدمات
+  if (!activeServices?.length) {
+    return (
+      <div className="text-center py-12 bg-gray-800/50 rounded-2xl backdrop-blur-sm border border-gray-700">
+        <div className="max-w-lg mx-auto px-4">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-black/30 mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-white mb-4">لا توجد خدمات متاحة حاليًا</h3>
+          <p className="text-gray-300 mb-6">
+            سيتم إضافة خدمات قريبًا. يرجى العودة لاحقًا للاطلاع على أحدث الخدمات المتوفرة.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
