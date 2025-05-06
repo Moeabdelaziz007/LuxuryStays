@@ -17,12 +17,37 @@ try {
   } else {
     // Try to load from the service account file
     try {
-      let serviceAccountPath = './staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json';
+      // List of potential service account file locations
+      const potentialServiceAccountPaths = [
+        './service-account.json',
+        './staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json',
+        './attached_assets/staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json',
+        './attached_assets/staychill-3ed08-firebase-adminsdk-fbsvc-0cfd3bd1d5.json'
+      ];
       
-      if (fs.existsSync(serviceAccountPath)) {
-        console.log('Found service account at:', serviceAccountPath);
-        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-        
+      let serviceAccountPath = null;
+      let serviceAccount = null;
+      
+      // Find the first valid service account file
+      for (const path of potentialServiceAccountPaths) {
+        if (fs.existsSync(path)) {
+          try {
+            const fileContent = fs.readFileSync(path, 'utf8');
+            // Verify it's a valid JSON
+            const parsedContent = JSON.parse(fileContent);
+            if (parsedContent.private_key && parsedContent.client_email) {
+              serviceAccountPath = path;
+              serviceAccount = parsedContent;
+              console.log('Found valid service account at:', path);
+              break;
+            }
+          } catch (parseError) {
+            console.error(`Error parsing service account at ${path}:`, parseError);
+          }
+        }
+      }
+      
+      if (serviceAccount) {
         firebaseApp = admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
           projectId: 'staychill-3ed08'
@@ -33,7 +58,7 @@ try {
         firebaseApp = admin.initializeApp({
           projectId: 'staychill-3ed08'
         });
-        console.log('Initialized Firebase Admin with project ID only');
+        console.log('Initialized Firebase Admin with project ID only - no valid service account found');
       }
     } catch (error) {
       console.error('Error initializing Firebase Admin with service account:', error);
