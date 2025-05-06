@@ -9,6 +9,7 @@ import { CustomerLayout, PropertyAdminLayout, SuperAdminLayout } from "@/compone
 
 // Dashboard Components
 import SuperAdminDashboard from "@/features/dashboard/super-admin/SuperAdminDashboard";
+import NewSuperAdminDashboard from "@/features/dashboard/super-admin/NewSuperAdminDashboard";
 import PropertyAdminDashboard from "@/features/dashboard/PropertyAdminDashboard";
 import CustomerDashboard from "@/features/dashboard/customer/CustomerDashboard";
 
