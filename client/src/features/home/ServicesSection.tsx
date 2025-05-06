@@ -94,13 +94,11 @@ export default function ServicesSection() {
     }
   });
   
+  // دائماً استخدم الخدمات المحلية للصفحة الرئيسية (نموذج فقط)
   useEffect(() => {
-    if (activeServices) {
-      setServicesList(activeServices);
-    } else if (localFallback) {
-      setServicesList(localServices);
-    }
-  }, [activeServices, localFallback]);
+    // استخدم النموذج المحلي دائماً كما طلب المستخدم
+    setServicesList(localServices);
+  }, []);
 
   if (activeLoading && !servicesList.length) return (
     <div className="flex justify-center items-center h-40">
@@ -132,24 +130,7 @@ export default function ServicesSection() {
     );
   }
 
-  // عندما لا توجد خدمات
-  if (!activeServices?.length) {
-    return (
-      <div className="text-center py-12 bg-gray-800/50 rounded-2xl backdrop-blur-sm border border-gray-700">
-        <div className="max-w-lg mx-auto px-4">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-black/30 mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-white mb-4">لا توجد خدمات متاحة حاليًا</h3>
-          <p className="text-gray-300 mb-6">
-            سيتم إضافة خدمات قريبًا. يرجى العودة لاحقًا للاطلاع على أحدث الخدمات المتوفرة.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // نحن دائماً سنعرض نموذج الخدمات بغض النظر عن حالة الاتصال بـ Firestore
 
   return (
     <div>
@@ -160,7 +141,7 @@ export default function ServicesSection() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {activeServices?.map((service) => (
+        {servicesList.map((service) => (
           <div
             key={service.id}
             className="bg-gradient-to-br from-gray-800/90 to-gray-900 text-white rounded-xl overflow-hidden shadow-xl transform transition-all duration-300 hover:scale-[1.02] border border-gray-700 hover:border-[#39FF14]/30 group"
