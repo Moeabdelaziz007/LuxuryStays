@@ -58,11 +58,45 @@ export default function AppRoutes() {
       </Route>
       
       <Route path="/about">
-        <PublicHome />
+        <Layout>
+          <div className="container mx-auto px-4 py-12">
+            <h1 className="text-4xl font-bold text-neon-green mb-6">عن التطبيق</h1>
+            <div className="bg-gray-800 rounded-xl p-8 text-white">
+              <p className="mb-4">
+                StayX هي منصة حديثة للحجوزات الفاخرة للإيجارات الصيفية والخدمات الرقمية في الساحل الشمالي ورأس الحكمة بمصر.
+              </p>
+              <p className="mb-4">
+                تهدف المنصة إلى توفير تجربة سلسة وفاخرة للمستخدمين الراغبين في قضاء إجازتهم في أفضل الأماكن بالساحل المصري.
+              </p>
+              <p>
+                تم تطوير هذا التطبيق باستخدام أحدث التقنيات وأفضل الممارسات لضمان تجربة مستخدم مميزة وآمنة.
+              </p>
+            </div>
+          </div>
+        </Layout>
       </Route>
       
       <Route path="/contact">
-        <PublicHome />
+        <Layout>
+          <div className="container mx-auto px-4 py-12">
+            <h1 className="text-4xl font-bold text-neon-green mb-6">تواصل معنا</h1>
+            <div className="bg-gray-800 rounded-xl p-8 text-white">
+              <p className="mb-6">
+                لديك استفسار أو اقتراح؟ يمكنك التواصل معنا من خلال:
+              </p>
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center">
+                  <span className="text-neon-green mr-2">📧</span>
+                  <span>البريد الإلكتروني: contact@stayx.com</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-neon-green mr-2">📱</span>
+                  <span>الهاتف: +20 123 456 7890</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Layout>
       </Route>
       
       <Route path="/unauthorized">
@@ -71,11 +105,55 @@ export default function AppRoutes() {
       
       {/* ===== مسارات الدفع - يمكن استخدامها من قبل جميع المستخدمين ===== */}
       <Route path="/payment-success">
-        <PublicHome />
+        <Layout>
+          <div className="container mx-auto px-4 py-12">
+            <div className="bg-gray-800 rounded-xl p-8 text-center max-w-lg mx-auto">
+              <div className="w-20 h-20 bg-green-500 rounded-full mx-auto flex items-center justify-center mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-4">تم الدفع بنجاح!</h1>
+              <p className="text-gray-300 mb-6">
+                تمت عملية الدفع بنجاح وتم تأكيد حجزك. يمكنك الآن الاطلاع على تفاصيل الحجز في لوحة التحكم الخاصة بك.
+              </p>
+              <div className="flex justify-center space-x-4 rtl:space-x-reverse">
+                <a href="/customer/bookings" className="bg-[#39FF14] text-black px-6 py-2 rounded-lg font-bold">
+                  عرض الحجوزات
+                </a>
+                <a href="/" className="bg-gray-700 text-white px-6 py-2 rounded-lg">
+                  العودة للصفحة الرئيسية
+                </a>
+              </div>
+            </div>
+          </div>
+        </Layout>
       </Route>
       
       <Route path="/payment-cancel">
-        <PublicHome />
+        <Layout>
+          <div className="container mx-auto px-4 py-12">
+            <div className="bg-gray-800 rounded-xl p-8 text-center max-w-lg mx-auto">
+              <div className="w-20 h-20 bg-red-500 rounded-full mx-auto flex items-center justify-center mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-4">تم إلغاء عملية الدفع</h1>
+              <p className="text-gray-300 mb-6">
+                تم إلغاء عملية الدفع الخاصة بك. إذا كنت تواجه أي مشكلة في عملية الدفع، يرجى التواصل مع فريق الدعم.
+              </p>
+              <div className="flex justify-center space-x-4 rtl:space-x-reverse">
+                <a href="/contact" className="bg-[#39FF14] text-black px-6 py-2 rounded-lg font-bold">
+                  تواصل مع الدعم
+                </a>
+                <a href="/" className="bg-gray-700 text-white px-6 py-2 rounded-lg">
+                  العودة للصفحة الرئيسية
+                </a>
+              </div>
+            </div>
+          </div>
+        </Layout>
       </Route>
 
       {/* ===== مسارات لوحة تحكم العميل ===== */}
