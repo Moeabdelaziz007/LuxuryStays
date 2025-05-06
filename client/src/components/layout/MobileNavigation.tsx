@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/contexts/auth-context';
 import { 
   Home, 
@@ -16,7 +16,7 @@ import {
 
 export default function MobileNavigation() {
   const { user } = useAuth();
-  const location = useLocation();
+  const [location] = useLocation();
   
   if (!user) return null; // Don't show for unauthenticated users
   

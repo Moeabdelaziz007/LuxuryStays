@@ -17,16 +17,41 @@ export function formatDate(date: any, locale = 'ar-EG', options: Intl.DateTimeFo
   month: 'short', 
   day: 'numeric' 
 }) {
-  if (!date) return '';
+  if (!date) return ''; // تعامل مع القيم الفارغة
   
-  // Handle Firestore timestamp
-  if (date && typeof date === 'object' && 'toDate' in date && typeof date.toDate === 'function') {
-    return date.toDate().toLocaleDateString(locale, options);
+  try {
+    // Handle Firestore timestamp
+    if (date && typeof date === 'object' && 'toDate' in date && typeof date.toDate === 'function') {
+      return date.toDate().toLocaleDateString(locale, options);
+    }
+    
+    // Handle Date object
+    if (date instanceof Date) {
+      return date.toLocaleDateString(locale, options);
+    }
+    
+    // Handle ISO string or timestamp
+    if (typeof date === 'string' || typeof date === 'number') {
+      const d = new Date(date);
+      if (!isNaN(d.getTime())) { // التحقق من أن التاريخ صالح
+        return d.toLocaleDateString(locale, options);
+      }
+    }
+    
+    // عالج بقية الحالات غير المتوقعة كأوبجكت
+    if (typeof date === 'object') {
+      const d = new Date(date);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString(locale, options);
+      }
+    }
+    
+    // If all else fails, return a placeholder
+    return '';
+  } catch (error) {
+    console.error('خطأ في تنسيق التاريخ:', error, date);
+    return '';
   }
-  
-  // Handle Date object or ISO string
-  const d = date instanceof Date ? date : new Date(date);
-  return d.toLocaleDateString(locale, options);
 }
 
 /**
