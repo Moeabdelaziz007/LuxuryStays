@@ -328,8 +328,8 @@ export default function LoginPage() {
       </div>
 
       {/* Form Container */}
-      <div className="relative z-10 w-full max-w-md">
-        <div className="backdrop-blur-md bg-black/50 p-8 rounded-2xl shadow-[0_0_25px_rgba(0,0,0,0.3)] border border-[#39FF14]/20 relative overflow-hidden">
+      <div className="relative z-10 w-full max-w-md px-4 sm:px-0">
+        <div className="backdrop-blur-md bg-black/50 p-5 sm:p-8 rounded-2xl shadow-[0_0_25px_rgba(0,0,0,0.3)] border border-[#39FF14]/20 relative overflow-hidden">
           {/* Background glow effect */}
           <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 w-40 h-40 bg-[#39FF14]/20 rounded-full blur-[80px] opacity-70"></div>
           
@@ -395,8 +395,13 @@ export default function LoginPage() {
               className="relative group w-full"
               disabled={loading}
             >
-              <div className="relative z-10 bg-[#39FF14] text-black font-bold py-3 rounded-lg w-full text-center transform group-hover:scale-[1.01] transition-transform">
+              <div className="relative z-10 bg-[#39FF14] text-black font-bold py-3 rounded-lg w-full text-center transform transition-all active:scale-[0.98] hover:scale-[1.01]">
                 {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+                {loading && (
+                  <div className="absolute right-5 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
+                  </div>
+                )}
               </div>
               <div className="absolute inset-0 bg-[#39FF14] blur-sm opacity-50 group-hover:opacity-70 rounded-lg transition-opacity"></div>
             </button>
@@ -410,11 +415,14 @@ export default function LoginPage() {
 
           <button 
             onClick={handleGoogleLogin} 
-            className="relative flex items-center justify-center gap-2 bg-white/5 border border-white/10 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-lg w-full hover:bg-white/10 transition-colors"
+            className="relative flex items-center justify-center gap-2 bg-white/5 border border-white/10 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-lg w-full hover:bg-white/10 transition-all active:scale-[0.98]"
             disabled={googleLoading}
           >
             {googleLoading ? (
-              <span className="animate-pulse">جاري تسجيل الدخول...</span>
+              <div className="flex items-center justify-center gap-3">
+                <span>جاري تسجيل الدخول</span>
+                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+              </div>
             ) : (
               <>
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
