@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, Firestore } from "firebase/firestore";
 import { db } from "./firebase";
 
 // Sample property data based on the new model - using real North Coast locations

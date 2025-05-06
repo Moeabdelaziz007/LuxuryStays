@@ -22,7 +22,10 @@ import {
   FaTimes,
   FaArrowUp,
   FaArrowDown,
-  FaClipboardList
+  FaClipboardList,
+  FaCocktail,
+  FaGlassCheers,
+  FaHotel
 } from "react-icons/fa";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -37,6 +40,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { UserRole } from "@shared/schema";
 import { toast } from "@/hooks/use-toast";
+import ServicesControl from "./ServicesControl";
 
 export default function SuperAdminDashboard() {
   const { user } = useAuth();
@@ -264,6 +268,12 @@ export default function SuperAdminDashboard() {
               className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none"
             >
               الحجوزات
+            </TabsTrigger>
+            <TabsTrigger 
+              value="services"
+              className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none"
+            >
+              الخدمات
             </TabsTrigger>
           </TabsList>
           
