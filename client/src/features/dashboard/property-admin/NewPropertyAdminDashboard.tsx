@@ -264,12 +264,12 @@ export default function NewPropertyAdminDashboard() {
                   variant="ghost" 
                   className={`w-full justify-start text-right ${
                     activeTab === 'overview' 
-                      ? 'bg-gradient-to-r from-indigo-900/50 to-indigo-800/20 text-indigo-400 border-r-2 border-indigo-500' 
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
+                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
                   }`}
                   onClick={() => setActiveTab('overview')}
                 >
-                  <LayoutDashboard size={18} className="ml-2" />
+                  <LayoutDashboard size={18} className={`ml-2 ${activeTab === 'overview' ? 'text-[#39FF14]' : ''}`} />
                   <span>نظرة عامة</span>
                 </Button>
                 
@@ -277,12 +277,12 @@ export default function NewPropertyAdminDashboard() {
                   variant="ghost" 
                   className={`w-full justify-start text-right ${
                     activeTab === 'properties' 
-                      ? 'bg-gradient-to-r from-indigo-900/50 to-indigo-800/20 text-indigo-400 border-r-2 border-indigo-500' 
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
+                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
                   }`}
                   onClick={() => setActiveTab('properties')}
                 >
-                  <Building size={18} className="ml-2" />
+                  <Building size={18} className={`ml-2 ${activeTab === 'properties' ? 'text-[#39FF14]' : ''}`} />
                   <span>العقارات</span>
                 </Button>
                 
@@ -290,12 +290,12 @@ export default function NewPropertyAdminDashboard() {
                   variant="ghost" 
                   className={`w-full justify-start text-right ${
                     activeTab === 'bookings' 
-                      ? 'bg-gradient-to-r from-indigo-900/50 to-indigo-800/20 text-indigo-400 border-r-2 border-indigo-500' 
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
+                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
                   }`}
                   onClick={() => setActiveTab('bookings')}
                 >
-                  <Calendar size={18} className="ml-2" />
+                  <Calendar size={18} className={`ml-2 ${activeTab === 'bookings' ? 'text-[#39FF14]' : ''}`} />
                   <span>الحجوزات</span>
                 </Button>
                 
@@ -303,12 +303,12 @@ export default function NewPropertyAdminDashboard() {
                   variant="ghost" 
                   className={`w-full justify-start text-right ${
                     activeTab === 'analytics' 
-                      ? 'bg-gradient-to-r from-indigo-900/50 to-indigo-800/20 text-indigo-400 border-r-2 border-indigo-500' 
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
+                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
                   }`}
                   onClick={() => setActiveTab('analytics')}
                 >
-                  <PieChart size={18} className="ml-2" />
+                  <PieChart size={18} className={`ml-2 ${activeTab === 'analytics' ? 'text-[#39FF14]' : ''}`} />
                   <span>التحليلات</span>
                 </Button>
                 
@@ -316,12 +316,12 @@ export default function NewPropertyAdminDashboard() {
                   variant="ghost" 
                   className={`w-full justify-start text-right ${
                     activeTab === 'messages' 
-                      ? 'bg-gradient-to-r from-indigo-900/50 to-indigo-800/20 text-indigo-400 border-r-2 border-indigo-500' 
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
+                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
                   }`}
                   onClick={() => setActiveTab('messages')}
                 >
-                  <MessageSquare size={18} className="ml-2" />
+                  <MessageSquare size={18} className={`ml-2 ${activeTab === 'messages' ? 'text-[#39FF14]' : ''}`} />
                   <span>الرسائل</span>
                 </Button>
                 
@@ -329,12 +329,12 @@ export default function NewPropertyAdminDashboard() {
                   variant="ghost" 
                   className={`w-full justify-start text-right ${
                     activeTab === 'settings' 
-                      ? 'bg-gradient-to-r from-indigo-900/50 to-indigo-800/20 text-indigo-400 border-r-2 border-indigo-500' 
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
+                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
                   }`}
                   onClick={() => setActiveTab('settings')}
                 >
-                  <Settings2 size={18} className="ml-2" />
+                  <Settings2 size={18} className={`ml-2 ${activeTab === 'settings' ? 'text-[#39FF14]' : ''}`} />
                   <span>الإعدادات</span>
                 </Button>
               </div>
@@ -342,7 +342,7 @@ export default function NewPropertyAdminDashboard() {
               <div className="mt-6 pt-6 border-t border-gray-800">
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-right text-gray-400 hover:text-white hover:bg-gray-800/50"
+                  className="w-full justify-start text-right text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all"
                 >
                   <User size={18} className="ml-2" />
                   <span>الملف الشخصي</span>
@@ -350,7 +350,7 @@ export default function NewPropertyAdminDashboard() {
                 
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-right text-gray-400 hover:text-white hover:bg-gray-800/50"
+                  className="w-full justify-start text-right text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all"
                 >
                   <LogOut size={18} className="ml-2" />
                   <span>تسجيل الخروج</span>
