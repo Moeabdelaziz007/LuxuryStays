@@ -103,10 +103,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   const userData = docSnap.data() as UserData;
                   setUser(userData);
                   
-                  // التوجيه بناءً على الموقع الحالي
+                  // التوجيه بناءً على الموقع الحالي فقط لصفحات المصادقة
                   const pathname = window.location.pathname;
                   
-                  // إذا كنا على صفحة تسجيل الدخول ولدينا مسار إعادة توجيه
+                  // إذا كنا على صفحة تسجيل الدخول أو التسجيل ولدينا مسار إعادة توجيه
                   if (pathname === "/login" || pathname === "/signup") {
                     const redirectPath = redirectAfterLoginRef.current;
                     
@@ -121,12 +121,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                       else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
                       else navigate("/unauthorized");
                     }
-                  }
-                  // إذا كنا على الصفحة الرئيسية
-                  else if (pathname === "/") {
-                    if (userData.role === "CUSTOMER") navigate("/customer");
-                    else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
-                    else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
                   }
                 } else if (db) {
                   // المستخدم موجود في Firebase لكن ليس في Firestore

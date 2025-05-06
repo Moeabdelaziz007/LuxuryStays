@@ -18,12 +18,12 @@ function RedirectHandler() {
   useEffect(() => {
     console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location.pathname });
     
-    // فقط قم بالتوجيه إذا كان المستخدم مسجل دخوله ويحاول الوصول للصفحة الرئيسية أو صفحة تسجيل الدخول
+    // سنقوم فقط بتوجيه المستخدم المسجل إذا كان في صفحة تسجيل الدخول أو التسجيل
     if (!loading && user) {
-      const publicPages = ['/', '/login', '/signup'];
+      const authPages = ['/login', '/signup'];
       
-      // قم بالتوجيه فقط إذا كان المستخدم على صفحة عامة ولديه صلاحيات
-      if (publicPages.includes(location.pathname) && user.role) {
+      // قم بالتوجيه فقط إذا كان المستخدم على صفحة مصادقة ولديه صلاحيات
+      if (authPages.includes(location.pathname) && user.role) {
         let dashboardPath;
         
         switch (user.role) {
