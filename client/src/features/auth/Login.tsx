@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { localLogin, initializeLocalUsers } from "@/lib/local-auth";
-import { UserRole } from "@/features/auth/types";
 
 // Simple login page without advanced form components
 export default function LoginPage() {
@@ -13,50 +11,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
-  const [useLocalAuth, setUseLocalAuth] = useState(false);
   const navigate = useNavigate();
-  
-  // Initialize test users for local authentication
-  useEffect(() => {
-    // Force reset local users (only needed for this update)
-    localStorage.removeItem('stayx_local_users');
-    
-    // Initialize local users for testing when Firebase is unavailable
-    initializeLocalUsers();
-    
-    // Set a listener for Firebase connection errors
-    const errorListener = (e: ErrorEvent) => {
-      if (e.message && (
-        e.message.includes('firebase') || 
-        e.message.includes('Firestore') ||
-        e.message.includes('WebChannelConnection')
-      )) {
-        console.warn('Firebase connection issue detected, falling back to local auth');
-        setUseLocalAuth(true);
-      }
-    };
-    
-    window.addEventListener('error', errorListener);
-    
-    // Check if we should use local auth
-    const connectionCheckTimeout = setTimeout(() => {
-      try {
-        // If Firebase auth is taking too long or not available, use local auth
-        if (!auth || !auth.currentUser) {
-          console.warn('Firebase auth connection timeout, falling back to local auth');
-          setUseLocalAuth(true);
-        }
-      } catch (err) {
-        console.error('Error checking Firebase auth:', err);
-        setUseLocalAuth(true);
-      }
-    }, 3000);
-    
-    return () => {
-      window.removeEventListener('error', errorListener);
-      clearTimeout(connectionCheckTimeout);
-    };
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,37 +19,14 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      console.log("Attempting login with:", email);
-      
-      if (useLocalAuth) {
-        // Use local authentication when Firebase is unavailable
-        console.log("Using local authentication...");
-        try {
-          const user = await localLogin(email, password);
-          console.log("Local login successful:", user);
-          
-          // Manually redirect based on role
-          if (user.role === UserRole.SUPER_ADMIN) {
-            navigate('/super-admin');
-          } else if (user.role === UserRole.PROPERTY_ADMIN) {
-            navigate('/property-admin');
-          } else {
-            navigate('/customer');
-          }
-          return;
-        } catch (localErr: any) {
-          console.error("Local login error:", localErr);
-          throw new Error(localErr.message || "فشل تسجيل الدخول محلياً");
-        }
-      }
+      console.log("Attempting login with Firebase:", email);
       
       // Check if Firebase auth is available
       if (!auth) {
-        setUseLocalAuth(true);
-        throw new Error("Firebase auth not available");
+        throw new Error("Firebase authentication is not available");
       }
       
-      // Normal Firebase authentication
+      // Firebase authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log("Firebase login successful:", userCredential.user.uid);
       // Navigation is handled by auth context
@@ -105,11 +37,6 @@ export default function LoginPage() {
         setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
       } else if (err.code === 'auth/wrong-password') {
         setError("كلمة المرور غير صحيحة");
-      } else if (err.message && err.message.includes('firebase') && !useLocalAuth) {
-        // If we get a Firebase error but weren't using local auth, try to switch to local auth
-        console.log("Firebase error detected, switching to local auth");
-        setUseLocalAuth(true);
-        setError("اتصال Firebase غير متوفر، جاري استخدام التخزين المحلي. حاول مرة أخرى.");
       } else {
         setError(err.message || "فشل تسجيل الدخول");
       }
@@ -122,9 +49,9 @@ export default function LoginPage() {
     setError("");
     setGoogleLoading(true);
     
-    if (useLocalAuth || !auth || !db) {
-      setError("تسجيل الدخول عبر Google غير متاح في وضع الاتصال المحلي. الرجاء استخدام البريد الإلكتروني وكلمة المرور.");
-      console.error("Google login not available in local mode");
+    if (!auth || !db) {
+      setError("تسجيل الدخول عبر Google غير متاح حالياً. الرجاء استخدام البريد الإلكتروني وكلمة المرور.");
+      console.error("Google login not available: Firebase services not initialized");
       setGoogleLoading(false);
       return;
     }
@@ -135,43 +62,22 @@ export default function LoginPage() {
       const res = await signInWithPopup(auth, provider);
       
       // Check if user exists in Firestore
-      try {
-        const userRef = doc(db, "users", res.user.uid);
-        const userSnap = await getDoc(userRef);
-        
-        if (!userSnap.exists()) {
-          // Create new user document
-          await setDoc(userRef, {
-            uid: res.user.uid,
-            email: res.user.email,
-            name: res.user.displayName,
-            role: "CUSTOMER", // Default role
-            createdAt: new Date().toISOString(),
-          });
-        }
-      } catch (firestoreError) {
-        console.error("Error accessing Firestore:", firestoreError);
-        
-        // If Firestore fails, use local auth as fallback
-        setUseLocalAuth(true);
-        
-        // We can still use the Google user info to create a local session
-        const tempLocalUser = {
+      const userRef = doc(db, "users", res.user.uid);
+      const userSnap = await getDoc(userRef);
+      
+      if (!userSnap.exists()) {
+        // Create new user document
+        await setDoc(userRef, {
           uid: res.user.uid,
-          email: res.user.email || '',
-          name: res.user.displayName || 'Google User',
+          email: res.user.email,
+          name: res.user.displayName,
           role: "CUSTOMER", // Default role
           createdAt: new Date().toISOString(),
-        };
-        
-        // Store in localStorage for future local auth
-        localStorage.setItem('stayx_current_user', JSON.stringify(tempLocalUser));
-        
-        // Redirect to customer dashboard
-        navigate('/customer');
+        });
+        console.log("New user created in Firestore");
       }
       
-      // If we get here, navigation will be handled by auth context
+      // Navigation will be handled by auth context
     } catch (err: any) {
       console.error("Google login error:", err);
       if (err.code === 'auth/unauthorized-domain') {
@@ -324,37 +230,6 @@ export default function LoginPage() {
               سجل الآن
             </Link>
           </p>
-          
-          {useLocalAuth && (
-            <div className="mt-8 relative">
-              <div className="backdrop-blur-sm bg-[#39FF14]/5 border border-[#39FF14]/20 rounded-lg p-4">
-                <div className="absolute -inset-[0.5px] rounded-lg" style={{ background: "linear-gradient(45deg, rgba(57, 255, 20, 0.1), transparent, rgba(57, 255, 20, 0.1), transparent)" }}></div>
-                <p className="text-sm text-center font-medium mb-2">
-                  <span className="text-[#39FF14]" style={{ textShadow: "0 0 3px rgba(57, 255, 20, 0.5)" }}>
-                    وضع التطوير المحلي نشط
-                  </span>
-                </p>
-                <p className="text-xs text-center text-gray-400 mb-3">استخدم أحد الحسابات التالية للتسجيل:</p>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="bg-black/60 p-2 rounded-lg border border-gray-800">
-                    <p className="font-bold text-[#39FF14] mb-1">مستخدم:</p>
-                    <p className="text-gray-300">user@example.com</p>
-                    <p className="text-gray-500">user123</p>
-                  </div>
-                  <div className="bg-black/60 p-2 rounded-lg border border-gray-800">
-                    <p className="font-bold text-[#39FF14] mb-1">مالك العقار:</p>
-                    <p className="text-gray-300">host@example.com</p>
-                    <p className="text-gray-500">host123</p>
-                  </div>
-                  <div className="bg-black/60 p-2 rounded-lg border border-gray-800">
-                    <p className="font-bold text-[#39FF14] mb-1">مدير:</p>
-                    <p className="text-gray-300">admin@example.com</p>
-                    <p className="text-gray-500">admin123</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
