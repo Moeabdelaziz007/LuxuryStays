@@ -344,10 +344,10 @@ export default function NewCustomerDashboard() {
   }, [bookingsError, favoritesError]);
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-[#181A20] text-white overflow-x-hidden">
       {/* إشعار عدم الاتصال */}
       {isOffline && (
-        <div className="absolute top-0 left-0 right-0 bg-red-500 text-white px-4 py-2 text-center z-50 shadow-md">
+        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white px-4 py-2 text-center z-50 shadow-md">
           <p className="flex items-center justify-center gap-2 text-sm font-medium">
             <span className="animate-pulse">●</span> 
             يبدو أنك غير متصل بالإنترنت أو يوجد مشكلة في الاتصال بقاعدة البيانات. بعض البيانات قد تكون غير محدثة.
@@ -472,52 +472,77 @@ export default function NewCustomerDashboard() {
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header Bar */}
-        <header className="bg-black backdrop-blur-md border-b border-[#39FF14]/20 p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
-            <Button variant="ghost" className="md:hidden text-[#39FF14] hover:bg-[#39FF14]/10">
+        {/* Header Bar - Travel Dashboard Style */}
+        <header className="bg-[#1F2128] backdrop-blur-md shadow-lg px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" className="md:hidden text-[#39FF14] hover:bg-[#39FF14]/10 p-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </Button>
-            <h1 className="text-xl font-bold flex items-center gap-2">
+            
+            <div className="flex items-center md:hidden">
+              <Logo size="sm" variant="neon" withText={true} />
+            </div>
+            
+            <h1 className="text-xl font-bold hidden md:flex items-center gap-2">
               <span className="text-[#39FF14]">
                 {activeTab === "dashboard" && <FaTachometerAlt />}
                 {activeTab === "bookings" && <FaCalendarAlt />}
                 {activeTab === "favorites" && <FaHeart />}
                 {activeTab === "settings" && <FaCog />}
               </span>
-              {activeTab === "dashboard" && "لوحة التحكم"}
-              {activeTab === "bookings" && "الحجوزات"}
+              {activeTab === "dashboard" && "لوحة العميل"}
+              {activeTab === "bookings" && "حجوزاتي"}
               {activeTab === "favorites" && "المفضلة"}
               {activeTab === "settings" && "الإعدادات"}
             </h1>
           </div>
           
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <Button size="sm" variant="outline" className="border-[#39FF14]/50 text-[#39FF14] hover:bg-[#39FF14]/10 hidden md:flex">
-              <FaBed className="mr-2 h-4 w-4" />
-              احجز عقاراً
-            </Button>
-            
-            <div className="bg-gray-800 rounded-full p-2 cursor-pointer hover:bg-gray-700 transition-colors relative">
-              <FaBell className="h-5 w-5 text-[#39FF14]" />
-              <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+          {/* Search Bar - Travel Dashboard Style */}
+          <div className="hidden md:flex flex-1 max-w-md mx-auto">
+            <div className="relative w-full">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+              </div>
+              <input 
+                type="search" 
+                className="block w-full p-2.5 pl-10 pr-4 text-sm bg-[#151820] border border-gray-700 rounded-lg focus:ring-[#39FF14] focus:border-[#39FF14] outline-none text-white" 
+                placeholder="ابحث عن عقارات، حجوزات، او خدمات..." 
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {/* Currency Toggle */}
+            <div className="hidden md:flex items-center bg-[#1F2128] border border-gray-700 rounded-lg overflow-hidden">
+              <button className="px-2.5 py-1.5 bg-[#39FF14]/10 text-[#39FF14] text-sm font-medium">USD</button>
+              <button className="px-2.5 py-1.5 text-gray-400 text-sm font-medium hover:bg-gray-800">EGP</button>
             </div>
             
-            <div className="flex items-center gap-3 bg-gray-800/60 backdrop-blur-sm py-1 px-3 rounded-full md:hidden">
-              <Avatar className="h-8 w-8 border border-[#39FF14]/30">
+            {/* Notification */}
+            <div className="relative p-2 bg-[#1F2128] rounded-lg hover:bg-[#2A2D3A] transition-colors cursor-pointer">
+              <FaBell className="h-5 w-5 text-gray-400" />
+              <span className="absolute top-1 right-1 h-2 w-2 bg-[#39FF14] rounded-full"></span>
+            </div>
+            
+            {/* User Profile */}
+            <div className="flex items-center gap-3 p-1 border border-gray-700 rounded-lg bg-[#1F2128] cursor-pointer hover:border-[#39FF14]/30 transition-colors">
+              <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.photoURL || ""} alt={user?.name || "العميل"} />
-                <AvatarFallback className="bg-gray-800 text-[#39FF14] text-xs">
+                <AvatarFallback className="bg-[#39FF14]/20 text-[#39FF14] text-xs">
                   {user?.name?.charAt(0) || user?.email?.charAt(0) || "م"}
                 </AvatarFallback>
               </Avatar>
+              <div className="hidden md:block text-sm font-medium text-gray-200 mr-1">{user?.name?.split(' ')[0] || "العميل"}</div>
             </div>
           </div>
         </header>
         
-        {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-900 p-4 md:p-6">
+        {/* Dashboard Content - Travel Dashboard Style */}
+        <main className="flex-1 overflow-y-auto bg-[#181A20] p-4 md:p-5">
           {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
             <div className="space-y-6">
