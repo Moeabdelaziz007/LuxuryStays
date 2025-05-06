@@ -52,7 +52,7 @@ interface FavoriteProperty {
 }
 
 export default function NewCustomerDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
   
   // Fetch user's bookings
@@ -313,8 +313,47 @@ export default function NewCustomerDashboard() {
     }
   };
 
+  // حالة عدم الاتصال بالإنترنت أو Firestore
+  const [isOffline, setIsOffline] = useState(false);
+  
+  // الاستماع لحالة الاتصال بالإنترنت
+  useEffect(() => {
+    const handleOnlineStatus = () => {
+      setIsOffline(!navigator.onLine);
+    };
+    
+    // التحقق من الحالة الأولية
+    setIsOffline(!navigator.onLine);
+    
+    // إضافة المستمعين للاتصال
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+    
+    // التنظيف عند إزالة المكون
+    return () => {
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+    };
+  }, []);
+  
+  // مراقبة أخطاء Firestore
+  useEffect(() => {
+    if (bookingsError || favoritesError) {
+      setIsOffline(true);
+    }
+  }, [bookingsError, favoritesError]);
+
   return (
     <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
+      {/* إشعار عدم الاتصال */}
+      {isOffline && (
+        <div className="absolute top-0 left-0 right-0 bg-red-500 text-white px-4 py-2 text-center z-50 shadow-md">
+          <p className="flex items-center justify-center gap-2 text-sm font-medium">
+            <span className="animate-pulse">●</span> 
+            يبدو أنك غير متصل بالإنترنت أو يوجد مشكلة في الاتصال بقاعدة البيانات. بعض البيانات قد تكون غير محدثة.
+          </p>
+        </div>
+      )}
       {/* Sidebar - only visible on desktop */}
       <div className="hidden md:flex md:w-64 flex-col bg-black border-r border-[#39FF14]/20 shadow-lg">
         <div className="p-6 border-b border-[#39FF14]/20">
@@ -417,6 +456,13 @@ export default function NewCustomerDashboard() {
           <Button 
             variant="ghost" 
             className="w-full justify-start text-white hover:text-red-500 hover:bg-red-500/10 transition-colors"
+            onClick={() => {
+              if (window.confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) {
+                logout()
+                  .then(() => console.log('تم تسجيل الخروج بنجاح'))
+                  .catch(err => console.error('خطأ في تسجيل الخروج:', err));
+              }
+            }}
           >
             <FaSignOutAlt className="mr-2 h-5 w-5" />
             <span>تسجيل الخروج</span>
