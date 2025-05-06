@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch } from "wouter";
+import { Route, Switch, Router } from "wouter";
 import RouteGuard from "@/components/RouteGuard";
 import { UserRole } from "@shared/schema";
 
