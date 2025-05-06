@@ -37,6 +37,7 @@ console.log("Initializing Firebase with project ID:", import.meta.env.VITE_FIREB
 // Use the correct Firebase configuration directly in the code
 // for immediate effect
 
+// تكوين Firebase - تأكد من أن جميع القيم صحيحة
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs",
   authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || "staychill-3ed08"}.firebaseapp.com`,
@@ -45,6 +46,13 @@ const firebaseConfig = {
   messagingSenderId: "299280633489",
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:299280633489:web:2088c38e2fde210cad7930"
 };
+
+// طباعة جميع قيم التكوين للتأكد من صحتها
+console.log("== Firebase Configuration Values ==");
+console.log("API Key:", firebaseConfig.apiKey);
+console.log("Auth Domain:", firebaseConfig.authDomain);
+console.log("Project ID:", firebaseConfig.projectId);
+console.log("Storage Bucket:", firebaseConfig.storageBucket);
 
 console.log("Using hardcoded Firebase configuration for immediate effect");
 
@@ -96,6 +104,37 @@ if (app) {
   }
 }
 
+// Helper function to safely handle Firestore operations
+// This ensures we don't crash the app if Firestore is unavailable
+export const safeDoc = async (operation: () => Promise<any>, fallback: any = null): Promise<any> => {
+  if (!db) {
+    console.error("Firestore not initialized, operation skipped");
+    return fallback;
+  }
+  
+  try {
+    return await operation();
+  } catch (error: any) {
+    // Log detailed error information
+    console.error("Error accessing Firestore:", error);
+    
+    if (error.code === "unavailable") {
+      console.warn("Firestore is currently unavailable. This may be due to network issues or Firestore rules.");
+      console.warn("Please check your internet connection and Firebase console settings.");
+      
+      // Check for common issues and provide guidance
+      if (window.navigator.onLine === false) {
+        console.warn("You appear to be offline. Please check your internet connection.");
+      } else {
+        console.warn("If you're using a development environment, ensure your Firebase project allows local testing.");
+        console.warn("You might need to check your Firebase rules and allow reads/writes for your use case.");
+      }
+    }
+    
+    return fallback;
+  }
+};
+
 export { auth, db, storage };
 
 // Useful debug information for Firebase connection
@@ -129,10 +168,26 @@ export const registerUser = async (email: string, password: string, name: string
     createdAt: new Date().toISOString(),
   };
   
-  await setDoc(doc(db, "users", user.uid), {
-    ...userData,
-    createdAt: serverTimestamp()
-  });
+  // محاولة حفظ البيانات في Firestore مع معالجة الخطأ
+  try {
+    // create a reference to the user document
+    const userRef = doc(db, "users", user.uid);
+    
+    // محاولة حفظ البيانات
+    await setDoc(userRef, {
+      ...userData,
+      createdAt: serverTimestamp()
+    });
+    
+    console.log("User data saved successfully to Firestore:", userData);
+  } catch (error) {
+    // إظهار خطأ مفصل في حالة فشل حفظ البيانات
+    console.error("Failed to save user data to Firestore:", error);
+    console.warn("User was created in Firebase Auth but data couldn't be saved to Firestore");
+    
+    // يمكننا أن نعرض للمستخدم أن هناك مشكلة في حفظ البيانات ولكن التسجيل تم بنجاح
+    // لن نرمي خطأ هنا لأن المستخدم تم إنشاؤه بنجاح في Firebase Auth
+  }
   
   return userData;
 };
@@ -155,39 +210,63 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
 };
 
 export const getUserData = async (uid: string): Promise<UserData | null> => {
-  if (!db) throw new Error("Firestore not initialized");
-  
-  const docRef = doc(db, "users", uid);
-  const docSnap = await getDoc(docRef);
-  
-  if (docSnap.exists()) {
-    const data = docSnap.data() as UserData;
-    // Convert Firestore timestamp to Date string if needed
-    if (data.createdAt && typeof data.createdAt !== 'string') {
-      data.createdAt = new Date((data.createdAt as any).toDate()).toISOString();
-    }
-    return data;
-  } else {
-    // User document doesn't exist in Firestore
-    // Create a basic user document with default values
+  if (!db) {
+    console.error("Firestore not initialized, returning default user data");
+    // إذا كان المستخدم قد سجل الدخول، نعود ببيانات أساسية من Auth
     if (auth && auth.currentUser) {
-      const basicUserData: UserData = {
+      return {
         uid,
-        name: auth.currentUser.displayName || "User",
+        name: auth.currentUser.displayName || "مستخدم",
         email: auth.currentUser.email || "",
-        role: UserRole.CUSTOMER,
+        role: UserRole.CUSTOMER, // دور افتراضي
         createdAt: new Date().toISOString(),
       };
-      
-      if (db) {
-        await setDoc(doc(db, "users", uid), {
-          ...basicUserData,
-          createdAt: serverTimestamp()
-        });
-      }
-      
-      return basicUserData;
     }
     return null;
   }
+  
+  // استخدام وظيفة safeDoc للتعامل مع الأخطاء المحتملة
+  return await safeDoc(async () => {
+    const docRef = doc(db!, "users", uid);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data() as UserData;
+      // تحويل الطابع الزمني من Firestore إلى سلسلة تاريخ إذا لزم الأمر
+      if (data.createdAt && typeof data.createdAt !== 'string') {
+        data.createdAt = new Date((data.createdAt as any).toDate()).toISOString();
+      }
+      console.log("Retrieved user data from Firestore:", data);
+      return data;
+    } else {
+      // User document doesn't exist in Firestore
+      // Create a basic user document with default values
+      if (auth && auth.currentUser) {
+        const basicUserData: UserData = {
+          uid,
+          name: auth.currentUser.displayName || "مستخدم",
+          email: auth.currentUser.email || "",
+          role: UserRole.CUSTOMER,
+          createdAt: new Date().toISOString(),
+        };
+        
+        console.log("Creating user document in Firestore for uid:", uid);
+        
+        // محاولة إنشاء مستند المستخدم مع الاهتمام برسائل الخطأ
+        try {
+          await setDoc(docRef, {
+            ...basicUserData,
+            createdAt: serverTimestamp()
+          });
+          console.log("Successfully created user document in Firestore");
+        } catch (error) {
+          console.error("Failed to create user document in Firestore:", error);
+          console.warn("Continuing with basic user data from Auth");
+        }
+        
+        return basicUserData;
+      }
+      return null;
+    }
+  }, null);
 };
