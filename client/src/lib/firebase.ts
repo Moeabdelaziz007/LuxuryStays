@@ -17,7 +17,10 @@ import {
   setDoc,
   serverTimestamp,
   connectFirestoreEmulator,
-  Firestore
+  enableIndexedDbPersistence,
+  enableNetwork,
+  disableNetwork,
+  Firestore 
 } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
 type Storage = ReturnType<typeof getStorage>;
@@ -88,8 +91,49 @@ if (app) {
   try {
     db = getFirestore(app);
     
-    // Firestore configurations are handled internally
-    // We are connected now, if any error happens will fallback to local data
+    // تكوين إعدادات إضافية للتعامل مع مشاكل الاتصال
+    console.log("Setting up Firestore connection with retry logic...");
+    
+    // محاولة تحسين الاتصال بـ Firestore عند التشغيل
+    // لكن تخطي المحاكي المحلي في بيئة الإنتاج
+    if (import.meta.env.DEV) {
+      try {
+        console.log("Development environment detected. Trying local emulator...");
+        if (db) {
+          connectFirestoreEmulator(db, "localhost", 8080);
+          console.log("Connected to Firestore local emulator");
+        }
+      } catch (emulatorError) {
+        console.warn("Could not connect to Firestore emulator:", emulatorError);
+      }
+    }
+    
+    // تمكين التخزين المحلي لدعم الوضع غير المتصل (استخدام وعد للتعامل مع الخطأ)
+    if (db) {
+      console.log("Enabling offline persistence for Firestore...");
+      
+      // استخدام وعد للتمكن من معالجة الخطأ دون تعطيل التطبيق
+      enableIndexedDbPersistence(db)
+        .then(() => {
+          console.log("✅ Firestore offline persistence enabled successfully");
+        })
+        .catch((persistenceError: any) => {
+          console.warn("⚠️ Could not enable Firestore offline persistence:", persistenceError);
+          
+          if (persistenceError.code === 'failed-precondition') {
+            console.warn("Multiple tabs open. Persistence can only be enabled in one tab at a time.");
+          } else if (persistenceError.code === 'unimplemented') {
+            console.warn("Browser doesn't support IndexedDB or is in private mode.");
+          }
+        });
+      
+      // إختبار الاتصال عن طريق إيقاف وتمكين الشبكة
+      enableNetwork(db).then(() => {
+        console.log("Firestore network enabled");
+      }).catch(networkError => {
+        console.error("Error enabling Firestore network:", networkError);
+      });
+    }
     
     console.log("Firebase Firestore initialized successfully");
   } catch (error) {
