@@ -4,6 +4,23 @@ import { useAuth } from "@/contexts/auth-context";
 import { UserRole } from "@shared/schema";
 import { collection, getDocs, doc, updateDoc, query, orderBy, limit, getCountFromServer } from "firebase/firestore";
 import { db, safeDoc } from "@/lib/firebase";
+import { 
+  Terminal, 
+  AlertTriangle, 
+  CircleCheck, 
+  Shield, 
+  Database, 
+  Server, 
+  Code, 
+  BarChart3, 
+  Activity,
+  Bell,
+  Calendar,
+  Settings,
+  Users,
+  Building,
+  Menu
+} from "lucide-react";
 
 // مكونات لوحة تحكم المشرف العام
 import DashboardStats from "./components/DashboardStats";
@@ -25,6 +42,16 @@ const CHART_COLORS = {
   background: "rgba(40, 40, 40, 0.3)",
   text: "#FFFFFF"
 };
+
+// تأثيرات الإضاءة للخلفية
+const GlowEffect = () => (
+  <>
+    <div className="fixed top-20 left-10 w-32 h-32 bg-[#39FF14]/5 rounded-full blur-[80px] animate-pulse-slow"></div>
+    <div className="fixed top-40 right-20 w-48 h-48 bg-[#39FF14]/3 rounded-full blur-[100px] animate-pulse-slow-delay"></div>
+    <div className="fixed bottom-20 left-1/4 w-64 h-64 bg-green-600/5 rounded-full blur-[120px] animate-pulse-slow"></div>
+    <div className="fixed -bottom-10 right-1/3 w-56 h-56 bg-[#39FF14]/10 rounded-full blur-[90px] animate-pulse-very-slow"></div>
+  </>
+);
 
 /**
  * لوحة تحكم المشرف العام
@@ -97,6 +124,12 @@ export default function NewSuperAdminDashboard() {
   
   // حالة التحميل للبيانات
   const [loading, setLoading] = useState(true);
+  
+  // حالة قائمة التحكم الجانبية
+  const [showSidebar, setShowSidebar] = useState(true);
+  
+  // تحكم في العرض المرئي للمشرف
+  const [darkMode, setDarkMode] = useState(true);
   
   // معالجة توجيه لوحة القيادة للمواقع المحددة
   const isSubPage = location.pathname !== "/super-admin";
@@ -297,46 +330,6 @@ export default function NewSuperAdminDashboard() {
     }
   };
   
-  // إذا كانت هذه صفحة فرعية، اعرض المحتوى المناسب
-  if (isSubPage) {
-    const subPath = location.pathname.split('/super-admin/')[1];
-    
-    return (
-      <div className="p-6">
-        <div className="mb-6">
-          <button 
-            onClick={() => navigate('/super-admin')}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center text-sm"
-          >
-            <span>العودة إلى لوحة التحكم</span>
-          </button>
-        </div>
-        
-        <h2 className="text-3xl font-bold mb-6">
-          {subPath === 'users' && 'إدارة المستخدمين'}
-          {subPath === 'properties' && 'إدارة العقارات'}
-          {subPath === 'bookings' && 'إدارة الحجوزات'}
-          {subPath === 'revenue' && 'التقارير المالية'}
-          {subPath === 'settings' && 'إعدادات النظام'}
-          {subPath === 'security' && 'الأمان والصلاحيات'}
-          {!subPath && 'لوحة التحكم'}
-        </h2>
-        
-        <div className="bg-gray-900 p-8 rounded-lg border border-gray-800 text-center">
-          <h3 className="text-xl mb-4">هذه الصفحة قيد التطوير</h3>
-          <p className="text-gray-400 mb-6">سيتم إضافة محتوى {
-            subPath === 'users' ? 'إدارة المستخدمين' :
-            subPath === 'properties' ? 'إدارة العقارات' :
-            subPath === 'bookings' ? 'إدارة الحجوزات' :
-            subPath === 'revenue' ? 'التقارير المالية' :
-            subPath === 'settings' ? 'إعدادات النظام' :
-            subPath === 'security' ? 'الأمان والصلاحيات' : 'هذه الصفحة'
-          } قريبًا</p>
-        </div>
-      </div>
-    );
-  }
-  
   // تنسيق الأرقام لعرض العملة
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('ar-EG', { 
@@ -345,64 +338,242 @@ export default function NewSuperAdminDashboard() {
       maximumFractionDigits: 0 
     }).format(amount);
   };
+  
+  // إذا كانت هذه صفحة فرعية، اعرض المحتوى المناسب
+  if (isSubPage) {
+    const subPath = location.pathname.split('/super-admin/')[1];
+    
+    return (
+      <div className="p-6 relative overflow-hidden min-h-screen bg-gray-950">
+        {/* خلفية مع تأثيرات الإضاءة */}
+        <GlowEffect />
+        
+        {/* قائمة التنقل في أعلى الصفحات الفرعية */}
+        <div className="bg-black/50 backdrop-blur-md border border-gray-800 rounded-xl mb-8 p-4 shadow-[0_0_15px_rgba(57,255,20,0.1)] flex items-center justify-between">
+          <button 
+            onClick={() => navigate('/super-admin')}
+            className="bg-black hover:bg-gray-900 text-[#39FF14] px-4 py-2 rounded-md flex items-center text-sm border border-[#39FF14]/30 shadow-[0_0_10px_rgba(57,255,20,0.1)] hover:shadow-[0_0_15px_rgba(57,255,20,0.2)] transition-all"
+          >
+            <span>العودة إلى لوحة التحكم</span>
+          </button>
+          
+          <div className="flex gap-2">
+            <button className="p-2 rounded-full bg-gray-900 text-gray-400 hover:text-white">
+              <AlertTriangle size={18} />
+            </button>
+            <button className="p-2 rounded-full bg-gray-900 text-gray-400 hover:text-white">
+              <Terminal size={18} />
+            </button>
+            <button className="p-2 rounded-full bg-gray-900 text-gray-400 hover:text-white" onClick={() => setDarkMode(!darkMode)}>
+              <Activity size={18} />
+            </button>
+          </div>
+        </div>
+        
+        <div className="bg-black/50 backdrop-blur-xl border border-gray-800 rounded-xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+          <h2 className="text-3xl font-bold mb-6 text-white flex items-center">
+            {subPath === 'users' && <><Users className="mr-3 text-[#39FF14]" size={28} /> إدارة المستخدمين</>}
+            {subPath === 'properties' && <><Building className="mr-3 text-[#39FF14]" size={28} /> إدارة العقارات</>}
+            {subPath === 'bookings' && <><Calendar className="mr-3 text-[#39FF14]" size={28} /> إدارة الحجوزات</>}
+            {subPath === 'revenue' && <><BarChart3 className="mr-3 text-[#39FF14]" size={28} /> التقارير المالية</>}
+            {subPath === 'settings' && <><Settings className="mr-3 text-[#39FF14]" size={28} /> إعدادات النظام</>}
+            {subPath === 'security' && <><Shield className="mr-3 text-[#39FF14]" size={28} /> الأمان والصلاحيات</>}
+            {!subPath && <>لوحة التحكم</>}
+          </h2>
+          
+          <div className="bg-gray-900/70 p-8 rounded-lg border border-gray-800/50 text-center relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.2)] backdrop-blur-sm">
+            {/* تأثيرات خلفية للصفحة قيد التطوير */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
+            
+            <Terminal className="inline-block mb-6 text-[#39FF14] w-16 h-16 animate-pulse" />
+            <h3 className="text-2xl font-bold mb-4 text-white">هذه الصفحة قيد التطوير</h3>
+            <p className="text-gray-400 mb-6 max-w-xl mx-auto">سيتم إضافة محتوى {
+              subPath === 'users' ? 'إدارة المستخدمين' :
+              subPath === 'properties' ? 'إدارة العقارات' :
+              subPath === 'bookings' ? 'إدارة الحجوزات' :
+              subPath === 'revenue' ? 'التقارير المالية' :
+              subPath === 'settings' ? 'إعدادات النظام' :
+              subPath === 'security' ? 'الأمان والصلاحيات' : 'هذه الصفحة'
+            } قريبًا</p>
+            
+            <div className="inline-block relative">
+              <div className="h-1 bg-gradient-to-r from-transparent via-[#39FF14] to-transparent w-80 max-w-full mx-auto rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="relative inline-flex">
-          <div className="w-8 h-8 bg-[#39FF14] rounded-full opacity-60 animate-ping"></div>
-          <div className="w-8 h-8 bg-[#39FF14] rounded-full opacity-60 animate-pulse absolute top-0"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-950 relative overflow-hidden">
+        <GlowEffect />
+        <div className="flex flex-col items-center justify-center gap-4 bg-black/40 p-8 rounded-xl backdrop-blur-md border border-gray-800/50 shadow-2xl">
+          <div className="relative">
+            <div className="w-12 h-12 bg-[#39FF14]/80 rounded-full animate-ping"></div>
+            <div className="w-12 h-12 bg-black rounded-full border-4 border-[#39FF14] absolute top-0 left-0 animate-pulse"></div>
+          </div>
+          <span className="text-white font-medium text-lg tracking-wider">جاري تحميل البيانات...</span>
+          <p className="text-gray-400 text-sm">نظام StayX | لوحة المشرف العام</p>
         </div>
-        <span className="text-gray-400 ml-4">جاري تحميل البيانات...</span>
       </div>
     );
   }
 
   return (
-    <div className="pb-20 md:pb-10">
-      {/* رأس الصفحة */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">مرحباً، {user?.name || 'المشرف العام'}</h1>
-        <p className="text-gray-400">لوحة إدارة المنصة | {new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-      </div>
+    <div className="min-h-screen bg-gray-950 pb-20 md:pb-10 relative">
+      {/* تأثيرات الإضاءة في الخلفية */}
+      <GlowEffect />
       
-      {/* بطاقات الإحصائيات */}
-      <DashboardStats stats={stats} formatCurrency={formatCurrency} />
-      
-      {/* قائمة الإجراءات السريعة */}
-      <div className="mb-8">
-        <ActionMenu />
-      </div>
-
-      {/* تقسيم لوحة التحكم إلى إحصائيات ورسوم بيانية وإدارة */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* القسم الأيمن - مخطط الإيرادات */}
-        <div className="lg:col-span-2">
-          <RevenueChart data={revenueData} formatCurrency={formatCurrency} />
+      {/* شريط التحكم العلوي */}
+      <div className="sticky top-0 z-20 bg-black/90 backdrop-blur-md border-b border-gray-800 py-3 px-6 flex justify-between items-center mb-8 shadow-md">
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setShowSidebar(!showSidebar)}
+            className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-[#39FF14]"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <div className="h-6 w-px bg-gray-800 mx-1"></div>
+          <div className="bg-gray-900 rounded-lg flex items-center px-3 py-1 text-gray-400 gap-2">
+            <Database className="h-4 w-4" />
+            <span className="text-xs">متصل</span>
+          </div>
+          <div className="bg-gray-900 rounded-lg flex items-center px-3 py-1 text-gray-400 gap-2">
+            <Server className="h-4 w-4" />
+            <span className="text-xs">اكتيف</span>
+          </div>
         </div>
         
-        {/* القسم الأيسر - حالة النظام */}
-        <div className="lg:col-span-1">
-          <SystemStatus systemHealth={systemHealth} />
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <button className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[#39FF14] rounded-full"></span>
+            </button>
+          </div>
+          <button className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white">
+            <Settings className="h-5 w-5" />
+          </button>
+          <div className="h-6 w-px bg-gray-800 mx-1"></div>
+          <div className="flex items-center gap-2">
+            <span className="text-gray-300 text-sm hidden md:inline">{user?.name || 'المشرف العام'}</span>
+            <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center text-[#39FF14] font-bold border border-gray-700">
+              {user?.name?.charAt(0) || 'م'}
+            </div>
+          </div>
         </div>
       </div>
       
-      {/* إدارة الحجوزات */}
-      <div className="mb-8">
-        <BookingsManagement 
-          bookingStatus={bookingStatus} 
-          recentBookings={recentBookings}
-          formatCurrency={formatCurrency}
-        />
-      </div>
-      
-      {/* إدارة المستخدمين */}
-      <div className="mb-8">
-        <UsersManagement 
-          usersByRole={usersByRole} 
-          recentUsers={recentUsers}
-          roleChange={handleRoleChange}
-        />
+      <div className="px-6">
+        {/* رأس الصفحة */}
+        <div className="mb-8 bg-black/50 backdrop-blur-md rounded-xl p-6 border border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+          <h1 className="text-3xl font-bold mb-3 text-white">مرحباً، <span className="text-[#39FF14] drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]">{user?.name || 'المشرف العام'}</span></h1>
+          <div className="flex flex-wrap gap-4 justify-between items-center">
+            <p className="text-gray-400">
+              <span>لوحة إدارة المنصة | </span>
+              <span>{new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </p>
+            
+            <div className="flex gap-2">
+              <button className="bg-[#39FF14] hover:bg-[#50FF30] text-black font-medium px-4 py-2 rounded-lg shadow-[0_0_10px_rgba(57,255,20,0.3)] flex items-center gap-2 text-sm">
+                <Terminal className="w-4 h-4" />
+                <span>وحدة التحكم</span>
+              </button>
+              <button className="bg-black hover:bg-gray-900 text-[#39FF14] border border-[#39FF14]/30 px-4 py-2 rounded-lg shadow-[0_0_10px_rgba(57,255,20,0.1)] flex items-center gap-2 text-sm">
+                <Shield className="w-4 h-4" />
+                <span>الأمان</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* بطاقات الإحصائيات */}
+        <DashboardStats stats={stats} formatCurrency={formatCurrency} />
+        
+        {/* قائمة الإجراءات السريعة */}
+        <div className="mb-8">
+          <div className="bg-black/50 backdrop-blur-md rounded-xl p-5 border border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+            <h2 className="text-xl font-bold mb-4 text-white flex items-center">
+              <Code className="w-5 h-5 mr-2 text-[#39FF14]" />
+              <span>إجراءات سريعة</span>
+            </h2>
+            <ActionMenu />
+          </div>
+        </div>
+
+        {/* تقسيم لوحة التحكم إلى إحصائيات ورسوم بيانية وإدارة */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* القسم الأيمن - مخطط الإيرادات */}
+          <div className="lg:col-span-2">
+            <div className="bg-black/50 backdrop-blur-md rounded-xl border border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.3)] h-full">
+              <div className="p-5 border-b border-gray-800">
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  <BarChart3 className="w-5 h-5 mr-2 text-[#39FF14]" />
+                  <span>الإيرادات والحجوزات</span>
+                </h2>
+              </div>
+              <div className="p-5">
+                <RevenueChart data={revenueData} formatCurrency={formatCurrency} />
+              </div>
+            </div>
+          </div>
+          
+          {/* القسم الأيسر - حالة النظام */}
+          <div className="lg:col-span-1">
+            <div className="bg-black/50 backdrop-blur-md rounded-xl border border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.3)] h-full">
+              <div className="p-5 border-b border-gray-800">
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  <Server className="w-5 h-5 mr-2 text-[#39FF14]" />
+                  <span>حالة النظام</span>
+                </h2>
+              </div>
+              <div className="p-5">
+                <SystemStatus systemHealth={systemHealth} />
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* إدارة الحجوزات */}
+        <div className="mb-8">
+          <div className="bg-black/50 backdrop-blur-md rounded-xl border border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+            <div className="p-5 border-b border-gray-800">
+              <h2 className="text-xl font-bold text-white flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-[#39FF14]" />
+                <span>إدارة الحجوزات</span>
+              </h2>
+            </div>
+            <div className="p-5">
+              <BookingsManagement 
+                bookingStatus={bookingStatus} 
+                recentBookings={recentBookings}
+                formatCurrency={formatCurrency}
+              />
+            </div>
+          </div>
+        </div>
+        
+        {/* إدارة المستخدمين */}
+        <div className="mb-8">
+          <div className="bg-black/50 backdrop-blur-md rounded-xl border border-gray-800 shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+            <div className="p-5 border-b border-gray-800">
+              <h2 className="text-xl font-bold text-white flex items-center">
+                <Users className="w-5 h-5 mr-2 text-[#39FF14]" />
+                <span>إدارة المستخدمين</span>
+              </h2>
+            </div>
+            <div className="p-5">
+              <UsersManagement 
+                usersByRole={usersByRole} 
+                recentUsers={recentUsers}
+                roleChange={handleRoleChange}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
