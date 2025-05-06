@@ -393,6 +393,32 @@
   animation: slideUp 0.3s ease-out forwards;
 }
 
+@keyframes scanner {
+  0%, 100% { transform: translateX(-100px) scaleY(1.2); }
+  50% { transform: translateX(100px) scaleY(0.8); }
+}
+
+.animate-scanner {
+  animation: scanner 3s ease-in-out infinite alternate;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+@keyframes glitch-header {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-2px); }
+  40% { transform: translateX(2px); }
+  60% { transform: translateX(-1px); }
+  80% { transform: translateX(1px); }
+}
+
 /* Set up the root colors */
 :root {
   /* Neon Green Color Theme */

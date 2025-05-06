@@ -129,10 +129,10 @@ export default function MobileMenu({ isOpen, onClose, onLogin, onRegister }: Mob
             <Link 
               key={link.href}
               href={link.href} 
-              className="group flex items-center px-2 py-3 rounded-md hover:bg-[#39FF14]/10 transition-colors duration-200"
+              className="group flex items-center px-2 py-3 rounded-md hover:bg-[#39FF14]/10 transition-colors duration-200 fade-slide-in"
               onClick={handleMenuItemClick}
               style={{
-                animation: `fadeSlideIn 300ms ${100 + index * 50}ms both`,
+                animationDelay: `${100 + index * 50}ms`,
               }}
             >
               <div className="w-10 h-10 flex items-center justify-center rounded-full bg-black/30 mr-3 border border-[#39FF14]/20 group-hover:border-[#39FF14]/60 transition-colors">

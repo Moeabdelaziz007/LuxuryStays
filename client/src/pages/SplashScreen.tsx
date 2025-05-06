@@ -106,9 +106,7 @@ export default function SplashScreen() {
           {/* Scanner Light Effect */}
           <div className={`absolute h-full w-2 bg-gradient-to-b from-transparent via-[#39FF14]/70 to-transparent transition-opacity duration-500 ${
             animate ? 'opacity-70 animate-scanner' : 'opacity-0'
-          }`} style={{ 
-            animation: animate ? 'scanner 3s ease-in-out infinite alternate' : 'none',
-          }}></div>
+          }`}></div>
 
           {/* Scanner animation and spin animation are defined in CSS */}
           
