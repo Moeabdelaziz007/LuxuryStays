@@ -1,24 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import FeaturedProperties from "@/features/home/FeaturedProperties";
 import ServicesSection from "@/features/home/ServicesSection";
-import { seedFirestore } from "@/lib/seedFirestore";
 
 export default function HomePage() {
-  const [seeding, setSeeding] = useState(false);
-  const [seedResult, setSeedResult] = useState<{ success: boolean, error?: any } | null>(null);
-  
-  const handleSeedData = async () => {
-    setSeeding(true);
-    setSeedResult(null);
-    try {
-      const result = await seedFirestore();
-      setSeedResult(result);
-    } catch (error) {
-      setSeedResult({ success: false, error });
-    } finally {
-      setSeeding(false);
-    }
-  };
   
   return (
     <div className="bg-black text-white min-h-screen">
@@ -30,9 +14,9 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
           
           {/* Subtle Grid Lines */}
-          <div className="absolute inset-0 opacity-3">
+          <div className="absolute inset-0 opacity-30">
             <div className="w-full h-full" style={{
-              backgroundImage: 'linear-gradient(to right, rgba(57, 255, 20, 0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(57, 255, 20, 0.2) 1px, transparent 1px)',
+              backgroundImage: 'linear-gradient(to right, rgba(57, 255, 20, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(57, 255, 20, 0.1) 1px, transparent 1px)',
               backgroundSize: '60px 60px'
             }}></div>
           </div>
@@ -99,21 +83,13 @@ export default function HomePage() {
                 >
                   تسجيل الدخول
                 </a>
-                <button 
-                  onClick={handleSeedData} 
-                  disabled={seeding}
+                <a
+                  href="/register"
                   className="px-6 py-3 bg-gray-800/80 backdrop-blur-sm text-gray-300 font-medium rounded-xl border border-gray-700 hover:border-[#39FF14]/30 hover:bg-gray-800 transition-all"
                 >
-                  {seeding ? 'جاري الإضافة...' : 'إضافة بيانات تجريبية'}
-                </button>
+                  إنشاء حساب جديد
+                </a>
               </div>
-              
-              {/* Result Message */}
-              {seedResult && (
-                <div className={`mt-6 p-3 rounded-xl backdrop-blur-sm ${seedResult.success ? 'bg-[#39FF14]/10 text-[#39FF14]' : 'bg-red-500/20 text-red-300'} border ${seedResult.success ? 'border-[#39FF14]/30' : 'border-red-500/30'}`}>
-                  {seedResult.success ? '✓ تم إضافة البيانات بنجاح!' : '✗ حدث خطأ أثناء إضافة البيانات'}
-                </div>
-              )}
             </div>
           </div>
 
