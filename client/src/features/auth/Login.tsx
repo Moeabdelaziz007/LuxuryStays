@@ -87,6 +87,101 @@ export default function LoginPage() {
     );
   };
 
+  const handleLogin = async (e: React.FormEvent, email: string, password: string) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    
+    try {
+      console.log("جاري تسجيل الدخول باستخدام البريد الإلكتروني:", email);
+      
+      // التحقق من توفر Firebase
+      if (!auth || !db) {
+        throw new Error("خدمة المصادقة غير متوفرة حالياً، الرجاء المحاولة لاحقاً");
+      }
+      
+      // استخدام Firebase للمصادقة
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      
+      // التحقق من وجود المستخدم في Firestore
+      if (db) {
+        try {
+          const userRef = doc(db, "users", userCred.user.uid);
+          const userSnap = await getDoc(userRef);
+          
+          if (!userSnap.exists()) {
+            // إنشاء مستخدم جديد في Firestore إذا لم يكن موجودًا
+            const userProfile = {
+              uid: userCred.user.uid,
+              email: userCred.user.email,
+              name: userCred.user.displayName || email.split('@')[0] || 'مستخدم جديد',
+              role: "CUSTOMER", // دور افتراضي
+              createdAt: new Date().toISOString(),
+              photoURL: userCred.user.photoURL || null,
+            };
+            
+            console.log("إنشاء مستخدم جديد في Firestore:", userProfile.email);
+            
+            // محاولة حفظ البيانات في Firestore
+            try {
+              await setDoc(userRef, userProfile);
+              console.log("تم حفظ بيانات المستخدم بنجاح في Firestore");
+              toast(getSuccessToast(
+                "تم تسجيل الدخول بنجاح",
+                "مرحباً بك في منصة StayX!"
+              ));
+            } catch (firestoreError) {
+              console.error("فشل حفظ بيانات المستخدم في Firestore:", firestoreError);
+              toast(getWarningToast(
+                "تم تسجيل الدخول لكن مع تحذير",
+                "تم تسجيل دخولك بنجاح ولكن قد تكون هناك مشكلة في حفظ بياناتك. ستظل قادراً على استخدام الموقع."
+              ));
+            }
+          } else {
+            // تسجيل دخول مستخدم موجود
+            toast(getSuccessToast(
+              "تم تسجيل الدخول بنجاح",
+              `مرحباً بعودتك!`
+            ));
+          }
+        } catch (firestoreError) {
+          console.error("خطأ في التفاعل مع Firestore:", firestoreError);
+          toast(getWarningToast(
+            "تم تسجيل الدخول مع تحذير",
+            "تم تسجيل دخولك ولكن قد تكون هناك مشكلة في الوصول إلى بياناتك."
+          ));
+        }
+      }
+      
+      // التوجيه بعد تسجيل الدخول
+      setTimeout(() => {
+        if (redirectPath) {
+          navigate(redirectPath);
+        } else {
+          navigate("/");
+        }
+      }, 1000);
+      
+    } catch (err: any) {
+      console.error("خطأ في تسجيل الدخول:", err);
+      
+      // رسائل خطأ مخصصة أكثر وضوحاً للمستخدم
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found') {
+        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      } else if (err.code === 'auth/wrong-password') {
+        setError("كلمة المرور غير صحيحة، الرجاء التحقق منها والمحاولة مرة أخرى");
+      } else if (err.code === 'auth/too-many-requests') {
+        setError("تم إجراء عدة محاولات خاطئة، الرجاء المحاولة بعد قليل");
+      } else if (err.code === 'auth/network-request-failed') {
+        setError("يبدو أن هناك مشكلة في الاتصال بالإنترنت، الرجاء التحقق من اتصالك");
+      } else {
+        setError(err.message || "حدث خطأ أثناء تسجيل الدخول، الرجاء المحاولة مرة أخرى");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGuestLogin = async () => {
     setError("");
     setGuestLoading(true);
@@ -339,12 +434,64 @@ export default function LoginPage() {
           {/* عرض رسالة إعادة التوجيه إذا كانت موجودة */}
           {renderRedirectMessage()}
           
-          <div className="space-y-5">
-            <p className="text-center text-gray-400 mb-4">
-              يمكنك تسجيل الدخول باستخدام إحدى الطرق التالية:
-            </p>
+          <form onSubmit={(e) => {e.preventDefault(); const emailInput = document.getElementById('email-input') as HTMLInputElement; const passwordInput = document.getElementById('password-input') as HTMLInputElement; if (emailInput && passwordInput) { handleLogin(e, emailInput.value, passwordInput.value); }}} className="space-y-5">
+            <div className="group">
+              <label className="block text-sm font-medium text-gray-400 mb-1.5 transition group-focus-within:text-[#39FF14]">البريد الإلكتروني</label>
+              <div className="relative">
+                <input 
+                  id="email-input"
+                  type="email" 
+                  placeholder="أدخل بريدك الإلكتروني" 
+                  className="w-full p-3 rounded-lg bg-black/60 border border-gray-700 text-white focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14]/50 transition-all" 
+                  required
+                  autoComplete="email"
+                />
+                <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
+                     style={{ boxShadow: "0 0 8px rgba(57, 255, 20, 0.3)" }}></div>
+              </div>
+            </div>
+
+            <div className="group">
+              <label className="block text-sm font-medium text-gray-400 mb-1.5 transition group-focus-within:text-[#39FF14]">كلمة المرور</label>
+              <div className="relative">
+                <input 
+                  id="password-input"
+                  type="password" 
+                  placeholder="••••••••" 
+                  className="w-full p-3 rounded-lg bg-black/60 border border-gray-700 text-white focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14]/50 transition-all" 
+                  required
+                  autoComplete="current-password"
+                  minLength={6}
+                />
+                <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
+                     style={{ boxShadow: "0 0 8px rgba(57, 255, 20, 0.3)" }}></div>
+              </div>
+            </div>
             
             <button 
+              type="submit" 
+              className="relative group w-full"
+              disabled={loading}
+            >
+              <div className="relative z-10 bg-[#39FF14] text-black font-bold py-3 rounded-lg w-full text-center transform transition-all active:scale-[0.98] hover:scale-[1.01]">
+                {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+                {loading && (
+                  <div className="absolute right-5 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+              </div>
+              <div className="absolute inset-0 bg-[#39FF14] blur-sm opacity-50 group-hover:opacity-70 rounded-lg transition-opacity"></div>
+            </button>
+
+            <div className="my-4 flex items-center">
+              <div className="flex-1 border-t border-gray-700/50"></div>
+              <span className="px-4 text-sm text-gray-500">أو</span>
+              <div className="flex-1 border-t border-gray-700/50"></div>
+            </div>
+
+            <button 
+              type="button"
               onClick={handleGoogleLogin} 
               className="relative flex items-center justify-center gap-2 bg-white/5 border border-white/10 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-lg w-full hover:bg-white/10 transition-all active:scale-[0.98]"
               disabled={googleLoading}
@@ -379,13 +526,8 @@ export default function LoginPage() {
               )}
             </button>
             
-            <div className="my-4 flex items-center">
-              <div className="flex-1 border-t border-gray-700/50"></div>
-              <span className="px-4 text-sm text-gray-500">أو</span>
-              <div className="flex-1 border-t border-gray-700/50"></div>
-            </div>
-            
             <button 
+              type="button"
               onClick={handleGuestLogin} 
               className="relative group w-full"
               disabled={guestLoading}
@@ -400,7 +542,7 @@ export default function LoginPage() {
               </div>
               <div className="absolute inset-0 bg-[#39FF14]/5 blur-sm opacity-0 group-hover:opacity-70 rounded-lg transition-opacity"></div>
             </button>
-          </div>
+          </form>
 
           <p className="text-sm mt-6 text-center text-gray-400">
             ليس لديك حساب؟{" "}
