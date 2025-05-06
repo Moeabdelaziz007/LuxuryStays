@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FaCalendarAlt, FaHeart, FaWallet, FaHome } from "react-icons/fa";
@@ -69,7 +70,7 @@ export default function DashboardOverview({ stats, userName, isLoading }: Dashbo
             </div>
             <div className="mt-4">
               <Button variant="link" className="p-0 h-auto text-[#39FF14]" asChild>
-                <a href="/customer/bookings">عرض الحجوزات</a>
+                <Link to="/customer/bookings">عرض الحجوزات</Link>
               </Button>
             </div>
           </CardContent>
@@ -111,7 +112,7 @@ export default function DashboardOverview({ stats, userName, isLoading }: Dashbo
             </div>
             <div className="mt-4">
               <Button variant="link" className="p-0 h-auto text-[#39FF14]" asChild>
-                <a href="/customer/favorites">عرض المفضلة</a>
+                <Link to="/customer/favorites">عرض المفضلة</Link>
               </Button>
             </div>
           </CardContent>
@@ -148,16 +149,16 @@ export default function DashboardOverview({ stats, userName, isLoading }: Dashbo
         <CardContent className="p-6 pt-0">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Button variant="outline" className="border-gray-700 hover:border-[#39FF14]/30 text-white hover:text-[#39FF14]" asChild>
-              <a href="/properties">تصفح العقارات</a>
+              <Link to="/properties">تصفح العقارات</Link>
             </Button>
             <Button variant="outline" className="border-gray-700 hover:border-[#39FF14]/30 text-white hover:text-[#39FF14]" asChild>
-              <a href="/services">الخدمات المتاحة</a>
+              <Link to="/services">الخدمات المتاحة</Link>
             </Button>
             <Button variant="outline" className="border-gray-700 hover:border-[#39FF14]/30 text-white hover:text-[#39FF14]" asChild>
-              <a href="/customer/profile">إعدادات الحساب</a>
+              <Link to="/customer/profile">إعدادات الحساب</Link>
             </Button>
             <Button variant="outline" className="border-gray-700 hover:border-[#39FF14]/30 text-white hover:text-[#39FF14]" asChild>
-              <a href="/contact">تواصل معنا</a>
+              <Link to="/contact">تواصل معنا</Link>
             </Button>
           </div>
         </CardContent>
