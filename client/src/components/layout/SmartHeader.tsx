@@ -1,12 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { 
+  BellIcon, 
+  PanelLeftOpen, 
+  Settings,
+  MessageSquare,
+  Bell,
+  Search,
+  User,
+  Menu
+} from "lucide-react";
 
-export default function SmartHeader() {
+interface SmartHeaderProps {
+  role?: "CUSTOMER" | "PROPERTY_ADMIN" | "SUPER_ADMIN";
+}
+
+export default function SmartHeader({ role }: SmartHeaderProps) {
   const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const location = useLocation();
+  
+  // تحديد ما إذا كنا في الواجهة العامة أو في لوحة التحكم
+  const isPublicPage = !location.pathname.includes('admin') && 
+                      !location.pathname.includes('customer') && 
+                      !location.pathname.includes('property-admin') &&
+                      !location.pathname.includes('super-admin');
   
   // Track scroll position to add glass effect
   useEffect(() => {
@@ -31,16 +56,159 @@ export default function SmartHeader() {
       console.error("Logout error:", error);
     }
   };
+  
+  // تحديد خيارات القائمة والروابط اعتمادًا على نوع المستخدم
+  const renderNavLinks = () => {
+    // للصفحات العامة
+    if (isPublicPage) {
+      return (
+        <div className="hidden md:flex items-center gap-6">
+          <Link to="/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+            العقارات
+          </Link>
+          <Link to="/services" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+            الخدمات
+          </Link>
+          <Link to="/about" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+            عن التطبيق 
+          </Link>
+        </div>
+      );
+    }
+    
+    // للوحات التحكم، نعرض خيارات متعلقة بالدور
+    if (role && !isMobile) {
+      switch (role) {
+        case "SUPER_ADMIN":
+          return (
+            <div className="hidden md:flex items-center gap-4">
+              <Link to="/super-admin" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                الرئيسية
+              </Link>
+              <Link to="/super-admin/users" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                المستخدمين
+              </Link>
+              <Link to="/super-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                العقارات
+              </Link>
+              <Link to="/super-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                الحجوزات
+              </Link>
+              <Link to="/super-admin/revenue" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                الإيرادات
+              </Link>
+              <Link to="/super-admin/settings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                الإعدادات
+              </Link>
+            </div>
+          );
+        
+        case "PROPERTY_ADMIN":
+          return (
+            <div className="hidden md:flex items-center gap-4">
+              <Link to="/property-admin" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                الرئيسية
+              </Link>
+              <Link to="/property-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                العقارات
+              </Link>
+              <Link to="/property-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                الحجوزات
+              </Link>
+              <Link to="/property-admin/dashboard" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                الإحصائيات
+              </Link>
+            </div>
+          );
+          
+        case "CUSTOMER":
+          return (
+            <div className="hidden md:flex items-center gap-4">
+              <Link to="/customer" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                الرئيسية
+              </Link>
+              <Link to="/customer/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                حجوزاتي
+              </Link>
+              <Link to="/customer/profile" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+                حسابي
+              </Link>
+            </div>
+          );
+        
+        default:
+          return null;
+      }
+    }
+    
+    return null;
+  };
+  
+  // زر القائمة المنسدلة أو زر الإشعارات للواجهة المتوافقة مع الأجهزة المحمولة
+  const renderMobileControls = () => {
+    // نعرض هذه الأزرار فقط في لوحات التحكم
+    if (!isPublicPage && isMobile) {
+      return (
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            className="relative p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+          >
+            <Bell size={18} className="text-[#39FF14]" />
+            {/* رمز تنبيه (إذا كان هناك إشعارات جديدة) */}
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+          
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors md:hidden"
+          >
+            <Menu size={18} className="text-[#39FF14]" />
+          </button>
+        </div>
+      );
+    }
+    
+    return null;
+  };
+
+  // تصميم وإظهار الإشعارات
+  const renderNotifications = () => {
+    if (notificationsOpen) {
+      return (
+        <div className="absolute top-16 right-0 w-80 bg-gray-900 border border-gray-800 rounded-lg shadow-lg p-3 z-50">
+          <h3 className="text-white font-bold border-b border-gray-800 pb-2 mb-2">الإشعارات</h3>
+          <div className="max-h-60 overflow-y-auto">
+            {/* محتوى الإشعارات */}
+            <div className="p-2 hover:bg-gray-800 rounded transition-colors mb-2">
+              <div className="text-sm text-white">تم تأكيد حجزك الجديد</div>
+              <div className="text-xs text-gray-400">منذ 5 دقائق</div>
+            </div>
+            <div className="p-2 hover:bg-gray-800 rounded transition-colors mb-2">
+              <div className="text-sm text-white">لديك رسالة جديدة</div>
+              <div className="text-xs text-gray-400">منذ ساعة</div>
+            </div>
+            {/* إشعارات أخرى */}
+          </div>
+          <div className="mt-2 pt-2 border-t border-gray-800 text-center">
+            <Link to="/notifications" className="text-xs text-[#39FF14] hover:underline">عرض كل الإشعارات</Link>
+          </div>
+        </div>
+      );
+    }
+    
+    return null;
+  };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? "bg-black/90 backdrop-blur-md" : "bg-transparent"
+    <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled || !isPublicPage ? "bg-gray-950/90 backdrop-blur-md shadow-md" : "bg-transparent"
     }`}>
       <div className="mx-auto px-6 py-4">
         <div className="flex justify-between items-center relative">
           {/* Logo with Neon Glow Effect */}
           <Link 
-            to="/" 
+            to={user ? `/${user.role.toLowerCase().replace('_', '-')}` : "/"} 
             className="relative group"
           >
             <span className="text-2xl font-bold inline-block transition-all">
@@ -55,65 +223,87 @@ export default function SmartHeader() {
             <div className="absolute -inset-1 bg-[#39FF14]/20 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
           </Link>
 
-          {/* Nav Links - Will show only on non-dashboard pages */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link to="/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-              العقارات
-            </Link>
-            <Link to="/services" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-              الخدمات
-            </Link>
-            <Link to="/about" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-              عن التطبيق 
-            </Link>
-          </div>
+          {/* Nav Links - Dynamic based on page/role */}
+          {renderNavLinks()}
+
+          {/* Mobile Controls - Only for dashboard */}
+          {renderMobileControls()}
 
           {/* User Section */}
           <div className="flex items-center gap-4">
-            {user && (
+            {user && !isMobile && (
               <div className="text-sm hidden md:block">
                 <span className="text-gray-400">أهلاً،</span>{" "}
                 <span className="text-white font-medium">{user.name || "مستخدم"}</span>{" "}
-                <span className="text-[#39FF14] text-xs font-medium">({user.role})</span>
+                <span className="text-[#39FF14] text-xs font-medium">
+                  {user.role === "SUPER_ADMIN" && "مدير النظام"}
+                  {user.role === "PROPERTY_ADMIN" && "مدير عقارات"}
+                  {user.role === "CUSTOMER" && "عميل"}
+                </span>
               </div>
             )}
             
             {user ? (
-              <button 
-                onClick={handleLogout}
-                className="relative group overflow-hidden"
-              >
-                <span className="relative z-10 px-4 py-2 inline-block bg-black text-[#39FF14] rounded-lg border border-[#39FF14]/50 group-hover:border-[#39FF14] transition-colors">
-                  تسجيل الخروج
-                </span>
-                <div className="absolute inset-0 bg-[#39FF14]/10 blur group-hover:bg-[#39FF14]/20 rounded-lg transition-colors"></div>
-              </button>
+              !isMobile && (
+                <div className="hidden md:flex items-center gap-2">
+                  {/* زر الإشعارات للأجهزة المكتبية */}
+                  <button 
+                    onClick={() => setNotificationsOpen(!notificationsOpen)}
+                    className="relative p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+                  >
+                    <Bell size={18} className="text-white" />
+                    {/* رمز تنبيه (إذا كان هناك إشعارات جديدة) */}
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                  </button>
+                  
+                  {/* زر البحث للأجهزة المكتبية */}
+                  <button className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors">
+                    <Search size={18} className="text-white" />
+                  </button>
+                  
+                  {/* زر تسجيل الخروج */}
+                  <button 
+                    onClick={handleLogout}
+                    className="relative group overflow-hidden ml-2"
+                  >
+                    <span className="relative z-10 px-4 py-2 inline-block bg-black text-[#39FF14] rounded-lg border border-[#39FF14]/50 group-hover:border-[#39FF14] transition-colors">
+                      تسجيل الخروج
+                    </span>
+                    <div className="absolute inset-0 bg-[#39FF14]/10 blur group-hover:bg-[#39FF14]/20 rounded-lg transition-colors"></div>
+                  </button>
+                </div>
+              )
             ) : (
-              <div className="flex gap-3">
-                <Link 
-                  to="/login" 
-                  className="relative group overflow-hidden"
-                >
-                  <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-black text-[#39FF14] border border-[#39FF14]/50 group-hover:border-[#39FF14] transition-colors">
-                    تسجيل الدخول
-                  </span>
-                  <div className="absolute inset-0 bg-[#39FF14]/10 blur group-hover:bg-[#39FF14]/20 rounded-lg transition-colors"></div>
-                </Link>
+              isPublicPage && (
+                <div className="flex gap-3">
+                  <Link 
+                    to="/login" 
+                    className="relative group overflow-hidden"
+                  >
+                    <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-black text-[#39FF14] border border-[#39FF14]/50 group-hover:border-[#39FF14] transition-colors">
+                      تسجيل الدخول
+                    </span>
+                    <div className="absolute inset-0 bg-[#39FF14]/10 blur group-hover:bg-[#39FF14]/20 rounded-lg transition-colors"></div>
+                  </Link>
 
-                <Link 
-                  to="/signup" 
-                  className="relative group overflow-hidden"
-                >
-                  <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-[#39FF14] text-black font-medium transform group-hover:scale-[1.03] transition-transform">
-                    إنشاء حساب
-                  </span>
-                  <div className="absolute inset-0 bg-[#39FF14] blur-sm opacity-50 group-hover:opacity-70 rounded-lg transition-opacity"></div>
-                </Link>
-              </div>
+                  <Link 
+                    to="/signup" 
+                    className="relative group overflow-hidden"
+                  >
+                    <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-[#39FF14] text-black font-medium transform group-hover:scale-[1.03] transition-transform">
+                      إنشاء حساب
+                    </span>
+                    <div className="absolute inset-0 bg-[#39FF14] blur-sm opacity-50 group-hover:opacity-70 rounded-lg transition-opacity"></div>
+                  </Link>
+                </div>
+              )
             )}
           </div>
         </div>
       </div>
+      
+      {/* Notifications dropdown */}
+      {renderNotifications()}
     </header>
   );
 }
