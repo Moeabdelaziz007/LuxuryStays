@@ -15,6 +15,7 @@ import CustomerDashboard from "@/features/dashboard/customer/CustomerDashboard";
 // Public Components
 import PublicHome from "@/features/public/Home";
 import NotFound from "@/pages/not-found";
+import RoutingDebugPage from "@/features/public/RoutingDebugPage";
 
 // Auth Components
 import LoginPage from "@/features/auth/Login";
@@ -36,6 +37,7 @@ export default function AppRoutes() {
       <Route path="/about" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة عن الشركة */}
       <Route path="/contact" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة التواصل */}
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="/debug" element={<RoutingDebugPage />} />
       
       {/* ===== مسارات الدفع - يمكن استخدامها من قبل جميع المستخدمين ===== */}
       <Route path="/payment-success" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة نجاح الدفع */}

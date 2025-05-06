@@ -63,15 +63,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('redirect');
   };
+  
+  // تسجيل رسائل التصحيح للمساعدة في عملية التتبع
+  useEffect(() => {
+    console.log("[DEBUG] Auth Context State:", { 
+      user, 
+      loading, 
+      isAuthenticated: !!user,
+      pathname: window.location.pathname
+    });
+  }, [user, loading]);
+
+  // حفظ مسار إعادة التوجيه في كل مرة يتغير المسار
+  useEffect(() => {
+    if (window.location.pathname === '/login') {
+      const redirectParam = getRedirectParam();
+      if (redirectParam) {
+        console.log("[DEBUG] Stored redirect path:", redirectParam);
+        redirectAfterLoginRef.current = redirectParam;
+      }
+    }
+  }, [window.location.search, window.location.pathname]);
 
   // Monitor auth state - Firebase only
   useEffect(() => {
     let unsubscribe = () => {};
-    
-    // تخزين مسار إعادة التوجيه من URL إذا كان موجودًا
-    if (window.location.pathname === '/login') {
-      redirectAfterLoginRef.current = getRedirectParam();
-    }
     
     if (auth) {
       unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {

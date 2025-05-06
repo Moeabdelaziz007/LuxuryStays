@@ -13,6 +13,17 @@ export default function RouteGuard({ children, role }: RouteGuardProps) {
   const { user, loading } = useAuth();
   const location = useLocation();
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(true);
+  
+  // تسجيل معلومات التصحيح
+  useEffect(() => {
+    console.log("[DEBUG] RouteGuard:", { 
+      role, 
+      path: location.pathname, 
+      isAuthenticated: !!user, 
+      userRole: user?.role || 'none',
+      loading
+    });
+  }, [role, location.pathname, user, loading]);
 
   // تحسين تجربة التحميل مع تأخير بسيط
   useEffect(() => {
@@ -49,43 +60,41 @@ export default function RouteGuard({ children, role }: RouteGuardProps) {
   }
   
   // السماح للمشرف العام بالوصول إلى جميع المسارات
-  // إضافة استثناء للمسارات الخاصة بأدوار أخرى إذا تم تحديد ذلك
   if (user.role === UserRole.SUPER_ADMIN) {
-    // على سبيل المثال، إذا كان المسار الحالي يحتوي على /customer وتم تحديد دور CUSTOMER، اسمح للمشرف العام بالوصول
-    if ((role === UserRole.CUSTOMER && location.pathname.includes('/customer')) ||
-        (role === UserRole.PROPERTY_ADMIN && location.pathname.includes('/property-admin')) ||
-        role === UserRole.SUPER_ADMIN) {
-      return <>{children}</>;
-    }
+    console.log("[DEBUG] Super Admin access granted");
+    return <>{children}</>; // المشرف العام يمكنه الوصول إلى أي مسار
   }
-
-  // توجيه المستخدمين غير المصرح لهم مع تحديد رسالة مخصصة
-  if (user.role !== role) {
-    // إعداد رسالة مخصصة بناءً على دور المستخدم والمسار المطلوب
-    let errorMessage = "";
-    let recommendedPath = "";
-    
-    switch(user.role) {
-      case UserRole.CUSTOMER:
-        errorMessage = "ليس لديك صلاحيات للوصول إلى لوحة تحكم المسؤولين.";
-        recommendedPath = "/customer";
-        break;
-      case UserRole.PROPERTY_ADMIN:
-        errorMessage = "ليس لديك صلاحيات للوصول إلى هذا المسار.";
-        recommendedPath = "/property-admin";
-        break;
-      default:
-        errorMessage = "ليس لديك الصلاحيات المطلوبة للوصول إلى هذه الصفحة.";
-        recommendedPath = "/";
-    }
-    
-    // حفظ رسالة الخطأ في sessionStorage لعرضها في صفحة غير مصرح
-    sessionStorage.setItem('authErrorMessage', errorMessage);
-    sessionStorage.setItem('recommendedPath', recommendedPath);
-    
-    return <Navigate to="/unauthorized" replace />;
+  
+  // التحقق من الدور المطلوب
+  if (user.role === role) {
+    console.log(`[DEBUG] Access granted to ${role}`);
+    return <>{children}</>; // المستخدم لديه الدور المطلوب
   }
-
-  // عرض المحتوى إذا كان المستخدم مصرح له
-  return <>{children}</>;
+  
+  // في هذه المرحلة، المستخدم ليس لديه الدور المطلوب
+  console.log(`[DEBUG] Access denied: User role ${user.role} doesn't match required role ${role}`);
+  
+  // إعداد رسالة مخصصة بناءً على دور المستخدم والمسار المطلوب
+  let errorMessage = "";
+  let recommendedPath = "";
+  
+  switch(user.role) {
+    case UserRole.CUSTOMER:
+      errorMessage = "ليس لديك صلاحيات للوصول إلى لوحة تحكم المسؤولين.";
+      recommendedPath = "/customer";
+      break;
+    case UserRole.PROPERTY_ADMIN:
+      errorMessage = "ليس لديك صلاحيات للوصول إلى هذا المسار.";
+      recommendedPath = "/property-admin";
+      break;
+    default:
+      errorMessage = "ليس لديك الصلاحيات المطلوبة للوصول إلى هذه الصفحة.";
+      recommendedPath = "/";
+  }
+  
+  // حفظ رسالة الخطأ في sessionStorage لعرضها في صفحة غير مصرح
+  sessionStorage.setItem('authErrorMessage', errorMessage);
+  sessionStorage.setItem('recommendedPath', recommendedPath);
+  
+  return <Navigate to="/unauthorized" replace />;
 }

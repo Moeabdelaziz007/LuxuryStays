@@ -16,23 +16,33 @@ function RedirectHandler() {
   const navigate = useNavigate();
   
   useEffect(() => {
+    console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location.pathname });
+    
     // فقط قم بالتوجيه إذا كان المستخدم مسجل دخوله ويحاول الوصول للصفحة الرئيسية أو صفحة تسجيل الدخول
     if (!loading && user) {
       const publicPages = ['/', '/login', '/signup'];
       
       // قم بالتوجيه فقط إذا كان المستخدم على صفحة عامة ولديه صلاحيات
       if (publicPages.includes(location.pathname) && user.role) {
+        let dashboardPath;
+        
         switch (user.role) {
           case UserRole.CUSTOMER:
-            navigate('/customer');
+            dashboardPath = '/customer';
             break;
           case UserRole.PROPERTY_ADMIN:
-            navigate('/property-admin');
+            dashboardPath = '/property-admin';
             break;
           case UserRole.SUPER_ADMIN:
-            navigate('/super-admin');
+            dashboardPath = '/super-admin';
+            break;
+          default:
+            dashboardPath = '/';
             break;
         }
+        
+        console.log(`[DEBUG] Redirecting authenticated user to dashboard: ${dashboardPath}`);
+        navigate(dashboardPath);
       }
     }
   }, [user, loading, location, navigate]);
