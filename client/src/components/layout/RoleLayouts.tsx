@@ -3,6 +3,7 @@ import SmartHeader from "@/components/layout/SmartHeader";
 import Sidebar from "@/components/layout/Sidebar";
 import MobileNavigation from "@/components/layout/MobileNavigation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Logo from "@/components/Logo";
 
 // مكون مشترك لضبط التخطيط الأساسي بناءً على نوع المستخدم والجهاز
 export function BaseLayout({ 
@@ -38,7 +39,16 @@ export function BaseLayout({
   }
   
   return (
-    <div className={`flex h-screen ${backgroundStyles}`}>
+    <div className={`flex h-screen ${backgroundStyles} relative`}>
+      {/* StayX Logo in top right corner for all dashboards */}
+      <Logo 
+        size="md" 
+        variant="neon" 
+        withText={true} 
+        position="top-right"
+        withAnimation={role === "SUPER_ADMIN"}
+      />
+      
       {/* Show sidebar only on desktop */}
       {!isMobile && (customSidebar || <Sidebar />)}
       

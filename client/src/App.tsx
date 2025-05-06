@@ -50,12 +50,26 @@ function RedirectHandler() {
 }
 
 function App() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  const { loading } = useAuth();
+  
   // نعرض Header و Footer فقط في الصفحات العامة
   const showHeaderFooter = !location.includes('/super-admin') && 
                            !location.includes('/property-admin') && 
-                           !location.includes('/customer');
+                           !location.includes('/customer') &&
+                           !location.includes('/splash');
   const auth = getAuth();
+  
+  // عند تحميل التطبيق لأول مرة، قم بالانتقال إلى صفحة البداية
+  useEffect(() => {
+    const hasVisited = sessionStorage.getItem('visited');
+    
+    // تأكد من عدم الانتقال إلى صفحة البداية إذا كان المستخدم قد قام بتنقل يدوي بالفعل
+    if (location === '/' && !loading && !hasVisited) {
+      sessionStorage.setItem('visited', 'true');
+      setLocation('/splash');
+    }
+  }, [location, loading, setLocation]);
   
   // Handle redirect from Google sign-in
   useEffect(() => {

@@ -1,13 +1,25 @@
 import { cn } from '@/lib/utils';
+import { Link } from 'wouter';
 
 interface LogoProps {
+  linkToHome?: boolean;
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'dark' | 'light' | 'neon';
   withText?: boolean;
+  position?: 'default' | 'top-right' | 'top-left' | 'center';
+  withAnimation?: boolean;
 }
 
-export default function Logo({ className, size = 'md', variant = 'neon', withText = true }: LogoProps) {
+export default function Logo({ 
+  className, 
+  size = 'md', 
+  variant = 'neon', 
+  withText = true, 
+  position = 'default',
+  withAnimation = false,
+  linkToHome = true
+}: LogoProps) {
   // Size mapping
   const sizeClasses = {
     sm: 'h-8',
@@ -48,8 +60,28 @@ export default function Logo({ className, size = 'md', variant = 'neon', withTex
     },
   };
   
+  // Position classes
+  const positionClasses = {
+    default: '',
+    'top-right': 'absolute top-4 right-4',
+    'top-left': 'absolute top-4 left-4',
+    center: 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
+  };
+
+  // Animation classes
+  const animationClass = withAnimation 
+    ? variant === 'neon' 
+      ? 'animate-neon-pulse' 
+      : 'animate-pulse'
+    : '';
+
   return (
-    <div className={cn('flex items-center', className)}>
+    <div className={cn(
+      'flex items-center', 
+      positionClasses[position],
+      animationClass,
+      className
+    )}>
       {withText ? (
         <div className={cn('font-bold tracking-tight flex items-center', textSizeClasses[size])}>
           <span className={colorClasses[variant].text}>
