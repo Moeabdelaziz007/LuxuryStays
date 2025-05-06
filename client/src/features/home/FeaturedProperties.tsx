@@ -15,39 +15,8 @@ interface Property {
   ownerId: string;
 }
 
-// Fallback properties for when Firebase fails
-const localProperties: Property[] = [
-  {
-    id: "prop1",
-    name: "فيلا الحلم - كمباوند ماونتن فيو",
-    imageUrl: "https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&q=85&w=1200",
-    description: "فيلا فاخرة مع مسبح خاص وإطلالة رائعة على البحر. مناسبة للعائلات والمجموعات الكبيرة.",
-    location: "الساحل الشمالي - سيدي عبد الرحمن",
-    pricePerNight: 250,
-    featured: true,
-    ownerId: "owner1"
-  },
-  {
-    id: "prop2",
-    name: "شاليه مطل على البحر",
-    imageUrl: "https://images.unsplash.com/photo-1615571022219-eb45cf7faa9d?ixlib=rb-4.0.3&q=85&w=1200",
-    description: "شاليه حديث مع إطلالة مباشرة على البحر. يقع على بعد خطوات من الشاطئ الخاص.",
-    location: "راس الحكمة - لافيستا باي",
-    pricePerNight: 180,
-    featured: true,
-    ownerId: "owner2"
-  },
-  {
-    id: "prop3",
-    name: "فيلا بونساي الفاخرة",
-    imageUrl: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&q=85&w=1200",
-    description: "فيلا مستقلة في قلب بونساي، تتميز بديكور عصري وحديقة خاصة ومسبح.",
-    location: "الساحل الشمالي - بونساي",
-    pricePerNight: 320,
-    featured: true,
-    ownerId: "owner3"
-  }
-];
+// لا توجد عقارات افتراضية - فقط العقارات التي يضيفها مدراء العقارات
+const localProperties: Property[] = [];
 
 export default function FeaturedProperties() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -80,31 +49,9 @@ export default function FeaturedProperties() {
             const snapshot = await getDocs(featuredQuery);
             
             if (snapshot.empty) {
-              console.log("No featured properties found in Firestore, attempting to seed data");
-              
-              // محاولة بذر البيانات الأولية (تجربة مرة واحدة فقط)
-              try {
-                const { seedFirestore } = await import('@/lib/seedFirestore');
-                const result = await seedFirestore();
-                if (result.success) {
-                  console.log("✅ Property seed data added successfully. Will appear next time.");
-                  
-                  // محاولة قراءة البيانات المضافة مباشرة
-                  const freshSnapshot = await getDocs(featuredQuery);
-                  if (!freshSnapshot.empty) {
-                    console.log(`Found ${freshSnapshot.docs.length} properties after seeding`);
-                    return freshSnapshot.docs.map(doc => ({
-                      id: doc.id,
-                      ...doc.data()
-                    })) as Property[];
-                  }
-                }
-              } catch (seedError) {
-                console.error("Failed to seed initial data:", seedError);
-              }
-              
-              // إذا فشلت عملية البذر، استخدم البيانات المحلية
-              return localProperties;
+              console.log("No featured properties found in Firestore");
+              // لا نقوم بإضافة بيانات أولية - نعرض فقط العقارات المضافة من مدراء العقارات
+              return localProperties; // مصفوفة فارغة
             }
             
             console.log(`Found ${snapshot.docs.length} featured properties in Firestore`);
@@ -160,17 +107,35 @@ export default function FeaturedProperties() {
         <div className="text-yellow-400 mb-4">⚠️</div>
         <p className="text-lg text-yellow-400 font-semibold mb-2">تنبيه</p>
         <p className="text-white mb-4">{error}</p>
-        <p className="text-sm text-gray-400 mb-4">نعرض لك بدلاً من ذلك بعض العقارات المميزة المتاحة.</p>
+        <p className="text-sm text-gray-400 mb-4">
+          نحن نعرض فقط العقارات الحقيقية المضافة من قبل مدراء العقارات المعتمدين.
+          قد تكون الخدمة غير متاحة حاليًا، يرجى المحاولة لاحقًا.
+        </p>
       </div>
     );
   }
 
   if (!data?.length) return (
-    <div className="text-center py-12">
-      <p className="text-xl text-gray-500">لم يتم العثور على عقارات مميزة</p>
-      <button className="mt-4 bg-[#39FF14] hover:bg-[#50FF30] text-black font-bold py-2 px-6 rounded-lg">
-        تصفح جميع العقارات
-      </button>
+    <div className="text-center py-16 bg-gray-800/50 rounded-2xl backdrop-blur-sm border border-gray-700">
+      <div className="max-w-lg mx-auto px-4">
+        <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-black/30 mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-5m-1.5-2h-9" />
+          </svg>
+        </div>
+        <h3 className="text-2xl font-bold text-white mb-4">لا توجد عقارات متاحة حاليًا</h3>
+        <p className="text-gray-300 mb-8">
+          لم يتم إضافة أي عقارات من قبل مدراء العقارات بعد. نحن نعرض فقط العقارات التي يضيفها مدراء العقارات المعتمدين للتأكد من جودة وموثوقية تجربتك.
+        </p>
+        <div className="space-x-4 rtl:space-x-reverse">
+          <a href="/register-property" className="bg-[#39FF14] hover:bg-[#50FF30] px-5 py-2.5 rounded-lg text-black font-bold transition-colors">
+            سجل كمدير عقارات
+          </a>
+          <a href="/about" className="bg-black/40 border border-gray-700 hover:bg-black/60 px-5 py-2.5 rounded-lg text-white transition-colors">
+            اعرف المزيد
+          </a>
+        </div>
+      </div>
     </div>
   );
 
