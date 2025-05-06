@@ -45,10 +45,11 @@ export default function LoginPage() {
     }
   }, [toast]);
   
-  // استخراج مسار إعادة التوجيه من معلمات URL
+  // استخراج مسار إعادة التوجيه ومعلمات أخرى من معلمات URL
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const redirect = searchParams.get('redirect');
+    const reset = searchParams.get('reset');
     
     if (redirect) {
       setRedirectPath(redirect);
@@ -57,6 +58,14 @@ export default function LoginPage() {
       toast(getWarningToast(
         "تحتاج إلى تسجيل الدخول ⚠️",
         "يرجى تسجيل الدخول للوصول إلى الصفحة المطلوبة"
+      ));
+    }
+    
+    // التحقق من وجود معلمة reset=success (بعد عودة المستخدم من إعادة تعيين كلمة المرور)
+    if (reset === 'success') {
+      toast(getSuccessToast(
+        "تم تغيير كلمة المرور بنجاح ✅",
+        "يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة"
       ));
     }
   }, [toast]);
@@ -356,18 +365,21 @@ export default function LoginPage() {
       
       if (err.code === 'auth/unauthorized-domain') {
         const domainOnly = window.location.host;
+        const allDomainEnvs = ["workspace.mohamedabdela18.repl.co", "f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev", "luxury-stays-mohamedabdela18.replit.app"];
+        
+        console.error(`خطأ المجال غير المصرح به: ${domainOnly}`);
         console.error(`يرجى إضافة "${domainOnly}" (بدون https:// أو http://) إلى نطاقات Firebase المصرح بها`);
-        console.error(`للإضافة، انتقل إلى لوحة تحكم Firebase > Authentication > Sign-in method > Authorized domains`);
-        console.error(`يجب إضافة "${domainOnly}" فقط بدون بروتوكول`);
+        console.error(`المجالات المحتملة للإضافة: ${domainOnly}, ${window.location.hostname}, ${allDomainEnvs.join(', ')}`);
+        console.error(`للإضافة، انتقل إلى لوحة تحكم Firebase > Authentication > Settings > Authorized domains`);
         
         // إخفاء زر جوجل وإظهار رسالة للمستخدم
         toast(getWarningToast(
           "تسجيل الدخول بحساب Google غير متاح",
-          "نحاول تفعيل هذه الميزة. يمكنك تصفح الموقع كضيف في الوقت الحالي."
+          `يرجى استخدام البريد الإلكتروني وكلمة المرور أو تصفح كضيف حتى يتم إضافة المجال: ${domainOnly}`
         ));
         
         // رسالة خطأ واضحة
-        setError("عذراً، ميزة تسجيل الدخول بحساب Google غير متاحة حالياً. يمكنك تصفح الموقع كضيف.");
+        setError(`عذراً، ميزة تسجيل الدخول بحساب Google غير متاحة حالياً لهذا المجال: (${domainOnly}). يمكنك استخدام البريد الإلكتروني وكلمة المرور أو تصفح كضيف.`);
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError("تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
       } else if (err.code === 'auth/cancelled-popup-request') {
@@ -572,7 +584,14 @@ export default function LoginPage() {
                     }
                     
                     setLoading(true);
-                    sendPasswordResetEmail(auth, emailInput.value)
+                    // ضبط لغة Firebase إلى العربية
+                    auth.languageCode = 'ar';
+                    
+                    // إرسال رابط إعادة تعيين كلمة المرور مع خيارات التخصيص
+                    sendPasswordResetEmail(auth, emailInput.value, {
+                      // تخصيص URL إعادة التوجيه بعد إعادة تعيين كلمة المرور
+                      url: window.location.origin + '/login?reset=success',
+                    })
                       .then(() => {
                         toast(getSuccessToast(
                           "تم إرسال رابط إعادة تعيين كلمة المرور",
