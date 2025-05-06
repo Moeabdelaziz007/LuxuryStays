@@ -395,26 +395,78 @@ export default function NewSuperAdminDashboard() {
             {!subPath && <>لوحة التحكم</>}
           </h2>
           
-          <div className="bg-gray-900/70 p-8 rounded-lg border border-gray-800/50 text-center relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.2)] backdrop-blur-sm">
-            {/* تأثيرات خلفية للصفحة قيد التطوير */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
-            
-            <Terminal className="inline-block mb-6 text-[#39FF14] w-16 h-16 animate-pulse" />
-            <h3 className="text-2xl font-bold mb-4 text-white">هذه الصفحة قيد التطوير</h3>
-            <p className="text-gray-400 mb-6 max-w-xl mx-auto">سيتم إضافة محتوى {
-              subPath === 'users' ? 'إدارة المستخدمين' :
-              subPath === 'properties' ? 'إدارة العقارات' :
-              subPath === 'bookings' ? 'إدارة الحجوزات' :
-              subPath === 'revenue' ? 'التقارير المالية' :
-              subPath === 'settings' ? 'إعدادات النظام' :
-              subPath === 'security' ? 'الأمان والصلاحيات' : 'هذه الصفحة'
-            } قريبًا</p>
-            
-            <div className="inline-block relative">
-              <div className="h-1 bg-gradient-to-r from-transparent via-[#39FF14] to-transparent w-80 max-w-full mx-auto rounded animate-pulse"></div>
+          {/* عرض المكون المناسب بناءً على المسار */}
+          {subPath === 'users' ? (
+            <div className="bg-black/50 backdrop-blur-md rounded-xl border border-gray-800">
+              <div className="p-5 border-b border-gray-800">
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  <Users className="w-5 h-5 mr-2 text-[#39FF14]" />
+                  <span>إدارة المستخدمين</span>
+                </h2>
+              </div>
+              <div className="p-5">
+                <UsersManagement 
+                  usersByRole={usersByRole} 
+                  recentUsers={recentUsers} 
+                  onRoleChange={handleRoleChange}
+                />
+              </div>
             </div>
-          </div>
+          ) : subPath === 'properties' ? (
+            <div className="bg-black/50 backdrop-blur-md rounded-xl border border-gray-800">
+              <div className="p-5 border-b border-gray-800">
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  <Home className="w-5 h-5 mr-2 text-[#39FF14]" />
+                  <span>إدارة العقارات</span>
+                </h2>
+              </div>
+              <div className="p-5">
+                <div className="text-center py-12">
+                  <Home className="h-16 w-16 text-[#39FF14] mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold mb-4 text-white">إدارة العقارات</h3>
+                  <p className="text-gray-400 mb-6 max-w-xl mx-auto">
+                    تمكنك هذه الصفحة من إدارة جميع العقارات على المنصة، بما في ذلك إضافة عقارات جديدة، تعديل العقارات الموجودة، وإزالة العقارات القديمة.
+                  </p>
+                  <Button className="bg-[#39FF14] text-black hover:bg-[#39FF14]/80">إضافة عقار جديد</Button>
+                </div>
+              </div>
+            </div>
+          ) : subPath === 'bookings' ? (
+            <div className="bg-black/50 backdrop-blur-md rounded-xl border border-gray-800">
+              <div className="p-5 border-b border-gray-800">
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  <Calendar className="w-5 h-5 mr-2 text-[#39FF14]" />
+                  <span>إدارة الحجوزات</span>
+                </h2>
+              </div>
+              <div className="p-5">
+                <BookingsManagement 
+                  bookingStatus={bookingStatus} 
+                  recentBookings={recentBookings}
+                  formatCurrency={formatCurrency}
+                />
+              </div>
+            </div>
+          ) : (
+            // للصفحات الأخرى التي ما زالت قيد التطوير
+            <div className="bg-gray-900/70 p-8 rounded-lg border border-gray-800/50 text-center relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.2)] backdrop-blur-sm">
+              {/* تأثيرات خلفية للصفحة قيد التطوير */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
+              
+              <Terminal className="inline-block mb-6 text-[#39FF14] w-16 h-16 animate-pulse" />
+              <h3 className="text-2xl font-bold mb-4 text-white">هذه الصفحة قيد التطوير</h3>
+              <p className="text-gray-400 mb-6 max-w-xl mx-auto">سيتم إضافة محتوى {
+                subPath === 'revenue' ? 'التقارير المالية' :
+                subPath === 'settings' ? 'إعدادات النظام' :
+                subPath === 'security' ? 'الأمان والصلاحيات' : 'هذه الصفحة'
+              } قريبًا</p>
+              
+              <div className="inline-block relative">
+                <div className="h-1 bg-gradient-to-r from-transparent via-[#39FF14] to-transparent w-80 max-w-full mx-auto rounded animate-pulse"></div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
