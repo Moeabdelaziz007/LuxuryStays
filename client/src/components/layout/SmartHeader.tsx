@@ -12,7 +12,17 @@ import {
   Bell,
   Search,
   User,
-  Menu
+  Menu,
+  Home,
+  Building,
+  PackageOpen,
+  Info,
+  LogOut,
+  CalendarCheck,
+  Heart,
+  UserCircle,
+  PieChart,
+  DollarSign as CircleDollarSign
 } from "lucide-react";
 
 interface SmartHeaderProps {
@@ -62,17 +72,21 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
     // روابط الصفحات العامة - متاحة دائمًا
     const publicLinks = (
       <>
-        <Link to="/" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-          الصفحة الرئيسية
+        <Link to="/" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+          <Home size={16} className="inline-block" />
+          <span>الصفحة الرئيسية</span>
         </Link>
-        <Link to="/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-          العقارات
+        <Link to="/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+          <Building size={16} className="inline-block" />
+          <span>العقارات</span>
         </Link>
-        <Link to="/services" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-          الخدمات
+        <Link to="/services" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+          <PackageOpen size={16} className="inline-block" />
+          <span>الخدمات</span>
         </Link>
-        <Link to="/about" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-          عن التطبيق
+        <Link to="/about" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+          <Info size={16} className="inline-block" />
+          <span>عن التطبيق</span>
         </Link>
       </>
     );
@@ -86,20 +100,25 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
         case "SUPER_ADMIN":
           roleLinks = (
             <>
-              <Link to="/super-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4">
-                لوحة تحكم المدير
+              <Link to="/super-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4 flex items-center gap-1.5">
+                <PanelLeftOpen size={16} className="inline-block" />
+                <span>لوحة تحكم المدير</span>
               </Link>
-              <Link to="/super-admin/users" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                المستخدمين
+              <Link to="/super-admin/users" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <User size={16} className="inline-block" />
+                <span>المستخدمين</span>
               </Link>
-              <Link to="/super-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                العقارات
+              <Link to="/super-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <Building size={16} className="inline-block" />
+                <span>العقارات</span>
               </Link>
-              <Link to="/super-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                الحجوزات
+              <Link to="/super-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <CalendarCheck size={16} className="inline-block" />
+                <span>الحجوزات</span>
               </Link>
-              <Link to="/super-admin/revenue" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                الإيرادات
+              <Link to="/super-admin/revenue" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <CircleDollarSign size={16} className="inline-block" />
+                <span>الإيرادات</span>
               </Link>
             </>
           );
@@ -108,17 +127,21 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
         case "PROPERTY_ADMIN":
           roleLinks = (
             <>
-              <Link to="/property-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4">
-                لوحة تحكم المالك
+              <Link to="/property-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4 flex items-center gap-1.5">
+                <PanelLeftOpen size={16} className="inline-block" />
+                <span>لوحة تحكم المالك</span>
               </Link>
-              <Link to="/property-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                عقاراتي
+              <Link to="/property-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <Building size={16} className="inline-block" />
+                <span>عقاراتي</span>
               </Link>
-              <Link to="/property-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                الحجوزات
+              <Link to="/property-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <CalendarCheck size={16} className="inline-block" />
+                <span>الحجوزات</span>
               </Link>
-              <Link to="/property-admin/dashboard" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                الإحصائيات
+              <Link to="/property-admin/analytics" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <PieChart size={16} className="inline-block" />
+                <span>الإحصائيات</span>
               </Link>
             </>
           );
@@ -127,17 +150,21 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
         case "CUSTOMER":
           roleLinks = (
             <>
-              <Link to="/customer" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4">
-                لوحة تحكم العميل
+              <Link to="/customer" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4 flex items-center gap-1.5">
+                <PanelLeftOpen size={16} className="inline-block" />
+                <span>لوحة تحكم العميل</span>
               </Link>
-              <Link to="/customer/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                حجوزاتي
+              <Link to="/customer/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <CalendarCheck size={16} className="inline-block" />
+                <span>حجوزاتي</span>
               </Link>
-              <Link to="/customer/favorites" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                المفضلة
+              <Link to="/customer/favorites" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <Heart size={16} className="inline-block" />
+                <span>المفضلة</span>
               </Link>
-              <Link to="/customer/profile" className="text-white hover:text-[#39FF14] transition-colors duration-300">
-                حسابي
+              <Link to="/customer/profile" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
+                <UserCircle size={16} className="inline-block" />
+                <span>حسابي</span>
               </Link>
             </>
           );
@@ -282,8 +309,9 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
                     onClick={handleLogout}
                     className="relative group overflow-hidden ml-2"
                   >
-                    <span className="relative z-10 px-4 py-2 inline-block bg-black text-[#39FF14] rounded-lg border border-[#39FF14]/50 group-hover:border-[#39FF14] transition-colors">
-                      تسجيل الخروج
+                    <span className="relative z-10 px-4 py-2 inline-block bg-black text-[#39FF14] rounded-lg border border-[#39FF14]/50 group-hover:border-[#39FF14] transition-colors flex items-center gap-1.5">
+                      <LogOut size={16} className="inline-block" />
+                      <span>تسجيل الخروج</span>
                     </span>
                     <div className="absolute inset-0 bg-[#39FF14]/10 blur group-hover:bg-[#39FF14]/20 rounded-lg transition-colors"></div>
                   </button>
