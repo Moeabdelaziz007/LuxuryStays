@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "wouter";
 import FeaturedProperties from "@/features/home/FeaturedProperties";
 import ServicesSection from "@/features/home/ServicesSection";
 import SpaceBackground from "@/components/ui/space-background";
@@ -64,27 +65,27 @@ export default function HomePage() {
                 
                 {/* Buttons - Stacked on mobile, side by side on larger screens */}
                 <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 max-w-xs sm:max-w-lg mx-auto md:mx-0 md:mr-auto">
-                  <a
-                    href="/properties"
+                  <Link
+                    to="/properties"
                     className="px-6 sm:px-8 py-3 sm:py-4 bg-[#39FF14] text-black font-bold rounded-xl shadow-[0_0_15px_rgba(57,255,20,0.5)] hover:shadow-[0_0_25px_rgba(57,255,20,0.8)] active:scale-[0.98] transition-all flex items-center justify-center"
                   >
                     <span>استكشف العقارات</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
-                  </a>
-                  <a
-                    href="/login"
+                  </Link>
+                  <Link
+                    to="/login"
                     className="px-6 sm:px-8 py-3 sm:py-4 bg-black/50 backdrop-blur-md text-white font-bold rounded-xl border border-[#39FF14]/30 hover:border-[#39FF14] hover:shadow-[0_0_10px_rgba(57,255,20,0.3)] active:scale-[0.98] transition-all"
                   >
                     تسجيل الدخول
-                  </a>
-                  <a
-                    href="/signup"
+                  </Link>
+                  <Link
+                    to="/signup"
                     className="px-6 py-3 bg-gray-800/80 backdrop-blur-sm text-gray-300 font-medium rounded-xl border border-gray-700 hover:border-[#39FF14]/30 hover:bg-gray-800 active:scale-[0.98] transition-all"
                   >
                     إنشاء حساب جديد
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -166,10 +167,10 @@ export default function HomePage() {
         <FeaturedProperties />
         
         <div className="mt-12 text-center">
-          <a href="/properties" className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-black font-bold py-3 px-8 rounded-lg transition-colors">
+          <Link to="/properties" className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-black font-bold py-3 px-8 rounded-lg transition-colors">
             عرض جميع العقارات
             <span className="text-xl">←</span>
-          </a>
+          </Link>
         </div>
         
         <div className="mt-16 bg-gray-800 p-8 rounded-xl max-w-4xl mx-auto">

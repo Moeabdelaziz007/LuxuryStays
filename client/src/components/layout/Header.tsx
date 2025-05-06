@@ -149,7 +149,7 @@ export default function Header() {
                 {user ? (
                   <div className="flex items-center space-x-3">
                     <Link 
-                      href={`/dashboard/${user.role.toLowerCase()}`} 
+                      to={`/dashboard/${user.role.toLowerCase()}`} 
                       className="text-white/90 hover:text-[#39FF14] relative group px-3 py-2"
                     >
                       <span className="relative z-10">{t("nav.dashboard")}</span>
