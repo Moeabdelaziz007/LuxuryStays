@@ -20,7 +20,13 @@ export default function SmartHeader() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      if (auth) {
+        await signOut(auth);
+      } else {
+        // If Firebase auth is not available, use local logout
+        localStorage.removeItem('stayx_current_user');
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error("Logout error:", error);
     }

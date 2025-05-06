@@ -41,8 +41,8 @@ export default function LoginPage() {
     // Check if we should use local auth
     const connectionCheckTimeout = setTimeout(() => {
       try {
-        // If Firebase auth is taking too long, use local auth
-        if (!auth.currentUser) {
+        // If Firebase auth is taking too long or not available, use local auth
+        if (!auth || !auth.currentUser) {
           console.warn('Firebase auth connection timeout, falling back to local auth');
           setUseLocalAuth(true);
         }
@@ -88,6 +88,12 @@ export default function LoginPage() {
         }
       }
       
+      // Check if Firebase auth is available
+      if (!auth) {
+        setUseLocalAuth(true);
+        throw new Error("Firebase auth not available");
+      }
+      
       // Normal Firebase authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log("Firebase login successful:", userCredential.user.uid);
@@ -115,25 +121,57 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setError("");
     setGoogleLoading(true);
+    
+    if (useLocalAuth || !auth || !db) {
+      setError("تسجيل الدخول عبر Google غير متاح في وضع الاتصال المحلي. الرجاء استخدام البريد الإلكتروني وكلمة المرور.");
+      console.error("Google login not available in local mode");
+      setGoogleLoading(false);
+      return;
+    }
+    
     const provider = new GoogleAuthProvider();
     
     try {
       const res = await signInWithPopup(auth, provider);
-      // Check if user exists in Firestore
-      const userRef = doc(db, "users", res.user.uid);
-      const userSnap = await getDoc(userRef);
       
-      if (!userSnap.exists()) {
-        // Create new user document
-        await setDoc(userRef, {
+      // Check if user exists in Firestore
+      try {
+        const userRef = doc(db, "users", res.user.uid);
+        const userSnap = await getDoc(userRef);
+        
+        if (!userSnap.exists()) {
+          // Create new user document
+          await setDoc(userRef, {
+            uid: res.user.uid,
+            email: res.user.email,
+            name: res.user.displayName,
+            role: "CUSTOMER", // Default role
+            createdAt: new Date().toISOString(),
+          });
+        }
+      } catch (firestoreError) {
+        console.error("Error accessing Firestore:", firestoreError);
+        
+        // If Firestore fails, use local auth as fallback
+        setUseLocalAuth(true);
+        
+        // We can still use the Google user info to create a local session
+        const tempLocalUser = {
           uid: res.user.uid,
-          email: res.user.email,
-          name: res.user.displayName,
+          email: res.user.email || '',
+          name: res.user.displayName || 'Google User',
           role: "CUSTOMER", // Default role
           createdAt: new Date().toISOString(),
-        });
+        };
+        
+        // Store in localStorage for future local auth
+        localStorage.setItem('stayx_current_user', JSON.stringify(tempLocalUser));
+        
+        // Redirect to customer dashboard
+        navigate('/customer');
       }
-      // Navigation is handled by auth context
+      
+      // If we get here, navigation will be handled by auth context
     } catch (err: any) {
       console.error("Google login error:", err);
       if (err.code === 'auth/unauthorized-domain') {

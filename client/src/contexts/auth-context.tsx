@@ -1,15 +1,20 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { 
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   signOut,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  Auth
 } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp, Firestore } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useNavigate } from "react-router-dom";
+import { getLocalUser, localLogin, localRegister, localLogout, initializeLocalUsers } from "@/lib/local-auth";
+
+// Initialize test users for local auth
+initializeLocalUsers();
 
 interface UserData {
   uid: string;
@@ -53,55 +58,121 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [useLocalAuth, setUseLocalAuth] = useState(false);
+  const firebaseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  // Monitor auth state
+  // On component mount, check if we already have a local user
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      try {
-        if (firebaseUser) {
-          const docRef = doc(db, "users", firebaseUser.uid);
-          const docSnap = await getDoc(docRef);
-          
-          if (docSnap.exists()) {
-            const userData = docSnap.data() as UserData;
-            setUser(userData);
+    const localUser = getLocalUser();
+    if (localUser) {
+      setUser(localUser);
+      setUseLocalAuth(true);
+      setLoading(false);
+    }
+  }, []);
 
-            // Only redirect if we're on the login or home page
-            const pathname = window.location.pathname;
-            if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
-              // توجيه حسب الدور
-              if (userData.role === "CUSTOMER") navigate("/customer");
-              else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
-              else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
-              else navigate("/unauthorized");
-            }
-          } else {
-            // User exists in Firebase but not in Firestore
-            // Create a default user document
-            const newUser: UserData = {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              name: firebaseUser.displayName || 'User',
-              role: 'CUSTOMER', // Default role
-              createdAt: new Date().toISOString(),
-            };
-            
-            await setDoc(doc(db, "users", firebaseUser.uid), newUser);
-            setUser(newUser);
-            navigate("/customer");
-          }
-        } else {
-          setUser(null);
+  // Monitor auth state with timeout
+  useEffect(() => {
+    let unsubscribe = () => {};
+    
+    // Set a timeout for Firebase connection
+    firebaseTimeoutRef.current = setTimeout(() => {
+      if (loading && !user) {
+        console.warn("Firebase auth connection timeout, falling back to local auth");
+        setUseLocalAuth(true);
+        
+        // Check for existing local user
+        const localUser = getLocalUser();
+        if (localUser) {
+          setUser(localUser);
         }
-      } catch (err) {
-        console.error("Auth state error:", err);
-        setError("An authentication error occurred");
-      } finally {
+        
         setLoading(false);
       }
-    });
-    return () => unsubscribe();
+    }, 5000); // 5 second timeout
+    
+    if (auth) {
+      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        try {
+          // Clear the timeout since Firebase responded
+          if (firebaseTimeoutRef.current) {
+            clearTimeout(firebaseTimeoutRef.current);
+            firebaseTimeoutRef.current = null;
+          }
+          
+          if (firebaseUser) {
+            try {
+              if (db) {
+                const docRef = doc(db, "users", firebaseUser.uid);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                  const userData = docSnap.data() as UserData;
+                  setUser(userData);
+                  
+                  // Only redirect if we're on the login or home page
+                  const pathname = window.location.pathname;
+                  if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
+                    if (userData.role === "CUSTOMER") navigate("/customer");
+                    else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
+                    else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
+                    else navigate("/unauthorized");
+                  }
+                } else if (db) {
+                  // User exists in Firebase but not in Firestore
+                  // Create a default user document
+                  const newUser: UserData = {
+                    uid: firebaseUser.uid,
+                    email: firebaseUser.email || '',
+                    name: firebaseUser.displayName || 'User',
+                    role: 'CUSTOMER', // Default role
+                    createdAt: new Date().toISOString(),
+                  };
+                  
+                  await setDoc(doc(db, "users", firebaseUser.uid), newUser);
+                  setUser(newUser);
+                  navigate("/customer");
+                }
+              } else {
+                // Firestore not available, use local auth
+                setUseLocalAuth(true);
+                const localUser = getLocalUser();
+                if (localUser) {
+                  setUser(localUser);
+                }
+              }
+            } catch (error) {
+              console.error("Error accessing Firestore:", error);
+              setUseLocalAuth(true);
+              const localUser = getLocalUser();
+              if (localUser) {
+                setUser(localUser);
+              }
+            }
+          } else {
+            setUser(null);
+          }
+        } catch (err) {
+          console.error("Auth state error:", err);
+          setError("An authentication error occurred");
+          setUseLocalAuth(true);
+        } finally {
+          setLoading(false);
+        }
+      });
+    } else {
+      // Firebase auth not available
+      setUseLocalAuth(true);
+      setLoading(false);
+    }
+    
+    return () => {
+      unsubscribe();
+      if (firebaseTimeoutRef.current) {
+        clearTimeout(firebaseTimeoutRef.current);
+      }
+    };
   }, [navigate]);
 
   // Login with email/password
@@ -110,7 +181,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null);
     try {
       const { email, password } = credentials;
-      await signInWithEmailAndPassword(auth, email, password);
+      
+      console.log("Attempting login with:", email);
+      
+      if (useLocalAuth || !auth) {
+        console.log("Using local authentication...");
+        try {
+          const localUser = await localLogin(email, password);
+          setUser(localUser);
+          
+          // Redirect based on role
+          if (localUser.role === "CUSTOMER") navigate("/customer");
+          else if (localUser.role === "PROPERTY_ADMIN") navigate("/property-admin");
+          else if (localUser.role === "SUPER_ADMIN") navigate("/super-admin");
+        } catch (localError) {
+          console.error("Local login error:", localError);
+          throw localError;
+        }
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        // Redirect will happen in the auth state change handler
+      }
     } catch (err) {
       console.error("Login error:", err);
       setError("Invalid email or password");
@@ -127,20 +218,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { name, email, password } = credentials;
       
-      // Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      // Create user document in Firestore
-      const userData: UserData = {
-        uid: user.uid,
-        email: email,
-        name: name,
-        role: 'CUSTOMER', // Default role for new users
-        createdAt: new Date().toISOString(),
-      };
-      
-      await setDoc(doc(db, "users", user.uid), userData);
+      if (useLocalAuth || !auth || !db) {
+        console.log("Using local registration...");
+        try {
+          const localUser = await localRegister(name, email, password);
+          setUser(localUser);
+          
+          // Redirect based on role
+          if (localUser.role === "CUSTOMER") navigate("/customer");
+          else if (localUser.role === "PROPERTY_ADMIN") navigate("/property-admin");
+          else if (localUser.role === "SUPER_ADMIN") navigate("/super-admin");
+        } catch (localError) {
+          console.error("Local registration error:", localError);
+          throw localError;
+        }
+      } else {
+        // Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // Create user document in Firestore
+        const userData: UserData = {
+          uid: user.uid,
+          email: email,
+          name: name,
+          role: 'CUSTOMER', // Default role for new users
+          createdAt: new Date().toISOString(),
+        };
+        
+        await setDoc(doc(db, "users", user.uid), userData);
+      }
     } catch (err) {
       console.error("Register error:", err);
       setError("Registration failed");
@@ -155,6 +262,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
+      if (!auth || !db || useLocalAuth) {
+        console.error("Google login not available in local mode");
+        throw new Error("Google login is not available right now");
+      }
+      
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -175,8 +287,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         await setDoc(docRef, userData);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Google login error:", err);
+      
+      if (err.code === 'auth/unauthorized-domain') {
+        console.error("Please add", window.location.origin, "to Firebase authorized domains");
+      }
+      
       setError("Google login failed");
       throw err;
     } finally {
@@ -187,7 +304,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Logout
   const logout = async () => {
     try {
-      await signOut(auth);
+      if (useLocalAuth || !auth) {
+        await localLogout();
+        setUser(null);
+      } else {
+        await signOut(auth);
+      }
       navigate("/");
     } catch (err) {
       console.error("Logout error:", err);

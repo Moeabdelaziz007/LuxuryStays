@@ -22,10 +22,56 @@ export default function SignupPage() {
         throw new Error("يجب أن يكون الاسم 3 أحرف على الأقل");
       }
       
+      // Check if we have Firebase available
+      if (!auth || !db) {
+        console.log("Firebase not available, using local authentication");
+        
+        // Use local storage to create a user
+        try {
+          // Get existing users or initialize empty object
+          const usersData = localStorage.getItem('stayx_local_users');
+          const users = usersData ? JSON.parse(usersData) : {};
+          
+          // Check if email already exists
+          if (users[email]) {
+            throw new Error("البريد الإلكتروني مستخدم بالفعل");
+          }
+          
+          // Generate a unique ID
+          const uid = Date.now().toString(36) + Math.random().toString(36).substring(2);
+          
+          // Create new user
+          const newUser = {
+            uid,
+            email,
+            name,
+            role: "CUSTOMER",
+            createdAt: new Date().toISOString()
+          };
+          
+          // Store user
+          users[email] = {
+            user: newUser,
+            password
+          };
+          
+          localStorage.setItem('stayx_local_users', JSON.stringify(users));
+          localStorage.setItem('stayx_current_user', JSON.stringify(newUser));
+          
+          // Redirect to customer dashboard
+          window.location.href = "/customer";
+          return;
+        } catch (localError: any) {
+          console.error("Local signup error:", localError);
+          throw localError;
+        }
+      }
+      
+      // Firebase authentication
       console.log("Creating user with email:", email);
       const res = await createUserWithEmailAndPassword(auth, email, password);
       
-      if (res.user) {
+      if (res.user && db) {
         console.log("User created successfully:", res.user.uid);
         const userData = {
           uid: res.user.uid,
@@ -35,10 +81,20 @@ export default function SignupPage() {
           createdAt: new Date().toISOString(),
         };
         
-        console.log("Saving user data to Firestore:", userData);
-        await setDoc(doc(db, "users", res.user.uid), userData);
-        console.log("User data saved to Firestore");
-        // Navigation is handled by auth context
+        try {
+          console.log("Saving user data to Firestore:", userData);
+          await setDoc(doc(db, "users", res.user.uid), userData);
+          console.log("User data saved to Firestore");
+          // Navigation is handled by auth context
+        } catch (firestoreError) {
+          console.error("Error saving to Firestore, using local fallback:", firestoreError);
+          
+          // Store data locally as fallback
+          localStorage.setItem('stayx_current_user', JSON.stringify(userData));
+          
+          // Manual redirect since auth context might not work
+          window.location.href = "/customer";
+        }
       }
     } catch (err: any) {
       console.error("Signup error:", err);
@@ -50,6 +106,13 @@ export default function SignupPage() {
         setError("كلمة المرور ضعيفة جداً، يجب أن تحتوي على 6 أحرف على الأقل");
       } else if (err.code === 'auth/invalid-email') {
         setError("البريد الإلكتروني غير صالح");
+      } else if (err.message?.includes('firebase') || err.message?.includes('Firebase')) {
+        setError("خطأ في الاتصال بالخادم، جاري استخدام التخزين المحلي");
+        
+        // Try using local auth
+        setTimeout(() => {
+          handleSignup(e);
+        }, 100);
       } else {
         setError(err.message || "فشل إنشاء الحساب");
       }

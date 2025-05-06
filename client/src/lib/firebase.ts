@@ -19,7 +19,8 @@ import {
   connectFirestoreEmulator,
   Firestore
 } from "firebase/firestore";
-import { getStorage, connectStorageEmulator, Storage } from "firebase/storage";
+import { getStorage, connectStorageEmulator } from "firebase/storage";
+type Storage = ReturnType<typeof getStorage>;
 import { UserData, UserRole } from "@/features/auth/types";
 import { neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
