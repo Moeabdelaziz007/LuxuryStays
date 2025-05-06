@@ -4,7 +4,7 @@ import AdminHealthCheck from '@/features/admin/AdminHealthCheck';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthContext } from '@/contexts/auth-context';
 import { UserRole } from '@shared/schema';
-import { useLocation } from 'wouter';
+import { useLocation, useRoute } from 'wouter';
 import { Loader2 } from 'lucide-react';
 
 export default function AdminPage() {

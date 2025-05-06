@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import AuthModal from "@/features/auth/components/AuthModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useTranslation } from "@/features/i18n/hooks/useTranslation";
+import { UserRole } from "@shared/schema";
 import MobileMenu from "./MobileMenu";
 import { Menu, X, Globe } from "lucide-react";
 import Logo from "@/components/Logo";

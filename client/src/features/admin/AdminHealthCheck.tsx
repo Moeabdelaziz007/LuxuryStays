@@ -25,8 +25,16 @@ export default function AdminHealthCheck() {
   } = useQuery<HealthStatus>({
     queryKey: ['/api/admin/health'],
     queryFn: async () => {
-      const res = await apiRequest('GET', '/api/admin/health');
-      return await res.json();
+      try {
+        console.log('Fetching admin health status...');
+        const res = await apiRequest('GET', '/api/admin/health');
+        const data = await res.json();
+        console.log('Health check response:', data);
+        return data;
+      } catch (err) {
+        console.error('Error fetching health status:', err);
+        throw err;
+      }
     },
     retry: 1,
   });
