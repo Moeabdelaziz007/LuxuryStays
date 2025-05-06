@@ -100,16 +100,22 @@ export default function Sidebar() {
   useEffect(() => {
     // تحديد القسم النشط بناءً على المسار
     const path = location || '';
+    
+    // التحقق من وجود المسار قبل استخدامه
     if (
-      path.includes('/super-admin') || 
-      path.includes('/property-admin') || 
-      path.includes('/customer')
+      path && (
+        path.includes('/super-admin') || 
+        path.includes('/property-admin') || 
+        path.includes('/customer')
+      )
     ) {
       setExpandedSection("dashboard");
     } else if (
       path === '/' || 
-      path.includes('/properties') || 
-      path.includes('/services')
+      (path && (
+        path.includes('/properties') || 
+        path.includes('/services')
+      ))
     ) {
       setExpandedSection("public");
     }
@@ -165,7 +171,7 @@ export default function Sidebar() {
         <nav className="flex-1 py-4 overflow-y-auto">
           <ul className="space-y-1 px-2">
             {displayedLinks.map((link) => {
-              const isActive = location === link.to;
+              const isActive = location && location === link.to;
               return (
                 <li key={link.to}>
                   <Link to={link.to}>

@@ -96,6 +96,12 @@ export default function MobileNavigation() {
   
   // تحديد القسم النشط بناءً على المسار الحالي
   useEffect(() => {
+    if (!path) {
+      // إذا كان المسار غير محدد، نعرض الصفحات العامة كقيمة افتراضية
+      setActiveSection('public');
+      return;
+    }
+    
     const isDashboardPath = ['/super-admin', '/property-admin', '/customer'].some(prefix => 
       path.startsWith(prefix)
     );
@@ -118,7 +124,7 @@ export default function MobileNavigation() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 shadow-lg z-50">
         <div className="flex justify-around items-center h-16">
           {filteredItems.map((item) => {
-            const isActive = path === item.to;
+            const isActive = path && path === item.to;
             return (
               <Link
                 key={item.to}

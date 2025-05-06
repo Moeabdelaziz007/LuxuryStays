@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "wouter";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -35,13 +35,15 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const isMobile = useIsMobile();
-  const location = useLocation();
+  const [location] = useLocation();
   
   // تحديد ما إذا كنا في الواجهة العامة أو في لوحة التحكم
-  const isPublicPage = !location.pathname.includes('admin') && 
-                      !location.pathname.includes('customer') && 
-                      !location.pathname.includes('property-admin') &&
-                      !location.pathname.includes('super-admin');
+  const isPublicPage = location ? (
+    !location.includes('admin') && 
+    !location.includes('customer') && 
+    !location.includes('property-admin') &&
+    !location.includes('super-admin')
+  ) : true; // إذا كان location غير محدد، فنفترض أننا في صفحة عامة
   
   // Track scroll position to add glass effect
   useEffect(() => {
