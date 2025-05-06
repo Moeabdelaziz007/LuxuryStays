@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-context";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -55,8 +55,8 @@ export default function CustomerDashboard() {
         // Get bookings with property details
         const bookingsWithDetails = [];
         
-        for (const doc of snapshot.docs) {
-          const bookingData = doc.data();
+        for (const docSnap of snapshot.docs) {
+          const bookingData = docSnap.data();
           
           // Get property details
           let propertyName = "عقار غير معروف";
@@ -64,9 +64,10 @@ export default function CustomerDashboard() {
           
           if (bookingData.propertyId) {
             try {
-              const propertyDoc = await db.collection("properties").doc(bookingData.propertyId).get();
-              if (propertyDoc.exists) {
-                const propertyData = propertyDoc.data();
+              const propertyDocRef = doc(db, "properties", bookingData.propertyId);
+              const propertyDocSnap = await getDoc(propertyDocRef);
+              if (propertyDocSnap.exists()) {
+                const propertyData = propertyDocSnap.data();
                 propertyName = propertyData.name;
                 propertyImage = propertyData.imageUrl;
               }
@@ -76,7 +77,7 @@ export default function CustomerDashboard() {
           }
           
           bookingsWithDetails.push({
-            id: doc.id,
+            id: docSnap.id,
             ...bookingData,
             propertyName,
             propertyImage
@@ -108,21 +109,25 @@ export default function CustomerDashboard() {
         // Get favorites with property details
         const favoritesWithDetails = [];
         
-        for (const doc of snapshot.docs) {
-          const favoriteData = doc.data();
+        for (const docSnap of snapshot.docs) {
+          const favoriteData = docSnap.data();
           
           // Get property details
           if (favoriteData.propertyId) {
             try {
-              const propertyDoc = await db.collection("properties").doc(favoriteData.propertyId).get();
-              if (propertyDoc.exists) {
-                const propertyData = propertyDoc.data();
+              const propertyDocRef = doc(db, "properties", favoriteData.propertyId);
+              const propertyDocSnap = await getDoc(propertyDocRef);
+              if (propertyDocSnap.exists()) {
+                const propertyData = propertyDocSnap.data();
                 favoritesWithDetails.push({
-                  id: doc.id,
+                  id: docSnap.id,
                   ...favoriteData,
                   property: {
                     id: favoriteData.propertyId,
-                    ...propertyData
+                    name: propertyData.name || 'عقار غير معروف',
+                    imageUrl: propertyData.imageUrl || '',
+                    price: propertyData.price || 0,
+                    location: propertyData.location || '',
                   }
                 });
               }
