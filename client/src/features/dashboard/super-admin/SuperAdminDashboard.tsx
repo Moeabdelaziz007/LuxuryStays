@@ -25,7 +25,8 @@ import {
   FaClipboardList,
   FaCocktail,
   FaGlassCheers,
-  FaHotel
+  FaHotel,
+  FaCog
 } from "react-icons/fa";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -49,6 +50,8 @@ export default function SuperAdminDashboard() {
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [isDeletePropertyDialogOpen, setIsDeletePropertyDialogOpen] = useState(false);
   const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
+  const [promoteUserInput, setPromoteUserInput] = useState("");
+  const [isPromoting, setIsPromoting] = useState(false);
   
   // Fetch all users
   const { data: users = [], isLoading: usersLoading, refetch: refetchUsers } = useQuery({
@@ -292,6 +295,24 @@ export default function SuperAdminDashboard() {
               className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none"
             >
               الخدمات
+            </TabsTrigger>
+            <TabsTrigger 
+              value="revenue"
+              className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none"
+            >
+              الإيرادات
+            </TabsTrigger>
+            <TabsTrigger 
+              value="issues"
+              className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none"
+            >
+              المشكلات
+            </TabsTrigger>
+            <TabsTrigger 
+              value="settings"
+              className="py-3 px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none"
+            >
+              الإعدادات
             </TabsTrigger>
           </TabsList>
           
@@ -800,6 +821,276 @@ export default function SuperAdminDashboard() {
                   </div>
                 </Card>
               )}
+            </div>
+          </TabsContent>
+          
+          {/* Revenue Tab */}
+          <TabsContent value="revenue" className="pt-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="flex items-center mb-4">
+                <FaChartBar className="text-[#39FF14] mr-2" />
+                <h2 className="text-xl font-bold text-white">تقارير الإيرادات</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Monthly Revenue Card */}
+                <Card className="bg-gray-900 border-gray-800 text-white">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg font-medium">الإيرادات الشهرية</CardTitle>
+                    <FaChartBar className="h-4 w-4 text-[#39FF14]" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-[#39FF14]">${statistics.totalRevenue}</div>
+                    <div className="text-xs text-gray-400 mt-1">صيف 2025</div>
+                    <div className="flex items-center mt-4 text-green-500">
+                      <FaArrowUp className="h-3 w-3 mr-1" />
+                      <span className="text-xs">نسبة النمو 12% مقارنة بالسنة الماضية</span>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Booking Revenue Card */}
+                <Card className="bg-gray-900 border-gray-800 text-white">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg font-medium">إيرادات الحجوزات</CardTitle>
+                    <FaHotel className="h-4 w-4 text-[#39FF14]" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-[#39FF14]">${statistics.totalRevenue * 0.7}</div>
+                    <div className="text-xs text-gray-400 mt-1">70% من إجمالي الإيرادات</div>
+                    <div className="w-full bg-gray-800 h-2 rounded-full mt-4 overflow-hidden">
+                      <div className="bg-[#39FF14] h-full" style={{ width: '70%' }}></div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Services Revenue Card */}
+                <Card className="bg-gray-900 border-gray-800 text-white">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg font-medium">إيرادات الخدمات</CardTitle>
+                    <FaCocktail className="h-4 w-4 text-[#39FF14]" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-[#39FF14]">${statistics.totalRevenue * 0.3}</div>
+                    <div className="text-xs text-gray-400 mt-1">30% من إجمالي الإيرادات</div>
+                    <div className="w-full bg-gray-800 h-2 rounded-full mt-4 overflow-hidden">
+                      <div className="bg-[#39FF14] h-full" style={{ width: '30%' }}></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Revenue Chart */}
+              <Card className="bg-gray-900 border-gray-800 text-white">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">تفاصيل الإيرادات الشهرية</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80 flex items-center justify-center border border-gray-800 rounded-lg">
+                    <div className="text-center">
+                      <FaChartBar className="h-16 w-16 text-[#39FF14] opacity-30 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-400">رسم بياني تفاعلي للإيرادات</h3>
+                      <p className="text-gray-500 max-w-md mt-2">
+                        سيتم عرض الرسم البياني هنا عند توفر بيانات كافية. يمكنك تتبع نمو الإيرادات عبر الزمن.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Top Earning Properties */}
+              <Card className="bg-gray-900 border-gray-800 text-white">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">أكثر العقارات تحقيقًا للإيرادات</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {properties.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="flex justify-center mb-3">
+                        <FaHotel className="h-10 w-10 text-gray-700" />
+                      </div>
+                      <p className="text-gray-500">لا توجد بيانات عقارات متاحة حاليًا</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {properties.slice(0, 5).map((property: any, index: number) => (
+                        <div key={property.id} className="flex items-center justify-between border-b border-gray-800 pb-3">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 flex items-center justify-center bg-[#39FF14]/10 text-[#39FF14] font-bold rounded-full mr-3">
+                              {index + 1}
+                            </div>
+                            <div>
+                              <h4 className="font-medium">{property.name}</h4>
+                              <p className="text-sm text-gray-500">{property.location}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold">${(property.pricePerNight || 0) * 30}</div>
+                            <div className="text-xs text-green-500">معدل الإشغال 85%</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          {/* Issues Tab */}
+          <TabsContent value="issues" className="pt-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="flex items-center mb-4">
+                <FaClipboardList className="text-[#39FF14] mr-2" />
+                <h2 className="text-xl font-bold text-white">متابعة المشكلات والبلاغات</h2>
+              </div>
+              
+              <Card className="bg-gray-900 border-gray-800 text-white">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">المشكلات الحالية</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <FaClipboardList className="h-16 w-16 text-[#39FF14] opacity-30 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-400">لا توجد مشكلات مبلغ عنها حاليًا</h3>
+                    <p className="text-gray-500 max-w-md mx-auto mt-2">
+                      سيتم عرض المشكلات المبلغ عنها هنا عندما يقوم المستخدمون بإرسال بلاغات.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-3 flex items-center mb-2">
+                <FaCog className="text-[#39FF14] mr-2" />
+                <h2 className="text-xl font-bold text-white">إعدادات النظام</h2>
+              </div>
+              
+              {/* Theme Settings */}
+              <Card className="bg-gray-900 border-gray-800 text-white">
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold">إعدادات السمة</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">لون السمة الرئيسي</h3>
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                        <div className="w-8 h-8 rounded-full bg-[#39FF14] border-2 border-white cursor-pointer"></div>
+                        <div className="w-8 h-8 rounded-full bg-purple-500 cursor-pointer"></div>
+                        <div className="w-8 h-8 rounded-full bg-blue-500 cursor-pointer"></div>
+                        <div className="w-8 h-8 rounded-full bg-pink-500 cursor-pointer"></div>
+                        <div className="w-8 h-8 rounded-full bg-orange-500 cursor-pointer"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">الوضع</h3>
+                      <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                        <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+                          <input type="radio" id="dark-mode" name="theme-mode" className="w-4 h-4" checked />
+                          <label htmlFor="dark-mode">داكن</label>
+                        </div>
+                        <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+                          <input type="radio" id="light-mode" name="theme-mode" className="w-4 h-4" />
+                          <label htmlFor="light-mode">فاتح</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">الشعار</h3>
+                      <Button variant="outline" size="sm">تغيير الشعار</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* User Permissions */}
+              <Card className="bg-gray-900 border-gray-800 text-white">
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold">إعدادات الصلاحيات</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">ترقية العميل إلى مدير عقارات</h3>
+                      <div className="flex space-x-2 rtl:space-x-reverse">
+                        <input
+                          type="text"
+                          placeholder="معرف المستخدم أو البريد الإلكتروني"
+                          className="px-3 py-1.5 flex-1 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-[#39FF14]"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14]/10"
+                        >
+                          ترقية
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <h3 className="text-sm font-medium mb-2">صلاحيات المشرفين</h3>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="approve-properties">الموافقة على العقارات الجديدة</label>
+                          <input type="checkbox" id="approve-properties" className="w-4 h-4" checked />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="manage-users">إدارة المستخدمين</label>
+                          <input type="checkbox" id="manage-users" className="w-4 h-4" checked />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="view-revenue">عرض تقارير الإيرادات</label>
+                          <input type="checkbox" id="view-revenue" className="w-4 h-4" checked />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* System Settings */}
+              <Card className="bg-gray-900 border-gray-800 text-white">
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold">إعدادات النظام</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">اللغة الافتراضية</h3>
+                      <select className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white">
+                        <option value="ar">العربية</option>
+                        <option value="en">الإنجليزية</option>
+                      </select>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">العملة</h3>
+                      <select className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white">
+                        <option value="usd">دولار أمريكي ($)</option>
+                        <option value="eur">يورو (€)</option>
+                        <option value="egp">جنيه مصري (ج.م)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">الإشعارات</h3>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="notification-bookings">إشعارات الحجوزات الجديدة</label>
+                          <input type="checkbox" id="notification-bookings" className="w-4 h-4" checked />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="notification-issues">إشعارات المشكلات</label>
+                          <input type="checkbox" id="notification-issues" className="w-4 h-4" checked />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
