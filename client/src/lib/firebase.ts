@@ -41,14 +41,14 @@ console.log("Initializing Firebase with project ID:", import.meta.env.VITE_FIREB
 // Use the correct Firebase configuration directly in the code
 // for immediate effect
 
-// تكوين Firebase - تأكد من أن جميع القيم صحيحة
+// تكوين Firebase - استخدام القيم من ملف .env مباشرةً
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs",
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || "staychill-3ed08"}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "staychill-3ed08",
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || "staychill-3ed08"}.firebasestorage.app`,
+  apiKey: "AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs",
+  authDomain: "staychill-3ed08.firebaseapp.com",
+  projectId: "staychill-3ed08",
+  storageBucket: "staychill-3ed08.firebasestorage.app",
   messagingSenderId: "299280633489",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:299280633489:web:2088c38e2fde210cad7930"
+  appId: "1:299280633489:web:2088c38e2fde210cad7930"
 };
 
 // طباعة جميع قيم التكوين للتأكد من صحتها
@@ -349,13 +349,38 @@ export const logoutUser = async (): Promise<void> => {
 export const signInWithGoogle = async (): Promise<UserCredential> => {
   if (!auth) throw new Error("Firebase Auth not initialized");
   
-  const provider = new GoogleAuthProvider();
-  // Add the custom Web client ID
-  provider.setCustomParameters({
-    client_id: '299280633489-b75p2dj5j2vk4sfav3sird268o1oofeu.apps.googleusercontent.com',
-    prompt: 'select_account'
-  });
-  return signInWithPopup(auth, provider);
+  try {
+    const provider = new GoogleAuthProvider();
+    
+    // تعديل إعدادات المزود (لا حاجة لتحديد client_id هنا، فهو موجود في إعدادات Firebase)
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
+    // إضافة نطاقات إضافية للحصول على مزيد من المعلومات من Google
+    provider.addScope('profile');
+    provider.addScope('email');
+    
+    console.log("محاولة تسجيل الدخول باستخدام Google...");
+    
+    // استخدام الواجهة المنبثقة بدلاً من إعادة التوجيه
+    return await signInWithPopup(auth, provider);
+  } catch (error: any) {
+    console.error("فشل تسجيل الدخول باستخدام Google:", error);
+    
+    // معالجة أخطاء محددة
+    if (error.code === 'auth/popup-blocked') {
+      throw new Error("تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة في متصفحك ثم المحاولة مرة أخرى.");
+    } else if (error.code === 'auth/popup-closed-by-user') {
+      throw new Error("تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية. الرجاء المحاولة مرة أخرى.");
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      throw new Error("تم إلغاء طلب النافذة المنبثقة. الرجاء المحاولة مرة أخرى.");
+    } else if (error.code === 'auth/network-request-failed') {
+      throw new Error("فشل طلب الشبكة. يرجى التحقق من اتصال الإنترنت الخاص بك والمحاولة مرة أخرى.");
+    } else {
+      throw new Error(`فشل تسجيل الدخول باستخدام Google: ${error.message || "خطأ غير معروف"}`);
+    }
+  }
 };
 
 export const getUserData = async (uid: string): Promise<UserData | null> => {
