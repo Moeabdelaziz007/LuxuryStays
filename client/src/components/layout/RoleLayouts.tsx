@@ -5,7 +5,7 @@ import MobileNavigation from "@/components/layout/MobileNavigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // مكون مشترك لضبط التخطيط الأساسي بناءً على نوع المستخدم والجهاز
-function BaseLayout({ 
+export function BaseLayout({ 
   children, 
   role,
   customHeader,
@@ -13,7 +13,7 @@ function BaseLayout({
   gradientBackground
 }: { 
   children: React.ReactNode,
-  role: "CUSTOMER" | "PROPERTY_ADMIN" | "SUPER_ADMIN",
+  role: "CUSTOMER" | "PROPERTY_ADMIN" | "SUPER_ADMIN" | "PUBLIC",
   customHeader?: React.ReactNode,
   customSidebar?: React.ReactNode,
   gradientBackground?: boolean

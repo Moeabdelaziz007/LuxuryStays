@@ -64,13 +64,12 @@ export default function MobileNavigation() {
       break;
   }
   
-  // دمج الصفحات العامة مع صفحات دور المستخدم (اختيار العناصر الأكثر أهمية لتناسب الشاشة)
-  // نظرًا لمحدودية المساحة في الجوال، سنختار 5 عناصر فقط بحد أقصى
-  let navItems = [...roleItems];
-  if (navItems.length < 5) {
-    // إضافة الصفحات العامة حتى نصل إلى 5 عناصر
-    navItems = [...navItems, ...publicItems.slice(0, 5 - navItems.length)];
-  }
+  // لضمان عدم تكرار العناصر والحفاظ على شريط واحد فقط لكل دور
+  // سنستخدم فقط العناصر المرتبطة بدور المستخدم (بحد أقصى 5 عناصر)
+  // بدون خلط مع الصفحات العامة لتجنب التكرار والالتباس
+  
+  // اختيار أهم 5 عناصر فقط للعرض في الشريط السفلي
+  const navItems = roleItems.slice(0, 5);
   
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 shadow-lg z-50">
