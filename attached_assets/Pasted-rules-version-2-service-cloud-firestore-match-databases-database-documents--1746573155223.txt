@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // السماح بالقراءة للجميع، ولكن الكتابة فقط للمستخدمين المصادقين
+    match /{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // قواعد محددة للمستخدمين
+    match /users/{userId} {
+      // يمكن للمستخدم قراءة وتحديث بياناته الشخصية فقط
+      allow read: if true;
+      allow update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+    
+    // قواعد العقارات
+    match /properties/{propertyId} {
+      // يمكن للجميع قراءة العقارات
+      allow read: if true;
+      // يمكن لمديري العقارات والمشرفين فقط إنشاء/تعديل/حذف العقارات
+      allow create, update, delete: if request.auth != null && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "PROPERTY_ADMIN" || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+    }
+    
+    // قواعد الخدمات
+    match /services/{serviceId} {
+      // يمكن للجميع قراءة الخدمات
+      allow read: if true;
+      // يمكن للمشرفين فقط إدارة الخدمات
+      allow create, update, delete: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
+    }
+    
+    // قواعد الحجوزات
+    match /bookings/{bookingId} {
+      // يمكن للعملاء رؤية حجوزاتهم الخاصة فقط
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "PROPERTY_ADMIN" || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+      
+      // يمكن للعملاء إنشاء حجوزات جديدة
+      allow create: if request.auth != null;
+      
+      // يمكن للعملاء تعديل أو إلغاء حجوزاتهم الخاصة فقط، أو مديري العقارات والمشرفين
+      allow update, delete: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "PROPERTY_ADMIN" || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+    }
+  }
+}

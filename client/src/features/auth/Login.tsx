@@ -105,8 +105,13 @@ export default function LoginPage() {
       console.log("جاري تسجيل الدخول باستخدام البريد الإلكتروني:", email);
       
       // التحقق من توفر Firebase
-      if (!auth || !db) {
+      if (!auth) {
         throw new Error("خدمة المصادقة غير متوفرة حالياً، الرجاء المحاولة لاحقاً");
+      }
+      
+      // تنبيه (لكن لا تمنع) إذا كانت Firestore غير متاحة
+      if (!db) {
+        console.warn("خدمة Firestore غير متاحة - ستعمل المصادقة بدون تخزين بيانات المستخدم الكاملة");
       }
       
       // استخدام Firebase للمصادقة
@@ -195,11 +200,20 @@ export default function LoginPage() {
     setError("");
     setGuestLoading(true);
     
-    if (!auth || !db) {
+    if (!auth) {
       setError("تسجيل الدخول كزائر غير متاح حالياً. الرجاء المحاولة لاحقاً.");
-      console.error("خدمة المصادقة غير متوفرة: لم يتم تهيئة خدمات Firebase");
+      console.error("خدمة المصادقة غير متوفرة: لم يتم تهيئة Firebase Auth");
       setGuestLoading(false);
       return;
+    }
+    
+    // إذا كانت Firestore غير متاحة، سنستمر لكن مع رسالة تحذير للمستخدم
+    if (!db) {
+      console.warn("خدمة Firestore غير متاحة: سيتم تسجيل الدخول كزائر بدون تخزين البيانات");
+      toast(getWarningToast(
+        "تنبيه:",
+        "سيتم تسجيل الدخول كزائر، لكن بعض الميزات قد لا تعمل بشكل كامل"
+      ));
     }
     
     try {
@@ -274,11 +288,20 @@ export default function LoginPage() {
     setError("");
     setGoogleLoading(true);
     
-    if (!auth || !db) {
+    if (!auth) {
       setError("تسجيل الدخول عبر Google غير متاح حالياً. الرجاء المحاولة لاحقاً.");
-      console.error("خدمة Google غير متوفرة: لم يتم تهيئة خدمات Firebase");
+      console.error("خدمة Google غير متوفرة: لم يتم تهيئة Firebase Auth");
       setGoogleLoading(false);
       return;
+    }
+    
+    // إذا كانت Firestore غير متاحة، سنستمر لكن مع رسالة تحذير للمستخدم
+    if (!db) {
+      console.warn("خدمة Firestore غير متاحة: سيتم تسجيل الدخول بحساب Google بدون تخزين البيانات");
+      toast(getWarningToast(
+        "تنبيه:",
+        "سيتم تسجيل الدخول بحساب Google، لكن بعض الميزات قد لا تعمل بشكل كامل"
+      ));
     }
     
     const provider = new GoogleAuthProvider();

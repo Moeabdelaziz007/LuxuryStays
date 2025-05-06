@@ -127,34 +127,92 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 } else if (db) {
                   // المستخدم موجود في Firebase لكن ليس في Firestore
                   // إنشاء وثيقة مستخدم افتراضية
-                  const newUser: UserData = {
-                    uid: firebaseUser.uid,
-                    email: firebaseUser.email || '',
-                    name: firebaseUser.displayName || 'مستخدم',
-                    role: 'CUSTOMER', // الدور الافتراضي
-                    createdAt: new Date().toISOString(),
-                  };
-                  
-                  await setDoc(doc(db, "users", firebaseUser.uid), newUser);
-                  setUser(newUser);
-                  
-                  // التحقق من مسار إعادة التوجيه أولاً
-                  const redirectPath = redirectAfterLoginRef.current;
-                  if (redirectPath) {
-                    redirectAfterLoginRef.current = null;
-                    navigate(decodeURIComponent(redirectPath));
-                  } else {
-                    navigate("/customer");
+                  try {
+                    const newUser: UserData = {
+                      uid: firebaseUser.uid,
+                      email: firebaseUser.email || '',
+                      name: firebaseUser.displayName || 'مستخدم',
+                      role: 'CUSTOMER', // الدور الافتراضي
+                      createdAt: new Date().toISOString(),
+                    };
+                    
+                    console.log("إنشاء مستخدم جديد في Firestore:", newUser.email);
+                    await setDoc(doc(db, "users", firebaseUser.uid), newUser);
+                    setUser(newUser);
+                    
+                    // التحقق من مسار إعادة التوجيه أولاً
+                    const redirectPath = redirectAfterLoginRef.current;
+                    if (redirectPath) {
+                      redirectAfterLoginRef.current = null;
+                      navigate(decodeURIComponent(redirectPath));
+                    } else {
+                      navigate("/customer");
+                    }
+                  } catch (firestoreErr) {
+                    console.error("فشل إنشاء وثيقة المستخدم في Firestore:", firestoreErr);
+                    // في حالة فشل Firestore، سنستخدم بيانات Firebase Auth على الأقل
+                    const fallbackUser: UserData = {
+                      uid: firebaseUser.uid,
+                      email: firebaseUser.email || '',
+                      name: firebaseUser.displayName || 'مستخدم',
+                      role: 'CUSTOMER',
+                      createdAt: new Date().toISOString(),
+                    };
+                    setUser(fallbackUser);
+                    console.log("تم استخدام بيانات المستخدم من Firebase Auth بدلاً من Firestore");
+                    
+                    // التوجيه كالمعتاد حتى مع وجود خطأ في Firestore
+                    const redirectPath = redirectAfterLoginRef.current;
+                    if (redirectPath) {
+                      redirectAfterLoginRef.current = null;
+                      navigate(decodeURIComponent(redirectPath));
+                    } else {
+                      navigate("/customer");
+                    }
                   }
                 }
               } else {
-                // Firestore not available
-                console.error("Firestore is not available");
-                setUser(null);
+                // Firestore not available - still use Firebase auth data
+                console.warn("Firestore غير متاح، استخدام بيانات Firebase Auth فقط");
+                const fallbackUser: UserData = {
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email || '',
+                  name: firebaseUser.displayName || 'مستخدم',
+                  role: 'CUSTOMER',
+                  createdAt: new Date().toISOString(),
+                };
+                setUser(fallbackUser);
+                
+                // التوجيه للصفحة الرئيسية كخطة بديلة
+                const redirectPath = redirectAfterLoginRef.current;
+                if (redirectPath) {
+                  redirectAfterLoginRef.current = null;
+                  navigate(decodeURIComponent(redirectPath));
+                } else {
+                  navigate("/");
+                }
               }
             } catch (error) {
               console.error("Error accessing Firestore:", error);
-              setUser(null);
+              // في حالة خطأ Firestore، يمكننا استخدام بيانات Firebase Auth على الأقل
+              if (firebaseUser) {
+                const backupUser: UserData = {
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email || '',
+                  name: firebaseUser.displayName || 'مستخدم',
+                  role: 'CUSTOMER',
+                  createdAt: new Date().toISOString(),
+                };
+                setUser(backupUser);
+                console.warn("⚠️ تم استخدام بيانات المستخدم الأساسية من Firebase Auth بدون Firestore");
+                
+                // محاولة التوجيه
+                if (window.location.pathname === "/login" || window.location.pathname === "/signup") {
+                  navigate("/");
+                }
+              } else {
+                setUser(null);
+              }
             }
           } else {
             setUser(null);
