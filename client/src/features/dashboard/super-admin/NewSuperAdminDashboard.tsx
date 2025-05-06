@@ -255,7 +255,7 @@ export default function NewSuperAdminDashboard() {
           
           // تحديث الحجوزات الأخيرة
           if (recentBookingsQuery && !recentBookingsQuery.empty) {
-            const bookingsData = recentBookingsQuery.docs.map(doc => {
+            const bookingsData = recentBookingsQuery.docs.map((doc: any) => {
               const data = doc.data();
               return {
                 id: doc.id,
