@@ -40,6 +40,7 @@ interface AuthContextType {
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
+  updateUserInfo: (userData: UserData) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -49,6 +50,7 @@ const AuthContext = createContext<AuthContextType>({
   register: async () => {},
   logout: async () => {},
   loginWithGoogle: async () => {},
+  updateUserInfo: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -372,6 +374,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // تحديث معلومات المستخدم
+  const updateUserInfo = (userData: UserData) => {
+    setUser(userData);
+  };
+
   const contextValue = {
     user,
     loading,
@@ -379,6 +386,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     register,
     logout,
     loginWithGoogle,
+    updateUserInfo,
   };
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
