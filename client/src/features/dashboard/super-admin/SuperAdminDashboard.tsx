@@ -413,7 +413,7 @@ export default function SuperAdminDashboard() {
                       itemStyle={{ color: "#fff" }}
                       formatter={(value, name) => {
                         if (name === "إيرادات") {
-                          return [formatCurrency(value), name];
+                          return [formatCurrency(Number(value)), name];
                         }
                         return [value, name];
                       }}
@@ -640,7 +640,7 @@ export default function SuperAdminDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium">{formatCurrency(booking.amount)}</div>
+                      <div className="font-medium">{formatCurrency(Number(booking.amount))}</div>
                       <div className={`text-xs ${
                         booking.status === 'مؤكد' ? 'text-green-400' :
                         booking.status === 'بانتظار الدفع' ? 'text-amber-400' :

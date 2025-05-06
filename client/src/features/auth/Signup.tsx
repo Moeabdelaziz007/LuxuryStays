@@ -16,7 +16,7 @@ export default function SignupPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const { register } = useAuth();
-  const [location, setLocation] = useLocation();
+  const [location, navigate] = useLocation();
   const { toast } = useToast();
   
   // Helper functions for toast styling
@@ -94,7 +94,7 @@ export default function SignupPage() {
         
         // مباشرة توجيه المستخدم للصفحة الرئيسية بعد التسجيل، دون تسجيل الخروج
         setTimeout(() => {
-          setLocation('/');
+          navigate('/');
         }, 1500);
       } catch (authError: any) {
         console.error("خطأ في إنشاء المستخدم في Firebase Auth:", authError);
@@ -253,7 +253,7 @@ export default function SignupPage() {
           
           // توجيه المستخدم بعد التسجيل بنجاح
           setTimeout(() => {
-            setLocation("/"); // الانتقال للصفحة الرئيسية
+            navigate("/"); // الانتقال للصفحة الرئيسية
           }, 1500);
         } catch (firestoreError) {
           console.error("حدث خطأ أثناء حفظ بيانات المستخدم:", firestoreError);
@@ -261,7 +261,7 @@ export default function SignupPage() {
           
           // رغم الخطأ، نوجه المستخدم للصفحة الرئيسية بعد فترة قصيرة
           setTimeout(() => {
-            setLocation("/");
+            navigate("/");
           }, 3000);
         }
       } else {
@@ -284,7 +284,7 @@ export default function SignupPage() {
           
           // توجيه المستخدم بعد تسجيل الدخول بنجاح
           setTimeout(() => {
-            setLocation("/"); // الانتقال للصفحة الرئيسية
+            navigate("/"); // الانتقال للصفحة الرئيسية
           }, 1500);
         } catch (updateError) {
           console.warn("لم يتم تحديث بيانات آخر تسجيل دخول:", updateError);
@@ -296,7 +296,7 @@ export default function SignupPage() {
           ));
           
           setTimeout(() => {
-            setLocation("/");
+            navigate("/");
           }, 1500);
         }
       }
