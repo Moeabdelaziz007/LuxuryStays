@@ -371,7 +371,7 @@ export default function BookingPage() {
                     <h2 className="text-2xl md:text-3xl font-bold text-[#39FF14]">حجز عقار</h2>
                     <Button 
                       variant="ghost" 
-                      onClick={() => navigate(-1)}
+                      onClick={() => navigate('/')}
                       className="text-gray-400 hover:text-white"
                     >
                       <FaArrowLeft className="mr-2" /> عودة
