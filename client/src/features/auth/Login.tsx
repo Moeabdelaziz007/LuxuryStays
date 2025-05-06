@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useLocation } from "wouter";
 import { auth, db, safeDoc } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signInAnonymously, sendPasswordResetEmail } from "firebase/auth";
 import { doc, getDoc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import GoogleLoginWarning from "@/components/GoogleLoginWarning";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Simple login page without advanced form components
 export default function LoginPage() {
@@ -15,6 +17,7 @@ export default function LoginPage() {
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [location, navigate] = useLocation();
   const { toast } = useToast();
+  const [showGoogleWarning, setShowGoogleWarning] = useState(false);
   
   // Helper function to get a unique ID for toast notifications
   // Helper function for toast styling - we don't actually need random IDs
