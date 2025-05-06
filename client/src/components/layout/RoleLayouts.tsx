@@ -44,7 +44,7 @@ function BaseLayout({
       
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Custom header or default SmartHeader */}
-        {customHeader || <SmartHeader role={role} />}
+        {customHeader || <SmartHeader />}
         
         {/* Main content area */}
         <main className="flex-1 overflow-y-auto text-white p-6 pb-20 md:pb-6">
