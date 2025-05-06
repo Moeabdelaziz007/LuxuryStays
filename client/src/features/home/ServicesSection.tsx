@@ -238,10 +238,10 @@ export default function ServicesSection() {
                   <span className="text-xs text-gray-400 block mb-1">أماكن متاحة اليوم</span>
                   <div className="flex items-center">
                     <div className="h-2 w-32 bg-gray-700 rounded-full overflow-hidden">
-                      <div className={`h-full ${service.title.includes("مطاعم") ? "bg-[#39FF14] w-3/4" : "bg-[#39FF14] w-1/2"}`}></div>
+                      <div className={`h-full ${service.name?.includes("مطاعم") ? "bg-[#39FF14] w-3/4" : "bg-[#39FF14] w-1/2"}`}></div>
                     </div>
                     <span className="text-sm text-gray-300 ml-2">
-                      {service.title.includes("مطاعم") ? "75%" : "50%"}
+                      {service.name?.includes("مطاعم") ? "75%" : "50%"}
                     </span>
                   </div>
                 </div>

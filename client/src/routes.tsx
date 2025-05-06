@@ -14,6 +14,7 @@ import CustomerDashboard from "@/features/dashboard/customer/CustomerDashboard";
 
 // Public Components
 import PublicHome from "@/features/public/Home";
+import ServicesPage from "@/features/public/ServicesPage";
 import NotFound from "@/pages/not-found";
 import RoutingDebugPage from "@/features/public/RoutingDebugPage";
 
@@ -33,7 +34,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/properties" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة العقارات */}
-      <Route path="/services" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة الخدمات */}
+      <Route path="/services" element={<ServicesPage />} /> {/* صفحة الخدمات */}
       <Route path="/about" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة عن الشركة */}
       <Route path="/contact" element={<PublicHome />} /> {/* سيتم استبدالها بصفحة التواصل */}
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
