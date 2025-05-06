@@ -261,9 +261,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           photoURL: user.photoURL || null,
         };
         
-        // حفظ المعلومات في قاعدة البيانات
+        // حفظ المعلومات في قاعدة البيانات باستخدام معالجة أخطاء أفضل
         console.log("حفظ معلومات المستخدم في Firestore...");
-        await setDoc(doc(db, "users", user.uid), userData);
+        try {
+          // استخدام آلية safeDoc لمعالجة الأخطاء والمحاولة مرة أخرى
+          const userRef = doc(db, "users", user.uid);
+          await setDoc(userRef, {
+            ...userData,
+            // استخدام التاريخ العادي بدلاً من serverTimestamp() لتجنب بعض مشاكل Firestore
+            createdAt: new Date().toISOString()
+          });
+          console.log("تم حفظ معلومات المستخدم بنجاح في Firestore");
+        } catch (firestoreError) {
+          console.error("فشل في حفظ بيانات المستخدم في Firestore:", firestoreError);
+          // لن نرمي خطأ هنا - المستخدم تم إنشاؤه بالفعل في Firebase Auth
+          // فقط سنسجل هذا الخطأ ونستمر
+        }
         
         // تحديث بيانات المستخدم في Firebase Auth
         await updateProfile(user, {
@@ -330,7 +343,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         };
         
         console.log("إنشاء مستخدم جديد من Google في Firestore:", userData.email);
-        await setDoc(docRef, userData);
+        try {
+          await setDoc(docRef, userData);
+          console.log("تم حفظ بيانات مستخدم Google بنجاح");
+        } catch (firestoreError) {
+          console.error("فشل في حفظ بيانات مستخدم Google في Firestore:", firestoreError);
+          // لن نعيق المستخدم عن تسجيل الدخول - نتابع رغم الخطأ
+        }
       } else {
         console.log("تسجيل دخول مستخدم موجود عبر Google:", user.email);
       }

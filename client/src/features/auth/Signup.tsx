@@ -81,8 +81,15 @@ export default function SignupPage() {
           photoURL: user.photoURL || null,
         };
         
-        // حفظ في Firestore
-        await setDoc(doc(db, "users", user.uid), userData);
+        // حفظ في Firestore مع معالجة الأخطاء
+        try {
+          await setDoc(doc(db, "users", user.uid), userData);
+          console.log("تم حفظ بيانات المستخدم في Firestore بنجاح:", userData.email);
+        } catch (firestoreError) {
+          console.error("فشل في حفظ بيانات المستخدم في Firestore:", firestoreError);
+          // لن نوقف التسجيل بسبب خطأ Firestore، حيث أن المستخدم تم إنشاؤه في Firebase Auth
+          // سيتم إنشاء وثيقة المستخدم تلقائيًا في المرة التالية التي يقوم فيها بتسجيل الدخول
+        }
         
         console.log("تم حفظ بيانات المستخدم في Firestore:", userData);
         
