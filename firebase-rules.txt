@@ -1,73 +1,161 @@
-// Firestore rules
+// تحسين قواعد Firestore - النسخة المحدثة 2025-05-06
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users collection
+    // دالة مساعدة للتحقق من صلاحيات المستخدم
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // دالة مساعدة للتحقق من نوع المستخدم (بدون الحاجة لعمليات get() متكررة)
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    // دالة مساعدة للتحقق ما إذا كان المستخدم مشرفًا
+    function isSuperAdmin() {
+      return isSignedIn() && userRole() == "SUPER_ADMIN";
+    }
+    
+    // دالة مساعدة للتحقق ما إذا كان المستخدم مدير عقارات
+    function isPropertyAdmin() {
+      return isSignedIn() && (userRole() == "PROPERTY_ADMIN" || userRole() == "SUPER_ADMIN");
+    }
+    
+    // دالة للتحقق من صحة بنية بيانات المستخدم
+    function isValidUserData(userData) {
+      return userData.size() <= 10 && // الحد الأقصى لحقول المستخدم
+             userData.uid is string &&
+             userData.name is string && 
+             userData.role is string &&
+             userData.role in ["CUSTOMER", "PROPERTY_ADMIN", "SUPER_ADMIN"] &&
+             (!('email' in userData) || userData.email is string); // البريد الإلكتروني اختياري للحسابات المجهولة
+    }
+    
+    // دالة للتحقق من صحة بيانات العقار
+    function isValidPropertyData(propertyData) {
+      return propertyData.title is string &&
+             propertyData.price is number &&
+             propertyData.price > 0;
+    }
+
+    // قاعدة عامة تقيد القراءة والكتابة العشوائية
+    match /{document=**} {
+      allow read, write: if false; // منع العمليات العشوائية للأمان
+    }
+
+    // قواعد المستخدمين
     match /users/{userId} {
-      // Anyone can create a new user document with their user ID
-      allow create: if request.auth.uid != null && request.auth.uid == userId;
-      // Users can only read/update their own document
-      allow read, update: if request.auth.uid == userId;
-      // Allow super admins to read/write all user documents
-      allow read, write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
+      // السماح للمستخدم بقراءة/تحديث ملفه الشخصي فقط
+      allow read: if isSignedIn() && (request.auth.uid == userId || isSuperAdmin());
+      
+      // السماح للمستخدم بإنشاء ملف شخصي جديد (مع التحقق من صحة البيانات)
+      allow create: if isSignedIn() && 
+                     request.auth.uid == userId && 
+                     isValidUserData(request.resource.data);
+      
+      // السماح للمستخدم بتحديث ملفه الشخصي فقط (مع منع تغيير الدور)
+      allow update: if isSignedIn() && 
+                     (request.auth.uid == userId && 
+                      resource.data.role == request.resource.data.role) || // منع المستخدم من تغيير دوره
+                     isSuperAdmin(); // يمكن للمشرف تغيير أي شيء
+      
+      // السماح فقط للمشرفين بحذف المستخدمين
+      allow delete: if isSuperAdmin();
     }
 
-    // Properties collection
+    // قواعد العقارات
     match /properties/{propertyId} {
-      // Anyone can read property documents
+      // يمكن للجميع قراءة العقارات المتاحة
       allow read: if true;
-      // Only property owners or super admins can create/update/delete
-      allow create, update, delete: if 
-        request.auth.uid != null && (
-          request.resource.data.ownerId == request.auth.uid ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "PROPERTY_ADMIN" ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN"
-        );
+      
+      // يمكن لمديري العقارات والمشرفين فقط إنشاء/تحديث/حذف العقارات
+      allow create: if isPropertyAdmin() && isValidPropertyData(request.resource.data);
+      allow update: if isPropertyAdmin() && isValidPropertyData(request.resource.data);
+      allow delete: if isPropertyAdmin();
     }
 
-    // Services collection
+    // قواعد الخدمات
     match /services/{serviceId} {
-      // Anyone can read service documents
+      // يمكن للجميع قراءة الخدمات المتاحة
       allow read: if true;
-      // Only super admins can create/update/delete
-      allow create, update, delete: if 
-        request.auth.uid != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
+      
+      // يمكن للمشرفين فقط إنشاء/تحديث/حذف الخدمات
+      allow create, update, delete: if isSuperAdmin();
     }
 
-    // Bookings collection
+    // قواعد الحجوزات
     match /bookings/{bookingId} {
-      // Users can read their own bookings or bookings for properties they own
-      allow read: if 
-        request.auth.uid != null && (
-          resource.data.userId == request.auth.uid ||
-          resource.data.propertyOwnerId == request.auth.uid ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN"
-        );
+      // دالة للتحقق من صحة بيانات الحجز
+      function isValidBookingData(bookingData) {
+        return bookingData.userId is string &&
+               bookingData.propertyId is string &&
+               bookingData.startDate is string &&
+               bookingData.endDate is string &&
+               bookingData.status in ["pending", "confirmed", "cancelled"];
+      }
       
-      // Users can create bookings
-      allow create: if request.auth.uid != null;
+      // يستطيع المستخدم قراءة حجوزاته فقط
+      allow read: if isSignedIn() && 
+                   (request.auth.uid == resource.data.userId || 
+                    request.auth.uid == resource.data.propertyOwnerId || 
+                    isPropertyAdmin());
       
-      // Users can only update/delete their own bookings
-      allow update, delete: if 
-        request.auth.uid != null && (
-          resource.data.userId == request.auth.uid ||
-          resource.data.propertyOwnerId == request.auth.uid ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN"
-        );
+      // يمكن للمستخدمين إنشاء حجوزات جديدة مع التحقق من صحة البيانات
+      allow create: if isSignedIn() && 
+                     request.resource.data.userId == request.auth.uid &&
+                     isValidBookingData(request.resource.data);
+      
+      // يمكن للمستخدمين تحديث حجوزاتهم فقط
+      allow update: if isSignedIn() && 
+                     (request.auth.uid == resource.data.userId || 
+                      request.auth.uid == resource.data.propertyOwnerId || 
+                      isPropertyAdmin());
+      
+      // منع حذف الحجوزات (نحتفظ بها كسجل)
+      allow delete: if false;
     }
   }
 }
 
-// Storage rules
+// قواعد Firebase Storage
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      // Anyone can read storage files
-      allow read: if true;
-      
-      // Only authenticated users can upload/delete files
-      allow write: if request.auth != null;
+    // دالة للتحقق من حجم الملف
+    function isValidFileSize() {
+      return request.resource.size < 5 * 1024 * 1024; // الحد الأقصى 5 ميجابايت
+    }
+    
+    // دالة للتحقق من نوع الملف
+    function isValidContentType() {
+      return request.resource.contentType.matches('image/.*') ||
+             request.resource.contentType.matches('application/pdf');
+    }
+    
+    // ملفات الصور العامة
+    match /images/public/{imageId} {
+      allow read: if true; // يمكن للجميع قراءة الصور العامة
+      allow write: if request.auth != null && 
+                    isValidFileSize() && 
+                    isValidContentType();
+    }
+    
+    // ملفات المستخدمين الخاصة
+    match /users/{userId}/{fileName} {
+      allow read: if request.auth != null && (request.auth.uid == userId || 
+                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+      allow write: if request.auth != null && request.auth.uid == userId && 
+                    isValidFileSize() && 
+                    isValidContentType();
+    }
+    
+    // ملفات العقارات
+    match /properties/{propertyId}/{fileName} {
+      allow read: if true; // يمكن للجميع قراءة صور العقارات
+      allow write: if request.auth != null && 
+                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["PROPERTY_ADMIN", "SUPER_ADMIN"] &&
+                    isValidFileSize() && 
+                    isValidContentType();
     }
   }
 }
