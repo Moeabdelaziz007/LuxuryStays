@@ -3,28 +3,39 @@
 @tailwind utilities;
 
 :root {
+  /* Core colors */
   --neon-green: #39FF14;
-  --neon-green-glow: 0 0 5px rgba(57, 255, 20, 0.7);
-  --background: rgb(9 9 11);
+  --neon-green-glow: 0 0 10px rgba(57, 255, 20, 0.7);
+  --neon-green-intense: 0 0 20px rgba(57, 255, 20, 0.9);
+  --background: rgb(2, 5, 10); /* Darker background for space theme */
   --foreground: rgb(250, 250, 250);
-  --card: rgb(24, 24, 27);
+  --card: rgba(10, 15, 25, 0.7); /* Semi-transparent for glass effect */
   --card-foreground: rgb(250, 250, 250);
-  --popover: rgb(24, 24, 27);
+  --popover: rgba(10, 15, 25, 0.8);
   --popover-foreground: rgb(250, 250, 250);
   --primary: var(--neon-green);
-  --primary-foreground: rgb(24, 24, 27);
-  --secondary: rgb(39, 39, 42);
+  --primary-foreground: rgb(10, 10, 15);
+  --secondary: rgb(30, 35, 45);
   --secondary-foreground: rgb(250, 250, 250);
-  --muted: rgb(39, 39, 42);
-  --muted-foreground: rgb(161, 161, 170);
-  --accent: rgb(39, 39, 42);
+  --muted: rgb(30, 35, 45);
+  --muted-foreground: rgb(180, 180, 190);
+  --accent: rgba(57, 255, 20, 0.2);
   --accent-foreground: rgb(250, 250, 250);
   --destructive: rgb(239, 68, 68);
   --destructive-foreground: rgb(250, 250, 250);
-  --border: rgb(39, 39, 42);
-  --input: rgb(39, 39, 42);
+  --border: rgba(57, 255, 20, 0.3);
+  --input: rgb(30, 35, 45);
   --ring: var(--neon-green);
   --radius: 0.5rem;
+  
+  /* Tech-Space specific variables */
+  --space-bg-gradient: linear-gradient(135deg, rgba(2,5,10,1) 0%, rgba(5,10,20,1) 50%, rgba(10,15,30,1) 100%);
+  --glass-effect: backdrop-filter: blur(8px);
+  --glass-border: 1px solid rgba(57, 255, 20, 0.2);
+  --hologram-blue: rgba(80, 170, 255, 0.5);
+  --grid-color: rgba(57, 255, 20, 0.15);
+  --card-glow: 0 0 15px rgba(57, 255, 20, 0.15);
+  --tech-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .text-neon-green {
