@@ -21,7 +21,14 @@ export async function getFeaturedProperties(): Promise<Property[]> {
       const snapshot = await getDocs(featuredQuery);
       
       if (!snapshot.empty) {
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Property));
+        // استخدام التحويل الآمن للأنواع من Firestore
+        return snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+          } as unknown as Property;
+        });
       }
     }
     console.log("No featured properties found in Firestore, using local data");
@@ -49,7 +56,14 @@ export async function getActiveServices(): Promise<Service[]> {
       const snapshot = await getDocs(activeQuery);
       
       if (!snapshot.empty) {
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Service));
+        // استخدام التحويل الآمن للأنواع من Firestore
+        return snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+          } as unknown as Service;
+        });
       }
     }
     console.log("No active services found in Firestore, using local data");
@@ -77,7 +91,14 @@ export async function getComingSoonServices(): Promise<Service[]> {
       const snapshot = await getDocs(comingSoonQuery);
       
       if (!snapshot.empty) {
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Service));
+        // استخدام التحويل الآمن للأنواع من Firestore
+        return snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+          } as unknown as Service;
+        });
       }
     }
     console.log("No coming soon services found in Firestore, using local data");

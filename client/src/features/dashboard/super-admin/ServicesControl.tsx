@@ -11,6 +11,9 @@ import { Utensils, Clock, AlertCircle, RefreshCw, CheckCircle } from "lucide-rea
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 
+// استيراد نوع البيانات من schema.ts
+import { Service } from "@shared/schema";
+
 // تعريف نوع المواقع الخاص بالخدمات
 interface ServiceLocation {
   name: string;
@@ -21,7 +24,8 @@ interface ServiceLocation {
   specialty?: string;
 }
 
-// تعريف نوع موسع للخدمات مع دعم الحقول الإضافية التي أضفناها
+// تعريف نوع موسع للخدمات مع دعم الحقول الإضافية التي أضفناها من Firestore
+// استخدام واجهة مستقلة بدون توريث لتجنب تعارض أنواع البيانات
 interface ExtendedService {
   id: string;
   name: string;
