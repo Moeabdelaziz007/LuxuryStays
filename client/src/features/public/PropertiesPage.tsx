@@ -130,7 +130,9 @@ const localProperties: Property[] = [
     maxGuests: 6,
     rating: 4.6,
     reviewCount: 14,
-    ownerId: "owner6"
+    ownerId: "owner6",
+    ownerRole: "CUSTOMER",
+    verified: false
   },
   {
     id: "property7",
@@ -146,7 +148,9 @@ const localProperties: Property[] = [
     maxGuests: 9,
     rating: 4.8,
     reviewCount: 17,
-    ownerId: "owner7"
+    ownerId: "owner7",
+    ownerRole: "PROPERTY_ADMIN",
+    verified: true
   },
   {
     id: "property8",
@@ -162,7 +166,9 @@ const localProperties: Property[] = [
     maxGuests: 4,
     rating: 4.4,
     reviewCount: 21,
-    ownerId: "owner8"
+    ownerId: "owner8",
+    ownerRole: "CUSTOMER",
+    verified: false
   }
 ];
 
@@ -261,12 +267,18 @@ export default function PropertiesPage() {
     );
   }
 
-  // حساب المواقع المتاحة للفلترة
-  const locations = [...new Set(properties?.map(p => {
-    if (p.location.includes("راس الحكمة")) return "راس الحكمة";
-    if (p.location.includes("الساحل الشمالي")) return "الساحل الشمالي";
-    return p.location.split(",")[0].trim();
-  }))];
+  // حساب المواقع المتاحة للفلترة بطريقة تجنب استخدام Set (لتفادي مشكلة TypeScript)
+  const locationsMap: Record<string, boolean> = {};
+  properties?.forEach(p => {
+    let location = "";
+    if (p.location.includes("راس الحكمة")) location = "راس الحكمة";
+    else if (p.location.includes("الساحل الشمالي")) location = "الساحل الشمالي";
+    else location = p.location.split(",")[0].trim();
+    
+    locationsMap[location] = true;
+  });
+  
+  const locations = Object.keys(locationsMap);
 
   return (
     <Layout>
