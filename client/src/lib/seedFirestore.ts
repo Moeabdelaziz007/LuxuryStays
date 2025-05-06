@@ -121,22 +121,13 @@ export const seedFirestore = async () => {
       console.log("Properties collection already has data, skipping seed");
     }
 
-    // Check if services already exist
-    const servicesQuery = await getDocs(collection(db, "services"));
-    if (servicesQuery.empty) {
-      console.log("Seeding services...");
-      for (const service of services) {
-        await addDoc(collection(db, "services"), service);
-      }
-      console.log("Services seeded successfully!");
-    } else {
-      console.log("Services collection already has data, seeding services anyway");
-      // We'll seed services regardless since we're explicitly asking to refresh the data
-      for (const service of services) {
-        await addDoc(collection(db, "services"), service);
-      }
-      console.log("Services re-seeded successfully!");
+    // Always seed the services regardless if they exist or not
+    // This is because the resetAndSeedServices function should handle the deletion
+    console.log("Seeding services...");
+    for (const service of services) {
+      await addDoc(collection(db, "services"), service);
     }
+    console.log("Services seeded successfully!");
 
     return { success: true };
   } catch (error) {

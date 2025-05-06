@@ -219,19 +219,37 @@ export default function SuperAdminDashboard() {
     }
   };
   
+  // تحويل البيانات من Firestore إلى النموذج المناسب
+  // واستخدام التحويل الآمن مع التحقق من وجود الخصائص
+  const safeUsers = users.map(u => ({
+    ...u,
+    role: (u as any).role || UserRole.CUSTOMER
+  }));
+  
+  const safeBookings = bookings.map(b => ({
+    ...b,
+    status: (b as any).status || "pending",
+    totalPrice: (b as any).totalPrice || 0
+  }));
+  
+  const safeProperties = properties.map(p => ({
+    ...p,
+    featured: (p as any).featured || false
+  }));
+  
   // Calculate statistics
   const statistics = {
     totalUsers: users.length,
     totalProperties: properties.length,
     totalBookings: bookings.length,
-    customerCount: users.filter(u => u.role === UserRole.CUSTOMER).length,
-    propertyAdminCount: users.filter(u => u.role === UserRole.PROPERTY_ADMIN).length,
-    superAdminCount: users.filter(u => u.role === UserRole.SUPER_ADMIN).length,
-    activeBookings: bookings.filter(b => b.status === "confirmed").length,
-    pendingBookings: bookings.filter(b => b.status === "pending").length,
-    cancelledBookings: bookings.filter(b => b.status === "cancelled").length,
-    featuredProperties: properties.filter(p => p.featured).length,
-    totalRevenue: bookings.reduce((sum, booking) => sum + (booking.totalPrice || 0), 0),
+    customerCount: safeUsers.filter(u => u.role === UserRole.CUSTOMER).length,
+    propertyAdminCount: safeUsers.filter(u => u.role === UserRole.PROPERTY_ADMIN).length,
+    superAdminCount: safeUsers.filter(u => u.role === UserRole.SUPER_ADMIN).length,
+    activeBookings: safeBookings.filter(b => b.status === "confirmed").length,
+    pendingBookings: safeBookings.filter(b => b.status === "pending").length,
+    cancelledBookings: safeBookings.filter(b => b.status === "cancelled").length,
+    featuredProperties: safeProperties.filter(p => p.featured).length,
+    totalRevenue: safeBookings.reduce((sum, booking) => sum + (booking.totalPrice || 0), 0),
   };
 
   return (
@@ -765,7 +783,23 @@ export default function SuperAdminDashboard() {
                 <FaGlassCheers className="text-[#39FF14] mr-2" />
                 <h2 className="text-xl font-bold text-white">خدمات المطاعم والنوادي الليلية</h2>
               </div>
-              <ServicesControl />
+              
+              {/* تحقق من وجود قاعدة البيانات قبل تحميل مكون التحكم في الخدمات */}
+              {db ? (
+                <ServicesControl />
+              ) : (
+                <Card className="w-full bg-gray-950 border-gray-800 p-6">
+                  <div className="text-center py-8">
+                    <div className="flex justify-center mb-3">
+                      <FaSpinner className="h-8 w-8 text-[#39FF14] animate-spin" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">جاري الاتصال بقاعدة البيانات</h3>
+                    <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                      يرجى الانتظار حتى يتم الاتصال بـ Firebase Firestore...
+                    </p>
+                  </div>
+                </Card>
+              )}
             </div>
           </TabsContent>
         </Tabs>
