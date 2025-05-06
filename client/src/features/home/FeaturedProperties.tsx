@@ -1,7 +1,7 @@
 // features/home/FeaturedProperties.tsx
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/firebase";
+import { db, safeDoc } from "@/lib/firebase";
 import { useState } from "react";
 
 interface Property {
@@ -55,50 +55,49 @@ export default function FeaturedProperties() {
   
   const { data, isLoading, isError } = useQuery({ 
     queryKey: ["featured-properties"], 
-    retry: 2,  // زيادة عدد محاولات إعادة الاتصال
+    retry: 3,  // زيادة عدد محاولات إعادة الاتصال
     retryDelay: 1000, // مهلة بين المحاولات
     queryFn: async () => {
       try {
-        if (!db) {
-          console.log("Firebase DB not available, using local data");
-          return localProperties;
-        }
-        
-        try {
+        // استخدام وظيفة safeDoc للتعامل الآمن مع Firestore
+        return await safeDoc(async () => {
+          if (!db) {
+            throw new Error("Firestore is not initialized");
+          }
+          
+          console.log("Fetching featured properties from Firestore...");
+          
           // Get only featured properties
           const featuredQuery = query(collection(db, "properties"), where("featured", "==", true));
           const snapshot = await getDocs(featuredQuery);
           
           if (snapshot.empty) {
-            console.log("No featured properties found in Firestore, using local data");
+            console.log("No featured properties found in Firestore, attempting to seed data");
+            
+            // محاولة إضافة البيانات الأولية
+            try {
+              const { seedFirestore } = await import('@/lib/seedFirestore');
+              const result = await seedFirestore();
+              if (result.success) {
+                console.log("تمت إضافة البيانات الأولية بنجاح. ستظهر في المرة القادمة.");
+              }
+            } catch (seedError) {
+              console.error("فشل إضافة البيانات الأولية:", seedError);
+            }
+            
             return localProperties;
           }
           
-          return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Property[];
-        } catch (firestoreError: any) {
-          console.error("Firestore query error:", firestoreError);
+          console.log(`Found ${snapshot.docs.length} featured properties in Firestore`);
           
-          // محاولة إضافة البيانات الأولية في حالة عدم وجود بيانات
-          if (firestoreError.code === "permission-denied") {
-            setError("خطأ في الوصول إلى البيانات: ليس لديك صلاحيات كافية.");
-          } else if (firestoreError.code === "unavailable" || firestoreError.code === "deadline-exceeded") {
-            setError("خطأ في الاتصال بقاعدة البيانات. جاري استخدام البيانات المحلية.");
-          }
+          // تحويل وثائق Firestore إلى كائنات Property
+          const properties = snapshot.docs.map(doc => ({ 
+            id: doc.id, 
+            ...doc.data() 
+          })) as Property[];
           
-          try {
-            // محاولة إضافة البيانات الأولية
-            const { seedFirestore } = await import('@/lib/seedFirestore');
-            const result = await seedFirestore();
-            if (result.success) {
-              console.log("تمت إضافة البيانات الأولية بنجاح. يرجى تحديث الصفحة.");
-            }
-          } catch (seedError) {
-            console.error("فشل إضافة البيانات الأولية:", seedError);
-          }
-          
-          // Return local data as fallback
-          return localProperties;
-        }
+          return properties;
+        }, localProperties); // استخدام localProperties كقيمة افتراضية في حالة فشل Firestore
       } catch (error: any) {
         console.error("Error in query function:", error);
         setError("حدث خطأ غير متوقع. جاري استخدام البيانات المحلية.");
