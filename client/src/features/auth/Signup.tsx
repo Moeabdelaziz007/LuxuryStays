@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { auth, db } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 // صفحة التسجيل للمستخدمين الجدد
@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,26 +30,62 @@ export default function SignupPage() {
         throw new Error("يجب أن يكون الاسم 3 أحرف على الأقل");
       }
       
+      // التحقق من صحة اسم المستخدم
+      if (!username || username.length < 3) {
+        throw new Error("يجب أن يكون اسم المستخدم 3 أحرف على الأقل");
+      }
+      
       // التحقق من صحة كلمة المرور
       if (password.length < 6) {
         throw new Error("يجب أن تكون كلمة المرور 6 أحرف على الأقل");
       }
       
-      // استخدام وظيفة التسجيل من سياق المصادقة
-      await register({
-        name,
-        email,
-        password
-      });
+      if (!auth || !db) {
+        throw new Error("خدمة المصادقة غير متوفرة حالياً، الرجاء المحاولة لاحقاً");
+      }
       
-      // عرض رسالة نجاح
-      toast({
-        title: "تم إنشاء الحساب بنجاح",
-        description: "سيتم توجيهك لتسجيل الدخول...",
-      });
-      
-      // التوجيه إلى صفحة تسجيل الدخول مع إشارة إلى نجاح التسجيل
-      setLocation('/login?registered=true');
+      // التسجيل مباشرة باستخدام Firebase
+      try {
+        // إنشاء المستخدم في Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // تحديث الملف الشخصي للمستخدم
+        await updateProfile(user, {
+          displayName: name
+        });
+        
+        // حفظ معلومات المستخدم في Firestore
+        const userData = {
+          uid: user.uid,
+          email: email,
+          name: name,
+          username: username, // إضافة اسم المستخدم
+          role: 'CUSTOMER', // دور افتراضي للمستخدمين الجدد
+          createdAt: new Date().toISOString(),
+          photoURL: user.photoURL || null,
+        };
+        
+        // حفظ في Firestore
+        await setDoc(doc(db, "users", user.uid), userData);
+        
+        console.log("تم حفظ بيانات المستخدم في Firestore:", userData);
+        
+        // عرض رسالة نجاح
+        toast({
+          title: "تم إنشاء الحساب بنجاح",
+          description: "سيتم توجيهك لتسجيل الدخول...",
+        });
+        
+        // تسجيل الخروج من الحساب الجديد لضمان تسجيل الدخول بشكل صحيح
+        await auth.signOut();
+        
+        // التوجيه إلى صفحة تسجيل الدخول مع إشارة إلى نجاح التسجيل
+        setLocation('/login?registered=true');
+      } catch (authError: any) {
+        console.error("خطأ في إنشاء المستخدم في Firebase Auth:", authError);
+        throw authError;
+      }
     } catch (err: any) {
       console.error("خطأ في التسجيل:", err);
       
@@ -92,11 +129,24 @@ export default function SignupPage() {
       const userSnap = await getDoc(userRef);
       
       if (!userSnap.exists()) {
+        // إنشاء اسم مستخدم فريد بناءً على البريد الإلكتروني
+        let autoUsername = '';
+        if (res.user.email) {
+          // استخراج الجزء قبل علامة @ من البريد الإلكتروني
+          autoUsername = res.user.email.split('@')[0];
+          // إضافة بعض الأرقام العشوائية لزيادة فرصة أن يكون فريداً
+          autoUsername += Math.floor(Math.random() * 1000);
+        } else {
+          // إذا لم يكن هناك بريد إلكتروني، استخدم اسم عشوائي
+          autoUsername = 'user_' + Math.floor(Math.random() * 10000);
+        }
+        
         // إنشاء مستخدم جديد
         const userProfile = {
           uid: res.user.uid,
           email: res.user.email,
           name: res.user.displayName || 'مستخدم جديد',
+          username: autoUsername, // إضافة اسم المستخدم المولد تلقائياً
           role: "CUSTOMER", // دور افتراضي
           createdAt: new Date().toISOString(),
           photoURL: res.user.photoURL || null,
@@ -106,13 +156,16 @@ export default function SignupPage() {
         
         toast({
           title: "تم إنشاء الحساب بنجاح",
-          description: "مرحباً بك في StayX!",
+          description: `مرحباً بك في StayX! اسم المستخدم الخاص بك هو: ${autoUsername}`,
         });
+        
+        console.log("تم حفظ بيانات المستخدم في Firestore (تسجيل Google):", userProfile);
       } else {
         // المستخدم موجود بالفعل
+        const userData = userSnap.data();
         toast({
           title: "تم تسجيل الدخول بنجاح",
-          description: "مرحباً بعودتك!",
+          description: `مرحباً بعودتك ${userData.name || ''}!`,
         });
       }
       
@@ -202,6 +255,25 @@ export default function SignupPage() {
                 <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
                      style={{ boxShadow: "0 0 8px rgba(57, 255, 20, 0.3)" }}></div>
               </div>
+            </div>
+
+            <div className="group">
+              <label className="block text-sm font-medium text-gray-400 mb-1.5 transition group-focus-within:text-[#39FF14]">اسم المستخدم</label>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  placeholder="أدخل اسم المستخدم الخاص بك" 
+                  className="w-full p-3 rounded-lg bg-black/60 border border-gray-700 text-white focus:border-[#39FF14] focus:outline-none focus:ring-1 focus:ring-[#39FF14]/50 transition-all" 
+                  value={username} 
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  autoComplete="username"
+                  minLength={3}
+                />
+                <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
+                     style={{ boxShadow: "0 0 8px rgba(57, 255, 20, 0.3)" }}></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">سيتم استخدام اسم المستخدم هذا لتسجيل الدخول</p>
             </div>
 
             <div className="group">

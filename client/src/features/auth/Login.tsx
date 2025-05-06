@@ -17,6 +17,20 @@ export default function LoginPage() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
+  // التحقق من إذا كان المستخدم قد وصل من صفحة التسجيل
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const registered = searchParams.get('registered');
+    
+    if (registered === 'true') {
+      toast({
+        title: "تم تسجيل الحساب بنجاح",
+        description: "يمكنك الآن تسجيل الدخول باستخدام بياناتك",
+        variant: "default",
+      });
+    }
+  }, [toast]);
+  
   // استخراج مسار إعادة التوجيه من معلمات URL
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
