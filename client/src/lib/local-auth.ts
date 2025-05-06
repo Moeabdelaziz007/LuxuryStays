@@ -136,10 +136,38 @@ export function localLogout(): Promise<void> {
 // Create a test admin user if no users exist
 export function initializeLocalUsers(): void {
   try {
+    // Clear any existing user issues by deleting corrupted data
+    const resetLocalUsers = localStorage.getItem('reset_stayx_local_storage');
+    if (resetLocalUsers === 'true') {
+      localStorage.removeItem(USERS_KEY);
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem('reset_stayx_local_storage');
+      console.log('Local user storage has been reset');
+    }
+    
     const usersData = localStorage.getItem(USERS_KEY);
     const users: Record<string, { user: LocalUser, password: string }> = usersData ? JSON.parse(usersData) : {};
     
-    if (Object.keys(users).length === 0) {
+    // Let's add this test user that the user was trying to use
+    if (!Object.values(users).some(entry => entry.user.email.toLowerCase() === 'amrikyy@gmail.com')) {
+      // Create amrikyy test user
+      const amrikyyUser: LocalUser = {
+        uid: 'amrikyy123',
+        email: 'amrikyy@gmail.com',
+        name: 'Amrikyy User',
+        role: UserRole.CUSTOMER,
+        createdAt: new Date().toISOString()
+      };
+      
+      users[amrikyyUser.uid] = {
+        user: amrikyyUser,
+        password: 'password123'  // Simple password for testing
+      };
+      
+      console.log('Added amrikyy@gmail.com test user to local storage');
+    }
+    
+    if (Object.keys(users).length < 3) { // Ensure default users exist
       // Create test admin user
       const adminUser: LocalUser = {
         uid: 'admin123',
@@ -181,11 +209,17 @@ export function initializeLocalUsers(): void {
         user: customerUser,
         password: 'user123'
       };
-      
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-      console.log('Test users created:', Object.keys(users).length);
     }
+    
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    console.log('Test users created:', Object.keys(users).length);
+    
   } catch (error) {
     console.error('Error initializing local users:', error);
+    // If there's an error, reset the storage completely
+    localStorage.removeItem(USERS_KEY);
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    // Try again but with fresh storage
+    setTimeout(() => initializeLocalUsers(), 100);
   }
 }

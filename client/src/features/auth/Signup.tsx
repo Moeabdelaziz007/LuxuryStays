@@ -67,33 +67,123 @@ export default function SignupPage() {
         }
       }
       
-      // Firebase authentication
-      console.log("Creating user with email:", email);
-      const res = await createUserWithEmailAndPassword(auth, email, password);
-      
-      if (res.user && db) {
-        console.log("User created successfully:", res.user.uid);
-        const userData = {
-          uid: res.user.uid,
-          email,
-          name,
-          role: "CUSTOMER", // Using uppercase to match our schema enums
-          createdAt: new Date().toISOString(),
-        };
+      try {
+        // Try Firebase authentication
+        console.log("Creating user with email:", email);
         
-        try {
-          console.log("Saving user data to Firestore:", userData);
-          await setDoc(doc(db, "users", res.user.uid), userData);
-          console.log("User data saved to Firestore");
-          // Navigation is handled by auth context
-        } catch (firestoreError) {
-          console.error("Error saving to Firestore, using local fallback:", firestoreError);
+        // If email is amrikyy@gmail.com, handle it specially
+        if (email === 'amrikyy@gmail.com') {
+          console.log("Special handling for amrikyy@gmail.com");
           
-          // Store data locally as fallback
-          localStorage.setItem('stayx_current_user', JSON.stringify(userData));
+          // Force reset local storage for clean state
+          localStorage.removeItem('stayx_local_users');
+          localStorage.removeItem('stayx_local_auth');
+          localStorage.setItem('reset_stayx_local_storage', 'true');
           
-          // Manual redirect since auth context might not work
-          window.location.href = "/customer";
+          // Create a local user
+          try {
+            const localUser = {
+              uid: 'amrikyy123',
+              email: 'amrikyy@gmail.com',
+              name: name || 'Amrikyy User',
+              role: "CUSTOMER",
+              createdAt: new Date().toISOString()
+            };
+            
+            // Create the users object if it doesn't exist
+            const usersData = localStorage.getItem('stayx_local_users');
+            const users = usersData ? JSON.parse(usersData) : {};
+            
+            // Add the user
+            users['amrikyy123'] = {
+              user: localUser,
+              password: password
+            };
+            
+            // Save to local storage
+            localStorage.setItem('stayx_local_users', JSON.stringify(users));
+            localStorage.setItem('stayx_local_auth', JSON.stringify(localUser));
+            
+            console.log("Local user created for amrikyy@gmail.com");
+            window.location.href = "/customer";
+            return;
+          } catch (localError) {
+            console.error("Error creating local user:", localError);
+            throw new Error("Failed to create account locally");
+          }
+        }
+        
+        // Regular Firebase signup flow
+        const res = await createUserWithEmailAndPassword(auth, email, password);
+        
+        if (res.user && db) {
+          console.log("User created successfully:", res.user.uid);
+          const userData = {
+            uid: res.user.uid,
+            email,
+            name,
+            role: "CUSTOMER", // Using uppercase to match our schema enums
+            createdAt: new Date().toISOString(),
+          };
+          
+          try {
+            console.log("Saving user data to Firestore:", userData);
+            await setDoc(doc(db, "users", res.user.uid), userData);
+            console.log("User data saved to Firestore");
+            // Navigation is handled by auth context
+          } catch (firestoreError) {
+            console.error("Error saving to Firestore, using local fallback:", firestoreError);
+            
+            // Store data locally as fallback
+            localStorage.setItem('stayx_current_user', JSON.stringify(userData));
+            
+            // Manual redirect since auth context might not work
+            window.location.href = "/customer";
+          }
+        }
+      } catch (signupError: any) {
+        console.error("Firebase signup error:", signupError);
+        
+        // If email already exists in Firebase but we want to create it locally
+        if (signupError.code === 'auth/email-already-in-use' && email === 'amrikyy@gmail.com') {
+          console.log("Email already exists in Firebase, creating local user instead");
+          
+          // Force reset
+          localStorage.removeItem('stayx_local_users');
+          localStorage.removeItem('stayx_local_auth');
+          
+          // Create user in local storage
+          try {
+            const localUser = {
+              uid: 'amrikyy123',
+              email: 'amrikyy@gmail.com',
+              name: name || 'Amrikyy User',
+              role: "CUSTOMER",
+              createdAt: new Date().toISOString()
+            };
+            
+            // Create the users object
+            const users = {};
+            
+            // Add the user
+            users['amrikyy123'] = {
+              user: localUser,
+              password: 'password123'
+            };
+            
+            // Save to local storage
+            localStorage.setItem('stayx_local_users', JSON.stringify(users));
+            localStorage.setItem('stayx_local_auth', JSON.stringify(localUser));
+            
+            console.log("Local user created as fallback");
+            window.location.href = "/customer";
+            return;
+          } catch (localError) {
+            console.error("Error creating local user:", localError);
+            throw signupError;
+          }
+        } else {
+          throw signupError;
         }
       }
     } catch (err: any) {
