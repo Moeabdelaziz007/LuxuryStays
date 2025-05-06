@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/auth-context";
 
-// Simple signup page without advanced form components
+// صفحة التسجيل للمستخدمين الجدد
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,193 +18,39 @@ export default function SignupPage() {
     setLoading(true);
     
     try {
+      // التحقق من صحة الاسم
       if (!name || name.length < 3) {
         throw new Error("يجب أن يكون الاسم 3 أحرف على الأقل");
       }
       
-      // Check if we have Firebase available
-      if (!auth || !db) {
-        console.log("Firebase not available, using local authentication");
-        
-        // Use local storage to create a user
-        try {
-          // Get existing users or initialize empty object
-          const usersData = localStorage.getItem('stayx_local_users');
-          const users = usersData ? JSON.parse(usersData) : {};
-          
-          // Check if email already exists
-          if (users[email]) {
-            throw new Error("البريد الإلكتروني مستخدم بالفعل");
-          }
-          
-          // Generate a unique ID
-          const uid = Date.now().toString(36) + Math.random().toString(36).substring(2);
-          
-          // Create new user
-          const newUser = {
-            uid,
-            email,
-            name,
-            role: "CUSTOMER",
-            createdAt: new Date().toISOString()
-          };
-          
-          // Store user
-          users[email] = {
-            user: newUser,
-            password
-          };
-          
-          localStorage.setItem('stayx_local_users', JSON.stringify(users));
-          localStorage.setItem('stayx_current_user', JSON.stringify(newUser));
-          
-          // Redirect to customer dashboard
-          window.location.href = "/customer";
-          return;
-        } catch (localError: any) {
-          console.error("Local signup error:", localError);
-          throw localError;
-        }
+      // التحقق من صحة كلمة المرور
+      if (password.length < 6) {
+        throw new Error("يجب أن تكون كلمة المرور 6 أحرف على الأقل");
       }
       
-      try {
-        // Try Firebase authentication
-        console.log("Creating user with email:", email);
-        
-        // If email is amrikyy@gmail.com, handle it specially
-        if (email === 'amrikyy@gmail.com') {
-          console.log("Special handling for amrikyy@gmail.com");
-          
-          // Force reset local storage for clean state
-          localStorage.removeItem('stayx_local_users');
-          localStorage.removeItem('stayx_local_auth');
-          localStorage.setItem('reset_stayx_local_storage', 'true');
-          
-          // Create a local user
-          try {
-            const localUser = {
-              uid: 'amrikyy123',
-              email: 'amrikyy@gmail.com',
-              name: name || 'Amrikyy User',
-              role: "CUSTOMER",
-              createdAt: new Date().toISOString()
-            };
-            
-            // Create the users object if it doesn't exist
-            const usersData = localStorage.getItem('stayx_local_users');
-            const users = usersData ? JSON.parse(usersData) : {};
-            
-            // Add the user
-            users['amrikyy123'] = {
-              user: localUser,
-              password: password
-            };
-            
-            // Save to local storage
-            localStorage.setItem('stayx_local_users', JSON.stringify(users));
-            localStorage.setItem('stayx_local_auth', JSON.stringify(localUser));
-            
-            console.log("Local user created for amrikyy@gmail.com");
-            window.location.href = "/customer";
-            return;
-          } catch (localError) {
-            console.error("Error creating local user:", localError);
-            throw new Error("Failed to create account locally");
-          }
-        }
-        
-        // Regular Firebase signup flow
-        const res = await createUserWithEmailAndPassword(auth, email, password);
-        
-        if (res.user && db) {
-          console.log("User created successfully:", res.user.uid);
-          const userData = {
-            uid: res.user.uid,
-            email,
-            name,
-            role: "CUSTOMER", // Using uppercase to match our schema enums
-            createdAt: new Date().toISOString(),
-          };
-          
-          try {
-            console.log("Saving user data to Firestore:", userData);
-            await setDoc(doc(db, "users", res.user.uid), userData);
-            console.log("User data saved to Firestore");
-            // Navigation is handled by auth context
-          } catch (firestoreError) {
-            console.error("Error saving to Firestore, using local fallback:", firestoreError);
-            
-            // Store data locally as fallback
-            localStorage.setItem('stayx_current_user', JSON.stringify(userData));
-            
-            // Manual redirect since auth context might not work
-            window.location.href = "/customer";
-          }
-        }
-      } catch (signupError: any) {
-        console.error("Firebase signup error:", signupError);
-        
-        // If email already exists in Firebase but we want to create it locally
-        if (signupError.code === 'auth/email-already-in-use' && email === 'amrikyy@gmail.com') {
-          console.log("Email already exists in Firebase, creating local user instead");
-          
-          // Force reset
-          localStorage.removeItem('stayx_local_users');
-          localStorage.removeItem('stayx_local_auth');
-          
-          // Create user in local storage
-          try {
-            const localUser = {
-              uid: 'amrikyy123',
-              email: 'amrikyy@gmail.com',
-              name: name || 'Amrikyy User',
-              role: "CUSTOMER",
-              createdAt: new Date().toISOString()
-            };
-            
-            // Create the users object
-            const users = {};
-            
-            // Add the user
-            users['amrikyy123'] = {
-              user: localUser,
-              password: 'password123'
-            };
-            
-            // Save to local storage
-            localStorage.setItem('stayx_local_users', JSON.stringify(users));
-            localStorage.setItem('stayx_local_auth', JSON.stringify(localUser));
-            
-            console.log("Local user created as fallback");
-            window.location.href = "/customer";
-            return;
-          } catch (localError) {
-            console.error("Error creating local user:", localError);
-            throw signupError;
-          }
-        } else {
-          throw signupError;
-        }
-      }
+      // استخدام وظيفة التسجيل من سياق المصادقة
+      await register({
+        name,
+        email,
+        password
+      });
+      
+      // التوجيه إلى صفحة تسجيل الدخول مع إشارة إلى نجاح التسجيل
+      navigate('/login?registered=true');
     } catch (err: any) {
-      console.error("Signup error:", err);
+      console.error("خطأ في التسجيل:", err);
       
-      // Custom Arabic error messages
+      // عرض رسائل الخطأ المناسبة بناءً على نوع الخطأ
       if (err.code === 'auth/email-already-in-use') {
         setError("البريد الإلكتروني مستخدم بالفعل");
       } else if (err.code === 'auth/weak-password') {
         setError("كلمة المرور ضعيفة جداً، يجب أن تحتوي على 6 أحرف على الأقل");
       } else if (err.code === 'auth/invalid-email') {
         setError("البريد الإلكتروني غير صالح");
-      } else if (err.message?.includes('firebase') || err.message?.includes('Firebase')) {
-        setError("خطأ في الاتصال بالخادم، جاري استخدام التخزين المحلي");
-        
-        // Try using local auth
-        setTimeout(() => {
-          handleSignup(e);
-        }, 100);
+      } else if (err.message) {
+        setError(err.message);
       } else {
-        setError(err.message || "فشل إنشاء الحساب");
+        setError("فشل إنشاء الحساب، يرجى المحاولة مرة أخرى");
       }
     } finally {
       setLoading(false);
