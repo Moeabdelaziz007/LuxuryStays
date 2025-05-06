@@ -257,6 +257,21 @@
   animation: count-up 0.8s ease-out forwards;
 }
 
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-slide-in {
+  animation: fadeSlideIn 0.3s ease forwards;
+}
+
 /* تأثيرات الظهور والاختفاء */
 @keyframes fade-in {
   from {

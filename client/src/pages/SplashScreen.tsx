@@ -110,16 +110,7 @@ export default function SplashScreen() {
             animation: animate ? 'scanner 3s ease-in-out infinite alternate' : 'none',
           }}></div>
 
-          <style jsx>{`
-            @keyframes scanner {
-              0%, 100% { transform: translateX(-100px) scaleY(1.2); }
-              50% { transform: translateX(100px) scaleY(0.8); }
-            }
-            @keyframes spin-slow {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-          `}</style>
+          {/* Scanner animation and spin animation are defined in CSS */}
           
           {/* Logo with Scale Animation */}
           <div className={`relative transition-all duration-1000 splash-logo-glow ${
