@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Redirect } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
-import { UserRole } from "@/features/auth/types";
+import { UserRole } from "@shared/schema";
 
 interface RouteGuardProps {
   children: React.ReactNode;

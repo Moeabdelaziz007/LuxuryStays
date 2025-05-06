@@ -63,19 +63,21 @@ export default function NewCustomerDashboard() {
       
       try {
         return await safeDoc(async () => {
-          // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
-          const bookingsCollectionRef = collection(db, "bookings");
-          if (!bookingsCollectionRef) {
-            console.error("مجموعة الحجوزات غير متوفرة في Firestore");
+          // تأكد من وجود db قبل الاستخدام
+          if (!db) {
+            console.error("Firestore غير متوفر");
             return [];
           }
+          
+          // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
+          const bookingsCollectionRef = collection(db, "bookings");
         
-        // إعداد الاستعلام لجلب حجوزات المستخدم، مرتبة حسب تاريخ الإنشاء تنازلياً
-        const q = query(
-          bookingsCollectionRef, 
-          where("userId", "==", user.uid),
-          orderBy("createdAt", "desc")
-        );
+          // إعداد الاستعلام لجلب حجوزات المستخدم، مرتبة حسب تاريخ الإنشاء تنازلياً
+          const q = query(
+            bookingsCollectionRef, 
+            where("userId", "==", user.uid),
+            orderBy("createdAt", "desc")
+          );
         
         // تنفيذ الاستعلام واستخراج المستندات
         const snapshot = await getDocs(q);
@@ -104,6 +106,10 @@ export default function NewCustomerDashboard() {
                 propertyImage = cachedData.imageUrl;
               } else {
                 // استرجاع بيانات العقار من Firestore
+                if (!db) {
+                  console.error("Firestore غير متوفر");
+                  continue; // تخطي هذه الحلقة
+                }
                 const propertyDocRef = doc(db, "properties", bookingData.propertyId);
                 const propertyDocSnap = await getDoc(propertyDocRef);
                 
