@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { resetAndSeedServices } from "@/lib/api";
-import { Service } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +10,30 @@ import { Badge } from "@/components/ui/badge";
 import { Utensils, Clock, AlertCircle, RefreshCw, CheckCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+
+// تعريف نوع المواقع الخاص بالخدمات
+interface ServiceLocation {
+  name: string;
+  area: string;
+  cuisine?: string;
+  priceRange?: string;
+  type?: string;
+  specialty?: string;
+}
+
+// تعريف نوع موسع للخدمات مع دعم الحقول الإضافية التي أضفناها
+interface ExtendedService {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  status: string;
+  iconClass?: string;
+  launchDate?: string | Date;
+  createdAt?: string | Date;
+  locations?: ServiceLocation[];
+  [key: string]: any;
+}
 
 export default function ServicesControl() {
   const { toast } = useToast();
@@ -28,7 +51,7 @@ export default function ServicesControl() {
         return servicesSnapshot.docs.map(doc => ({ 
           id: doc.id, 
           ...doc.data() 
-        })) as Service[];
+        })) as ExtendedService[];
       } catch (error) {
         console.error("Error fetching services:", error);
         return [];
@@ -70,7 +93,7 @@ export default function ServicesControl() {
   const comingSoonServices = services.filter(service => service.status === "coming-soon");
 
   // Group services by category for better visualization
-  const getServiceIcon = (service: Service) => {
+  const getServiceIcon = (service: ExtendedService) => {
     const iconClass = service.iconClass || "";
     
     if (iconClass.includes('utensils')) {
@@ -86,7 +109,7 @@ export default function ServicesControl() {
     }
   };
 
-  const renderServicesList = (servicesList: Service[]) => {
+  const renderServicesList = (servicesList: ExtendedService[]) => {
     if (isLoading) {
       return (
         <div className="space-y-4">
@@ -133,7 +156,7 @@ export default function ServicesControl() {
               <div className="mt-4">
                 <h4 className="text-sm font-medium text-gray-300 mb-2">المواقع:</h4>
                 <div className="flex flex-wrap gap-2">
-                  {service.locations.map((location, idx) => (
+                  {service.locations.map((location: ServiceLocation, idx: number) => (
                     <Badge key={idx} variant="secondary" className="bg-gray-800">
                       {location.name} - {location.area}
                     </Badge>

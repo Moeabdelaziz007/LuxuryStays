@@ -757,6 +757,17 @@ export default function SuperAdminDashboard() {
               )}
             </div>
           </TabsContent>
+          
+          {/* Services Tab */}
+          <TabsContent value="services" className="pt-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="flex items-center mb-4">
+                <FaGlassCheers className="text-[#39FF14] mr-2" />
+                <h2 className="text-xl font-bold text-white">خدمات المطاعم والنوادي الليلية</h2>
+              </div>
+              <ServicesControl />
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
       
