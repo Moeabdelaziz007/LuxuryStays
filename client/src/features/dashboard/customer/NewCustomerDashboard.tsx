@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-context";
+import Logo from "@/components/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -196,10 +197,8 @@ export default function NewCustomerDashboard() {
       <div className="hidden md:flex md:w-64 flex-col bg-black border-r border-[#39FF14]/20 shadow-lg">
         <div className="p-6 border-b border-[#39FF14]/20">
           <div className="flex items-center justify-center mb-4">
-            <div className="text-4xl font-bold text-[#39FF14] tracking-tighter">
-              StayX
-              <div className="text-xs text-gray-400 tracking-normal font-normal">منصة العقارات الفاخرة</div>
-            </div>
+            <Logo size="xl" variant="neon" withText={true} />
+            <div className="text-xs text-gray-400 tracking-normal font-normal mt-2">منصة العقارات الفاخرة</div>
           </div>
           
           <div className="flex flex-col items-center pt-4">
