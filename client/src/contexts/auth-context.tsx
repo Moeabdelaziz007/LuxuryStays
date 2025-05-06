@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const redirectAfterLoginRef = useRef<string | null>(null);
-  const [locationPath, setLocation] = useLocation();
+  const [location, navigate] = useLocation();
 
   // دالة مساعدة للحصول على مسار إعادة التوجيه من عنوان URL
   const getRedirectParam = (): string | null => {
@@ -115,13 +115,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     if (redirectPath) {
                       // إعادة تعيين المرجع بعد استخدامه
                       redirectAfterLoginRef.current = null;
-                      setLocation(decodeURIComponent(redirectPath));
+                      navigate(decodeURIComponent(redirectPath));
                     } else {
                       // توجيه تلقائي إلى لوحة التحكم المناسبة
-                      if (userData.role === "CUSTOMER") setLocation("/customer");
-                      else if (userData.role === "PROPERTY_ADMIN") setLocation("/property-admin");
-                      else if (userData.role === "SUPER_ADMIN") setLocation("/super-admin");
-                      else setLocation("/unauthorized");
+                      if (userData.role === "CUSTOMER") navigate("/customer");
+                      else if (userData.role === "PROPERTY_ADMIN") navigate("/property-admin");
+                      else if (userData.role === "SUPER_ADMIN") navigate("/super-admin");
+                      else navigate("/unauthorized");
                     }
                   }
                 } else if (db) {
@@ -142,9 +142,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   const redirectPath = redirectAfterLoginRef.current;
                   if (redirectPath) {
                     redirectAfterLoginRef.current = null;
-                    setLocation(decodeURIComponent(redirectPath));
+                    navigate(decodeURIComponent(redirectPath));
                   } else {
-                    setLocation("/customer");
+                    navigate("/customer");
                   }
                 }
               } else {
@@ -366,7 +366,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       await signOut(auth);
       setUser(null);
-      setLocation("/");
+      navigate("/");
     } catch (err) {
       console.error("Logout error:", err);
       setError("Logout failed");
