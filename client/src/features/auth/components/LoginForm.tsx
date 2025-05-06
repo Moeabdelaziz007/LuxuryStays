@@ -5,12 +5,14 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/contexts/auth-context";
 import { useTranslation } from "@/features/i18n/hooks/useTranslation";
+import { AlertCircle } from "lucide-react";
 
+// Create a form schema with Zod
 const formSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6)
+  email: z.string().email({ message: "يرجى إدخال بريد إلكتروني صالح" }),
+  password: z.string().min(6, { message: "كلمة المرور يجب أن تكون 6 أحرف على الأقل" })
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -23,6 +25,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const { login, loginWithGoogle } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
@@ -35,14 +38,27 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      setAuthError(null);
       setIsLoading(true);
       await login({
         email: data.email,
         password: data.password
       });
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
+      // Handle Firebase auth errors with user-friendly messages
+      if (error.code === 'auth/invalid-email' || error.code === 'auth/user-not-found') {
+        setAuthError("البريد الإلكتروني غير صحيح أو غير مسجل");
+      } else if (error.code === 'auth/wrong-password') {
+        setAuthError("كلمة المرور غير صحيحة");
+      } else if (error.code === 'auth/too-many-requests') {
+        setAuthError("لقد أجريت الكثير من المحاولات. يرجى المحاولة لاحقًا");
+      } else if (error.code === 'auth/network-request-failed') {
+        setAuthError("خطأ في الاتصال بالشبكة. تحقق من اتصالك بالإنترنت");
+      } else {
+        setAuthError(error.message || "حدث خطأ أثناء تسجيل الدخول");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -50,11 +66,20 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   
   const handleGoogleLogin = async () => {
     try {
+      setAuthError(null);
       setIsGoogleLoading(true);
       await loginWithGoogle();
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Google login error:", error);
+      
+      if (error.code === 'auth/popup-closed-by-user') {
+        setAuthError("تم إغلاق نافذة تسجيل الدخول");
+      } else if (error.code === 'auth/unauthorized-domain') {
+        setAuthError("هذا الموقع غير مصرح له باستخدام تسجيل الدخول عبر Google");
+      } else {
+        setAuthError(error.message || "حدث خطأ أثناء تسجيل الدخول باستخدام Google");
+      }
     } finally {
       setIsGoogleLoading(false);
     }
@@ -63,31 +88,40 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Authentication error display */}
+        {authError && (
+          <div className="bg-red-500/20 border border-red-500/30 text-red-400 p-3 rounded-lg shadow-inner animate-pulse flex items-start">
+            <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+            <span>{authError}</span>
+          </div>
+        )}
+        
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('auth.email')}</FormLabel>
+              <FormLabel className="text-gray-300">{t('auth.email')}</FormLabel>
               <FormControl>
                 <Input 
                   placeholder="you@example.com" 
                   {...field} 
-                  className="bg-secondary/70 border-border"
+                  className="bg-black/60 border-gray-700 focus:border-[#39FF14] focus:ring-[#39FF14]/30 text-white placeholder:text-gray-500"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-400" />
             </FormItem>
           )}
         />
+        
         <FormField
           control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
               <div className="flex justify-between items-center">
-                <FormLabel>{t('auth.password')}</FormLabel>
-                <a href="#" className="text-accent text-sm hover:underline">
+                <FormLabel className="text-gray-300">{t('auth.password')}</FormLabel>
+                <a href="#" className="text-[#39FF14] text-sm hover:underline hover:text-[#39FF14]/80 transition-colors">
                   {t('auth.forgotPassword')}
                 </a>
               </div>
@@ -96,35 +130,39 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                   type="password" 
                   placeholder="••••••••" 
                   {...field} 
-                  className="bg-secondary/70 border-border"
+                  className="bg-black/60 border-gray-700 focus:border-[#39FF14] focus:ring-[#39FF14]/30 text-white placeholder:text-gray-500"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-400" />
             </FormItem>
           )}
         />
+        
         <Button 
           type="submit" 
-          className="w-full bg-accent hover:bg-accent/90 text-primary-foreground"
+          className="w-full bg-[#39FF14] hover:bg-[#39FF14]/90 text-black font-medium transition-all relative overflow-hidden group"
           disabled={isLoading}
         >
-          {isLoading ? t('common.loading') : t('auth.login')}
+          <span className="relative z-10">
+            {isLoading ? t('common.loading') : t('auth.login')}
+          </span>
+          <span className="absolute inset-0 bg-gradient-to-r from-[#39FF14]/0 via-white/20 to-[#39FF14]/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>
         </Button>
         
         <div className="relative flex justify-center text-xs uppercase my-4">
-          <span className="bg-background px-2 text-muted-foreground">
+          <span className="bg-black px-2 text-gray-500">
             {t('auth.orContinue')}
           </span>
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t"></span>
+            <span className="w-full border-t border-gray-800"></span>
           </div>
         </div>
         
-        <div className="flex justify-center space-x-4">
+        <div className="flex justify-center space-x-4 rtl:space-x-reverse">
           <Button 
             variant="outline" 
             size="icon" 
-            className="w-12 h-12 rounded-full"
+            className="w-12 h-12 rounded-full border-gray-700 hover:bg-[#39FF14]/10 hover:text-[#39FF14] hover:border-[#39FF14]/30 transition-all duration-300"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading}
           >
@@ -150,12 +188,6 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 />
               </svg>
             )}
-          </Button>
-          <Button variant="outline" size="icon" className="w-12 h-12 rounded-full" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          </Button>
-          <Button variant="outline" size="icon" className="w-12 h-12 rounded-full" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-apple"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>
           </Button>
         </div>
       </form>

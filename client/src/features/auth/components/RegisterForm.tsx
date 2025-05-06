@@ -5,25 +5,21 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/contexts/auth-context";
 import { useTranslation } from "@/features/i18n/hooks/useTranslation";
+import { passwordSchema } from "@/lib/passwordValidation";
+import PasswordStrengthMeter from "./PasswordStrengthMeter";
+import { Info } from "lucide-react";
 
+// Create a schema for the form with Zod
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-  confirmPassword: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match.",
-  path: ["confirmPassword"],
+  name: z.string().min(2, { message: "الاسم يجب أن يكون أطول من حرفين" }),
+  email: z.string().email({ message: "يرجى إدخال بريد إلكتروني صالح" }),
+  password: passwordSchema,
+  confirmPassword: z.string()
+}).refine(data => data.password === data.confirmPassword, {
+  message: "كلمات المرور غير متطابقة",
+  path: ["confirmPassword"]
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -36,6 +32,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   const { register, loginWithGoogle } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [password, setPassword] = useState("");
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
@@ -70,7 +67,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       await loginWithGoogle();
       onSuccess?.();
     } catch (error) {
-      console.error("Google signup error:", error);
+      console.error("Google login error:", error);
     } finally {
       setIsGoogleLoading(false);
     }
@@ -84,15 +81,15 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('auth.fullName')}</FormLabel>
+              <FormLabel>{t('auth.name')}</FormLabel>
               <FormControl>
                 <Input 
-                  placeholder="John Doe" 
+                  placeholder="الاسم الكامل" 
                   {...field} 
-                  className="bg-secondary/70 border-border"
+                  className="bg-black/60 border-gray-700 focus:border-[#39FF14] focus:ring-[#39FF14]/30"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-400" />
             </FormItem>
           )}
         />
@@ -106,11 +103,12 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
               <FormControl>
                 <Input 
                   placeholder="you@example.com" 
+                  type="email"
                   {...field} 
-                  className="bg-secondary/70 border-border"
+                  className="bg-black/60 border-gray-700 focus:border-[#39FF14] focus:ring-[#39FF14]/30"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-400" />
             </FormItem>
           )}
         />
@@ -126,10 +124,30 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
                   type="password" 
                   placeholder="••••••••" 
                   {...field} 
-                  className="bg-secondary/70 border-border"
+                  className="bg-black/60 border-gray-700 focus:border-[#39FF14] focus:ring-[#39FF14]/30"
+                  onChange={e => {
+                    field.onChange(e);
+                    setPassword(e.target.value);
+                  }}
                 />
               </FormControl>
-              <FormMessage />
+              <PasswordStrengthMeter password={password} />
+              <div className="mt-2 bg-black/40 border border-gray-800 rounded-md p-2 text-xs text-gray-400">
+                <div className="flex items-start space-x-1 rtl:space-x-reverse">
+                  <Info size={14} className="mt-0.5 flex-shrink-0 text-gray-500" />
+                  <div>
+                    <p className="mb-1">كلمة المرور يجب أن تحتوي على:</p>
+                    <ul className="space-y-1 list-disc list-inside rtl:mr-3">
+                      <li>8 أحرف على الأقل</li>
+                      <li>حرف كبير واحد على الأقل</li>
+                      <li>حرف صغير واحد على الأقل</li>
+                      <li>رقم واحد على الأقل</li>
+                      <li>رمز خاص واحد على الأقل (!@#$%^&*)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <FormMessage className="text-red-400" />
             </FormItem>
           )}
         />
@@ -145,17 +163,17 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
                   type="password" 
                   placeholder="••••••••" 
                   {...field} 
-                  className="bg-secondary/70 border-border"
+                  className="bg-black/60 border-gray-700 focus:border-[#39FF14] focus:ring-[#39FF14]/30"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-400" />
             </FormItem>
           )}
         />
         
         <Button 
           type="submit" 
-          className="w-full bg-accent hover:bg-accent/90 text-primary-foreground"
+          className="w-full bg-[#39FF14] hover:bg-[#39FF14]/90 text-black font-medium"
           disabled={isLoading}
         >
           {isLoading ? t('common.loading') : t('auth.register')}
@@ -166,15 +184,15 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             {t('auth.orContinue')}
           </span>
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t"></span>
+            <span className="w-full border-t border-gray-800"></span>
           </div>
         </div>
         
-        <div className="flex justify-center space-x-4">
+        <div className="flex justify-center space-x-4 rtl:space-x-reverse">
           <Button 
             variant="outline" 
             size="icon" 
-            className="w-12 h-12 rounded-full"
+            className="w-12 h-12 rounded-full border-gray-700 hover:bg-[#39FF14]/10 hover:text-[#39FF14] hover:border-[#39FF14]/30"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading}
           >
@@ -200,12 +218,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
                 />
               </svg>
             )}
-          </Button>
-          <Button variant="outline" size="icon" className="w-12 h-12 rounded-full" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          </Button>
-          <Button variant="outline" size="icon" className="w-12 h-12 rounded-full" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-apple"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>
           </Button>
         </div>
       </form>
