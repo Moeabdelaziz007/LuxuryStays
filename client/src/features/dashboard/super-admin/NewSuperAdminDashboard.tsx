@@ -130,9 +130,10 @@ export default function NewSuperAdminDashboard() {
       setRecentUsers(prevUsers => {
         return prevUsers.map(user => {
           if (user.id === userId) {
+            // استخدم نفس التحويل من كود الى نص عربي
             const roleLabel = newRole === UserRole.SUPER_ADMIN ? 'مشرف عام' : 
                               newRole === UserRole.PROPERTY_ADMIN ? 'مدير عقارات' : 'عميل';
-            return { ...user, role: roleLabel };
+            return { ...user, role: newRole };  // نخزن قيمة التعداد مباشرة
           }
           return user;
         });
@@ -197,8 +198,7 @@ export default function NewSuperAdminDashboard() {
                 id: doc.id,
                 name: data.name || 'مستخدم',
                 email: data.email || 'بدون بريد إلكتروني',
-                role: data.role === UserRole.SUPER_ADMIN ? 'مشرف عام' : 
-                      data.role === UserRole.PROPERTY_ADMIN ? 'مدير عقارات' : 'عميل',
+                role: data.role, // تخزين قيمة التعداد مباشرة
                 date: new Date(data.createdAt?.toDate() || new Date()).toISOString().split('T')[0]
               };
             });
@@ -267,11 +267,11 @@ export default function NewSuperAdminDashboard() {
       // مثال للمستخدمين الجدد (إذا لم يتم جلبها من Firestore)
       if (recentUsers.length === 0) {
         const defaultRecentUsers = [
-          { id: "USR-8745", name: "محمد علي", email: "m.ali@example.com", role: "عميل", date: "2025-05-05" },
-          { id: "USR-8744", name: "فاطمة العنزي", email: "f.anzi@example.com", role: "عميل", date: "2025-05-05" },
-          { id: "USR-8743", name: "راشد الخالدي", email: "r.khalidi@example.com", role: "مدير عقارات", date: "2025-05-04" },
-          { id: "USR-8742", name: "ريم الفيصل", email: "reem.f@example.com", role: "عميل", date: "2025-05-04" },
-          { id: "USR-8741", name: "سعود الدوسري", email: "s.dosari@example.com", role: "عميل", date: "2025-05-03" }
+          { id: "USR-8745", name: "محمد علي", email: "m.ali@example.com", role: UserRole.CUSTOMER, date: "2025-05-05" },
+          { id: "USR-8744", name: "فاطمة العنزي", email: "f.anzi@example.com", role: UserRole.CUSTOMER, date: "2025-05-05" },
+          { id: "USR-8743", name: "راشد الخالدي", email: "r.khalidi@example.com", role: UserRole.PROPERTY_ADMIN, date: "2025-05-04" },
+          { id: "USR-8742", name: "ريم الفيصل", email: "reem.f@example.com", role: UserRole.CUSTOMER, date: "2025-05-04" },
+          { id: "USR-8741", name: "سعود الدوسري", email: "s.dosari@example.com", role: UserRole.CUSTOMER, date: "2025-05-03" }
         ];
         setRecentUsers(defaultRecentUsers);
       }
