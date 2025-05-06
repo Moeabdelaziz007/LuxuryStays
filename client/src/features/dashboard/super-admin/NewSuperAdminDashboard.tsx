@@ -18,7 +18,7 @@ import {
   Calendar,
   Settings,
   Users,
-  Building,
+  Home,
   Menu
 } from "lucide-react";
 
@@ -373,7 +373,7 @@ export default function NewSuperAdminDashboard() {
         <div className="bg-black/50 backdrop-blur-xl border border-gray-800 rounded-xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.3)]">
           <h2 className="text-3xl font-bold mb-6 text-white flex items-center">
             {subPath === 'users' && <><Users className="mr-3 text-[#39FF14]" size={28} /> إدارة المستخدمين</>}
-            {subPath === 'properties' && <><Building className="mr-3 text-[#39FF14]" size={28} /> إدارة العقارات</>}
+            {subPath === 'properties' && <><Home className="mr-3 text-[#39FF14]" size={28} /> إدارة العقارات</>}
             {subPath === 'bookings' && <><Calendar className="mr-3 text-[#39FF14]" size={28} /> إدارة الحجوزات</>}
             {subPath === 'revenue' && <><BarChart3 className="mr-3 text-[#39FF14]" size={28} /> التقارير المالية</>}
             {subPath === 'settings' && <><Settings className="mr-3 text-[#39FF14]" size={28} /> إعدادات النظام</>}

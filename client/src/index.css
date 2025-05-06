@@ -49,6 +49,99 @@
   animation: neon-flicker 2s linear infinite;
 }
 
+/* تأثيرات متقدمة للمشرف العام */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-very-slow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse-slow-delay {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+.animate-pulse-slow-delay {
+  animation: pulse-slow-delay 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-pulse-very-slow {
+  animation: pulse-very-slow 12s ease-in-out infinite;
+}
+
+/* تأثيرات عداد الأرقام */
+@keyframes count-up {
+  from {
+    opacity: 0.3;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-count-up {
+  animation: count-up 0.8s ease-out forwards;
+}
+
+/* تأثيرات الظهور والاختفاء */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+/* نبض خفيف للأيقونات */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
 /* Custom animation durations */
 .duration-2000 {
   transition-duration: 2000ms;
@@ -65,6 +158,64 @@
   backdrop-filter: blur(10px);
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(57, 255, 20, 0.1);
+}
+
+/* تأثيرات الإضاءة للشريط الجانبي */
+.sidebar-active-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-active-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(57, 255, 20, 0.15), rgba(57, 255, 20, 0));
+  z-index: -1;
+  border-radius: 8px;
+}
+
+.sidebar-active-item::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  background-color: #39FF14;
+  border-radius: 0 3px 3px 0;
+  box-shadow: 
+    0 0 8px rgba(57, 255, 20, 0.6),
+    0 0 16px rgba(57, 255, 20, 0.4);
+}
+
+/* تأثير التحويم على عناصر الشريط الجانبي */
+.sidebar-icon-hover {
+  transition: all 0.3s ease;
+}
+
+.sidebar-icon-hover:hover {
+  transform: translateY(-2px);
+  color: #39FF14;
+  filter: drop-shadow(0 0 4px rgba(57, 255, 20, 0.6));
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(57, 255, 20, 0.8));
+  }
+  50% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 6px rgba(57, 255, 20, 0.6));
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
 }
 
 /* Set up the root colors */
