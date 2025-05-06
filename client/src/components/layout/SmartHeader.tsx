@@ -154,18 +154,7 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
                 <PanelLeftOpen size={16} className="inline-block" />
                 <span>لوحة تحكم العميل</span>
               </Link>
-              <Link to="/customer/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <CalendarCheck size={16} className="inline-block" />
-                <span>حجوزاتي</span>
-              </Link>
-              <Link to="/customer/favorites" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <Heart size={16} className="inline-block" />
-                <span>المفضلة</span>
-              </Link>
-              <Link to="/customer/profile" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <UserCircle size={16} className="inline-block" />
-                <span>حسابي</span>
-              </Link>
+              {/* تم إزالة روابط حجوزاتي والمفضلة وحسابي لأنها متوفرة في لوحة التحكم */}
             </>
           );
           break;
