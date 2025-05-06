@@ -57,13 +57,13 @@ export default function SmartHeader() {
 
           {/* Nav Links - Will show only on non-dashboard pages */}
           <div className="hidden md:flex items-center gap-6">
-            <Link to="/#featured" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+            <Link to="/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300">
               العقارات
             </Link>
-            <Link to="/#services" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+            <Link to="/services" className="text-white hover:text-[#39FF14] transition-colors duration-300">
               الخدمات
             </Link>
-            <Link to="/#about" className="text-white hover:text-[#39FF14] transition-colors duration-300">
+            <Link to="/about" className="text-white hover:text-[#39FF14] transition-colors duration-300">
               عن التطبيق 
             </Link>
           </div>
