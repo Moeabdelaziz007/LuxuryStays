@@ -280,16 +280,110 @@ export default function LoginPage() {
       } else if (err.code === 'auth/network-request-failed') {
         setError("فشل في الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت.");
       } else {
-        setError(err.message || "حدث خطأ أثناء تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
+        setError(err.message || "فشل تسجيل الدخول كزائر، الرجاء المحاولة مرة أخرى.");
       }
     } finally {
       setGuestLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     // Instead of trying to authenticate directly, show the warning dialog
     setShowGoogleWarning(true);
+    return;
+    
+    // The code below is kept for reference but won't execute due to the return above
+    setError("");
+    setGoogleLoading(true);
+    
+    if (!auth) {
+      setError("تسجيل الدخول عبر Google غير متاح حالياً. الرجاء المحاولة لاحقاً.");
+      console.error("خدمة Google غير متوفرة: لم يتم تهيئة Firebase Auth");
+      setGoogleLoading(false);
+      return;
+    }
+    
+    // إذا كانت Firestore غير متاحة، سنستمر لكن مع رسالة تحذير للمستخدم
+    if (!db) {
+      console.warn("خدمة Firestore غير متاحة: سيتم تسجيل الدخول بحساب Google بدون تخزين البيانات");
+      toast(getWarningToast(
+        "تنبيه:",
+        "سيتم تسجيل الدخول بحساب Google، لكن بعض الميزات قد لا تعمل بشكل كامل"
+      ));
+    }
+    
+    try {
+      // إنشاء مزود المصادقة عبر Google
+      const provider = new GoogleAuthProvider();
+      // إضافة نطاقات إضافية للحصول على مزيد من المعلومات
+      provider.addScope('profile');
+      provider.addScope('email');
+      
+      // حفظ مسار إعادة التوجيه في localStorage قبل تنفيذ عملية إعادة التوجيه
+      if (redirectPath) {
+        localStorage.setItem('googleAuthRedirectPath', redirectPath);
+      }
+      
+      console.log("بدء تسجيل الدخول باستخدام Google (طريقة إعادة التوجيه)...");
+      console.log("Current domain:", window.location.host);
+      console.log("Firebase project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
+      
+      // استخدام طريقة إعادة التوجيه بدلاً من النافذة المنبثقة
+      await signInWithRedirect(auth, provider);
+      
+      // لن يتم تنفيذ أي كود بعد هذا السطر، لأن إعادة التوجيه ستتم على الفور
+      // سيتم معالجة نتيجة تسجيل الدخول في App.tsx (مكون RedirectHandler)
+      
+      // NOTE: The rest of the code won't be executed because the page will be redirected
+    } catch (err: any) {
+      console.error("خطأ في تسجيل الدخول عبر Google:", err);
+      
+      if (err.code === 'auth/unauthorized-domain') {
+        const domainOnly = window.location.host;
+        // Update with all possible Replit domains
+        const allDomainEnvs = [
+          "workspace.mohamedabdela18.repl.co", 
+          "f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev", 
+          "luxury-stays-mohamedabdela18.replit.app",
+          "luxury-property-booking.mohamedabdela18.replit.app",
+          domainOnly
+        ];
+        
+        console.error(`خطأ المجال غير المصرح به: ${domainOnly}`);
+        console.error(`يرجى إضافة "${domainOnly}" (بدون https:// أو http://) إلى نطاقات Firebase المصرح بها`);
+        console.error(`المجالات المحتملة للإضافة: ${domainOnly}, ${window.location.hostname}, ${allDomainEnvs.join(', ')}`);
+        console.error(`للإضافة، انتقل إلى لوحة تحكم Firebase > Authentication > Settings > Authorized domains`);
+        
+        // Show more descriptive error for administrators
+        console.error(`=== FIREBASE DOMAIN ERROR FIX INSTRUCTIONS ===`);
+        console.error(`1. Go to Firebase Console: https://console.firebase.google.com/`);
+        console.error(`2. Select project: ${import.meta.env.VITE_FIREBASE_PROJECT_ID || "stay-chill-e3743"}`);
+        console.error(`3. Go to Authentication > Settings > Authorized domains`);
+        console.error(`4. Add domain: ${domainOnly}`);
+        console.error(`5. Click "Add domain" button`);
+        
+        // إخفاء زر جوجل وإظهار رسالة للمستخدم
+        toast(getWarningToast(
+          "تسجيل الدخول بحساب Google غير متاح",
+          `يرجى استخدام البريد الإلكتروني وكلمة المرور أو تصفح كضيف حتى يتم إضافة المجال: ${domainOnly}`
+        ));
+        
+        // رسالة خطأ واضحة
+        setError(`عذراً، ميزة تسجيل الدخول بحساب Google غير متاحة حالياً لهذا المجال: (${domainOnly}). يمكنك استخدام البريد الإلكتروني وكلمة المرور أو تصفح كضيف.`);
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError("تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError("تم إلغاء طلب النافذة المنبثقة. الرجاء المحاولة مرة أخرى.");
+      } else if (err.code === 'auth/popup-blocked') {
+        setError("تم حظر النافذة المنبثقة. الرجاء السماح بالنوافذ المنبثقة والمحاولة مرة أخرى.");
+      } else if (err.code === 'auth/network-request-failed') {
+        setError("فشل في الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.");
+      } else {
+        setError(err.message || "فشل تسجيل الدخول باستخدام Google، الرجاء المحاولة مرة أخرى.");
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -440,95 +534,91 @@ export default function LoginPage() {
                 </>
               )}
             </button>
-
+            
             <button 
               type="button"
               onClick={handleGuestLogin} 
-              className="relative group flex items-center justify-center gap-2 bg-transparent border border-[#39FF14]/30 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-lg w-full hover:bg-[#39FF14]/10 transition-all active:scale-[0.98]"
+              className="relative group w-full"
               disabled={guestLoading}
             >
-              {guestLoading ? (
-                <div className="flex items-center justify-center gap-3">
-                  <span>جاري تسجيل الدخول</span>
-                  <div className="animate-spin h-5 w-5 border-2 border-[#39FF14] border-t-transparent rounded-full"></div>
-                </div>
-              ) : (
-                <span>الدخول كزائر</span>
-              )}
+              <div className="relative z-10 bg-transparent border-[1px] border-[#39FF14]/60 text-[#39FF14] hover:bg-[#39FF14]/10 font-medium py-3 rounded-lg w-full text-center transform transition-all active:scale-[0.98]">
+                {guestLoading ? "جاري تسجيل الدخول..." : "تصفح كضيف"}
+                {guestLoading && (
+                  <div className="absolute right-5 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin h-5 w-5 border-2 border-[#39FF14] border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+              </div>
               <div className="absolute inset-0 bg-[#39FF14]/5 blur-sm opacity-0 group-hover:opacity-70 rounded-lg transition-opacity"></div>
             </button>
+          </form>
 
-            <div className="text-center pt-3">
-              <p className="text-sm text-gray-500">
-                ليس لديك حساب بعد؟{" "}
-                <Link href="/signup" className="text-[#39FF14] hover:underline">
-                  تسجيل حساب جديد
-                </Link>
-              </p>
-              <p className="text-xs text-gray-600 mt-3">
-                <button 
-                  type="button" 
-                  className="text-gray-500 hover:text-[#39FF14] transition-colors"
-                  onClick={() => {
+          <div className="space-y-4 mt-6">
+            <p className="text-sm text-center text-gray-400">
+              ليس لديك حساب؟{" "}
+              <Link to="/signup" className="text-[#39FF14] hover:text-white transition-colors">
+                سجل الآن
+              </Link>
+            </p>
+            
+            <p className="text-sm text-center text-gray-400">
+              نسيت كلمة المرور؟{" "}
+              <button 
+                type="button"
+                onClick={() => {
+                  const emailInput = document.getElementById('email-input') as HTMLInputElement;
+                  if (emailInput && emailInput.value && emailInput.validity.valid) {
                     if (!auth) {
-                      toast({
-                        title: "خطأ",
-                        description: "خدمة إعادة تعيين كلمة المرور غير متاحة حالياً",
-                        variant: "destructive",
-                      });
+                      setError("خدمة إعادة تعيين كلمة المرور غير متاحة حالياً");
                       return;
                     }
                     
-                    const emailInput = document.getElementById("email-input") as HTMLInputElement;
-                    const email = emailInput?.value;
+                    setLoading(true);
+                    // ضبط لغة Firebase إلى العربية
+                    auth.languageCode = 'ar';
                     
-                    if (!email) {
-                      toast({
-                        title: "الرجاء إدخال البريد الإلكتروني",
-                        description: "أدخل بريدك الإلكتروني في الحقل أعلاه أولاً",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    
-                    sendPasswordResetEmail(auth, email)
+                    // إرسال رابط إعادة تعيين كلمة المرور مع خيارات التخصيص
+                    sendPasswordResetEmail(auth, emailInput.value, {
+                      // تخصيص URL إعادة التوجيه بعد إعادة تعيين كلمة المرور
+                      url: window.location.origin + '/login?reset=success',
+                    })
                       .then(() => {
                         toast(getSuccessToast(
                           "تم إرسال رابط إعادة تعيين كلمة المرور",
-                          "تفقد بريدك الإلكتروني واتبع التعليمات لإعادة تعيين كلمة المرور"
+                          "يرجى التحقق من بريدك الإلكتروني للحصول على تعليمات إعادة تعيين كلمة المرور"
                         ));
                       })
-                      .catch((error) => {
+                      .catch((error: any) => {
+                        console.error("خطأ في إرسال رابط إعادة تعيين كلمة المرور:", error);
                         if (error.code === 'auth/user-not-found') {
-                          toast({
-                            title: "البريد الإلكتروني غير مسجل",
-                            description: "لا يوجد حساب مسجل بهذا البريد الإلكتروني",
-                            variant: "destructive",
-                          });
+                          setError("لا يوجد حساب مرتبط بهذا البريد الإلكتروني");
                         } else {
-                          toast({
-                            title: "خطأ في إعادة تعيين كلمة المرور",
-                            description: error.message || "حدث خطأ أثناء إرسال رابط إعادة تعيين كلمة المرور",
-                            variant: "destructive",
-                          });
+                          setError("حدث خطأ في إرسال رابط إعادة تعيين كلمة المرور");
                         }
+                      })
+                      .finally(() => {
+                        setLoading(false);
                       });
-                  }}
-                >
-                  إعادة تعيين كلمة المرور
-                </button>
-              </p>
-            </div>
-          </form>
+                  } else {
+                    setError("يرجى إدخال بريد إلكتروني صالح أولاً");
+                    emailInput?.focus();
+                  }
+                }}
+                className="text-[#39FF14] hover:text-white transition-colors"
+              >
+                إعادة تعيين كلمة المرور
+              </button>
+            </p>
+          </div>
         </div>
+        
+        {/* Google Login Warning Dialog */}
+        <Dialog open={showGoogleWarning} onOpenChange={setShowGoogleWarning}>
+          <DialogContent className="bg-gray-900 border-gray-800 text-white p-0 overflow-hidden">
+            <GoogleLoginWarning />
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Google Login Warning Dialog */}
-      <Dialog open={showGoogleWarning} onOpenChange={setShowGoogleWarning}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white p-0 overflow-hidden">
-          <GoogleLoginWarning />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
