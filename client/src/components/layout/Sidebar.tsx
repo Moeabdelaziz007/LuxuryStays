@@ -31,8 +31,9 @@ export default function Sidebar() {
     { to: "/services", icon: <ShoppingBag className="h-5 w-5" />, label: "الخدمات", section: "public" },
   ];
   
-  // عناصر العميل
+  // عناصر العميل - مرتبة حسب الأهمية
   const customerLinks: SidebarLink[] = [
+    // القسم الرئيسي
     { to: "/customer", icon: <LayoutDashboard className="h-5 w-5" />, label: "لوحة التحكم", section: "dashboard" },
     { to: "/customer/bookings", icon: <Calendar className="h-5 w-5" />, label: "الحجوزات", section: "dashboard" },
     { to: "/customer/favorites", icon: <Heart className="h-5 w-5" />, label: "المفضلة", section: "dashboard" },
@@ -40,25 +41,28 @@ export default function Sidebar() {
     { to: "/customer/settings", icon: <Settings className="h-5 w-5" />, label: "الإعدادات", section: "dashboard" },
   ];
   
-  // عناصر مدير العقارات
+  // عناصر مدير العقارات - مرتبة حسب الأهمية
   const propertyAdminLinks: SidebarLink[] = [
+    // القسم الرئيسي
     { to: "/property-admin", icon: <LayoutDashboard className="h-5 w-5" />, label: "لوحة التحكم", section: "dashboard" },
-    { to: "/property-admin/properties", icon: <Building className="h-5 w-5" />, label: "العقارات", section: "dashboard" },
+    { to: "/property-admin/properties", icon: <Building className="h-5 w-5" />, label: "عقاراتي", section: "dashboard" },
     { to: "/property-admin/bookings", icon: <BookOpen className="h-5 w-5" />, label: "الحجوزات", section: "dashboard" },
-    { to: "/property-admin/calendar", icon: <Calendar className="h-5 w-5" />, label: "التقويم", section: "dashboard" },
     { to: "/property-admin/analytics", icon: <BarChart3 className="h-5 w-5" />, label: "التحليلات", section: "dashboard" },
+    // عناصر أقل أهمية
     { to: "/property-admin/profile", icon: <Users className="h-5 w-5" />, label: "الملف الشخصي", section: "dashboard" },
     { to: "/property-admin/settings", icon: <Settings className="h-5 w-5" />, label: "الإعدادات", section: "dashboard" },
   ];
   
-  // عناصر المشرف العام
+  // عناصر المشرف العام - مرتبة حسب الأهمية
   const superAdminLinks: SidebarLink[] = [
+    // الصفحات الرئيسية
     { to: "/super-admin", icon: <LayoutDashboard className="h-5 w-5" />, label: "نظرة عامة", section: "dashboard" },
     { to: "/super-admin/users", icon: <Users className="h-5 w-5" />, label: "المستخدمين", section: "dashboard" },
     { to: "/super-admin/properties", icon: <Building className="h-5 w-5" />, label: "العقارات", section: "dashboard" },
-    { to: "/super-admin/bookings", icon: <Calendar className="h-5 w-5" />, label: "الحجوزات", section: "dashboard" },
-    { to: "/super-admin/services", icon: <ShoppingBag className="h-5 w-5" />, label: "الخدمات", section: "dashboard" },
     { to: "/super-admin/revenue", icon: <CreditCard className="h-5 w-5" />, label: "الإيرادات", section: "dashboard" },
+    { to: "/super-admin/bookings", icon: <Calendar className="h-5 w-5" />, label: "الحجوزات", section: "dashboard" },
+    // صفحات إضافية
+    { to: "/super-admin/services", icon: <ShoppingBag className="h-5 w-5" />, label: "الخدمات", section: "dashboard" },
     { to: "/super-admin/analytics", icon: <AreaChart className="h-5 w-5" />, label: "التحليلات", section: "dashboard" },
     { to: "/super-admin/notifications", icon: <Bell className="h-5 w-5" />, label: "الإشعارات", section: "dashboard" },
     { to: "/super-admin/settings", icon: <Settings className="h-5 w-5" />, label: "الإعدادات", section: "dashboard" },

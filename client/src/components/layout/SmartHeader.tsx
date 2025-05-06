@@ -69,12 +69,12 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
   
   // تحديد خيارات القائمة والروابط اعتمادًا على نوع المستخدم
   const renderNavLinks = () => {
-    // روابط الصفحات العامة - متاحة دائمًا
+    // روابط الصفحات العامة - متاحة دائمًا ولكن فقط في الصفحات العامة
     const publicLinks = (
-      <>
+      <div className="flex items-center gap-4">
         <Link to="/" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
           <Home size={16} className="inline-block" />
-          <span>الصفحة الرئيسية</span>
+          <span>الرئيسية</span>
         </Link>
         <Link to="/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
           <Building size={16} className="inline-block" />
@@ -86,76 +86,42 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
         </Link>
         <Link to="/about" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
           <Info size={16} className="inline-block" />
-          <span>عن التطبيق</span>
+          <span>من نحن</span>
         </Link>
-      </>
+      </div>
     );
 
-    // الروابط الخاصة بكل دور
+    // الروابط الخاصة بكل دور (تم تبسيطها لتجنب التكرار مع الشريط الجانبي)
     let roleLinks = null;
     
     if (user && !isMobile) {
-      // تحديد الروابط حسب دور المستخدم
+      // نعرض فقط رابط واحد للعودة إلى لوحة التحكم الرئيسية حسب دور المستخدم
+      // بدون تكرار الروابط الفرعية التي موجودة بالفعل في الشريط الجانبي
       switch (user.role) {
         case "SUPER_ADMIN":
           roleLinks = (
-            <>
-              <Link to="/super-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4 flex items-center gap-1.5">
-                <PanelLeftOpen size={16} className="inline-block" />
-                <span>لوحة تحكم المدير</span>
-              </Link>
-              <Link to="/super-admin/users" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <User size={16} className="inline-block" />
-                <span>المستخدمين</span>
-              </Link>
-              <Link to="/super-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <Building size={16} className="inline-block" />
-                <span>العقارات</span>
-              </Link>
-              <Link to="/super-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <CalendarCheck size={16} className="inline-block" />
-                <span>الحجوزات</span>
-              </Link>
-              <Link to="/super-admin/revenue" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <CircleDollarSign size={16} className="inline-block" />
-                <span>الإيرادات</span>
-              </Link>
-            </>
+            <Link to="/super-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium flex items-center gap-1.5">
+              <PanelLeftOpen size={16} className="inline-block" />
+              <span>لوحة تحكم المدير</span>
+            </Link>
           );
           break;
         
         case "PROPERTY_ADMIN":
           roleLinks = (
-            <>
-              <Link to="/property-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4 flex items-center gap-1.5">
-                <PanelLeftOpen size={16} className="inline-block" />
-                <span>لوحة تحكم المالك</span>
-              </Link>
-              <Link to="/property-admin/properties" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <Building size={16} className="inline-block" />
-                <span>عقاراتي</span>
-              </Link>
-              <Link to="/property-admin/bookings" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <CalendarCheck size={16} className="inline-block" />
-                <span>الحجوزات</span>
-              </Link>
-              <Link to="/property-admin/analytics" className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5">
-                <PieChart size={16} className="inline-block" />
-                <span>الإحصائيات</span>
-              </Link>
-            </>
+            <Link to="/property-admin" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium flex items-center gap-1.5">
+              <PanelLeftOpen size={16} className="inline-block" />
+              <span>لوحة تحكم المالك</span>
+            </Link>
           );
           break;
           
         case "CUSTOMER":
           roleLinks = (
-            <>
-              <Link to="/customer" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium border-r border-gray-700 pr-4 mr-4 flex items-center gap-1.5">
-                <PanelLeftOpen size={16} className="inline-block" />
-                <span>لوحة تحكم العميل</span>
-              </Link>
-              {/* تم إزالة روابط حجوزاتي والمفضلة وحسابي لأنها متوفرة في لوحة التحكم */}
-            </>
+            <Link to="/customer" className="text-[#39FF14] hover:text-[#50FF30] transition-colors duration-300 font-medium flex items-center gap-1.5">
+              <PanelLeftOpen size={16} className="inline-block" />
+              <span>لوحة تحكم العميل</span>
+            </Link>
           );
           break;
         

@@ -33,47 +33,49 @@ export default function MobileNavigation() {
   
   if (!user) return null; // Don't show for unauthenticated users
   
-  // تعريف عناصر التنقل للمشرف العام
-  const superAdminItems: NavItem[] = [
-    // قسم لوحة التحكم
-    { to: '/super-admin', label: 'نظرة عامة', icon: <PanelLeftOpen size={20} />, section: 'dashboard' },
-    { to: '/super-admin/users', label: 'المستخدمين', icon: <Users size={20} />, section: 'dashboard' },
-    { to: '/super-admin/properties', label: 'العقارات', icon: <Building2 size={20} />, section: 'dashboard' },
-    { to: '/super-admin/bookings', label: 'الحجوزات', icon: <Calendar size={20} />, section: 'dashboard' },
-    { to: '/super-admin/revenue', label: 'الإيرادات', icon: <CircleDollarSign size={20} />, section: 'dashboard' },
-    { to: '/super-admin/settings', label: 'الإعدادات', icon: <Settings size={20} />, section: 'dashboard' },
-    
-    // الصفحات العامة
+  // الصفحات العامة - مشتركة لجميع الأدوار
+  const publicItems: NavItem[] = [
     { to: '/', label: 'الرئيسية', icon: <Home size={20} />, section: 'public' },
     { to: '/properties', label: 'العقارات', icon: <Building2 size={20} />, section: 'public' },
     { to: '/services', label: 'الخدمات', icon: <BookOpenCheck size={20} />, section: 'public' },
+  ];
+  
+  // تعريف عناصر التنقل للمشرف العام
+  const superAdminItems: NavItem[] = [
+    // أهم 4 عناصر ستظهر في الشريط السفلي
+    { to: '/super-admin', label: 'الرئيسية', icon: <PanelLeftOpen size={20} />, section: 'dashboard' },
+    { to: '/super-admin/users', label: 'المستخدمين', icon: <Users size={20} />, section: 'dashboard' },
+    { to: '/super-admin/properties', label: 'العقارات', icon: <Building2 size={20} />, section: 'dashboard' },
+    { to: '/super-admin/revenue', label: 'الإيرادات', icon: <CircleDollarSign size={20} />, section: 'dashboard' },
+    // عناصر إضافية ستظهر في القائمة المنسدلة
+    { to: '/super-admin/bookings', label: 'الحجوزات', icon: <Calendar size={20} />, section: 'dashboard_more' },
+    { to: '/super-admin/settings', label: 'الإعدادات', icon: <Settings size={20} />, section: 'dashboard_more' },
+    ...publicItems
   ];
   
   // تعريف عناصر التنقل لمدير العقارات
   const propertyAdminItems: NavItem[] = [
-    { to: '/property-admin', label: 'لوحة التحكم', icon: <PanelLeftOpen size={20} />, section: 'dashboard' },
+    // أهم 4 عناصر ستظهر في الشريط السفلي
+    { to: '/property-admin', label: 'الرئيسية', icon: <PanelLeftOpen size={20} />, section: 'dashboard' },
     { to: '/property-admin/properties', label: 'عقاراتي', icon: <Building2 size={20} />, section: 'dashboard' },
     { to: '/property-admin/bookings', label: 'الحجوزات', icon: <Calendar size={20} />, section: 'dashboard' },
-    { to: '/property-admin/dashboard', label: 'الإحصائيات', icon: <BarChart size={20} />, section: 'dashboard' },
-    { to: '/property-admin/profile', label: 'الملف', icon: <UserCircle size={20} />, section: 'dashboard' },
-    
-    // الصفحات العامة
-    { to: '/', label: 'الرئيسية', icon: <Home size={20} />, section: 'public' },
-    { to: '/properties', label: 'العقارات', icon: <Building2 size={20} />, section: 'public' },
-    { to: '/services', label: 'الخدمات', icon: <BookOpenCheck size={20} />, section: 'public' },
+    { to: '/property-admin/analytics', label: 'الإحصائيات', icon: <BarChart size={20} />, section: 'dashboard' },
+    // عناصر إضافية ستظهر في القائمة المنسدلة
+    { to: '/property-admin/profile', label: 'الملف', icon: <UserCircle size={20} />, section: 'dashboard_more' },
+    { to: '/property-admin/settings', label: 'الإعدادات', icon: <Settings size={20} />, section: 'dashboard_more' },
+    ...publicItems
   ];
   
   // تعريف عناصر التنقل للعميل
   const customerItems: NavItem[] = [
-    { to: '/customer', label: 'لوحة التحكم', icon: <PanelLeftOpen size={20} />, section: 'dashboard' },
+    // أهم 4 عناصر ستظهر في الشريط السفلي
+    { to: '/customer', label: 'الرئيسية', icon: <PanelLeftOpen size={20} />, section: 'dashboard' },
     { to: '/customer/bookings', label: 'حجوزاتي', icon: <Calendar size={20} />, section: 'dashboard' },
     { to: '/customer/favorites', label: 'المفضلة', icon: <BookOpenCheck size={20} />, section: 'dashboard' },
     { to: '/customer/profile', label: 'حسابي', icon: <UserCircle size={20} />, section: 'dashboard' },
-    
-    // الصفحات العامة
-    { to: '/', label: 'الرئيسية', icon: <Home size={20} />, section: 'public' },
-    { to: '/properties', label: 'العقارات', icon: <Building2 size={20} />, section: 'public' },
-    { to: '/services', label: 'الخدمات', icon: <BookOpenCheck size={20} />, section: 'public' },
+    // عناصر إضافية ستظهر في القائمة المنسدلة
+    { to: '/customer/settings', label: 'الإعدادات', icon: <Settings size={20} />, section: 'dashboard_more' },
+    ...publicItems
   ];
   
   // تحديد قائمة العناصر حسب دور المستخدم
@@ -167,7 +169,29 @@ export default function MobileNavigation() {
             </span>
           </button>
           
-          {/* عناصر إضافية يمكن إضافتها هنا */}
+          {/* عناصر إضافية - للإعدادات وغيرها */}
+          <div className="h-px w-full bg-gray-800 my-1"></div>
+          
+          {/* عرض الروابط الإضافية حسب قسم لوحة التحكم */}
+          {activeSection === 'dashboard' && (
+            <div className="py-1">
+              {navItems
+                .filter(item => item.section === 'dashboard_more')
+                .map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className="flex items-center gap-2 w-full px-4 py-2.5 text-gray-300 hover:bg-gray-800"
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                ))
+              }
+            </div>
+          )}
+          
+          {/* فاصل قبل زر تسجيل الخروج */}
           <div className="h-px w-full bg-gray-800 my-1"></div>
           
           {/* زر تسجيل الخروج */}
