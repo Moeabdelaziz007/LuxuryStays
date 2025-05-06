@@ -6,6 +6,8 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   updateProfile,
   Auth
 } from "firebase/auth";
@@ -372,53 +374,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      if (!auth || !db) {
+      if (!auth) {
         throw new Error("خدمات Firebase غير متوفرة");
       }
       
-      console.log("بدء تسجيل الدخول باستخدام Google...");
+      // حفظ مسار إعادة التوجيه إذا كان موجودًا
+      const redirectPath = redirectAfterLoginRef.current;
+      if (redirectPath) {
+        localStorage.setItem('googleAuthRedirectPath', redirectPath);
+      }
+      
+      console.log("بدء تسجيل الدخول باستخدام Google (طريقة إعادة التوجيه)...");
+      console.log("Current domain:", window.location.host);
+      console.log("Firebase project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
+      console.log("All domains to authorize:", [
+        window.location.host,
+        "staychill-3ed08.web.app",
+        "staychill-3ed08.firebaseapp.com"
+      ].join(", "));
       
       const provider = new GoogleAuthProvider();
       provider.addScope('profile');
       provider.addScope('email');
       
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      // استخدام طريقة إعادة التوجيه بدلاً من النافذة المنبثقة
+      await signInWithRedirect(auth, provider);
       
-      // التحقق من وجود المستخدم في Firestore
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
+      // لن يتم تنفيذ أي كود بعد هذا لأن الصفحة ستتم إعادة تحميلها
+      console.log("هذه الرسالة لن تظهر بسبب إعادة التوجيه");
       
-      if (!docSnap.exists()) {
-        // إنشاء وثيقة مستخدم جديد لتسجيل الدخول عبر Google
-        const userData: UserData = {
-          uid: user.uid,
-          email: user.email || '',
-          name: user.displayName || 'مستخدم Google',
-          role: 'CUSTOMER', // دور افتراضي
-          createdAt: new Date().toISOString(),
-          photoURL: user.photoURL || null,
-        };
-        
-        console.log("إنشاء مستخدم جديد من Google في Firestore:", userData.email);
-        try {
-          await setDoc(docRef, userData);
-          console.log("تم حفظ بيانات مستخدم Google بنجاح");
-        } catch (firestoreError) {
-          console.error("فشل في حفظ بيانات مستخدم Google في Firestore:", firestoreError);
-          // لن نعيق المستخدم عن تسجيل الدخول - نتابع رغم الخطأ
-        }
-      } else {
-        console.log("تسجيل دخول مستخدم موجود عبر Google:", user.email);
-      }
-      
-      // ستتم عملية التوجيه عبر مراقب حالة المصادقة
     } catch (err: any) {
       console.error("خطأ في تسجيل الدخول عبر Google:", err);
       
       if (err.code === 'auth/unauthorized-domain') {
-        console.error("يرجى إضافة", window.location.origin, "إلى نطاقات Firebase المصرح بها");
-        setError("نأسف، هذا النطاق غير مسموح به للمصادقة عبر Google. الرجاء استخدام البريد الإلكتروني وكلمة المرور.");
+        const currentDomain = window.location.host;
+        console.error(`=== FIREBASE DOMAIN ERROR ===`);
+        console.error(`Unauthorized domain: ${currentDomain}`);
+        console.error(`Please add all these domains to Firebase authorized domains:`);
+        console.error(`1. ${currentDomain}`);
+        console.error(`2. staychill-3ed08.web.app`);
+        console.error(`3. staychill-3ed08.firebaseapp.com`);
+        
+        setError(`المجال الحالي (${currentDomain}) غير مصرح به في إعدادات Firebase. الرجاء إضافة هذا المجال في لوحة التحكم الخاصة بالمشروع.`);
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError("تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
       } else if (err.code === 'auth/cancelled-popup-request') {
