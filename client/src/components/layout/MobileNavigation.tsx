@@ -94,16 +94,16 @@ export default function MobileNavigation() {
   
   // تحديد القسم النشط بناءً على المسار الحالي
   useEffect(() => {
-    if (pathname && (
-      pathname.includes('/super-admin') || 
-      pathname.includes('/property-admin') || 
-      pathname.includes('/customer')
+    if (currentPath && (
+      currentPath.includes('/super-admin') || 
+      currentPath.includes('/property-admin') || 
+      currentPath.includes('/customer')
     )) {
       setActiveSection('dashboard');
     } else {
       setActiveSection('public');
     }
-  }, [pathname]);
+  }, [currentPath]);
   
   // فلترة العناصر حسب القسم النشط
   const filteredItems = navItems
@@ -116,7 +116,7 @@ export default function MobileNavigation() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 shadow-lg z-50">
         <div className="flex justify-around items-center h-16">
           {filteredItems.map((item) => {
-            const isActive = pathname === item.to;
+            const isActive = currentPath === item.to;
             return (
               <Link
                 key={item.to}
