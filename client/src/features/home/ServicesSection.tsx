@@ -159,93 +159,128 @@ export default function ServicesSection() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {activeServices?.map((service) => (
           <div
             key={service.id}
-            className="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl overflow-hidden shadow-xl transform transition-all hover:scale-105 border border-gray-700 group"
+            className="bg-gradient-to-br from-gray-800/90 to-gray-900 text-white rounded-xl overflow-hidden shadow-xl transform transition-all duration-300 hover:scale-[1.02] border border-gray-700 hover:border-[#39FF14]/30 group"
           >
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  {service.name?.includes("مطاعم") ? (
-                    <div className="p-3 bg-gradient-to-br from-[#39FF14] to-[#2ac70d] rounded-full mr-4">
-                      <span className="text-3xl">🍽️</span>
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-gradient-to-br from-[#39FF14]/80 to-[#39FF14] rounded-full mr-4">
-                      <span className="text-3xl">💃</span>
-                    </div>
-                  )}
-                  <h3 className="text-2xl font-bold">{service.name}</h3>
-                </div>
-                
-                <div className="flex-shrink-0">
-                  <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold ${service.name?.includes("مطاعم") ? "bg-[#39FF14] text-black" : "bg-[#39FF14] text-black"}`}>
-                    {service.name?.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
-                  </span>
-                </div>
+            {/* Service Header with Background Image */}
+            <div className="relative h-40 overflow-hidden">
+              {/* Background Image with Overlay */}
+              <img 
+                src={service.name?.includes("مطاعم") 
+                  ? "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1170" 
+                  : "https://images.unsplash.com/photo-1532452119098-a3650b3c46d3?q=80&w=1170"} 
+                alt={service.name} 
+                className="absolute inset-0 w-full h-full object-cover filter brightness-[0.6] transform group-hover:scale-105 transition-transform duration-700" 
+              />
+              
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent"></div>
+              
+              {/* Price Badge - Top Right */}
+              <div className="absolute top-0 right-0 z-10 m-4">
+                <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold bg-[#39FF14] text-black shadow-md`}>
+                  {service.name?.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
+                </span>
               </div>
               
-              <p className="text-md mb-4">{service.description}</p>
+              {/* Icon and Service Title - Positioned at Bottom */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 z-10 flex items-center">
+                {/* Icon Container */}
+                <div className={`p-3 rounded-full mr-4 ${service.name?.includes("مطاعم") 
+                  ? "bg-gradient-to-br from-[#39FF14] to-[#2ac70d]" 
+                  : "bg-gradient-to-br from-[#39FF14] to-[#39FF14]"} shadow-md`}
+                >
+                  <span className="text-2xl">
+                    {service.name?.includes("مطاعم") ? "🍽️" : "💃"}
+                  </span>
+                </div>
+                
+                {/* Service Title */}
+                <h3 className="text-2xl font-bold text-white group-hover:text-[#39FF14] transition-colors">{service.name}</h3>
+              </div>
+            </div>
+            
+            {/* Service Content */}
+            <div className="p-5">
+              {/* Description */}
+              <div className="bg-black/20 rounded-lg p-4 mb-5">
+                <p className="text-md text-gray-300">{service.description}</p>
+              </div>
               
-              {/* Display locations */}
+              {/* Location Filter Pills */}
               {service.locations && (
-                <div className="mb-6">
-                  <div className="flex flex-wrap gap-2 my-4">
+                <div className="mb-5">
+                  <h4 className="text-sm font-semibold text-[#39FF14] mb-2">تصفية حسب المنطقة:</h4>
+                  <div className="flex flex-wrap gap-2 mb-4">
                     <button
                       onClick={() => setSelectedLocation(null)}
-                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation === null ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white'}`}
+                      className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation === null 
+                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.3)]' 
+                        : 'bg-gray-800 text-white border border-gray-700 hover:border-[#39FF14]/50'}`}
                     >
                       الكل
                     </button>
                     <button
                       onClick={() => setSelectedLocation("راس الحكمة")}
-                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation?.includes("راس الحكمة") ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white'}`}
+                      className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation?.includes("راس الحكمة") 
+                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.3)]' 
+                        : 'bg-gray-800 text-white border border-gray-700 hover:border-[#39FF14]/50'}`}
                     >
                       راس الحكمة
                     </button>
                     <button
                       onClick={() => setSelectedLocation("الساحل الشمالي")}
-                      className={`text-xs px-3 py-1 rounded-full ${selectedLocation?.includes("الساحل") ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white'}`}
+                      className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation?.includes("الساحل") 
+                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.3)]' 
+                        : 'bg-gray-800 text-white border border-gray-700 hover:border-[#39FF14]/50'}`}
                     >
                       الساحل الشمالي
                     </button>
                   </div>
                   
-                  <div className="bg-gray-800 rounded-lg p-3 mt-2">
-                    <h4 className="text-sm font-semibold text-[#39FF14] mb-2">الأماكن المتاحة:</h4>
-                    <ul className="space-y-2">
+                  {/* Locations List */}
+                  <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+                    <h5 className="text-sm font-semibold text-white mb-3">الأماكن المتاحة:</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {service.locations
                         .filter(loc => selectedLocation ? loc.area.includes(selectedLocation) : true)
                         .map((location, idx) => (
-                        <li key={idx} className="flex items-center text-sm">
-                          <span className="w-2 h-2 rounded-full bg-[#39FF14] mr-2"></span>
-                          <span className="font-medium">{location.name}</span>
-                          <span className="text-gray-400 text-xs mr-2">({location.area})</span>
-                        </li>
+                        <div key={idx} className="flex items-center text-sm bg-black/20 rounded-md p-2">
+                          <span className="w-2 h-2 rounded-full bg-[#39FF14] mr-2 flex-shrink-0"></span>
+                          <div className="flex flex-col flex-grow">
+                            <span className="font-medium text-white">{location.name}</span>
+                            <span className="text-gray-400 text-xs">({location.area})</span>
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 </div>
               )}
               
-              <div className="flex items-center justify-between mt-6">
+              {/* Divider Line */}
+              <div className="border-t border-gray-700 my-4"></div>
+              
+              {/* Footer with Availability & CTA */}
+              <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-gray-400 block mb-1">أماكن متاحة اليوم</span>
                   <div className="flex items-center">
-                    <div className="h-2 w-32 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-2 w-32 bg-gray-800 rounded-full overflow-hidden">
                       <div className={`h-full ${service.name?.includes("مطاعم") ? "bg-[#39FF14] w-3/4" : "bg-[#39FF14] w-1/2"}`}></div>
                     </div>
-                    <span className="text-sm text-gray-300 ml-2">
+                    <span className="text-sm text-white ml-2 font-medium">
                       {service.name?.includes("مطاعم") ? "75%" : "50%"}
                     </span>
                   </div>
                 </div>
                 
-                <button className={`bg-[#39FF14] hover:bg-[#50FF30] text-black font-bold py-3 px-6 rounded-lg transition-colors group-hover:scale-105 shadow-[0_0_10px_rgba(57,255,20,0.3)]`}>
+                <a href={`/services/${service.id}`} className="bg-[#39FF14] hover:bg-[#45ff25] text-black font-bold py-2.5 px-5 rounded-lg transition-all transform hover:translate-y-[-2px] hover:shadow-[0_0_15px_rgba(57,255,20,0.4)]">
                   احجز الآن
-                </button>
+                </a>
               </div>
             </div>
           </div>

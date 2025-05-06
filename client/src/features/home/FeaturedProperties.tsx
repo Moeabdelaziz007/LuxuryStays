@@ -139,63 +139,97 @@ export default function FeaturedProperties() {
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
       {data?.map((property: Property) => (
         <div 
           key={property.id} 
-          className="bg-gray-800 text-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 group"
+          className="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-xl overflow-hidden shadow-xl border border-gray-700 hover:border-[#39FF14]/50 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(57,255,20,0.2)] group"
           onMouseEnter={() => setHoveredId(property.id)}
           onMouseLeave={() => setHoveredId(null)}
         >
+          {/* Header - Image Container */}
           <div className="relative">
-            <img 
-              src={property.imageUrl} 
-              alt={property.name} 
-              className="w-full h-64 object-cover transition-transform group-hover:scale-110" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-              <div>
-                <p className="text-white font-medium mb-1">
-                  <span className="text-[#39FF14]">معروض بواسطة: </span> 
-                  مدير عقارات معتمد
-                </p>
-                <p className="text-sm text-white/80">تم التحقق بواسطة فريق StayX</p>
+            {/* Property Badge - Top Right */}
+            <div className="absolute top-0 right-0 z-10">
+              <div className="bg-[#39FF14] text-black font-bold m-4 py-1 px-3 rounded-full shadow-md flex items-center space-x-1 rtl:space-x-reverse transform hover:scale-105 transition-transform">
+                <span>${property.pricePerNight}</span>
+                <span className="text-xs opacity-70">/ ليلة</span>
               </div>
             </div>
-            <div className="absolute top-4 right-4 bg-[#39FF14] text-black px-3 py-1 rounded-full text-sm font-bold">
-              ${property.pricePerNight} / ليلة
-            </div>
-          </div>
-          
-          <div className="p-5">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-xl font-bold text-white">{property.name}</h3>
-              <button className="text-[#39FF14] hover:text-[#50FF30] transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            
+            {/* Save Button - Top Left */}
+            <div className="absolute top-0 left-0 z-10">
+              <button className="m-4 bg-black/30 hover:bg-black/50 p-2 rounded-full backdrop-blur-sm transition-colors group-hover:opacity-100 opacity-0">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white hover:text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </button>
             </div>
             
+            {/* Main Image */}
+            <div className="h-56 overflow-hidden">
+              <img 
+                src={property.imageUrl} 
+                alt={property.name} 
+                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" 
+              />
+              
+              {/* Image Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-70"></div>
+            </div>
+            
+            {/* Property Verification - Bottom of Image */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+              <div className="flex items-center space-x-2 rtl:space-x-reverse opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="w-7 h-7 rounded-full bg-[#39FF14]/80 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-black" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white">تم التحقق بواسطة <span className="text-[#39FF14]">StayX</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Content Container */}
+          <div className="p-5">
+            {/* Property Title & Rating */}
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-xl font-bold text-white group-hover:text-[#39FF14] transition-colors">{property.name}</h3>
+              <div className="flex items-center">
+                <span className="text-yellow-400">★</span>
+                <span className="text-white mx-1">4.9</span>
+              </div>
+            </div>
+            
+            {/* Location */}
             <div className="flex items-center text-sm text-gray-400 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               {property.location}
             </div>
             
-            <p className="text-gray-300 text-sm mb-4 line-clamp-2">{property.description}</p>
+            {/* Description */}
+            <div className="bg-black/20 p-3 rounded-lg mb-4">
+              <p className="text-gray-300 text-sm line-clamp-2">{property.description}</p>
+            </div>
             
+            {/* Divider Line */}
+            <div className="border-t border-gray-700 my-3"></div>
+            
+            {/* Bottom Action Section */}
             <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <span className="text-yellow-400 mr-1">★</span>
-                <span className="text-white">4.9</span>
-                <span className="text-gray-400 text-sm ml-1">(23 تقييم)</span>
-              </div>
+              <span className="text-[#39FF14] font-medium text-sm">
+                {/* Property Owner */}
+                <span className="text-gray-400">بواسطة: </span>مدير معتمد
+              </span>
               <a 
                 href={`/properties/${property.id}`} 
-                className="bg-green-400 hover:bg-green-500 text-black font-medium py-2 px-4 rounded-lg text-sm transition-colors"
+                className="bg-[#39FF14] hover:bg-[#45ff25] text-black font-medium py-2 px-4 rounded-lg text-sm transition-colors shadow-md hover:shadow-[0_0_10px_rgba(57,255,20,0.3)]"
               >
                 عرض التفاصيل
               </a>
