@@ -136,12 +136,17 @@ export default function SignupPage() {
     const provider = new GoogleAuthProvider();
     
     // تحسين الخبرة بإضافة الإعدادات المناسبة
-    provider.setCustomParameters({
+    const customParams: { [key: string]: string } = {
       // طلب اختيار الحساب دائماً لتجنب التسجيل التلقائي بحساب خاطئ
-      prompt: 'select_account',
-      // تحديد لغة الواجهة إلى العربية إذا كان المستخدم يستخدم واجهة عربية
-      login_hint: window.navigator.language.includes('ar') ? 'ar' : undefined
-    });
+      prompt: 'select_account'
+    };
+    
+    // تحديد لغة الواجهة إلى العربية إذا كان المستخدم يستخدم واجهة عربية
+    if (window.navigator.language.includes('ar')) {
+      customParams.login_hint = 'ar';
+    }
+    
+    provider.setCustomParameters(customParams);
     
     // إضافة نطاقات لجلب معلومات إضافية
     provider.addScope('profile');

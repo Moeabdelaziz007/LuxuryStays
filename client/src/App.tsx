@@ -62,13 +62,35 @@ function App() {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          console.log("Google sign-in successful");
+          const { user } = result;
+          console.log("Google sign-in successful", {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            isRedirect: true
+          });
+          
+          // يمكن أن نعرض رسالة ترحيب للمستخدم هنا باستخدام toast
+          // لكن هذا سيتم معالجته في سياق المصادقة
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Google redirect error:", error);
+        
+        // معالجة أنواع مختلفة من الأخطاء
+        if (error.code === 'auth/account-exists-with-different-credential') {
+          console.warn("حساب موجود بالفعل بنفس البريد الإلكتروني ولكن بطريقة تسجيل دخول مختلفة");
+        } else if (error.code === 'auth/user-cancelled') {
+          console.warn("تم إلغاء عملية تسجيل الدخول من قبل المستخدم");
+        } else if (error.code === 'auth/user-not-found') {
+          console.warn("لم يتم العثور على المستخدم");
+        } else if (error.code === 'auth/invalid-credential') {
+          console.warn("بيانات الاعتماد غير صالحة");
+        }
       }
     };
     
+    // معالجة نتيجة إعادة التوجيه مباشرة بعد تحميل الصفحة
     handleRedirectResult();
   }, [auth]);
 

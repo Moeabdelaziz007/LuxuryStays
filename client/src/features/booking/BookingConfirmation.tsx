@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, Firestore } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -30,12 +30,39 @@ export default function BookingConfirmation({ bookingId }: BookingConfirmationPr
     }
   }, [bookingId]);
 
-  const fetchBookingDetails = async () => {
-    if (!bookingId) return;
+  // مساعد: إنشاء مرجع مستند آمن
+const safeDoc = (collection: string, id: string) => {
+  if (!db) {
+    throw new Error('Firestore is not initialized');
+  }
+  return doc(db as Firestore, collection, id);
+};
+
+const fetchBookingDetails = async () => {
+    if (!bookingId) {
+      setError('معرّف الحجز غير محدد.');
+      setLoading(false);
+      return;
+    }
+    
+    if (!db) {
+      setError('لا يمكن تحميل تفاصيل الحجز. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.');
+      setLoading(false);
+      return;
+    }
     
     try {
       // Fetch booking details
-      const bookingDoc = await getDoc(doc(db, 'bookings', bookingId));
+      let bookingDoc;
+      try {
+        const bookingRef = safeDoc('bookings', bookingId);
+        bookingDoc = await getDoc(bookingRef);
+      } catch (error) {
+        console.error("Error creating booking reference:", error);
+        setError('حدث خطأ أثناء محاولة الوصول إلى بيانات الحجز.');
+        setLoading(false);
+        return;
+      }
       
       if (!bookingDoc.exists()) {
         setError('لم يتم العثور على الحجز المطلوب.');
@@ -48,7 +75,8 @@ export default function BookingConfirmation({ bookingId }: BookingConfirmationPr
       // Fetch property details
       let propertyName = 'العقار غير متوفر';
       try {
-        const propertyDoc = await getDoc(doc(db, 'properties', bookingData.propertyId));
+        const propertyRef = safeDoc('properties', bookingData.propertyId);
+        const propertyDoc = await getDoc(propertyRef);
         if (propertyDoc.exists()) {
           propertyName = propertyDoc.data().name;
         }
