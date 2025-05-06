@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 
 interface SmartHeaderProps {
-  role?: "CUSTOMER" | "PROPERTY_ADMIN" | "SUPER_ADMIN";
+  role?: "CUSTOMER" | "PROPERTY_ADMIN" | "SUPER_ADMIN" | "PUBLIC";
 }
 
 export default function SmartHeader({ role }: SmartHeaderProps) {
