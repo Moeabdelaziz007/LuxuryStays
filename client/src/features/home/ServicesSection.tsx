@@ -4,42 +4,86 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/firebase";
 import { useState, useEffect } from "react";
 
-interface Location {
+interface ServiceLocation {
   name: string;
   area: string;
+  cuisine?: string;
+  priceRange?: string;
+  type?: string;
+  specialty?: string;
 }
 
 interface Service {
   id: string;
-  title: string;
+  name: string;
   description: string;
+  imageUrl: string;
   status: "active" | "coming-soon";
-  locations?: Location[];
+  iconClass?: string;
+  launchDate?: string;
+  locations?: ServiceLocation[];
 }
 
-// Local fallback data
+// بيانات واقعية للمطاعم والنوادي الليلية في الساحل الشمالي وراس الحكمة
 const localServices: Service[] = [
   {
     id: "service1",
-    title: "مطاعم فاخرة",
-    description: "توصيل وحجز في أفضل المطاعم الفاخرة في المنطقة. استمتع بوجبات مجانية وخصومات حصرية عند الحجز من خلال تطبيقنا.",
+    name: "حجز المطاعم الفاخرة",
+    description: "احجز طاولتك بشكل فوري في أفخم وأرقى مطاعم الساحل الشمالي وراس الحكمة مع خصم حصري 15% لعملاء StayX على جميع المأكولات والمشروبات",
+    imageUrl: "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop",
     status: "active",
+    iconClass: "utensils",
     locations: [
-      { name: "مطعم فيش الساحل", area: "الساحل الشمالي" },
-      { name: "اوشن فيو", area: "راس الحكمة" },
-      { name: "مرينا دايموند", area: "الساحل الشمالي" },
-      { name: "المطعم الإيطالي", area: "راس الحكمة" }
+      { name: "مطعم زودياك (Zodiac)", area: "راس الحكمة - ماونتن فيو", cuisine: "مأكولات بحرية ومتوسطية", priceRange: "$$$" },
+      { name: "مطعم سمك", area: "بو آيلاند، سيدي عبد الرحمن", cuisine: "مأكولات بحرية طازجة", priceRange: "$$$" },
+      { name: "تشيبرياني (Cipriani)", area: "المراسي، الساحل الشمالي", cuisine: "مطبخ إيطالي فاخر", priceRange: "$$$$" },
+      { name: "كايرو كيتشين", area: "مارينا، الساحل الشمالي", cuisine: "مأكولات مصرية عصرية", priceRange: "$$" },
+      { name: "أندريا مارينا", area: "مارينا، الساحل الشمالي", cuisine: "مطبخ متوسطي", priceRange: "$$$" },
+      { name: "زيتونة", area: "هاسيندا باي، الساحل الشمالي", cuisine: "لبناني ومشاوي", priceRange: "$$$" },
+      { name: "مطعم إل جونا (El Gouna)", area: "ديبو، راس الحكمة", cuisine: "مأكولات بحرية", priceRange: "$$$" }
     ]
   },
   {
     id: "service2",
-    title: "نوادي ليلية",
-    description: "احصل على أولوية الدخول والطاولات المحجوزة في أشهر النوادي الليلية والحفلات الصيفية في راس الحكمة والساحل الشمالي.",
+    name: "حجز النوادي الليلية والبيتش كلوب",
+    description: "تمتع بقضاء أجمل الأوقات في أشهر النوادي الليلية والشاطئية في الساحل الشمالي وراس الحكمة مع دخول VIP وطاولات محجوزة مسبقًا بدون انتظار",
+    imageUrl: "https://images.unsplash.com/photo-1545128485-c400e7702796?q=80&w=2070&auto=format&fit=crop",
     status: "active",
+    iconClass: "glass-cheers",
     locations: [
-      { name: "بونساي", area: "الساحل الشمالي" },
-      { name: "باليو", area: "راس الحكمة" },
-      { name: "سكرلا", area: "الساحل الشمالي" }
+      { name: "سيكس ديجريز (6IX Degrees)", area: "ماونتن فيو، راس الحكمة", type: "نادي ليلي وبيتش كلوب", specialty: "حفلات DJ عالمية" },
+      { name: "بيتش باد (Beach Bud)", area: "مراقيا، الساحل الشمالي", type: "بيتش كلوب", specialty: "حفلات شاطئية نهارية" },
+      { name: "سقالة (Scaffold)", area: "المراسي، الساحل الشمالي", type: "نادي ليلي", specialty: "موسيقى الهاوس والإلكترونيك" },
+      { name: "مارتنز بيتش كلوب (Martin's)", area: "نورث إيدج، الساحل الشمالي", type: "بيتش كلوب", specialty: "حفلات موسيقية حية" },
+      { name: "ساوند بيتش كلوب (Sound)", area: "هاسيندا باي، الساحل الشمالي", type: "نادي ليلي وبيتش كلوب", specialty: "حفلات تيك هاوس" },
+      { name: "باليو (Palio)", area: "راس الحكمة", type: "نادي ليلي وبيتش كلوب", specialty: "حفلات مع منظر بانورامي للبحر" },
+      { name: "سكرلا بيتش (Secrela)", area: "الساحل الشمالي", type: "بيتش كلوب", specialty: "أجواء استوائية مميزة" }
+    ]
+  },
+  {
+    id: "service3",
+    name: "مركز الصحة والجمال",
+    description: "خدمة مساج وسبا فاخرة داخل الفيلا من معالجين معتمدين. استمتع بتجربة علاجية كاملة من سبا لاديرا وذا ريتريت مع باقات خاصة مصممة للأزواج والعائلات",
+    imageUrl: "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?q=80&w=2070&auto=format&fit=crop",
+    status: "coming-soon",
+    iconClass: "spa",
+    launchDate: new Date("2025-06-15").toISOString(),
+    locations: [
+      { name: "سبا لاديرا (La'dera Spa)", area: "راس الحكمة", specialty: "معالجات تايلاندية وإندونيسية" },
+      { name: "ذا ريتريت (The Retreat)", area: "الساحل الشمالي", specialty: "معالجات الوجه المتقدمة" }
+    ]
+  },
+  {
+    id: "service4",
+    name: "تأجير اليخوت والقوارب الفاخرة",
+    description: "استمتع برحلات بحرية خاصة في مارينا الساحل الشمالي ومارينا راس الحكمة على متن يخوت فاخرة مع طاقم احترافي وتجهيزات كاملة للاسترخاء والترفيه",
+    imageUrl: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?q=80&w=2070&auto=format&fit=crop",
+    status: "coming-soon",
+    iconClass: "ship",
+    launchDate: new Date("2025-07-01").toISOString(),
+    locations: [
+      { name: "مارينا الساحل الشمالي", area: "الساحل الشمالي", specialty: "يخوت فاخرة حتى 100 قدم" },
+      { name: "مارينا راس الحكمة", area: "راس الحكمة", specialty: "رحلات السباحة والغطس" }
     ]
   }
 ];
@@ -127,7 +171,7 @@ export default function ServicesSection() {
             <div className="p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
-                  {service.title.includes("مطاعم") ? (
+                  {service.name?.includes("مطاعم") ? (
                     <div className="p-3 bg-gradient-to-br from-[#39FF14] to-[#2ac70d] rounded-full mr-4">
                       <span className="text-3xl">🍽️</span>
                     </div>
@@ -136,12 +180,12 @@ export default function ServicesSection() {
                       <span className="text-3xl">💃</span>
                     </div>
                   )}
-                  <h3 className="text-2xl font-bold">{service.title}</h3>
+                  <h3 className="text-2xl font-bold">{service.name}</h3>
                 </div>
                 
                 <div className="flex-shrink-0">
-                  <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold ${service.title.includes("مطاعم") ? "bg-[#39FF14] text-black" : "bg-[#39FF14] text-black"}`}>
-                    {service.title.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
+                  <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold ${service.name?.includes("مطاعم") ? "bg-[#39FF14] text-black" : "bg-[#39FF14] text-black"}`}>
+                    {service.name?.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
                   </span>
                 </div>
               </div>
