@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
 import { UserRole } from "@shared/schema";
 import { collection, getDocs, doc, updateDoc, query, orderBy, limit, getCountFromServer } from "firebase/firestore";
@@ -58,8 +58,7 @@ const GlowEffect = () => (
  */
 export default function NewSuperAdminDashboard() {
   const { user } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [location, navigate] = useLocation();
   
   // حالات البيانات للإحصائيات والأرقام
   const [stats, setStats] = useState({
@@ -132,7 +131,7 @@ export default function NewSuperAdminDashboard() {
   const [darkMode, setDarkMode] = useState(true);
   
   // معالجة توجيه لوحة القيادة للمواقع المحددة
-  const isSubPage = location.pathname !== "/super-admin";
+  const isSubPage = location !== "/super-admin";
   
   // تأكد من أن المستخدم هو مشرف عام
   useEffect(() => {
@@ -356,7 +355,7 @@ export default function NewSuperAdminDashboard() {
   
   // إذا كانت هذه صفحة فرعية، اعرض المحتوى المناسب
   if (isSubPage) {
-    const subPath = location.pathname.split('/super-admin/')[1];
+    const subPath = location.split('/super-admin/')[1];
     
     return (
       <div className="p-6 relative overflow-hidden min-h-screen bg-gray-950">

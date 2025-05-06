@@ -244,7 +244,7 @@ export default function SuperAdminDashboard() {
   }
   
   // تنسيق الأرقام لعرض العملة
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('ar-EG', { 
       style: 'currency', 
       currency: 'EGP',

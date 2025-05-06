@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
-  const [location, setLocation] = useLocation();
+  const [location, navigate] = useLocation();
   const { toast } = useToast();
   
   // Helper function to get a unique ID for toast notifications
@@ -256,9 +256,9 @@ export default function LoginPage() {
       // بعد تسجيل الدخول توجيه المستخدم للصفحة الرئيسية أو صفحة إعادة التوجيه بعد فترة زمنية
       setTimeout(() => {
         if (redirectPath) {
-          setLocation(redirectPath); // الانتقال للصفحة التي كان يحاول الوصول إليها
+          navigate(redirectPath); // الانتقال للصفحة التي كان يحاول الوصول إليها
         } else {
-          setLocation("/"); // الانتقال للصفحة الرئيسية
+          navigate("/"); // الانتقال للصفحة الرئيسية
         }
       }, 1000);
       
