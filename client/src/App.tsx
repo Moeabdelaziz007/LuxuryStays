@@ -16,9 +16,12 @@ function RedirectHandler() {
   const navigate = useNavigate();
   
   useEffect(() => {
+    // فقط قم بالتوجيه إذا كان المستخدم مسجل دخوله ويحاول الوصول للصفحة الرئيسية أو صفحة تسجيل الدخول
     if (!loading && user) {
-      // Redirect based on user role if user is on the home page
-      if (location.pathname === '/') {
+      const publicPages = ['/', '/login', '/signup'];
+      
+      // قم بالتوجيه فقط إذا كان المستخدم على صفحة عامة ولديه صلاحيات
+      if (publicPages.includes(location.pathname) && user.role) {
         switch (user.role) {
           case UserRole.CUSTOMER:
             navigate('/customer');

@@ -21,6 +21,11 @@ export default function RouteGuard({ children, role }: RouteGuardProps) {
     return <Navigate to="/login" replace />;
   }
 
+  // التحقق من أن المستخدم لديه دور صالح
+  if (!user.role) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  
   // السماح للمشرف العام بالوصول إلى جميع المسارات
   if (user.role === "SUPER_ADMIN") {
     return <>{children}</>;
