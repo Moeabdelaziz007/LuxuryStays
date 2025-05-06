@@ -264,15 +264,20 @@ export default function CustomerDashboard() {
             </CardContent>
           </Card>
           
-          {/* Reviews Card */}
-          <Card className="bg-gray-900 border-gray-800 text-white">
+          {/* Coming Soon Card */}
+          <Card className="bg-gray-900 border-gray-800 text-white relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 bg-[#39FF14]/60 rounded-full w-16 h-16 blur-xl"></div>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-medium">التقييمات</CardTitle>
-              <FaRegStar className="h-4 w-4 text-[#39FF14]" />
+              <CardTitle className="text-lg font-medium">خدمات إضافية</CardTitle>
+              <div className="bg-gray-800 rounded-full p-1">
+                <FaRegStar className="h-3 w-3 text-[#39FF14]" />
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-[#39FF14]">0</div>
-              <div className="text-xs text-gray-400 mt-1">إجمالي التقييمات</div>
+            <CardContent className="relative">
+              <Badge variant="outline" className="bg-[#39FF14]/10 text-[#39FF14] border-[#39FF14]/20 mb-2">
+                قريباً
+              </Badge>
+              <div className="text-sm text-gray-400">خدمات النوادي، المطاعم والترفيه قيد التطوير</div>
             </CardContent>
           </Card>
         </div>
