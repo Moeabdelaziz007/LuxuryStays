@@ -1,75 +1,73 @@
-// Firebase Firestore Security Rules
-// Copy and use in Firebase Console > Firestore Database > Rules
-
+// Firestore rules
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // قاعدة عامة: المستندات لا يمكن قراءتها أو كتابتها إلا بالقواعد المحددة
-    match /{document=**} {
-      allow read, write: if false;
-    }
-    
-    // قاعدة المستخدمين: يمكن للمستخدم قراءة وتحديث ملفه الشخصي فقط
+    // Users collection
     match /users/{userId} {
-      // مستندات المستخدمين مقروءة للجميع (للسماح بعرض المالكين إلخ)
-      allow read: if true;
-      
-      // يسمح بالكتابة فقط إذا كان المستخدم يقوم بتعديل بياناته الخاصة
-      allow write: if request.auth != null && request.auth.uid == userId;
+      // Anyone can create a new user document with their user ID
+      allow create: if request.auth.uid != null && request.auth.uid == userId;
+      // Users can only read/update their own document
+      allow read, update: if request.auth.uid == userId;
+      // Allow super admins to read/write all user documents
+      allow read, write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
     }
-    
-    // قاعدة العقارات: يمكن للجميع قراءتها، ويمكن للمالك فقط تعديلها
+
+    // Properties collection
     match /properties/{propertyId} {
-      // العقارات متاحة للقراءة من قبل أي شخص (زائر أو مسجل)
-      allow read: if true; 
-      
-      // العقارات يمكن إنشاؤها وتعديلها من قبل المالك فقط أو المشرف
-      allow create: if request.auth != null &&
-        (request.resource.data.ownerId == request.auth.uid || 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN" ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "PROPERTY_ADMIN");
-      
-      // يمكن تعديل العقار من قبل المالك أو المشرف فقط
-      allow update, delete: if request.auth != null &&
-        (resource.data.ownerId == request.auth.uid || 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
+      // Anyone can read property documents
+      allow read: if true;
+      // Only property owners or super admins can create/update/delete
+      allow create, update, delete: if 
+        request.auth.uid != null && (
+          request.resource.data.ownerId == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "PROPERTY_ADMIN" ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN"
+        );
     }
-    
-    // قاعدة الخدمات: يمكن للجميع قراءتها، ويمكن للمشرف فقط تعديلها
+
+    // Services collection
     match /services/{serviceId} {
-      // الخدمات متاحة للقراءة من قبل أي شخص
+      // Anyone can read service documents
+      allow read: if true;
+      // Only super admins can create/update/delete
+      allow create, update, delete: if 
+        request.auth.uid != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
+    }
+
+    // Bookings collection
+    match /bookings/{bookingId} {
+      // Users can read their own bookings or bookings for properties they own
+      allow read: if 
+        request.auth.uid != null && (
+          resource.data.userId == request.auth.uid ||
+          resource.data.propertyOwnerId == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN"
+        );
+      
+      // Users can create bookings
+      allow create: if request.auth.uid != null;
+      
+      // Users can only update/delete their own bookings
+      allow update, delete: if 
+        request.auth.uid != null && (
+          resource.data.userId == request.auth.uid ||
+          resource.data.propertyOwnerId == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN"
+        );
+    }
+  }
+}
+
+// Storage rules
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      // Anyone can read storage files
       allow read: if true;
       
-      // الخدمات يمكن إنشاؤها وتعديلها من قبل المشرف فقط
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
+      // Only authenticated users can upload/delete files
+      allow write: if request.auth != null;
     }
-    
-    // قاعدة الحجوزات: يمكن للمستخدم قراءة وإنشاء حجوزاته فقط
-    match /bookings/{bookingId} {
-      // المستخدم يمكنه قراءة الحجوزات الخاصة به فقط
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      
-      // مالك العقار يمكنه قراءة الحجوزات المتعلقة بعقاراته
-      allow read: if request.auth != null && 
-        exists(/databases/$(database)/documents/properties/$(resource.data.propertyId)) &&
-        get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.ownerId == request.auth.uid;
-      
-      // المشرف يمكنه قراءة جميع الحجوزات
-      allow read: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
-      
-      // المستخدم يمكنه إنشاء حجوزات جديدة فقط
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      
-      // المستخدم يمكنه تعديل حجوزاته فقط
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
-      
-      // المشرف يمكنه تعديل جميع الحجوزات
-      allow update, delete: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
-    }
-    
-    // أي مجموعة إضافية ستحتاج إلى قواعد خاصة بها
   }
 }
