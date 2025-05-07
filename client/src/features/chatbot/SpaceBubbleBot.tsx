@@ -431,19 +431,41 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
     setChatKey(Date.now());
   };
 
+  // مجموعة من الردود الاحتياطية للاستخدام عند فشل الاتصال بـ Gemini API
+  const fallbackResponses = [
+    "يمكنني مساعدتك في العثور على عقار مناسب. هل تبحث عن فيلا أم شاليه؟",
+    "تتراوح أسعار العقارات لدينا من 150 دولار إلى 850 دولار في الليلة. ما هي ميزانيتك المفضلة؟",
+    "لدينا عقارات مميزة في راس الحكمة والساحل الشمالي. هل تفضل موقعاً محدداً؟",
+    "معظم عقاراتنا تحتوي على مسابح خاصة ومناظر رائعة. يمكنني مساعدتك في اختيار الأنسب لاحتياجاتك.",
+    "أوصي بفيلا بانوراما لمن يبحثون عن إطلالة بحرية مميزة. تبدأ من 485 دولار في الليلة وتضم 4 غرف نوم.",
+    "شاليه مارينا خيار مثالي للعائلات الصغيرة، يضم غرفتين بسعر 259 دولار فقط في الليلة."
+  ];
+
   // المعالج الذي يرسل رسالة المستخدم إلى Gemini ويعالج الرد
   const handleUserMessage = async (message: string, nextStep: any) => {
     try {
-      // استدعاء خدمة Gemini للحصول على الرد
+      // محاولة استدعاء خدمة Gemini للحصول على الرد
       const response = await geminiService.sendMessage(message);
       
-      // إرسال الرد إلى الشات
-      nextStep.value = response;
+      // إذا نجح الاتصال، أرسل الرد إلى الشات
+      if (response && !response.includes("عذراً") && !response.includes("خطأ")) {
+        nextStep.value = response;
+      } else {
+        // استخدام رد احتياطي في حالة فشل الاتصال
+        const randomIndex = Math.floor(Math.random() * fallbackResponses.length);
+        nextStep.value = fallbackResponses[randomIndex];
+      }
+      
       nextStep.completed = true;
       nextStep.trigger();
     } catch (error) {
       console.error("خطأ في التواصل مع Gemini API:", error);
-      nextStep.value = "عذراً، حدث خطأ في معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً.";
+      
+      // استخدام رد احتياطي في حالة فشل الاتصال
+      const randomIndex = Math.floor(Math.random() * fallbackResponses.length);
+      nextStep.value = fallbackResponses[randomIndex];
+      
+      nextStep.completed = true;
       nextStep.trigger();
     }
   };
@@ -563,6 +585,13 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
         <div style={{ height: isSettingsOpen ? 'calc(500px - 80px)' : '500px' }}>
           <ThemeProvider theme={spaceTheme}>
             <div className="flex flex-col h-full">
+              {/* عرض مؤشر الخطأ إذا كان هناك مشكلة في الاتصال */}
+              {geminiService.getConnectionStatus().status !== 'connected' && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-[80%]">
+                  <ConnectionErrorIndicator retry={resetChat} />
+                </div>
+              )}
+              
               <ChatBot
                 key={chatKey}
                 steps={steps}
