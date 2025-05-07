@@ -716,15 +716,17 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                 {/* Right Sidebar Content */}
                 <div className="md:col-span-1">
                   {/* Quick Links */}
-                  <Card className="bg-[#292C35] border-0 rounded-xl overflow-hidden mb-6">
+                  <Card className="bg-black/80 border border-[#39FF14]/10 rounded-xl overflow-hidden mb-6">
                     <CardHeader className="px-5 pt-5 pb-3">
-                      <CardTitle className="text-lg font-medium">روابط سريعة</CardTitle>
+                      <CardTitle className="text-lg font-medium flex items-center gap-2">
+                        <span className="text-[#39FF14]">✧</span> روابط سريعة
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="p-3">
                       <div className="grid grid-cols-2 gap-2">
                         <Button 
                           variant="outline" 
-                          className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
+                          className="bg-black/90 border-[#39FF14]/10 text-white hover:bg-black hover:text-[#39FF14] hover:border-[#39FF14]/30 transition-all py-6 flex flex-col h-auto hover:shadow-[0_0_10px_rgba(57,255,20,0.1)]"
                           onClick={() => navigate("/")}
                         >
                           <FaHome className="h-5 w-5 mb-2" />
@@ -732,7 +734,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
+                          className="bg-black/90 border-[#39FF14]/10 text-white hover:bg-black hover:text-[#39FF14] hover:border-[#39FF14]/30 transition-all py-6 flex flex-col h-auto hover:shadow-[0_0_10px_rgba(57,255,20,0.1)]"
                           onClick={() => navigate("/properties")}
                         >
                           <FaBed className="h-5 w-5 mb-2" />
@@ -740,7 +742,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
+                          className="bg-black/90 border-[#39FF14]/10 text-white hover:bg-black hover:text-[#39FF14] hover:border-[#39FF14]/30 transition-all py-6 flex flex-col h-auto hover:shadow-[0_0_10px_rgba(57,255,20,0.1)]"
                           onClick={() => navigate("/customer/bookings")}
                         >
                           <FaCalendarAlt className="h-5 w-5 mb-2" />
@@ -748,7 +750,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
+                          className="bg-black/90 border-[#39FF14]/10 text-white hover:bg-black hover:text-[#39FF14] hover:border-[#39FF14]/30 transition-all py-6 flex flex-col h-auto hover:shadow-[0_0_10px_rgba(57,255,20,0.1)]"
                           onClick={() => navigate("/customer/services")}
                         >
                           <FaRegStar className="h-5 w-5 mb-2" />
@@ -759,45 +761,47 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                   </Card>
                   
                   {/* Local Activities */}
-                  <Card className="bg-[#292C35] border-0 rounded-xl overflow-hidden">
+                  <Card className="bg-black/80 border border-[#39FF14]/10 rounded-xl overflow-hidden">
                     <CardHeader className="px-5 pt-5 pb-3">
-                      <CardTitle className="text-lg font-medium">أنشطة مقترحة</CardTitle>
+                      <CardTitle className="text-lg font-medium flex items-center gap-2">
+                        <span className="text-[#39FF14]">✧</span> أنشطة مقترحة
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="px-5 py-0">
                       <div className="space-y-3">
-                        <div className="flex items-center gap-3 p-3 bg-[#1F2128] rounded-lg hover:bg-[#1F2128]/80 cursor-pointer transition-colors">
+                        <div className="flex items-center gap-3 p-3 bg-black/90 rounded-lg hover:bg-black/60 cursor-pointer transition-all border border-[#39FF14]/5 hover:border-[#39FF14]/20">
                           <div className="w-10 h-10 rounded-md bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
                             <span className="text-xl">🏊‍♂️</span>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-white">غوص في البحر الأبيض المتوسط</h4>
-                            <p className="text-xs text-gray-400 mt-0.5">من 50$ للشخص</p>
+                            <h4 className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">غوص في البحر الأبيض المتوسط</h4>
+                            <p className="text-xs text-gray-400 mt-0.5">من <span className="text-[#39FF14]">50$</span> للشخص</p>
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-3 p-3 bg-[#1F2128] rounded-lg hover:bg-[#1F2128]/80 cursor-pointer transition-colors">
+                        <div className="flex items-center gap-3 p-3 bg-black/90 rounded-lg hover:bg-black/60 cursor-pointer transition-all border border-[#39FF14]/5 hover:border-[#39FF14]/20">
                           <div className="w-10 h-10 rounded-md bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
                             <span className="text-xl">🏄‍♂️</span>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-white">ركوب الأمواج في راس الحكمة</h4>
-                            <p className="text-xs text-gray-400 mt-0.5">من 35$ للشخص</p>
+                            <h4 className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">ركوب الأمواج في راس الحكمة</h4>
+                            <p className="text-xs text-gray-400 mt-0.5">من <span className="text-[#39FF14]">35$</span> للشخص</p>
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-3 p-3 bg-[#1F2128] rounded-lg hover:bg-[#1F2128]/80 cursor-pointer transition-colors">
+                        <div className="flex items-center gap-3 p-3 bg-black/90 rounded-lg hover:bg-black/60 cursor-pointer transition-all border border-[#39FF14]/5 hover:border-[#39FF14]/20">
                           <div className="w-10 h-10 rounded-md bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
                             <span className="text-xl">🍹</span>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-white">حفلة على الشاطئ</h4>
-                            <p className="text-xs text-gray-400 mt-0.5">من 25$ للشخص</p>
+                            <h4 className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">حفلة على الشاطئ</h4>
+                            <p className="text-xs text-gray-400 mt-0.5">من <span className="text-[#39FF14]">25$</span> للشخص</p>
                           </div>
                         </div>
                       </div>
                       
                       <div className="text-center mt-4 mb-3">
-                        <Button variant="ghost" className="text-[#39FF14] hover:bg-[#39FF14]/10 w-full">
+                        <Button variant="outline" className="text-[#39FF14] border-[#39FF14]/20 hover:bg-[#39FF14]/10 w-full hover:border-[#39FF14]/40">
                           عرض المزيد
                         </Button>
                       </div>
@@ -809,16 +813,22 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
               {/* Stats and Analytics Section */}
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <FaChartLine className="h-4 w-4 text-[#39FF14]" />
-                  إحصائيات وتحليلات
+                  <div className="h-6 w-6 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
+                    <FaChartLine className="h-3 w-3 text-[#39FF14]" />
+                  </div>
+                  <span className="bg-gradient-to-r from-white to-gray-300 text-transparent bg-clip-text drop-shadow-sm">
+                    إحصائيات وتحليلات
+                  </span>
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Booking Stats */}
-                  <div className="bg-[#292C35] rounded-xl p-5 border border-gray-800">
+                  <div className="bg-black/80 rounded-xl p-5 border border-[#39FF14]/10 hover:border-[#39FF14]/20 transition-all">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-base font-medium text-white flex items-center gap-2">
-                        <FaCalendarAlt className="h-4 w-4 text-[#39FF14]" />
+                        <div className="h-5 w-5 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
+                          <FaCalendarAlt className="h-2.5 w-2.5 text-[#39FF14]" />
+                        </div>
                         الحجوزات
                       </h3>
                       <Badge className="bg-[#39FF14]/10 text-[#39FF14] hover:bg-[#39FF14]/20 border-none">
@@ -826,33 +836,35 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                       </Badge>
                     </div>
                     
-                    <div className="flex items-center justify-between px-3 py-2 bg-[#1F2128] rounded-lg mb-2">
+                    <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-lg mb-2 border border-[#39FF14]/5">
                       <div className="text-sm text-white">حجوزات مؤكدة</div>
-                      <div className="text-sm font-medium text-white">
+                      <div className="text-sm font-medium text-[#39FF14]">
                         {bookings.filter((booking: Booking) => booking.status === 'confirmed').length}
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between px-3 py-2 bg-[#1F2128] rounded-lg mb-2">
+                    <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-lg mb-2 border border-[#39FF14]/5">
                       <div className="text-sm text-white">حجوزات قيد الانتظار</div>
-                      <div className="text-sm font-medium text-white">
+                      <div className="text-sm font-medium text-[#39FF14]">
                         {bookings.filter(booking => booking.status === 'pending').length}
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between px-3 py-2 bg-[#1F2128] rounded-lg">
+                    <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-lg border border-[#39FF14]/5">
                       <div className="text-sm text-white">حجوزات ملغاة</div>
-                      <div className="text-sm font-medium text-white">
+                      <div className="text-sm font-medium text-[#39FF14]">
                         {bookings.filter(booking => booking.status === 'cancelled').length}
                       </div>
                     </div>
                   </div>
                   
                   {/* Favorite Properties */}
-                  <div className="bg-[#292C35] rounded-xl p-5 border border-gray-800">
+                  <div className="bg-black/80 rounded-xl p-5 border border-[#39FF14]/10 hover:border-[#39FF14]/20 transition-all">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-base font-medium text-white flex items-center gap-2">
-                        <FaHeart className="h-4 w-4 text-[#39FF14]" />
+                        <div className="h-5 w-5 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
+                          <FaHeart className="h-2.5 w-2.5 text-[#39FF14]" />
+                        </div>
                         المفضلة
                       </h3>
                       <Badge className="bg-[#39FF14]/10 text-[#39FF14] hover:bg-[#39FF14]/20 border-none">
@@ -863,8 +875,8 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                     {favorites.length > 0 ? (
                       <div className="space-y-2">
                         {favorites.slice(0, 3).map(favorite => (
-                          <div key={favorite.id} className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
-                            <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0 bg-gray-800">
+                          <div key={favorite.id} className="flex items-center gap-3 p-2 bg-black/60 rounded-lg border border-[#39FF14]/5 hover:border-[#39FF14]/20 transition-all">
+                            <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0 bg-black/80 border border-[#39FF14]/10">
                               {favorite.propertyImage ? (
                                 <img 
                                   src={favorite.propertyImage} 
@@ -892,17 +904,19 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-4 bg-[#1F2128] rounded-lg">
+                      <div className="text-center py-4 bg-black/60 rounded-lg border border-[#39FF14]/5">
                         <p className="text-sm text-gray-400">لا توجد عقارات في المفضلة</p>
                       </div>
                     )}
                   </div>
                   
                   {/* Recent Activity */}
-                  <div className="bg-[#292C35] rounded-xl p-5 border border-gray-800">
+                  <div className="bg-black/80 rounded-xl p-5 border border-[#39FF14]/10 hover:border-[#39FF14]/20 transition-all">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-base font-medium text-white flex items-center gap-2">
-                        <FaChartLine className="h-4 w-4 text-[#39FF14]" />
+                        <div className="h-5 w-5 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
+                          <FaChartLine className="h-2.5 w-2.5 text-[#39FF14]" />
+                        </div>
                         النشاط الأخير
                       </h3>
                       <Badge className="bg-[#39FF14]/10 text-[#39FF14] hover:bg-[#39FF14]/20 border-none">
@@ -911,7 +925,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                     </div>
                     
                     <div className="space-y-2">
-                      <div className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
+                      <div className="flex items-center gap-3 p-2 bg-black/60 rounded-lg border border-[#39FF14]/5 hover:border-[#39FF14]/20 transition-all">
                         <div className="w-8 h-8 rounded-full bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
                           <FaCalendarAlt className="h-4 w-4 text-[#39FF14]" />
                         </div>
@@ -921,7 +935,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
+                      <div className="flex items-center gap-3 p-2 bg-black/60 rounded-lg border border-[#39FF14]/5 hover:border-[#39FF14]/20 transition-all">
                         <div className="w-8 h-8 rounded-full bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
                           <FaHeart className="h-4 w-4 text-[#39FF14]" />
                         </div>
@@ -931,7 +945,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3 p-2 bg-[#1F2128] rounded-lg">
+                      <div className="flex items-center gap-3 p-2 bg-black/60 rounded-lg border border-[#39FF14]/5 hover:border-[#39FF14]/20 transition-all">
                         <div className="w-8 h-8 rounded-full bg-[#39FF14]/10 flex items-center justify-center flex-shrink-0">
                           <FaUser className="h-4 w-4 text-[#39FF14]" />
                         </div>
