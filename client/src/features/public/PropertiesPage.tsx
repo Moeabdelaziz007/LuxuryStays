@@ -1,9 +1,23 @@
 // PropertiesPage.tsx
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/firebase";
 import Layout from '@/components/layout/Layout';
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon, Search, Map, FilterX, BuildingIcon, BedDouble, Bath, Users } from "lucide-react";
+import { format } from "date-fns";
 
 interface Property {
   id: string;
@@ -172,12 +186,71 @@ const localProperties: Property[] = [
   }
 ];
 
+// Get all unique amenities from properties
+const getAllAmenities = () => {
+  const amenitiesSet = new Set<string>();
+  localProperties.forEach(property => {
+    property.amenities.forEach(amenity => {
+      amenitiesSet.add(amenity);
+    });
+  });
+  return Array.from(amenitiesSet);
+};
+
+// Get property geo coordinates for map view (simplified mock)
+const getPropertyCoordinates = (property: Property) => {
+  // This is a simplified mock - in a real app we would get real coordinates from a geocoding API
+  const baseCoordinates = {
+    "راس الحكمة": { lat: 31.17, lng: 27.77 },
+    "الساحل الشمالي": { lat: 30.95, lng: 28.72 },
+    "مراقيا": { lat: 31.03, lng: 28.55 },
+    "هاسيندا": { lat: 30.97, lng: 28.64 },
+  };
+
+  // Find the matching region or default to a base coordinate
+  let baseCoord = { lat: 31.0, lng: 28.5 }; // Default
+  Object.entries(baseCoordinates).forEach(([region, coord]) => {
+    if (property.location.includes(region)) {
+      baseCoord = coord;
+    }
+  });
+
+  // Add small random offset to avoid overlapping pins
+  return {
+    lat: baseCoord.lat + (Math.random() - 0.5) * 0.05,
+    lng: baseCoord.lng + (Math.random() - 0.5) * 0.05,
+  };
+};
+
 export default function PropertiesPage() {
+  const { toast } = useToast();
+  
+  // Basic Filters
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minBedrooms, setMinBedrooms] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  // Extended Filters
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]);
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({
+    from: undefined,
+    to: undefined,
+  });
+  const [guests, setGuests] = useState<number>(1);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string>("list");
+  const [mapOpen, setMapOpen] = useState<boolean>(false);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [advancedFiltersVisible, setAdvancedFiltersVisible] = useState<boolean>(false);
+  
+  // Get all amenities for filtering
+  const allAmenities = getAllAmenities();
 
   const { data: properties, isLoading } = useQuery({
     queryKey: ['properties'],
@@ -233,23 +306,104 @@ export default function PropertiesPage() {
     }
   });
 
+  // Update the advanced filter states based on basic filters
+  useEffect(() => {
+    if (minPrice !== null || maxPrice !== null) {
+      setPriceRange([
+        minPrice !== null ? minPrice : 0,
+        maxPrice !== null ? maxPrice : 20000
+      ]);
+    }
+    
+    if (minBedrooms !== null) {
+      // Keep the advanced filter in sync with the basic filter
+    }
+  }, [minPrice, maxPrice, minBedrooms]);
+
+  // Function to handle search and apply all filters
+  const handleSearch = () => {
+    // This would be an API call in a real application
+    toast({
+      title: "تم تطبيق المرشحات",
+      description: `تم العثور على ${filteredProperties?.length || 0} عقار يطابق معايير البحث`,
+    });
+  };
+
+  // Toggle amenity selection
+  const toggleAmenity = (amenity: string) => {
+    if (selectedAmenities.includes(amenity)) {
+      setSelectedAmenities(selectedAmenities.filter(a => a !== amenity));
+    } else {
+      setSelectedAmenities([...selectedAmenities, amenity]);
+    }
+  };
+
+  // Reset all filters
+  const resetFilters = () => {
+    setSelectedLocation(null);
+    setMinPrice(null);
+    setMaxPrice(null);
+    setMinBedrooms(null);
+    setPriceRange([0, 20000]);
+    setDateRange({ from: undefined, to: undefined });
+    setGuests(1);
+    setSelectedAmenities([]);
+    setSearchText("");
+    
+    toast({
+      title: "تم إعادة تعيين المرشحات",
+      description: "تم إعادة تعيين جميع مرشحات البحث"
+    });
+  };
+
+  // Open map view
+  const openMapView = () => {
+    setMapOpen(true);
+  };
+
+  // Apply coordinates to properties for map view
+  const propertiesWithCoordinates = properties?.map(property => ({
+    ...property,
+    coordinates: getPropertyCoordinates(property)
+  }));
+
   const filteredProperties = properties?.filter(property => {
+    // Text search filter
+    if (searchText && 
+      !property.name.toLowerCase().includes(searchText.toLowerCase()) && 
+      !property.description.toLowerCase().includes(searchText.toLowerCase()) &&
+      !property.location.toLowerCase().includes(searchText.toLowerCase())) {
+      return false;
+    }
+    
     // فلترة حسب الموقع
     if (selectedLocation && !property.location.includes(selectedLocation)) {
       return false;
     }
     
-    // فلترة حسب السعر
-    if (minPrice !== null && property.pricePerNight < minPrice) {
-      return false;
-    }
-    if (maxPrice !== null && property.pricePerNight > maxPrice) {
+    // فلترة حسب السعر (using advanced price range)
+    if (property.pricePerNight < priceRange[0] || property.pricePerNight > priceRange[1]) {
       return false;
     }
     
     // فلترة حسب عدد غرف النوم
     if (minBedrooms !== null && property.bedrooms < minBedrooms) {
       return false;
+    }
+    
+    // Filter by guest capacity
+    if (guests > property.maxGuests) {
+      return false;
+    }
+    
+    // Filter by amenities
+    if (selectedAmenities.length > 0) {
+      // Check if property has ALL selected amenities
+      for (const amenity of selectedAmenities) {
+        if (!property.amenities.includes(amenity)) {
+          return false;
+        }
+      }
     }
     
     return true;
@@ -291,100 +445,478 @@ export default function PropertiesPage() {
           </p>
         </div>
         
-        {/* فلاتر */}
-        <div className="mb-12 bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h2 className="text-xl font-semibold text-white mb-4">البحث والتصفية</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* فلتر الموقع */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-300 mb-2">المنطقة</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setSelectedLocation(null)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${!selectedLocation ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+        {/* بحث متقدم مع عرضين (قائمة / خريطة) */}
+        <div className="mb-12">
+          <Tabs defaultValue="list" value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="flex justify-between items-center mb-4">
+              <TabsList className="bg-gray-800 p-1">
+                <TabsTrigger 
+                  value="list" 
+                  className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-black text-gray-300"
                 >
-                  الكل
-                </button>
-                {locations.map(location => (
-                  <button
-                    key={location}
-                    onClick={() => setSelectedLocation(location)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${selectedLocation === location ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                  <BuildingIcon className="w-4 h-4 mr-2" />
+                  عرض القائمة
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="map" 
+                  className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-black text-gray-300"
+                >
+                  <Map className="w-4 h-4 mr-2" />
+                  عرض الخريطة
+                </TabsTrigger>
+              </TabsList>
+              
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => setAdvancedFiltersVisible(!advancedFiltersVisible)}
+                  variant="outline"
+                  size="sm"
+                  className={`border-gray-700 text-white hover:bg-gray-700 transition-all ${
+                    advancedFiltersVisible ? 'bg-gray-700' : ''
+                  }`}
+                >
+                  {advancedFiltersVisible ? "إخفاء البحث المتقدم" : "البحث المتقدم"}
+                </Button>
+                
+                <Button
+                  onClick={resetFilters}
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-gray-700 transition-all"
+                >
+                  <FilterX className="w-4 h-4 mr-2" />
+                  إعادة تعيين المرشحات
+                </Button>
+              </div>
+            </div>
+
+            {/* حقل البحث */}
+            <div className="mb-6">
+              <div className="relative w-full">
+                <Input
+                  placeholder="ابحث عن العقار المثالي حسب الاسم أو الموقع..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  className="bg-gray-800 border-gray-700 text-white pr-10 focus:ring-[#39FF14] focus:border-[#39FF14] placeholder-gray-500"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+
+            {/* مرشحات متقدمة */}
+            {advancedFiltersVisible && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-gray-800 rounded-xl p-6 mb-6 shadow-lg border border-gray-700"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* نطاق السعر المتقدم باستخدام شريط التمرير */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <Label htmlFor="price-range" className="text-gray-300">نطاق السعر (في الليلة)</Label>
+                      <span className="text-[#39FF14] font-medium">
+                        {priceRange[0]} - {priceRange[1]} جنيه
+                      </span>
+                    </div>
+                    <Slider
+                      id="price-range"
+                      min={0}
+                      max={20000}
+                      step={500}
+                      value={priceRange}
+                      onValueChange={(value) => setPriceRange(value as [number, number])}
+                      className="[&>.sliders-thumb]:bg-[#39FF14] [&>.sliders-track]:bg-[#39FF14]"
+                    />
+                  </div>
+                  
+                  {/* اختيار التاريخ */}
+                  <div className="space-y-3">
+                    <Label className="text-gray-300 block">تواريخ الإقامة</Label>
+                    <div className="relative">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full bg-gray-900 border-gray-700 text-white justify-start hover:bg-gray-950 text-right"
+                          >
+                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                            {dateRange.from ? (
+                              dateRange.to ? (
+                                <>
+                                  {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
+                                </>
+                              ) : (
+                                format(dateRange.from, "dd/MM/yyyy")
+                              )
+                            ) : (
+                              <span className="text-gray-400">اختر تواريخ الإقامة</span>
+                            )}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-gray-900 border-gray-700 text-white">
+                          <DialogHeader>
+                            <DialogTitle className="text-white">اختر تواريخ الإقامة</DialogTitle>
+                            <DialogDescription className="text-gray-400">
+                              حدد تاريخ الوصول والمغادرة لحساب التكلفة الإجمالية للإقامة
+                            </DialogDescription>
+                          </DialogHeader>
+                          <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={dateRange.from}
+                            selected={{
+                              from: dateRange.from,
+                              to: dateRange.to,
+                            }}
+                            onSelect={(value) => setDateRange(value || { from: undefined, to: undefined })}
+                            numberOfMonths={2}
+                            className="bg-gray-900 text-white border-gray-700"
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+                  
+                  {/* عدد الضيوف */}
+                  <div className="space-y-3">
+                    <Label className="text-gray-300 block">عدد الضيوف</Label>
+                    <div className="flex items-center justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10 w-10 border-gray-700 text-white hover:bg-gray-700"
+                        onClick={() => setGuests(Math.max(1, guests - 1))}
+                      >
+                        -
+                      </Button>
+                      <div className="flex items-center">
+                        <Users className="h-5 w-5 mr-2 text-[#39FF14]" />
+                        <span className="text-white font-medium">{guests} ضيف</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10 w-10 border-gray-700 text-white hover:bg-gray-700"
+                        onClick={() => setGuests(guests + 1)}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* المرافق */}
+                <div className="mt-6">
+                  <Label className="text-gray-300 block mb-3">المرافق</Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {allAmenities.slice(0, 10).map(amenity => (
+                      <Badge
+                        key={amenity}
+                        variant="outline"
+                        className={`cursor-pointer transition-all py-2 text-center ${
+                          selectedAmenities.includes(amenity) 
+                            ? 'bg-[#39FF14]/10 border-[#39FF14] text-[#39FF14]' 
+                            : 'bg-gray-900 border-gray-700 text-gray-300 hover:border-gray-600'
+                        }`}
+                        onClick={() => toggleAmenity(amenity)}
+                      >
+                        {amenity}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* زر تطبيق المرشحات */}
+                <div className="mt-6 flex justify-end">
+                  <Button
+                    onClick={handleSearch}
+                    className="bg-[#39FF14] text-black hover:bg-[#39FF14]/90 transition-colors"
                   >
-                    {location}
-                  </button>
-                ))}
+                    <Search className="h-4 w-4 mr-2" />
+                    تطبيق المرشحات
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* عرض القائمة / الخريطة */}
+            <TabsContent value="list" className="mt-0">
+              {/* المرشحات السريعة */}
+              <div className="bg-gray-800 rounded-xl p-4 mb-6 shadow-lg">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* فلتر الموقع */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300 mb-2">المنطقة</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setSelectedLocation(null)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${!selectedLocation ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        الكل
+                      </button>
+                      {locations.map(location => (
+                        <button
+                          key={location}
+                          onClick={() => setSelectedLocation(location)}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedLocation === location ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                        >
+                          {location}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* فلتر السعر */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300 mb-2">السعر (جنيه مصري/ليلة)</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => { setMinPrice(null); setMaxPrice(null); }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${!minPrice && !maxPrice ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        الكل
+                      </button>
+                      <button
+                        onClick={() => { setMinPrice(null); setMaxPrice(5000); }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${maxPrice === 5000 && !minPrice ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        أقل من 5000
+                      </button>
+                      <button
+                        onClick={() => { setMinPrice(5000); setMaxPrice(10000); }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${minPrice === 5000 && maxPrice === 10000 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        5000 - 10000
+                      </button>
+                      <button
+                        onClick={() => { setMinPrice(10000); setMaxPrice(null); }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${minPrice === 10000 && !maxPrice ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        أكثر من 10000
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* فلتر غرف النوم */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300 mb-2">غرف النوم</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setMinBedrooms(null)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${!minBedrooms ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        الكل
+                      </button>
+                      <button
+                        onClick={() => setMinBedrooms(1)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${minBedrooms === 1 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        غرفة+
+                      </button>
+                      <button
+                        onClick={() => setMinBedrooms(2)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${minBedrooms === 2 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        غرفتين+
+                      </button>
+                      <button
+                        onClick={() => setMinBedrooms(3)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${minBedrooms === 3 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                      >
+                        3 غرف+
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            {/* فلتر السعر */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-300 mb-2">السعر (جنيه مصري/ليلة)</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setMinPrice(null); setMaxPrice(null); }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${!minPrice && !maxPrice ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  الكل
-                </button>
-                <button
-                  onClick={() => { setMinPrice(null); setMaxPrice(5000); }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${maxPrice === 5000 && !minPrice ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  أقل من 5000
-                </button>
-                <button
-                  onClick={() => { setMinPrice(5000); setMaxPrice(10000); }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${minPrice === 5000 && maxPrice === 10000 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  5000 - 10000
-                </button>
-                <button
-                  onClick={() => { setMinPrice(10000); setMaxPrice(null); }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${minPrice === 10000 && !maxPrice ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  أكثر من 10000
-                </button>
+            </TabsContent>
+
+            <TabsContent value="map" className="mt-0">
+              {/* عرض الخريطة */}
+              <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 h-[500px] relative">
+                {/* محاكاة الخريطة - في التطبيق الحقيقي يمكن استخدام Google Maps أو Mapbox */}
+                <div className="w-full h-full bg-gradient-to-br from-black to-gray-900 relative overflow-hidden">
+                  {/* خطوط الشبكة */}
+                  <div className="absolute inset-0 grid grid-cols-12 grid-rows-12 opacity-30">
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <div key={`horizontal-${i}`} className="border-b border-[#39FF14]/20 col-span-12"></div>
+                    ))}
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <div key={`vertical-${i}`} className="border-r border-[#39FF14]/20 row-span-12"></div>
+                    ))}
+                  </div>
+                  
+                  {/* نقاط العقارات على الخريطة */}
+                  {propertiesWithCoordinates?.map((property) => (
+                    <motion.div
+                      key={property.id}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2"
+                      style={{ 
+                        left: `${(property.coordinates.lng - 27.5) * 100 + 25}%`, 
+                        top: `${(31.2 - property.coordinates.lat) * 800 + 25}%` 
+                      }}
+                      onClick={() => setSelectedProperty(property)}
+                    >
+                      <div 
+                        className={`w-5 h-5 rounded-full ${
+                          property.bedrooms >= 4 ? 'bg-[#39FF14]' : 
+                          property.bedrooms >= 3 ? 'bg-[#00BFFF]' : 
+                          property.bedrooms >= 2 ? 'bg-[#FF1493]' : 'bg-orange-500'
+                        } relative shadow-lg`}
+                      >
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-white"></span>
+                        <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-medium text-white whitespace-nowrap shadow-lg px-2 py-1 rounded-md bg-black/80 border border-gray-800">
+                          {property.pricePerNight} ج.م
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                  
+                  {/* معلومات العقار المحدد */}
+                  {selectedProperty && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute bottom-4 left-4 right-4 bg-black/90 border border-[#39FF14]/30 rounded-lg shadow-lg p-4 backdrop-blur-md"
+                    >
+                      <div className="flex items-start gap-4">
+                        <img 
+                          src={selectedProperty.imageUrl} 
+                          alt={selectedProperty.name} 
+                          className="w-24 h-24 object-cover rounded-md border border-[#39FF14]/20" 
+                        />
+                        <div className="flex-1">
+                          <h3 className="text-white font-medium mb-1">{selectedProperty.name}</h3>
+                          <div className="flex items-center gap-3 text-sm text-gray-400">
+                            <span className="flex items-center">
+                              <BedDouble className="h-4 w-4 mr-1 text-[#39FF14]" />
+                              {selectedProperty.bedrooms} غرف
+                            </span>
+                            <span className="flex items-center">
+                              <Bath className="h-4 w-4 mr-1 text-[#39FF14]" />
+                              {selectedProperty.bathrooms} حمامات
+                            </span>
+                            <span className="flex items-center">
+                              <Users className="h-4 w-4 mr-1 text-[#39FF14]" />
+                              {selectedProperty.maxGuests} ضيوف
+                            </span>
+                          </div>
+                          <div className="mt-2 flex items-center justify-between">
+                            <span className="text-[#39FF14] font-bold">{selectedProperty.pricePerNight} ج.م / ليلة</span>
+                            <Button 
+                              size="sm" 
+                              className="bg-[#39FF14] text-black hover:bg-[#39FF14]/90 transition-colors"
+                            >
+                              عرض التفاصيل
+                            </Button>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 hover:text-white absolute top-2 right-2"
+                          onClick={() => setSelectedProperty(null)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                          </svg>
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                  
+                  {/* مفتاح الخريطة */}
+                  <div className="absolute top-4 right-4 bg-black/70 border border-gray-700 rounded-lg p-3 text-xs text-white">
+                    <div className="mb-2 font-medium">عدد غرف النوم</div>
+                    <div className="space-y-2">
+                      <div className="flex items-center">
+                        <span className="w-3 h-3 rounded-full bg-[#39FF14] inline-block mr-2"></span>
+                        <span>4+ غرف</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="w-3 h-3 rounded-full bg-[#00BFFF] inline-block mr-2"></span>
+                        <span>3 غرف</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="w-3 h-3 rounded-full bg-[#FF1493] inline-block mr-2"></span>
+                        <span>غرفتين</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="w-3 h-3 rounded-full bg-orange-500 inline-block mr-2"></span>
+                        <span>غرفة واحدة</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            {/* فلتر غرف النوم */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-300 mb-2">غرف النوم</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setMinBedrooms(null)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${!minBedrooms ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  الكل
-                </button>
-                <button
-                  onClick={() => setMinBedrooms(1)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${minBedrooms === 1 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  غرفة+
-                </button>
-                <button
-                  onClick={() => setMinBedrooms(2)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${minBedrooms === 2 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  غرفتين+
-                </button>
-                <button
-                  onClick={() => setMinBedrooms(3)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${minBedrooms === 3 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  3 غرف+
-                </button>
-                <button
-                  onClick={() => setMinBedrooms(4)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${minBedrooms === 4 ? 'bg-[#39FF14] text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-                >
-                  4 غرف+
-                </button>
+              
+              {/* مرشحات الخريطة */}
+              <div className="mt-4 bg-gray-800 p-4 rounded-xl shadow-lg">
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                  <Select value={selectedLocation || "all"} onValueChange={(value) => setSelectedLocation(value === "all" ? null : value)}>
+                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white focus:ring-[#39FF14] focus:border-[#39FF14]">
+                      <SelectValue placeholder="كل المناطق" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                      <SelectItem value="all">كل المناطق</SelectItem>
+                      {locations.map(location => (
+                        <SelectItem key={location} value={location}>{location}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={minBedrooms?.toString() || "all"} onValueChange={(value) => setMinBedrooms(value === "all" ? null : parseInt(value))}>
+                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white focus:ring-[#39FF14] focus:border-[#39FF14]">
+                      <SelectValue placeholder="غرف النوم" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                      <SelectItem value="all">كل الغرف</SelectItem>
+                      <SelectItem value="1">غرفة+</SelectItem>
+                      <SelectItem value="2">غرفتين+</SelectItem>
+                      <SelectItem value="3">3 غرف+</SelectItem>
+                      <SelectItem value="4">4 غرف+</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={priceRange[1].toString()} onValueChange={(value) => setPriceRange([0, parseInt(value)])}>
+                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white focus:ring-[#39FF14] focus:border-[#39FF14]">
+                      <SelectValue placeholder="أقصى سعر" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                      <SelectItem value="5000">حتى 5000</SelectItem>
+                      <SelectItem value="10000">حتى 10000</SelectItem>
+                      <SelectItem value="15000">حتى 15000</SelectItem>
+                      <SelectItem value="20000">حتى 20000</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Button 
+                    onClick={handleSearch}
+                    className="bg-[#39FF14] text-black hover:bg-[#39FF14]/90 transition-colors"
+                  >
+                    <Search className="h-4 w-4 mr-2" />
+                    بحث
+                  </Button>
+                  
+                  <Button 
+                    onClick={resetFilters}
+                    variant="outline"
+                    className="border-gray-700 text-white hover:bg-gray-700"
+                  >
+                    <FilterX className="h-4 w-4 mr-2" />
+                    إعادة تعيين
+                  </Button>
+                </div>
               </div>
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
         
         {/* رسالة خطأ إذا وجدت */}
