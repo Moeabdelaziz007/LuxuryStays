@@ -32,8 +32,8 @@ export async function loginWithGoogle(redirectPath?: string) {
     provider.addScope('profile');
     provider.addScope('email');
     
-    // تسجيل الدخول باستخدام النافذة المنبثقة
-    console.log("محاولة تسجيل الدخول باستخدام نافذة منبثقة...");
+    // تسجيل نطاق الموقع الحالي للتصحيح
+    console.log("محاولة تسجيل الدخول باستخدام نافذة منبثقة من النطاق:", window.location.hostname);
     const result = await signInWithPopup(auth, provider);
     
     // الحصول على بيانات المستخدم من Google
@@ -98,9 +98,10 @@ export async function loginWithGoogle(redirectPath?: string) {
     } else if (popupError.code === 'auth/unauthorized-domain') {
       // النطاق غير مصرح به في إعدادات Firebase
       console.error(`النطاق الحالي (${window.location.hostname}) غير مصرح به في إعدادات Firebase.`);
+      console.error('يجب إضافة هذا النطاق إلى قائمة المجالات المصرح بها في إعدادات Firebase.');
       
-      // محاولة استخدام تسجيل الدخول كضيف بدلاً من ذلك
-      return await loginAsGuest();
+      // إرجاع الخطأ بدلاً من تسجيل الدخول كضيف
+      throw new Error(`النطاق ${window.location.hostname} غير مصرح به في إعدادات Firebase. يرجى التحقق من إعدادات المصادقة.`);
     } else {
       // خطأ آخر، إعادة رمي الخطأ 
       throw popupError;

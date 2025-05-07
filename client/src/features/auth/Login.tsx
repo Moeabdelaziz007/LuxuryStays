@@ -211,25 +211,10 @@ export default function LoginNew() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      const currentDomain = window.location.host;
+      console.log("بدء محاولة تسجيل الدخول باستخدام Google...");
+      console.log("النطاق الحالي:", window.location.host);
       
-      const knownAuthorizedDomains = [
-        'localhost',
-        'staychill-3ed08.firebaseapp.com',
-        'staychill-3ed08.web.app',
-        'f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev',
-        'luxury-stays-mohamedabdela18.replit.app',
-        currentDomain
-      ];
-      
-      const isDomainAuthorized = knownAuthorizedDomains.includes(currentDomain);
-      
-      if (!isDomainAuthorized) {
-        setShowGoogleWarning(true);
-        setGoogleLoading(false);
-        return;
-      }
-      
+      // إرسال مسار إعادة التوجيه إلى دالة تسجيل الدخول مع Google
       await loginWithGoogle(redirectPath || undefined);
       
       toast(getSuccessToast(
@@ -237,8 +222,18 @@ export default function LoginNew() {
         "مرحباً بك في منصة StayX!"
       ));
       
+      if (redirectPath) {
+        navigate(redirectPath);
+      } else {
+        navigate("/");
+      }
+      
     } catch (error: any) {
+      console.error("خطأ أثناء تسجيل الدخول مع Google:", error);
+      
       if (error.code === 'auth/unauthorized-domain') {
+        console.error("النطاق غير مصرح به في Firebase:", window.location.host);
+        console.error("يجب إضافة هذا النطاق إلى إعدادات المصادقة في لوحة تحكم Firebase");
         setShowGoogleWarning(true);
       } else {
         toast({

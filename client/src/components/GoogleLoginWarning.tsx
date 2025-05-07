@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card';
 import { AlertCircle, Copy, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import GoogleAuthDomainFeedback from './GoogleAuthDomainFeedback';
 
 export default function GoogleLoginWarning() {
   // استخدام النطاق المخزن في localStorage إذا كان موجودًا، وإلا استخدام النطاق الحالي
@@ -21,33 +22,18 @@ export default function GoogleLoginWarning() {
   };
   
   return (
-    <Card className="mx-auto max-w-md bg-gray-900/90 border-red-800/50 text-white">
-      <CardHeader className="bg-red-900/40 border-b border-red-800/20">
-        <CardTitle className="flex items-center gap-2 text-red-300">
+    <Card className="mx-auto max-w-lg bg-black/80 border-amber-800/50 text-white backdrop-blur-sm">
+      <CardHeader className="bg-amber-900/30 border-b border-amber-800/20">
+        <CardTitle className="flex items-center gap-2 text-amber-300">
           <AlertCircle className="h-5 w-5" />
-          تسجيل الدخول بواسطة Google غير متاح
+          تسجيل الدخول باستخدام Google غير متاح
         </CardTitle>
         <CardDescription className="text-gray-300">
-          تم اكتشاف مشكلة في نطاق مصادقة Firebase
+          النطاق الحالي غير مضاف إلى قائمة النطاقات المصرح بها في Firebase
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-4 text-sm text-gray-200">
-        <p className="mb-4">
-          النطاق الحالي غير مصرح به في إعدادات مصادقة Firebase. هذه مشكلة شائعة في بيئات التطوير مثل Replit حيث تتغير النطاقات بين الجلسات.
-        </p>
-        <p className="font-bold mb-2 text-white">يجب إضافة النطاق الحالي:</p>
-        <div className="bg-gray-800 p-3 rounded font-mono text-xs text-green-400 break-all">
-          {currentDomain}
-        </div>
-        <h3 className="text-white font-semibold mt-4 mb-2">كيفية إصلاح المشكلة:</h3>
-        <ol className="list-decimal pl-5 space-y-2 text-gray-300">
-          <li>انسخ النطاق أعلاه</li>
-          <li>انتقل إلى <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">لوحة تحكم Firebase</a></li>
-          <li>اختر المشروع: <span className="text-amber-400">stay-chill-e3743</span></li>
-          <li>انتقل إلى: Authentication → Settings → Authorized domains</li>
-          <li>انقر على "Add domain" والصق النطاق المنسوخ</li>
-          <li>احفظ وقم بتحديث هذه الصفحة</li>
-        </ol>
+      <CardContent className="pt-4">
+        <GoogleAuthDomainFeedback />
       </CardContent>
       <CardFooter className="flex justify-between border-t border-gray-800 pt-4">
         <Button 
@@ -60,7 +46,7 @@ export default function GoogleLoginWarning() {
         </Button>
         <Button 
           className="bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={() => window.open('https://console.firebase.google.com/project/_/authentication/providers', '_blank')}
+          onClick={() => window.open('https://console.firebase.google.com/project/_/authentication/settings/authorized-domains', '_blank')}
         >
           <ExternalLink className="h-4 w-4 mr-2" />
           فتح إعدادات Firebase
