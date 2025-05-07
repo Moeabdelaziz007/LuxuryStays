@@ -89,6 +89,11 @@ export default function Logo({
     futuristic: {
       text: 'text-[#39FF14]',
       x: 'text-white',
+    },
+    // احتياطي لأي قيمة غير متوقعة
+    holographic: {
+      text: 'text-[#39FF14]',
+      x: 'text-white',
     }
   };
   
@@ -347,6 +352,9 @@ export default function Logo({
 
   // Content wrapper based on linkToHome
   const LogoContent = () => {
+    // تأكد من أن متغير variant موجود في colorClasses
+    const safeVariant = colorClasses[variant] ? variant : 'futuristic';
+    
     // Base content without animations
     const baseContent = (
       <div 
