@@ -583,6 +583,16 @@
     background: linear-gradient(to bottom, rgba(0, 0, 5, 0.3), rgba(0, 0, 10, 0.95) 90%);
   }
   
+  /* إخفاء شريط التمرير للعناصر القابلة للتمرير أفقياً */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* إخفاء شريط التمرير في Edge و Internet Explorer */
+    scrollbar-width: none;  /* إخفاء شريط التمرير في Firefox */
+  }
+  
   .coming-soon-badge {
     animation: pulse 2s infinite;
   }
