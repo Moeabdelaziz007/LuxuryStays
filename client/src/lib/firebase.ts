@@ -493,16 +493,17 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
   try {
     const provider = new GoogleAuthProvider();
     
-    // تعديل إعدادات المزود (لا حاجة لتحديد client_id هنا، فهو موجود في إعدادات Firebase)
+    // تعديل إعدادات المزود بناءً على معلومات OAuth الجديدة
     provider.setCustomParameters({
-      prompt: 'select_account'
+      prompt: 'select_account',
+      client_id: '299280633489-3q6odgc86hhc1j0cev92bf28q7cep5hj.apps.googleusercontent.com'
     });
     
     // إضافة نطاقات إضافية للحصول على مزيد من المعلومات من Google
     provider.addScope('profile');
     provider.addScope('email');
     
-    console.log("محاولة تسجيل الدخول باستخدام Google...");
+    console.log("محاولة تسجيل الدخول باستخدام Google مع معرف العميل المحدث...");
     
     // استخدام الواجهة المنبثقة بدلاً من إعادة التوجيه
     return await signInWithPopup(auth, provider);
