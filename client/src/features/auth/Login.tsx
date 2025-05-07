@@ -211,85 +211,37 @@ export default function LoginPage() {
     setError("");
     setGuestLoading(true);
     
-    if (!auth) {
-      setError("تسجيل الدخول كزائر غير متاح حالياً. الرجاء المحاولة لاحقاً.");
-      console.error("خدمة المصادقة غير متوفرة: لم يتم تهيئة Firebase Auth");
-      setGuestLoading(false);
-      return;
-    }
-    
-    // إذا كانت Firestore غير متاحة، سنستمر لكن مع رسالة تحذير للمستخدم
-    if (!db) {
-      console.warn("خدمة Firestore غير متاحة: سيتم تسجيل الدخول كزائر بدون تخزين البيانات");
-      toast(getWarningToast(
-        "تنبيه:",
-        "سيتم تسجيل الدخول كزائر، لكن بعض الميزات قد لا تعمل بشكل كامل"
-      ));
-    }
-    
     try {
       console.log("بدء تسجيل الدخول كزائر...");
-      const res = await signInAnonymously(auth);
       
-      // إنشاء ملف بيانات للمستخدم الزائر
-      if (db) {
-        try {
-          const guestRef = doc(db, "users", res.user.uid);
-          const guestSnap = await getDoc(guestRef);
-          
-          if (!guestSnap.exists()) {
-            // إنشاء مستخدم زائر جديد
-            const guestProfile = {
-              uid: res.user.uid,
-              email: null,
-              name: 'زائر',
-              role: "CUSTOMER", // دور افتراضي
-              createdAt: new Date().toISOString(),
-              photoURL: null,
-              isGuest: true
-            };
-            
-            console.log("إنشاء حساب زائر جديد في Firestore");
-            
-            try {
-              await setDoc(guestRef, guestProfile);
-              console.log("تم حفظ بيانات المستخدم الزائر بنجاح");
-              toast(getSuccessToast(
-                "تم تسجيل الدخول كزائر",
-                "مرحباً بك في منصة StayX! يمكنك تصفح المنصة بدون إنشاء حساب."
-              ));
-            } catch (firestoreError) {
-              console.error("فشل حفظ بيانات المستخدم الزائر:", firestoreError);
-              toast(getWarningToast(
-                "تم تسجيل الدخول كزائر مع تحذير",
-                "تم تسجيل دخولك بنجاح ولكن قد تكون هناك مشكلة في حفظ بياناتك."
-              ));
-            }
-          }
-        } catch (error) {
-          console.error("خطأ في التفاعل مع Firestore:", error);
-        }
-      }
+      // استخدام دالة loginAnonymously من سياق المصادقة
+      await loginAnonymously(redirectPath || undefined);
       
-      // التوجيه بعد تسجيل الدخول
-      setTimeout(() => {
-        if (redirectPath) {
-          navigate(redirectPath);
-        } else {
-          navigate("/");
-        }
-      }, 1000);
+      // عرض رسالة نجاح
+      toast(getSuccessToast(
+        "تم تسجيل الدخول كزائر",
+        "مرحباً بك في منصة StayX! يمكنك تصفح المنصة بدون إنشاء حساب."
+      ));
+      
+      // التوجيه سيتم تلقائيًا بواسطة سياق المصادقة
       
     } catch (err: any) {
       console.error("خطأ في تسجيل الدخول كزائر:", err);
       
-      if (err.code === 'auth/operation-not-allowed') {
-        setError("تسجيل الدخول كزائر غير مُفعل في هذا التطبيق.");
-      } else if (err.code === 'auth/network-request-failed') {
-        setError("فشل في الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت.");
-      } else {
-        setError(err.message || "حدث خطأ أثناء تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
-      }
+      // رسائل الخطأ المحتملة
+      const anonymousErrorMessages: Record<string, string> = {
+        'auth/operation-not-allowed': "تسجيل الدخول كزائر غير مُفعل في هذا التطبيق.",
+        'auth/admin-restricted-operation': "تسجيل الدخول كزائر غير متاح حاليًا. الرجاء استخدام طريقة أخرى.",
+        'auth/network-request-failed': "فشل في الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت.",
+      };
+      
+      setError(anonymousErrorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
+      
+      toast({
+        title: "فشل تسجيل الدخول",
+        description: anonymousErrorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول كزائر، الرجاء المحاولة لاحقًا",
+        variant: "destructive",
+      });
     } finally {
       setGuestLoading(false);
     }
