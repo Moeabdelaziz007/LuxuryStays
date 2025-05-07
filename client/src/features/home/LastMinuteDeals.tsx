@@ -1,327 +1,272 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { Clock, Zap, ArrowRight, TimerIcon, Tag, Sparkles, CalendarClock, BadgePercent, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Link } from "wouter";
+import { SpaceButton } from "@/components/ui/space-button";
 
-// نوع بيانات للعرض اللحظي
-interface LastMinuteDeal {
-  id: string;
-  title: string;
-  description: string;
-  originalPrice: number;
-  discountedPrice: number;
-  discountPercentage: number;
-  imageUrl: string;
-  location: string;
-  availability: string;
-  features: string[];
-  timeLeft: string;
-  rating: number;
-}
-
-// قائمة العروض اللحظية
-const deals: LastMinuteDeal[] = [
+// بيانات العروض اللحظية
+const lastMinuteDeals = [
   {
-    id: 'deal1',
-    title: 'شاليه فاخر بإطلالة بحرية',
-    description: 'تمتع بعطلة نهاية الأسبوع في شاليه فاخر مع إطلالة بانورامية على البحر، حمام سباحة خاص وخدمة غرف 24 ساعة',
-    originalPrice: 3500,
-    discountedPrice: 2450,
-    discountPercentage: 30,
-    imageUrl: '/assets/luxury-chalet.webp',
-    location: 'العين السخنة',
-    availability: 'متاح لمدة 3 أيام فقط',
-    features: ['إطلالة بحرية', 'حمام سباحة خاص', 'خدمة غرف 24 ساعة', 'موقف سيارات مجاني'],
-    timeLeft: '23:45:12',
-    rating: 4.8,
+    id: 1,
+    title: "شاليه فاخر بإطلالة بحرية",
+    description: "إقامة فاخرة مع إطلالة ساحرة على البحر، خصم 30% لفترة محدودة",
+    originalPrice: 1200,
+    discountedPrice: 840,
+    image: "/assets/luxury-chalet.svg",
+    expires: "2025-05-10", // تاريخ انتهاء العرض
+    roomsLeft: 2, // عدد الغرف المتبقية
+    location: "شرم الشيخ",
   },
   {
-    id: 'deal2',
-    title: 'فيلا مع حديقة خاصة',
-    description: 'فيلا فاخرة مكيفة بالكامل مع حديقة خاصة ومنطقة شواء، مثالية للعائلات والمجموعات الكبيرة لقضاء عطلة مميزة',
-    originalPrice: 5000,
-    discountedPrice: 3750,
-    discountPercentage: 25,
-    imageUrl: '/assets/villa-garden.webp',
-    location: 'الساحل الشمالي',
-    availability: 'متاح لمدة 5 أيام فقط',
-    features: ['حديقة خاصة', 'مكيف بالكامل', 'منطقة شواء', 'مسبح خاص', 'أمن 24 ساعة'],
-    timeLeft: '47:15:33',
-    rating: 4.7,
+    id: 2,
+    title: "فيلا مع حديقة خاصة",
+    description: "فيلا فاخرة مع حديقة خاصة وحمام سباحة، عرض خاص لمدة 48 ساعة فقط",
+    originalPrice: 1800,
+    discountedPrice: 1350,
+    image: "/assets/villa-garden.svg",
+    expires: "2025-05-09",
+    roomsLeft: 1,
+    location: "الساحل الشمالي",
   },
   {
-    id: 'deal3',
-    title: 'شقة فاخرة وسط المدينة',
-    description: 'شقة عصرية بموقع متميز وسط المدينة، قريبة من كافة المرافق والخدمات، مجهزة بالكامل بأحدث التقنيات الذكية',
-    originalPrice: 2800,
-    discountedPrice: 1960,
-    discountPercentage: 30,
-    imageUrl: '/assets/city-apartment.webp',
-    location: 'القاهرة الجديدة',
-    availability: 'متاح اليوم فقط',
-    features: ['تقنيات ذكية', 'موقع مركزي', 'أمن 24 ساعة', 'خدمة تنظيف'],
-    timeLeft: '08:30:44',
-    rating: 4.5,
+    id: 3,
+    title: "شقة فاخرة وسط المدينة",
+    description: "شقة مريحة بتصميم عصري في قلب المدينة، خصم 25% للحجز المبكر",
+    originalPrice: 750,
+    discountedPrice: 563,
+    image: "/assets/city-apartment.svg",
+    expires: "2025-05-12",
+    roomsLeft: 3,
+    location: "القاهرة",
   },
 ];
 
-// مكون لعرض تقييم المنتج بالنجوم
-const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
-  return (
-    <div className="flex items-center">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg
-          key={star}
-          className={`w-4 h-4 ${
-            star <= Math.floor(rating) ? 'text-yellow-400' : 'text-gray-600'
-          } ${star <= rating && star > Math.floor(rating) ? 'text-yellow-300' : ''}`}
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-      ))}
-      <span className="ml-2 text-white text-sm">{rating}</span>
-    </div>
-  );
-};
+export default function LastMinuteDeals() {
+  const [countdowns, setCountdowns] = useState<{ [key: number]: string }>({});
+  const [isHoveredId, setIsHoveredId] = useState<number | null>(null);
 
-// مكون بطاقة العرض اللحظي
-const DealCard: React.FC<{ deal: LastMinuteDeal; isExpanded: boolean; onClick: () => void }> = ({
-  deal,
-  isExpanded,
-  onClick,
-}) => {
-  return (
-    <motion.div
-      className={`flex flex-col bg-black rounded-xl overflow-hidden border border-[#39FF14]/20 shadow-[0_0_15px_rgba(57,255,20,0.15)] transition-all duration-300 ${
-        isExpanded ? 'md:flex-row h-auto' : 'h-[450px]'
-      }`}
-      layout
-      onClick={onClick}
-    >
-      {/* صورة العرض */}
-      <div
-        className={`relative overflow-hidden ${
-          isExpanded ? 'md:w-2/5 h-[300px] md:h-auto' : 'h-48'
-        }`}
-      >
-        {/* التأثيرات الفضائية على الصورة */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-[#39FF14]/20 z-10"></div>
-        
-        {/* شارة الخصم */}
-        <div className="absolute top-4 right-4 bg-[#39FF14] text-black font-bold px-3 py-1 rounded-full z-20 flex items-center shadow-[0_0_10px_rgba(57,255,20,0.5)]">
-          <BadgePercent size={14} className="mr-1" /> {deal.discountPercentage}% خصم
-        </div>
-        
-        <img
-          src={deal.imageUrl}
-          alt={deal.title}
-          className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
-        />
-        
-        {/* معلومات سريعة على الصورة */}
-        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-20">
-          <div className="bg-black/70 text-white text-xs px-3 py-1 rounded-full flex items-center backdrop-blur-sm">
-            <Clock size={12} className="mr-1 text-[#39FF14]" /> {deal.timeLeft}
-          </div>
-          <div className="bg-black/70 text-white text-xs px-3 py-1 rounded-full flex items-center backdrop-blur-sm">
-            <Tag size={12} className="mr-1 text-[#39FF14]" /> {deal.location}
-          </div>
-        </div>
-      </div>
-      
-      {/* محتوى العرض */}
-      <div className="flex-1 p-5 flex flex-col">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-xl font-bold text-white">{deal.title}</h3>
-          <StarRating rating={deal.rating} />
-        </div>
-        
-        <p className="text-gray-300 text-sm mb-4">{deal.description}</p>
-        
-        {/* التوافر والوقت */}
-        <div className="flex items-center mb-4">
-          <CalendarClock size={16} className="text-[#39FF14] mr-2" />
-          <span className="text-gray-300 text-sm">{deal.availability}</span>
-        </div>
-        
-        {/* الأسعار */}
-        <div className="mb-4 flex items-end">
-          <div className="flex flex-col">
-            <span className="text-gray-400 text-xs line-through">{deal.originalPrice} ج.م</span>
-            <span className="text-[#39FF14] text-2xl font-bold">{deal.discountedPrice} ج.م</span>
-          </div>
-          <span className="text-gray-400 text-xs ml-2">لليلة الواحدة</span>
-        </div>
-        
-        {/* المميزات */}
-        {isExpanded && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            transition={{ duration: 0.3 }}
-            className="mb-4"
-          >
-            <h4 className="text-white font-semibold mb-2 flex items-center">
-              <Sparkles size={16} className="text-[#39FF14] mr-2" /> المميزات
-            </h4>
-            <ul className="grid grid-cols-2 gap-2">
-              {deal.features.map((feature, index) => (
-                <li key={index} className="flex items-center text-gray-300 text-sm">
-                  <ShieldCheck size={12} className="text-[#39FF14] mr-2 flex-shrink-0" /> {feature}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
-        
-        {/* زر الحجز */}
-        <motion.button
-          className="mt-auto py-3 px-6 bg-gradient-to-r from-[#39FF14]/80 to-[#39FF14] text-black font-bold rounded-lg flex items-center justify-center hover:shadow-[0_0_20px_rgba(57,255,20,0.4)] transition-all group"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          احجز الآن
-          <ArrowRight size={16} className="mr-2 transition-transform group-hover:translate-x-1" />
-        </motion.button>
-      </div>
-    </motion.div>
-  );
-};
-
-// مكون قسم العروض اللحظية الرئيسي
-const LastMinuteDeals: React.FC = () => {
-  const [expandedDeal, setExpandedDeal] = useState<string | null>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const controls = useAnimation();
-  
-  // مراقبة ظهور القسم في الشاشة
+  // حساب الوقت المتبقي لكل عرض
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          controls.start('visible');
-        }
-      },
-      { threshold: 0.2 }
-    );
-    
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-    
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, [controls]);
-  
-  const toggleExpand = (dealId: string) => {
-    setExpandedDeal(expandedDeal === dealId ? null : dealId);
-  };
-  
-  return (
-    <section 
-      ref={sectionRef} 
-      className="py-16 md:py-24 relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(10,15,25,1) 100%)' }}
-    >
-      {/* خلفية القسم */}
-      <div className="absolute inset-0 z-0">
-        {/* خطوط الشبكة */}
-        <div className="absolute inset-0 opacity-10" style={{ 
-          backgroundImage: `radial-gradient(#39FF14 1px, transparent 1px)`,
-          backgroundSize: '30px 30px'
-        }}></div>
-        
-        {/* أضواء وتأثيرات */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/30 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/30 to-transparent"></div>
-      </div>
+    const intervalId = setInterval(() => {
+      const newCountdowns: { [key: number]: string } = {};
       
-      <div className="container mx-auto px-4 relative z-10">
-        {/* ترويسة القسم */}
-        <div className="text-center mb-16">
-          <motion.div
-            className="inline-flex items-center mb-3 px-4 py-1.5 bg-[#39FF14]/10 text-[#39FF14] text-sm font-medium rounded-full border border-[#39FF14]/20"
-            initial={{ opacity: 0, y: 20 }}
-            animate={controls}
-            transition={{ duration: 0.5 }}
-            variants={{
-              visible: { opacity: 1, y: 0 }
-            }}
-          >
-            <TimerIcon size={16} className="mr-2" /> العروض اللحظية
-          </motion.div>
+      lastMinuteDeals.forEach((deal) => {
+        const expireDate = new Date(deal.expires);
+        const now = new Date();
+        const diff = expireDate.getTime() - now.getTime();
+        
+        if (diff <= 0) {
+          newCountdowns[deal.id] = "انتهى العرض";
+        } else {
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
           
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={controls}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            variants={{
-              visible: { opacity: 1, y: 0 }
+          newCountdowns[deal.id] = days + " يوم " + hours + " ساعة " + minutes + " دقيقة";
+        }
+      });
+      
+      setCountdowns(newCountdowns);
+    }, 60000); // تحديث كل دقيقة
+    
+    // تحديث أولي
+    const initialCountdowns: { [key: number]: string } = {};
+    lastMinuteDeals.forEach((deal) => {
+      const expireDate = new Date(deal.expires);
+      const now = new Date();
+      const diff = expireDate.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        initialCountdowns[deal.id] = "انتهى العرض";
+      } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        
+        initialCountdowns[deal.id] = days + " يوم " + hours + " ساعة " + minutes + " دقيقة";
+      }
+    });
+    
+    setCountdowns(initialCountdowns);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
+  return (
+    <section className="py-16 relative overflow-hidden">
+      {/* خلفية القسم مع تأثيرات النجوم والدوائر التكنولوجية */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-slate-900/90 to-black"></div>
+      
+      {/* نقاط النجوم المتألقة */}
+      <div className="absolute inset-0 overflow-hidden">
+        {Array.from({ length: 30 }).map((_, i) => (
+          <div 
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full animate-twinkle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              opacity: Math.random() * 0.7 + 0.3
             }}
-          >
-            <span className="text-white">عروض </span>
-            <span className="text-[#39FF14]">حصرية</span>
-            <span className="text-white"> لفترة محدودة</span>
-          </motion.h2>
-          
-          <motion.p
-            className="text-gray-300 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={controls}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            variants={{
-              visible: { opacity: 1, y: 0 }
-            }}
-          >
-            اغتنم الفرصة واحجز إقامتك الآن بأسعار استثنائية. عروض خاصة لفترة محدودة على وحدات مختارة بخصومات تصل إلى 30%
-          </motion.p>
+          />
+        ))}
+        
+        {/* دوائر تكنولوجية */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="tech-circuit h-full w-full"></div>
         </div>
         
-        {/* قائمة العروض */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {deals.map((deal) => (
-            <motion.div
+        {/* شعاع ضوئي متحرك */}
+        <div className="absolute top-0 bottom-0 left-0 w-1/3 bg-gradient-to-r from-transparent to-[#39FF14]/5 animate-scan opacity-20"
+             style={{animationDuration: '8s'}}></div>
+      </div>
+      
+      {/* محتوى القسم */}
+      <div className="container mx-auto px-4 relative z-10">
+        {/* عنوان القسم */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4 animate-text-glow inline-flex items-center justify-center gap-2">
+            <span className="bg-[#39FF14]/10 p-2 rounded-full animate-pulse">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#39FF14]" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+              </svg>
+            </span>
+            <span className="text-white">العروض</span>{" "}
+            <span className="text-[#39FF14]">اللحظية</span>
+          </h2>
+          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent mx-auto mb-4 animate-pulse"></div>
+          <p className="text-gray-300 max-w-2xl mx-auto text-sm sm:text-base">
+            عروض خاصة بأسعار استثنائية لفترة محدودة، احجز الآن قبل نفاد الكمية
+          </p>
+        </div>
+        
+        {/* بطاقات العروض */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {lastMinuteDeals.map((deal) => (
+            <motion.div 
               key={deal.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={controls}
-              transition={{ duration: 0.5, delay: 0.4 + parseInt(deal.id.replace('deal', '')) * 0.1 }}
-              variants={{
-                visible: { opacity: 1, y: 0 }
-              }}
+              className="relative bg-black/60 backdrop-blur-sm rounded-xl overflow-hidden border border-[#39FF14]/10 shadow-lg group"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 * deal.id }}
+              viewport={{ once: true }}
+              onMouseEnter={() => setIsHoveredId(deal.id)}
+              onMouseLeave={() => setIsHoveredId(null)}
             >
-              <DealCard
-                deal={deal}
-                isExpanded={expandedDeal === deal.id}
-                onClick={() => toggleExpand(deal.id)}
-              />
+              {/* شريط علوي متوهج */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/50 to-transparent"></div>
+              
+              {/* شريط سفلي متوهج */}
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/30 to-transparent"></div>
+              
+              {/* صورة العرض */}
+              <div className="relative h-48 overflow-hidden">
+                <img 
+                  src={deal.image} 
+                  alt={deal.title} 
+                  className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
+                />
+                
+                {/* طبقة توهج عند الحركة */}
+                {isHoveredId === deal.id && (
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-t from-[#39FF14]/10 to-transparent opacity-0"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.3 }}
+                    transition={{ duration: 0.5 }}
+                  />
+                )}
+                
+                {/* شريط الخصم */}
+                <div className="absolute top-3 left-3 bg-[#39FF14]/90 text-black px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_10px_rgba(57,255,20,0.5)] animate-pulse">
+                  خصم {Math.round(((deal.originalPrice - deal.discountedPrice) / deal.originalPrice) * 100)}%
+                </div>
+                
+                {/* علامة الموقع */}
+                <div className="absolute bottom-3 right-3 bg-black/70 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1 rtl:space-x-reverse">
+                  <span className="rtl:mr-1">{deal.location}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#39FF14]" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              
+              {/* تفاصيل العرض */}
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-white mb-2 text-shadow-glow">{deal.title}</h3>
+                <p className="text-gray-300 text-sm mb-3">{deal.description}</p>
+                
+                {/* السعر والخصم */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex flex-col">
+                    <span className="text-gray-400 text-xs line-through">{deal.originalPrice} $</span>
+                    <span className="text-[#39FF14] font-bold text-xl text-shadow-glow">{deal.discountedPrice} $</span>
+                  </div>
+                  
+                  {/* المدة المتبقية */}
+                  <div className="text-xs bg-black/40 rounded-lg px-2 py-1 border border-[#39FF14]/20">
+                    <div className="text-white mb-0.5">ينتهي خلال:</div>
+                    <div className="text-[#39FF14] font-mono">{countdowns[deal.id] || "..."}</div>
+                  </div>
+                </div>
+                
+                {/* الغرف المتبقية */}
+                <div className="flex items-center text-yellow-400 text-xs mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline ml-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  <span>باقي {deal.roomsLeft} {deal.roomsLeft === 1 ? 'غرفة' : 'غرف'} فقط</span>
+                </div>
+                
+                {/* زر الحجز */}
+                <Link href={`/booking/${deal.id}`}>
+                  <SpaceButton 
+                    variant="primary" 
+                    className="w-full py-2 text-sm"
+                    icon={
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                      </svg>
+                    }
+                  >
+                    احجز الآن
+                  </SpaceButton>
+                </Link>
+              </div>
+              
+              {/* تأثير توهج حول البطاقة عند الحركة */}
+              {isHoveredId === deal.id && (
+                <motion.div 
+                  className="absolute -inset-px rounded-xl bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ zIndex: -1 }}
+                />
+              )}
             </motion.div>
           ))}
         </div>
         
-        {/* زر عرض المزيد */}
-        <motion.div
-          className="mt-12 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={controls}
-          transition={{ duration: 0.5, delay: 0.8 }}
-          variants={{
-            visible: { opacity: 1, y: 0 }
-          }}
-        >
-          <button className="inline-flex items-center gap-2 px-6 py-3 bg-transparent border border-[#39FF14] text-[#39FF14] rounded-lg font-medium hover:bg-[#39FF14]/10 transition-colors">
-            شاهد جميع العروض
-            <Zap size={16} />
-          </button>
-        </motion.div>
+        {/* زر عرض المزيد من العروض */}
+        <div className="mt-10 text-center relative">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/20 to-[#39FF14]/0 rounded-lg blur-sm opacity-30 group-hover:opacity-100 transition-all duration-500"></div>
+          <Link href="/deals">
+            <SpaceButton
+              variant="outline"
+              className="px-6 py-2.5"
+              icon={
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
+                </svg>
+              }
+            >
+              عرض المزيد من العروض
+            </SpaceButton>
+          </Link>
+        </div>
       </div>
     </section>
   );
-};
-
-export default LastMinuteDeals;
+}
