@@ -9,6 +9,7 @@ import { CustomerLayout, PropertyAdminLayout, SuperAdminLayout } from "@/compone
 
 // Dashboard Components
 import NewSuperAdminDashboard from "@/features/dashboard/super-admin/NewSuperAdminDashboard";
+import FinancialTransactions from "@/features/dashboard/super-admin/FinancialTransactions";
 import NewPropertyAdminDashboard from "@/features/dashboard/property-admin/NewPropertyAdminDashboard";
 import NewPropertyAdminLayout from "@/features/dashboard/property-admin/NewPropertyAdminLayout";
 import CustomerDashboard from "@/features/dashboard/customer/NewCustomerDashboard";
@@ -35,6 +36,7 @@ import SimpleAuthTest from "@/pages/SimpleAuthTest";
 
 // Booking Components
 import BookingConfirmation from "@/features/booking/BookingConfirmation";
+import BookingCheckout from "@/features/booking/BookingCheckout";
 
 // Admin Components
 import AdminPage from "@/pages/admin-page";
@@ -166,6 +168,13 @@ export default function AppRoutes() {
         <PaymentCancelPage />
       </Route>
 
+      {/* ===== مسارات الحجز والدفع ===== */}
+      <Route path="/booking/checkout/:id">
+        {(params) => (
+          <BookingCheckout />
+        )}
+      </Route>
+      
       {/* ===== مسارات لوحة تحكم العميل ===== */}
       <Route path="/customer/booking/confirmation/:bookingId">
         {(params) => (
