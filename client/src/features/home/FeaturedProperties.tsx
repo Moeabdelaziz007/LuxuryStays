@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { db, safeDoc } from "@/lib/firebase";
 import { useState } from "react";
 import { HolographicCard } from "@/components/ui/holographic-card";
+import ProgressiveImage from "@/components/ProgressiveImage";
+import { createThumbnailUrl } from "@/utils/imageUtils";
 
 interface Property {
   id: string;
@@ -201,13 +203,15 @@ export default function FeaturedProperties() {
               </button>
             </div>
             
-            {/* Main Image */}
+            {/* Main Image - Now using ProgressiveImage for improved loading */}
             <div className="h-48 sm:h-56 overflow-hidden">
-              <img 
-                src={property.imageUrl} 
+              <ProgressiveImage 
+                src={property.imageUrl}
+                lowResSrc={createThumbnailUrl(property.imageUrl, 20)}
                 alt={property.name} 
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" 
-                loading="lazy"
+                containerClassName="h-full w-full"
+                placeholderClassName="bg-gray-900"
               />
               
               {/* Image Overlay Gradient */}
