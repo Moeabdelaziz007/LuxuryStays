@@ -5,11 +5,22 @@ import {
   getRedirectResult,
   signInAnonymously,
   setPersistence,
-  browserLocalPersistence
+  browserLocalPersistence,
+  getIdToken,
+  User
 } from "firebase/auth";
 
 // Use the already initialized Firebase app and auth from firebase.ts
 import { auth } from "./firebase";
+
+// Importar funciones de caché
+import { 
+  cacheUser,
+  getCachedUser,
+  cacheToken,
+  getCachedToken,
+  updateCachedUser
+} from "./auth-cache";
 
 // Create a fresh provider for each login attempt to avoid stale state issues
 const createGoogleProvider = () => {
@@ -138,6 +149,83 @@ function getFriendlyErrorMessage(errorCode: string): string {
     default:
       return "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.";
   }
+}
+
+/**
+ * Obtiene el token ID del usuario actual con soporte de caché
+ * @param forceRefresh Forzar la obtención de un token nuevo
+ * @returns Token ID o null
+ */
+export async function getUserIdToken(forceRefresh: boolean = false): Promise<string | null> {
+  const currentUser = auth.currentUser;
+  
+  if (!currentUser) {
+    return null;
+  }
+  
+  // Si no se fuerza el refresco, intentar obtener de la caché
+  if (!forceRefresh) {
+    const cachedToken = getCachedToken(currentUser.uid);
+    if (cachedToken) {
+      return cachedToken;
+    }
+  }
+  
+  try {
+    // Obtener un token fresco
+    const token = await getIdToken(currentUser, forceRefresh);
+    
+    // Calcular el tiempo de expiración (aproximadamente 1 hora)
+    cacheToken(currentUser.uid, token);
+    
+    return token;
+  } catch (error) {
+    console.error("Error al obtener token:", error);
+    return null;
+  }
+}
+
+/**
+ * Guarda los datos del usuario en la caché
+ * @param user Usuario de Firebase
+ */
+export function cacheCurrentUser(user: User) {
+  if (!user) return;
+  
+  cacheUser(user.uid, {
+    uid: user.uid,
+    email: user.email,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+  });
+}
+
+/**
+ * Obtiene datos del usuario más eficientemente con soporte de caché
+ * @param user Usuario de Firebase
+ * @returns Objeto con datos de usuario
+ */
+export function getUserData(user: User) {
+  if (!user) return null;
+  
+  // Intentar obtener de la caché primero
+  const cachedData = getCachedUser(user.uid);
+  
+  if (cachedData) {
+    return cachedData;
+  }
+  
+  // Si no está en caché, almacenar y devolver
+  const userData = {
+    uid: user.uid,
+    email: user.email,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+  };
+  
+  cacheUser(user.uid, userData);
+  
+  return userData;
 }
 
 export { auth };

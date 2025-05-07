@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, cacheCurrentUser, getUserData, getUserIdToken } from '@/lib/firebase-auth';
 import { useLocation } from 'wouter';
 
 interface User {
