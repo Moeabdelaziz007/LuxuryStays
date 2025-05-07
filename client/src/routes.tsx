@@ -59,15 +59,7 @@ export default function AppRoutes() {
       </Route>
       
       <Route path="/login">
-        <BasicLoginPage />
-      </Route>
-      
-      <Route path="/old-login">
-        <LoginPage />
-      </Route>
-      
-      <Route path="/signup">
-        <SignupPage />
+        <SimpleLoginPage />
       </Route>
       
       <Route path="/properties">

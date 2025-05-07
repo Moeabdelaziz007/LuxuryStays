@@ -337,14 +337,7 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
                   <span className="font-medium">تسجيل الدخول</span>
                 </Link>
                 
-                <Link 
-                  to="/signup"
-                  className="flex items-center justify-center gap-2 p-3 rounded-lg bg-[#39FF14] text-black hover:bg-[#39FF14]/90 transition-colors w-full"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User size={18} />
-                  <span className="font-medium">إنشاء حساب</span>
-                </Link>
+
               </div>
             )}
           </div>
@@ -450,34 +443,10 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
                       </TechButton>
                     </Link>
                     
-                    <Link 
-                      to="/email-login" 
-                      className="relative group overflow-hidden"
-                    >
-                      <TechButton
-                        variant="ghost" 
-                        glowIntensity="low"
-                        className="flex items-center gap-1.5"
-                      >
-                        <Mail size={16} className="inline-block" />
-                        <span>تسجيل الدخول بالبريد</span>
-                      </TechButton>
-                    </Link>
+
                   </div>
 
-                  <Link 
-                    to="/signup" 
-                  >
-                    <TechButton
-                      variant="cyber" 
-                      glowIntensity="strong"
-                      shimmer={true}
-                      className="flex items-center gap-1.5"
-                    >
-                      <User size={16} className="inline-block" />
-                      <span>إنشاء حساب</span>
-                    </TechButton>
-                  </Link>
+
                 </div>
               )
             )}
