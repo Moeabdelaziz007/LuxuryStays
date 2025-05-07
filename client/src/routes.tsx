@@ -26,6 +26,10 @@ import TermsConditions from "@/features/public/TermsConditions";
 import NotFound from "@/pages/not-found";
 import SplashScreen from "@/pages/SplashScreen";
 
+// Search Components
+import MapSearch from "@/features/search/MapSearch";
+import SavedSearchPreferences from "@/features/search/SavedSearchPreferences";
+
 // Auth Components
 import SimpleLoginPage from "@/features/auth/SimpleLogin";
 import SimplifiedLogin from "@/features/auth/SimplifiedLogin";
