@@ -489,7 +489,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
               onClick={() => {
-                setActiveTab("dashboard");
+                setSelectedTab("dashboard");
                 navigate("/customer/dashboard");
               }}
             >
