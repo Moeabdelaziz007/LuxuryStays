@@ -122,6 +122,89 @@ export default {
             transform: "translateY(-10px)",
           },
         },
+        // New animations for the hero section
+        "blink": {
+          "0%, 100%": {
+            opacity: "1",
+          },
+          "50%": {
+            opacity: "0.3",
+          },
+        },
+        "scan": {
+          "0%": {
+            transform: "translateY(-100%)",
+          },
+          "100%": {
+            transform: "translateY(100%)",
+          },
+        },
+        "scrolldown": {
+          "0%": {
+            transform: "translateY(0)",
+            opacity: "1",
+          },
+          "30%": {
+            opacity: "1",
+          },
+          "60%": {
+            opacity: "0",
+          },
+          "100%": {
+            transform: "translateY(6px)",
+            opacity: "0",
+          },
+        },
+        "typewriter": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(20px)",
+          },
+          "10%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+          "90%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+          "100%": {
+            opacity: "0",
+            transform: "translateY(-20px)",
+          },
+        },
+        "matrix-text": {
+          "0%": {
+            transform: "translateY(0)",
+          },
+          "100%": {
+            transform: "translateY(-50%)",
+          },
+        },
+        "panGrid": {
+          "from": {
+            backgroundPosition: "0 0",
+          },
+          "to": {
+            backgroundPosition: "100px 0",
+          },
+        },
+        "pulse": {
+          "0%": {
+            transform: "scale(1)",
+          },
+          "100%": {
+            transform: "scale(1.5)",
+          },
+        },
+        "neon-pulse": {
+          "0%, 100%": {
+            textShadow: "0 0 4px rgba(57, 255, 20, 0.3), 0 0 11px rgba(57, 255, 20, 0.3), 0 0 19px rgba(57, 255, 20, 0.3)",
+          }, 
+          "50%": {
+            textShadow: "0 0 8px rgba(57, 255, 20, 0.5), 0 0 22px rgba(57, 255, 20, 0.5), 0 0 38px rgba(57, 255, 20, 0.5)",
+          }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -131,6 +214,14 @@ export default {
         "text-glow": "text-glow 2s ease-in-out infinite",
         "border-flow": "border-flow 3s ease infinite",
         "float": "float 3s ease-in-out infinite",
+        // New animations for the hero section
+        "blink": "blink 1.5s infinite",
+        "scan": "scan 2s linear infinite",
+        "scrolldown": "scrolldown 2s ease infinite",
+        "typewriter": "typewriter 9s ease-in-out infinite",
+        "matrix-text": "matrix-text 20s linear infinite",
+        "panGrid": "panGrid 30s linear infinite",
+        "neon-pulse": "neon-pulse 2s ease-in-out infinite",
       },
     },
   },

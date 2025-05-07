@@ -16,158 +16,388 @@ export default function HomePage() {
   
   return (
     <div className="text-white min-h-screen">
-      {/* ✨ قسم البداية بتأثيرات فضائية-تقنية */}
+      {/* ✨ قسم البداية - مستقبل الإقامة الفاخرة */}
       <section>
-        <TechBackground
-          variant="default"
-          particleDensity="high"
-          gridVisible={true}
-          glowEffects={true}
-          className="min-h-[90vh] md:h-screen flex items-center relative"
-        >
-          {/* عناصر النيون الطافية - ظاهرة على جميع الشاشات ولكن أصغر على الموبايل */}
-          <TechEffects 
-            type="glow" 
-            intensity="medium" 
-            color="#39FF14" 
-            className="absolute top-[15%] right-[10%]"
-            withAnimation={true}
-          />
-          <TechEffects 
-            type="glow" 
-            intensity="low" 
-            color="#3498db" 
-            className="absolute bottom-[20%] left-[15%] opacity-30"
-            withAnimation={true}
-          />
-          <TechEffects 
-            type="glow" 
-            intensity="low" 
-            color="#39FF14" 
-            className="absolute top-[40%] left-[5%]"
-            withAnimation={true}
-          />
+        <div className="relative min-h-[100vh] bg-black overflow-hidden">
+          {/* الخلفية الديناميكية مع تأثيرات التقنية */}
+          <div className="absolute inset-0 bg-[#000000]">
+            {/* شبكة ثلاثية الأبعاد متحركة */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMzOUZGMTQiIHN0cm9rZS13aWR0aD0iMC41Ii8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')]" 
+                style={{animation: "panGrid 30s linear infinite", transformStyle: "preserve-3d", perspective: "1000px", transform: "rotateX(60deg)"}}></div>
+            </div>
+            
+            {/* طبقة الضباب لإضافة العمق */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black"></div>
+            
+            {/* وهج النيون المركزي المتحرك */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[50vh] bg-[#39FF14] rounded-full opacity-5 blur-[100px] animate-pulse"></div>
+            
+            {/* نقاط البيانات المضيئة المتحركة عشوائيًا */}
+            <div className="absolute inset-0 overflow-hidden">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div key={i} 
+                  className="absolute w-1 h-1 bg-[#39FF14] rounded-full"
+                  style={{
+                    top: `${Math.random() * 100}%`,
+                    left: `${Math.random() * 100}%`,
+                    opacity: Math.random() * 0.5 + 0.3,
+                    animation: `float ${Math.random() * 10 + 15}s linear infinite, pulse ${Math.random() * 2 + 1}s ease-in-out infinite alternate`
+                  }}
+                ></div>
+              ))}
+            </div>
+            
+            {/* خطوط اتصال النيون المتحركة */}
+            <div className="absolute inset-0">
+              <svg className="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,100 Q300,200 600,100 T1200,100" fill="none" stroke="#39FF14" strokeWidth="0.5">
+                  <animate attributeName="d" dur="10s" repeatCount="indefinite" 
+                    values="M0,100 Q300,200 600,100 T1200,100;
+                            M0,150 Q300,50 600,150 T1200,150;
+                            M0,100 Q300,200 600,100 T1200,100" />
+                </path>
+              </svg>
+            </div>
+          </div>
           
           {/* المحتوى الرئيسي */}
-          <div className="container mx-auto px-4 z-10 flex flex-col md:flex-row items-center justify-between pt-16 md:pt-0">
-            {/* قسم النص */}
-            <div className="w-full md:w-1/2 text-center md:text-right mb-8 md:mb-0">
-              <div className="relative">
-                {/* إبراز متحرك */}
-                <TechEffects
-                  type="glow"
-                  intensity="low"
-                  color="#39FF14"
-                  className="absolute -top-10 right-1/2 md:-right-10 transform translate-x-1/2 md:translate-x-0"
-                  withAnimation={true}
-                />
-                
-                {/* اسم العلامة التجارية */}
-                <h1 className="text-5xl sm:text-7xl md:text-8xl font-black text-white mb-4 relative">
-                  <span className="block">
-                    <span className="text-neon-green animate-neon-pulse">Stay</span>
-                    <span className="text-white">X</span>
-                  </span>
-                </h1>
-                
-                <p className="text-xl sm:text-2xl md:text-3xl font-light text-gray-300 mb-6 md:mb-8 max-w-lg mx-auto md:mx-0 md:mr-auto leading-relaxed">
-                  بوابتك للإقامة الفاخرة في <span className="text-neon-green font-semibold">الساحل الشمالي</span> وراس الحكمة ✨
+          <div className="relative h-full flex flex-col justify-center container mx-auto px-4 pt-16 pb-32">
+            {/* الشعار والعنوان مع تأثير النيون */}
+            <div className="text-center mb-8 mt-8 relative">
+              {/* نبض دائري خلف الشعار */}
+              <div className="absolute w-32 h-32 bg-[#39FF14] rounded-full blur-[50px] opacity-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
+              
+              {/* الشعار */}
+              <h1 className="inline-block text-7xl sm:text-8xl md:text-9xl font-black relative pb-2
+                              bg-clip-text text-transparent bg-gradient-to-b from-white via-[#39FF14] to-[#21a100]
+                              filter drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]">
+                <span className="relative inline-block">
+                  <span className="relative">Stay</span>
+                  {/* تأثير النيون بالتوهج حول الحروف */}
+                  <span className="absolute inset-0 blur-[5px] bg-clip-text text-transparent bg-gradient-to-b from-white via-[#39FF14] to-[#39FF14]">Stay</span>
+                </span>
+                <span className="text-white ml-1">X</span>
+              </h1>
+              
+              {/* جملة وصفية مع تأثير الكتابة */}
+              <div className="max-w-2xl mx-auto mt-4 h-16 overflow-hidden relative">
+                <p className="text-xl md:text-3xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "0s", animationFillMode: "forwards"}}>
+                  مستقبل الإقامة الفاخرة
                 </p>
-                
-                {/* الإحصائيات/الميزات - أصغر على الموبايل */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-10 max-w-lg mx-auto md:mx-0 md:mr-auto">
-                  <TechCard variant="glowing" withGlow={true} className="text-center p-2 sm:p-3">
-                    <div className="text-neon-green text-lg sm:text-2xl font-bold">+٥٠</div>
-                    <div className="text-gray-300 text-xs sm:text-sm">عقار فاخر</div>
-                  </TechCard>
-                  <TechCard variant="glowing" withGlow={true} className="text-center p-2 sm:p-3">
-                    <div className="text-neon-green text-lg sm:text-2xl font-bold">١٠٠٪</div>
-                    <div className="text-gray-300 text-xs sm:text-sm">ضمان الجودة</div>
-                  </TechCard>
-                  <TechCard variant="glowing" withGlow={true} className="text-center p-2 sm:p-3">
-                    <div className="text-neon-green text-lg sm:text-2xl font-bold">٢٤/٧</div>
-                    <div className="text-gray-300 text-xs sm:text-sm">دعم فني</div>
-                  </TechCard>
+                <p className="text-xl md:text-3xl text-neon-green font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "3s", animationFillMode: "forwards"}}>
+                  تجربة إقامة بمفهوم جديد
+                </p>
+                <p className="text-xl md:text-3xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "6s", animationFillMode: "forwards"}}>
+                  منازل ذكية. رفاهية استثنائية.
+                </p>
+              </div>
+            </div>
+            
+            {/* عرض ثلاثي الأبعاد للعقارات الذكية */}
+            <div className="relative mx-auto w-full max-w-5xl my-12 perspective">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4">
+                {/* الكرت الأول - البيت الذكي */}
+                <div className="group transform transition-all duration-500 hover:scale-105 hover:-rotate-1 perspective-card">
+                  <div className="bg-black/50 backdrop-blur-sm border border-[#39FF14]/30 rounded-lg overflow-hidden relative
+                              shadow-[0_0_15px_rgba(57,255,20,0.2)] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)]
+                              transition-all duration-500">
+                    {/* الصورة الخلفية مع تأثير الهولوغرام */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=2070" 
+                        alt="منزل ذكي بالكامل"
+                        className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
+                      />
+                      {/* طبقة الهولوغرام */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/90"></div>
+                      <div className="absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity"
+                           style={{background: "repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(57,255,20,0.1) 2px, rgba(57,255,20,0.1) 4px)"}}>
+                      </div>
+                      
+                      {/* مؤشرات بيانات ذكية */}
+                      <div className="absolute top-2 right-2 text-xs bg-black/50 text-[#39FF14] px-2 py-1 rounded-full border border-[#39FF14]/30 backdrop-blur-sm">
+                        <span className="animate-blink inline-block w-2 h-2 bg-[#39FF14] rounded-full mr-1"></span> متصل
+                      </div>
+                      <div className="absolute bottom-2 left-2 text-xs bg-black/50 text-white px-2 py-1 rounded-full border border-white/30 backdrop-blur-sm">
+                        <span className="text-[#39FF14]">24°C</span> درجة الحرارة
+                      </div>
+                    </div>
+                    
+                    <div className="p-4">
+                      <h3 className="text-[#39FF14] text-xl font-bold mb-1">البيت الذكي بالكامل</h3>
+                      <p className="text-gray-400 text-sm mb-3">تحكم بخصائص العقار كامل عن بُعد من التكييف وحتى الإضاءة</p>
+                      <div className="flex space-x-2 rtl:space-x-reverse mb-3">
+                        {/* أيقونات الميزات */}
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                        </span>
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </span>
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </span>
+                      </div>
+                      <button className="w-full py-2 bg-[#000] text-[#39FF14] border border-[#39FF14]/50 rounded 
+                                        hover:bg-[#39FF14]/10 transition-colors group-hover:border-[#39FF14] text-sm font-medium">
+                        عرض العقارات <span className="mr-1 rtl:ml-1">→</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 
-                {/* الأزرار - متراصة على الموبايل، جنبًا إلى جنب على الشاشات الأكبر */}
-                <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 max-w-xs sm:max-w-lg mx-auto md:mx-0 md:mr-auto">
-                  <TechButton
-                    variant="default"
-                    size="lg"
-                    shimmer={true}
-                    className="flex items-center justify-center"
-                    onClick={() => window.location.href = '/properties'}
-                  >
-                    <span>استكشف العقارات</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </TechButton>
-                  <TechButton
-                    variant="outline"
-                    size="lg"
-                    glowIntensity="medium"
-                    onClick={() => window.location.href = '/login'}
-                  >
-                    تسجيل الدخول
-                  </TechButton>
-                  <TechButton
-                    variant="ghost"
-                    size="lg"
-                    onClick={() => window.location.href = '/signup'}
-                  >
-                    إنشاء حساب جديد
-                  </TechButton>
+                {/* الكرت الثاني - الجلسات الخارجية */}
+                <div className="group transform transition-all duration-500 hover:scale-105 hover:rotate-1 perspective-card mt-4 md:mt-0">
+                  <div className="bg-black/50 backdrop-blur-sm border border-[#39FF14]/30 rounded-lg overflow-hidden relative
+                              shadow-[0_0_15px_rgba(57,255,20,0.2)] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)]
+                              transition-all duration-500">
+                    {/* الصورة الخلفية مع تأثير الهولوغرام */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src="https://images.unsplash.com/photo-1564013434775-f71db0030976?q=80&w=2070" 
+                        alt="شاليهات فاخرة"
+                        className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
+                      />
+                      {/* طبقة الهولوغرام */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/90"></div>
+                      <div className="absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity"
+                           style={{background: "repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(57,255,20,0.1) 2px, rgba(57,255,20,0.1) 4px)"}}>
+                      </div>
+                      
+                      {/* مؤشرات بيانات ذكية */}
+                      <div className="absolute top-2 right-2 text-xs bg-black/50 text-[#39FF14] px-2 py-1 rounded-full border border-[#39FF14]/30 backdrop-blur-sm">
+                        <span className="inline-block">✓</span> متاح
+                      </div>
+                      <div className="absolute bottom-2 left-2 text-xs bg-black/50 text-white px-2 py-1 rounded-full border border-white/30 backdrop-blur-sm">
+                        <span className="text-[#39FF14]">+12</span> عقار
+                      </div>
+                    </div>
+                    
+                    <div className="p-4">
+                      <h3 className="text-[#39FF14] text-xl font-bold mb-1">شاليهات فاخرة</h3>
+                      <p className="text-gray-400 text-sm mb-3">شاليهات وفيلات على البحر مباشرة مع جلسات خارجية خاصة</p>
+                      <div className="flex space-x-2 rtl:space-x-reverse mb-3">
+                        {/* أيقونات الميزات */}
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                        </span>
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                        </span>
+                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                        </span>
+                      </div>
+                      <button className="w-full py-2 bg-[#000] text-[#39FF14] border border-[#39FF14]/50 rounded 
+                                        hover:bg-[#39FF14]/10 transition-colors group-hover:border-[#39FF14] text-sm font-medium">
+                        حجز الآن <span className="mr-1 rtl:ml-1">→</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* الكرت الثالث - الحجز الآن */}
+                <div className="group transform transition-all duration-500 hover:scale-105 hover:-rotate-1 perspective-card mt-4 md:mt-0">
+                  <div className="bg-[#39FF14]/10 backdrop-blur-sm border border-[#39FF14]/50 rounded-lg overflow-hidden relative
+                              shadow-[0_0_20px_rgba(57,255,20,0.3)] hover:shadow-[0_0_30px_rgba(57,255,20,0.5)]
+                              transition-all duration-500">
+                    {/* نص الخلفية المتحرك */}
+                    <div className="absolute inset-0 overflow-hidden opacity-5">
+                      <div className="animate-matrix-text text-[10px] leading-tight text-[#39FF14]" style={{fontFamily: "monospace"}}>
+                        {Array.from({length: 15}).map((_, i) => (
+                          <div key={i}>01 STAYX 010 STAYX 101 STAYX 1010 STAYX 01 STAYX 10 STAYX 101</div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="p-8 text-center relative">
+                      {/* أيقونة مميزة */}
+                      <div className="mx-auto w-16 h-16 bg-black/70 rounded-full flex items-center justify-center mb-4 
+                                    border-2 border-[#39FF14] shadow-[0_0_15px_rgba(57,255,20,0.5)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </div>
+                      
+                      <h3 className="text-[#39FF14] text-2xl font-bold mb-2">احجز الآن</h3>
+                      <p className="text-white text-sm mb-6">أسعار خاصة للحجوزات المبكرة مع خصم ٢٠٪ للأعضاء</p>
+                      
+                      {/* عداد الوقت المتبقي */}
+                      <div className="flex justify-center space-x-2 rtl:space-x-reverse mb-6">
+                        <div className="w-14 h-14 bg-black/70 rounded flex flex-col items-center justify-center border border-[#39FF14]/30">
+                          <span className="text-[#39FF14] text-xl font-bold">٣</span>
+                          <span className="text-gray-400 text-xs">أيام</span>
+                        </div>
+                        <div className="w-14 h-14 bg-black/70 rounded flex flex-col items-center justify-center border border-[#39FF14]/30">
+                          <span className="text-[#39FF14] text-xl font-bold">١٢</span>
+                          <span className="text-gray-400 text-xs">ساعة</span>
+                        </div>
+                        <div className="w-14 h-14 bg-black/70 rounded flex flex-col items-center justify-center border border-[#39FF14]/30">
+                          <span className="text-[#39FF14] text-xl font-bold">٤٥</span>
+                          <span className="text-gray-400 text-xs">دقيقة</span>
+                        </div>
+                      </div>
+                      
+                      <button className="w-full py-3 bg-[#39FF14] text-black rounded 
+                                        hover:bg-[#39FF14]/90 transition-colors font-bold relative group-hover:shadow-[0_0_10px_rgba(57,255,20,0.7)]">
+                        <span className="relative z-10">سجل الآن</span>
+                        <span className="absolute inset-0 bg-[#39FF14] filter blur-md opacity-50 group-hover:opacity-80 transition-opacity"></span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-
-            {/* قسم الصورة - مخفي على الموبايل الصغير، مرئي على الشاشات المتوسطة وما فوق */}
-            <div className="hidden sm:flex w-full md:w-1/2 h-full relative items-center justify-center mt-4 md:mt-0">
-              <div className="relative">
-                {/* الصور - أصغر على التابلت، عادية على سطح المكتب */}
-                <div className="w-[300px] md:w-[400px] h-[380px] md:h-[500px] relative rounded-xl overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)] border-2 border-[#39FF14]/20 transform rotate-2">
-                  <img 
-                    src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1170" 
-                    alt="Luxury Villa" 
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                  <TechCard 
-                    variant="holographic" 
-                    withShimmer={true}
-                    className="absolute bottom-3 left-3 right-3 p-3"
-                  >
-                    <div className="text-white text-lg font-bold">فيلا فاخرة في هاسيندا باي</div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[#39FF14]">$350 / ليلة</span>
-                      <div className="flex items-center">
-                        <span className="text-yellow-400">★★★★★</span>
-                      </div>
-                    </div>
-                  </TechCard>
-                </div>
-                
-                {/* العناصر الزخرفية */}
-                <div className="absolute -top-5 -right-5 w-40 h-40 rounded-xl border-2 border-white/10 -z-10"></div>
-                <div className="absolute -bottom-5 -left-5 w-40 h-40 rounded-xl border-2 border-[#39FF14]/20 -z-10 shadow-[0_0_20px_rgba(57,255,20,0.1)]"></div>
-                
-                {/* الشارة */}
-                <div className="absolute -top-4 -left-4 bg-[#39FF14] text-black font-bold py-2 px-4 rounded-lg shadow-[0_0_15px_rgba(57,255,20,0.5)] transform -rotate-3">
-                  أفضل اختيار
+            
+            {/* الأزرار الرئيسية */}
+            <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-8">
+              <button className="group relative px-6 py-3 text-lg font-semibold text-black bg-[#39FF14] rounded-md
+                              shadow-[0_0_15px_rgba(57,255,20,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.5)] overflow-hidden">
+                <span className="relative z-10 flex items-center">
+                  تصفح العقارات
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 rtl:ml-2 rtl:transform rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </span>
+                {/* تأثير الضوء الخاص */}
+                <span className="absolute top-0 left-0 w-full h-full bg-white/30 
+                                transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
+              </button>
+              
+              <button className="px-6 py-3 text-lg font-semibold text-[#39FF14] bg-transparent border-2 border-[#39FF14]/50 
+                              rounded-md hover:bg-[#39FF14]/10 hover:border-[#39FF14] transition-colors
+                              shadow-[0_0_10px_rgba(57,255,20,0.1)] hover:shadow-[0_0_15px_rgba(57,255,20,0.3)]">
+                تسجيل الدخول
+              </button>
+            </div>
+            
+            {/* مؤشر التمرير للأسفل بتصميم تقني مميز */}
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-white/60 hover:text-white/90 transition-colors cursor-pointer">
+              <div className="flex flex-col items-center">
+                <p className="text-xs mb-2">اكتشف المزيد</p>
+                <div className="w-8 h-12 border-2 border-[#39FF14]/40 rounded-full flex justify-center pt-1 relative">
+                  <div className="w-1 h-2 bg-[#39FF14] rounded-full animate-scrolldown"></div>
+                  {/* خطوط المسح */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="h-full w-full bg-[#39FF14]/5 
+                                 transform translate-y-0 animate-scan"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           
-          {/* مؤشر التمرير للأسفل بتأثير النيون */}
-          <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-[#39FF14] drop-shadow-[0_0_8px_rgba(57,255,20,0.8)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
+          {/* العناصر الزخرفية الثابتة للهوية التقنية */}
+          <div className="absolute top-4 left-4 flex items-center text-xs text-white/40">
+            <div className="w-2 h-2 bg-[#39FF14] rounded-full mr-1 animate-blink"></div>
+            <span className="hidden sm:inline">SYSTEM.ACTIVE_v2.5</span>
           </div>
-        </TechBackground>
+          
+          <div className="absolute top-4 right-4 text-xs text-white/40 hidden sm:block">
+            <span className="animate-typer">[LOGIN.AUTHENTICATED=TRUE]</span>
+          </div>
+          
+          <div className="absolute bottom-4 left-4 text-xs text-white/40 hidden sm:block">
+            <span>STAYX.OS © 2025</span>
+          </div>
+          
+          <div className="absolute bottom-4 right-4 text-xs text-white/40 hidden sm:block">
+            <span className="animate-blink inline-block w-1 h-3 bg-[#39FF14]/70 mr-1"></span>
+            <span className="animate-typer">SECURE.CONNECTION</span>
+          </div>
+        </div>
+        
+        {/* إضافة الأنماط الديناميكية */}
+        <style jsx>{`
+          @keyframes panGrid {
+            from { background-position: 0 0; }
+            to { background-position: 100px 0; }
+          }
+          
+          @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+          }
+          
+          @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+          }
+          
+          @keyframes scrolldown {
+            0% { transform: translateY(0); opacity: 1; }
+            30% { opacity: 1; }
+            60% { opacity: 0; }
+            100% { transform: translateY(6px); opacity: 0; }
+          }
+          
+          @keyframes typer {
+            0%, 100% { width: 0; }
+            20%, 80% { width: 100%; }
+          }
+          
+          @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.5); }
+          }
+          
+          @keyframes float {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(10px, 10px); }
+            50% { transform: translate(20px, 0); }
+            75% { transform: translate(10px, -10px); }
+            100% { transform: translate(0, 0); }
+          }
+          
+          @keyframes matrix-text {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+          }
+          
+          @keyframes typewriter {
+            0% { opacity: 0; transform: translateY(20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+          }
+          
+          .animate-scan {
+            animation: scan 2s linear infinite;
+          }
+          
+          .animate-blink {
+            animation: blink 1.5s infinite;
+          }
+          
+          .animate-scrolldown {
+            animation: scrolldown 2s ease infinite;
+          }
+          
+          .animate-typer {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid #39FF14;
+            animation: typer 8s steps(30) infinite;
+          }
+          
+          .animate-matrix-text {
+            animation: matrix-text 20s linear infinite;
+          }
+          
+          .animate-typewriter {
+            animation: typewriter 9s ease-in-out infinite;
+          }
+          
+          .perspective {
+            perspective: 1000px;
+          }
+          
+          .perspective-card {
+            transform-style: preserve-3d;
+          }
+        `}</style>
       </section>
 
       {/* 🏠 قسم العقارات */}
