@@ -328,10 +328,13 @@ export default function BookingCalendar() {
               <Calendar
                 locale={ar}
                 mode="single"
-                selected={selectedDate}
+                selected={selectedDate as any}
                 onSelect={(date) => {
-                  setSelectedDate(date);
-                  setSelectedBooking(null);
+                  // Handle setting selected date safely
+                  if (date instanceof Date || date === undefined) {
+                    setSelectedDate(date || null);
+                    setSelectedBooking(null);
+                  }
                 }}
                 className="rounded-md border border-gray-800 bg-gray-950"
                 classNames={{

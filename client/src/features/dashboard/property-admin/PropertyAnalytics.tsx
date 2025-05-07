@@ -356,7 +356,15 @@ export default function PropertyAnalytics() {
                         </Pie>
                         <Tooltip 
                           contentStyle={{ backgroundColor: '#222', border: '1px solid #444' }} 
-                          formatter={(value, name) => [`${value} (${Math.round(value / analytics.totalBookings * 100)}%)`, name]}
+                          formatter={(value: any, name) => {
+                            // Safely calculate percentage with type checking
+                            const numValue = Number(value);
+                            const totalBookings = Number(analytics.totalBookings);
+                            const percentage = !isNaN(numValue) && totalBookings > 0 
+                              ? Math.round((numValue / totalBookings) * 100) 
+                              : 0;
+                            return [`${value} (${percentage}%)`, name];
+                          }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
