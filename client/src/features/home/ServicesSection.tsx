@@ -156,7 +156,7 @@ export default function ServicesSection() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
         {servicesList.map((service) => (
           <HolographicCard
             key={service.id}
@@ -199,24 +199,24 @@ export default function ServicesSection() {
               </div>
               
               {/* Icon and Service Title - Positioned at Bottom */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 z-10 flex items-center">
+              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 z-10 flex items-center">
                 {/* Icon Container */}
-                <div className="p-3 rounded-full mr-4 bg-gradient-to-br from-[#39FF14] to-[#39FF14]/80 shadow-[0_0_15px_rgba(57,255,20,0.4)] border border-[#39FF14]">
-                  <span className="text-2xl">
+                <div className="p-2 sm:p-3 rounded-full mr-2 sm:mr-4 bg-gradient-to-br from-[#39FF14] to-[#39FF14]/80 shadow-[0_0_15px_rgba(57,255,20,0.4)] border border-[#39FF14]">
+                  <span className="text-xl sm:text-2xl">
                     {service.name?.includes("مطاعم") ? "🍽️" : "💃"}
                   </span>
                 </div>
                 
                 {/* Service Title */}
-                <h3 className="text-2xl font-bold text-white group-hover:text-[#39FF14] transition-colors drop-shadow-md">{service.name}</h3>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white group-hover:text-[#39FF14] transition-colors drop-shadow-md leading-tight">{service.name}</h3>
               </div>
             </div>
             
             {/* Service Content */}
             <div className="p-5">
               {/* Description */}
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 mb-5 border border-[#39FF14]/10">
-                <p className="text-md text-gray-300">{service.description}</p>
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 sm:p-4 mb-4 sm:mb-5 border border-[#39FF14]/10">
+                <p className="text-sm sm:text-md text-gray-300 leading-relaxed">{service.description}</p>
               </div>
               
               {/* Location Filter Pills */}

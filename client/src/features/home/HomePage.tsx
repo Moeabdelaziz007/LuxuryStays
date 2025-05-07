@@ -403,7 +403,7 @@ export default function HomePage() {
       </section>
 
       {/* 🏠 قسم العقارات */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 relative">
+      <section className="py-8 sm:py-12 md:py-20 px-3 sm:px-4 md:px-6 relative">
         <TechBackground 
           variant="circuits" 
           intensity="low" 
@@ -478,7 +478,7 @@ export default function HomePage() {
       </section>
 
       {/* 🛎️ قسم الخدمات */}
-      <section className="py-20 px-6 relative">
+      <section className="py-10 sm:py-16 md:py-20 px-3 sm:px-4 md:px-6 relative">
         <TechBackground
           variant="dots"
           intensity="medium"
@@ -493,7 +493,7 @@ export default function HomePage() {
             withAnimation={true}
           />
           
-          <h2 className="text-4xl font-bold mb-10 text-center text-neon-green">الخدمات المتوفرة</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-10 text-center text-neon-green">الخدمات المتوفرة</h2>
           <ServicesSection />
         </TechBackground>
       </section>
