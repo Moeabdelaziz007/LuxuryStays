@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import geminiService from './GeminiService';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
-import { MessageSquare, X, Settings, Zap, Rocket, Bot, Sparkles, User, RefreshCw } from 'lucide-react';
+import { MessageSquare, X, Settings, Zap, Rocket, Bot, Sparkles, User, RefreshCw, Home, Search, Star, Building, BedDouble, Bath, DollarSign } from 'lucide-react';
 
 // تعريف نوع الخصائص التي يستقبلها المكون
 interface SpaceBubbleBotProps {
@@ -267,6 +267,68 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
     </div>
   );
   
+  // أزرار سريعة للوصول إلى خدمات التوصية العقارية
+  const QuickAccessButtons = () => (
+    <div className="flex flex-wrap gap-2 mt-4 mb-2 justify-center">
+      <QuickButton onClick={() => chatbotRef.current?.triggerNextStep({ 
+        value: 'ابحث لي عن أفضل فيلا فاخرة في راس الحكمة', trigger: 'userInput' 
+      })}>
+        <Building size={14} className="ml-1" />
+        <span>فيلا فاخرة</span>
+      </QuickButton>
+      
+      <QuickButton onClick={() => chatbotRef.current?.triggerNextStep({ 
+        value: 'اقترح لي شاليه رخيص قريب من الشاطئ', trigger: 'userInput' 
+      })}>
+        <Home size={14} className="ml-1" />
+        <span>شاليه رخيص</span>
+      </QuickButton>
+      
+      <QuickButton onClick={() => chatbotRef.current?.triggerNextStep({ 
+        value: 'أي عقار مناسب لعائلة مكونة من 6 أشخاص؟', trigger: 'userInput' 
+      })}>
+        <User size={14} className="ml-1" />
+        <span>لعائلة كبيرة</span>
+      </QuickButton>
+      
+      <QuickButton onClick={() => chatbotRef.current?.triggerNextStep({ 
+        value: 'ما هو أفضل عقار مميز للإيجار؟', trigger: 'userInput' 
+      })}>
+        <Star size={14} className="ml-1" />
+        <span>الأكثر تميزاً</span>
+      </QuickButton>
+    </div>
+  );
+  
+  // زر وصول سريع للخدمات
+  const QuickButton = styled.button`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(57, 255, 20, 0.1);
+    color: #39FF14;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid rgba(57, 255, 20, 0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    box-shadow: 0 0 5px rgba(57, 255, 20, 0.2);
+    
+    &:hover {
+      background-color: rgba(57, 255, 20, 0.2);
+      border-color: rgba(57, 255, 20, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(57, 255, 20, 0.3);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(57, 255, 20, 0.2);
+    }
+  `;
+  
   // تهيئة خطوات المحادثة
   useEffect(() => {
     const initialSteps = [
@@ -468,56 +530,68 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
         {/* الشات بوت نفسه */}
         <div style={{ height: isSettingsOpen ? 'calc(500px - 80px)' : '500px' }}>
           <ThemeProvider theme={spaceTheme}>
-            <ChatBot
-              key={chatKey}
-              steps={steps}
-              handleEnd={() => {}} // لا شيء عند الانتهاء
-              headerTitle={botName}
-              placeholder="اكتب رسالتك هنا..."
-              botAvatar="/assets/bot-avatar.svg"
-              userAvatar="/assets/user-avatar.svg"
-              customDelay={10}
-              hideHeader={true}
-              hideSubmitButton={true}
-              hideUserAvatar={false}
-              botDelay={1000}
-              customStyle={{
-                boxShadow: 'none',
-                borderRadius: '0',
-                height: '100%',
-              }}
-              contentStyle={{
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              }}
-              bubbleOptionStyle={{
-                background: '#39FF14',
-                color: 'black',
-              }}
-              bubbleStyle={{
-                maxWidth: '80%',
-                padding: '12px 15px',
-                borderRadius: '18px',
-                fontSize: '14px',
-              }}
-              footerStyle={{
-                background: '#111827',
-                borderTop: '1px solid rgba(57, 255, 20, 0.3)',
-              }}
-              inputStyle={{
-                background: 'rgba(0, 0, 0, 0.5)',
-                color: 'white',
-                border: '1px solid rgba(57, 255, 20, 0.5)',
-                borderRadius: '20px',
-                padding: '12px 15px',
-                fontFamily: 'Cairo, Arial, sans-serif',
-              }}
-              enableMobileAutoFocus={true}
-              enableSmoothScroll={true}
-              recognitionEnable={false}
-              ref={chatbotRef}
-              handleUserMessage={handleUserMessage}
-            />
+            <div className="flex flex-col h-full">
+              <ChatBot
+                key={chatKey}
+                steps={steps}
+                handleEnd={() => {}} // لا شيء عند الانتهاء
+                headerTitle={botName}
+                placeholder="اكتب رسالتك هنا..."
+                botAvatar="/assets/bot-avatar.svg"
+                userAvatar="/assets/user-avatar.svg"
+                customDelay={10}
+                hideHeader={true}
+                hideSubmitButton={true}
+                hideUserAvatar={false}
+                botDelay={1000}
+                customStyle={{
+                  boxShadow: 'none',
+                  borderRadius: '0',
+                  height: 'calc(100% - 60px)', // تخصيص مساحة للتوصيات السريعة
+                }}
+                contentStyle={{
+                  height: '100%',
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                }}
+                bubbleOptionStyle={{
+                  background: '#39FF14',
+                  color: 'black',
+                }}
+                bubbleStyle={{
+                  maxWidth: '80%',
+                  padding: '12px 15px',
+                  borderRadius: '18px',
+                  fontSize: '14px',
+                }}
+                footerStyle={{
+                  background: '#111827',
+                  borderTop: '1px solid rgba(57, 255, 20, 0.3)',
+                }}
+                inputStyle={{
+                  background: 'rgba(0, 0, 0, 0.5)',
+                  color: 'white',
+                  border: '1px solid rgba(57, 255, 20, 0.5)',
+                  borderRadius: '20px',
+                  padding: '12px 15px',
+                  fontFamily: 'Cairo, Arial, sans-serif',
+                }}
+                enableMobileAutoFocus={true}
+                enableSmoothScroll={true}
+                recognitionEnable={false}
+                ref={chatbotRef}
+                handleUserMessage={handleUserMessage}
+              />
+              
+              {/* شريط أزرار التوصيات السريعة */}
+              <div className="bg-gradient-to-t from-black to-transparent py-2 px-4">
+                <div className="text-center text-[11px] text-[#39FF14] mb-1 flex items-center justify-center gap-1">
+                  <Rocket size={10} className="animate-pulse" />
+                  <span>توصيات عقارية سريعة</span>
+                  <Rocket size={10} className="animate-pulse transform rotate-180" />
+                </div>
+                <QuickAccessButtons />
+              </div>
+            </div>
           </ThemeProvider>
         </div>
       </ChatbotContainer>
