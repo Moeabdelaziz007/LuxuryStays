@@ -107,14 +107,7 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
           <div className="absolute -bottom-2 left-0 right-0 h-0.5 bg-[#39FF14] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full shadow-[0_0_5px_#39FF14]"></div>
         </Link>
         
-        <a href="https://www.facebook.com/share/1L5CCr1JVD/?mibextid=wwXIfr" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-white hover:text-[#39FF14] transition-colors duration-300 flex items-center gap-1.5 relative group">
-          <Facebook size={16} className="inline-block" />
-          <span>فيسبوك</span>
-          <div className="absolute -bottom-2 left-0 right-0 h-0.5 bg-[#39FF14] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full shadow-[0_0_5px_#39FF14]"></div>
-        </a>
+
       </div>
     );
 
@@ -328,17 +321,7 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
                 </Link>
               ))}
               
-              {/* رابط الفيسبوك */}
-              <a 
-                href="https://www.facebook.com/share/1L5CCr1JVD/?mibextid=wwXIfr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 rounded-lg hover:bg-[#39FF14]/10 transition-colors text-white"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Facebook size={20} />
-                <span className="font-medium">فيسبوك</span>
-              </a>
+
             </div>
             
             {!user && (
