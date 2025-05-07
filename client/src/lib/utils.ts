@@ -67,3 +67,47 @@ export function formatCurrency(amount: number, locale = 'ar-EG', currency = 'USD
     currency,
   }).format(amount);
 }
+
+/**
+ * تنفيذ عملية مع إعادة المحاولة في حالة الفشل
+ * @param operation الدالة المراد تنفيذها
+ * @param onError دالة لمعالجة الأخطاء (اختيارية)
+ * @param maxRetries العدد الأقصى للمحاولات (الافتراضي: 3)
+ * @param delayMs تأخير بين المحاولات بالميلي ثانية (الافتراضي: 1000)
+ * @returns نتيجة العملية عند النجاح
+ */
+export async function retryOperation<T>(
+  operation: () => Promise<T>,
+  onError?: ((error: any, attempt: number) => void) | null,
+  maxRetries = 3,
+  delayMs = 1000
+): Promise<T> {
+  let lastError: any;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      
+      // استدعاء دالة معالجة الخطأ إذا تم توفيرها
+      if (onError) {
+        onError(error, attempt);
+      } else {
+        console.error(`فشل في المحاولة ${attempt}/${maxRetries}:`, error);
+      }
+      
+      // إذا كانت هذه هي المحاولة الأخيرة، قم بإعادة رمي الخطأ
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+      
+      // انتظار قبل المحاولة التالية
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  }
+  
+  // لن يصل التنفيذ إلى هنا بسبب إعادة رمي الخطأ في المحاولة الأخيرة
+  // لكن TypeScript يحتاج إلى هذا
+  throw lastError;
+}
