@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from "firebase/firestore";
 import { db, safeDoc } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-context";
+import { useLocation, useRoute } from "wouter";
 import Logo from "@/components/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +54,28 @@ interface FavoriteProperty {
 
 export default function NewCustomerDashboard() {
   const { user, logout } = useAuth();
+  const [location, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("dashboard");
+  
+  // Match different customer routes to appropriate tab values
+  const [isRootMatch] = useRoute("/customer");
+  const [isBookingsMatch] = useRoute("/customer/bookings");
+  const [isFavoritesMatch] = useRoute("/customer/favorites");
+  const [isSettingsMatch] = useRoute("/customer/settings");
+  const [isProfileMatch] = useRoute("/customer/profile");
+  
+  // Sync tab state with current route
+  useEffect(() => {
+    if (isRootMatch) {
+      setActiveTab("dashboard");
+    } else if (isBookingsMatch) {
+      setActiveTab("bookings");
+    } else if (isFavoritesMatch) {
+      setActiveTab("favorites");
+    } else if (isSettingsMatch || isProfileMatch) {
+      setActiveTab("settings");
+    }
+  }, [isRootMatch, isBookingsMatch, isFavoritesMatch, isSettingsMatch, isProfileMatch]);
   
   // Fetch user's bookings with better error handling and fallback
   const { data: bookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery({
@@ -389,7 +411,7 @@ export default function NewCustomerDashboard() {
             <Button 
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
-              onClick={() => setActiveTab("dashboard")}
+              onClick={() => navigate("/customer")}
             >
               <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "dashboard" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
               <FaTachometerAlt className="mr-2 h-5 w-5" />
@@ -399,7 +421,7 @@ export default function NewCustomerDashboard() {
             <Button 
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
-              onClick={() => setActiveTab("bookings")}
+              onClick={() => navigate("/customer/bookings")}
             >
               <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "bookings" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
               <FaCalendarAlt className="mr-2 h-5 w-5" />
@@ -410,7 +432,7 @@ export default function NewCustomerDashboard() {
             <Button 
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
-              onClick={() => setActiveTab("favorites")}
+              onClick={() => navigate("/customer/favorites")}
             >
               <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "favorites" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
               <FaHeart className="mr-2 h-5 w-5" />
