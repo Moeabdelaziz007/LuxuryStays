@@ -12,6 +12,8 @@ import SuperAdminDashboard from "@/features/dashboard/super-admin/SuperAdminDash
 import NewSuperAdminDashboard from "@/features/dashboard/super-admin/NewSuperAdminDashboard";
 import PropertyAdminDashboard from "@/features/dashboard/PropertyAdminDashboard";
 import CustomerDashboard from "@/features/dashboard/customer/NewCustomerDashboard";
+import NewPropertyAdminLayout from "@/features/dashboard/property-admin/NewPropertyAdminLayout";
+import NewPropertyAdminDashboard from "@/features/dashboard/property-admin/NewPropertyAdminDashboard";
 
 // Public Components
 import PublicHome from "@/features/public/Home";
@@ -190,9 +192,9 @@ export default function AppRoutes() {
       {/* ===== مسارات لوحة تحكم مدير العقارات ===== */}
       <Route path="/property-admin">
         <RouteGuard role={UserRole.PROPERTY_ADMIN}>
-          <PropertyAdminLayout>
-            <PropertyAdminDashboard />
-          </PropertyAdminLayout>
+          <NewPropertyAdminLayout activeTab="dashboard">
+            <NewPropertyAdminDashboard activeTab="dashboard" />
+          </NewPropertyAdminLayout>
         </RouteGuard>
       </Route>
 

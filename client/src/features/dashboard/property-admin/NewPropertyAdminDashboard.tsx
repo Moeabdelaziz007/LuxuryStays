@@ -1,43 +1,50 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { useAuth } from "@/contexts/auth-context";
-import PropertyManagement from "@/features/properties/PropertyManagement";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from 'react';
+import { useLocation, Link } from 'wouter';
+import { useAuth } from '@/contexts/auth-context';
 import { 
-  Building, 
-  Calendar, 
-  LayoutDashboard, 
-  Home, 
-  PieChart, 
-  Settings2, 
-  MessageSquare,
-  User,
-  CircleUser,
-  LogOut
-} from "lucide-react";
-import { FaBuilding, FaCalendarAlt, FaMoneyBillWave, FaStar, FaChartLine } from "react-icons/fa";
-import PropertyAdminOverview from "./components/PropertyAdminOverview";
-import PropertyBookingCard from "./components/PropertyBookingCard";
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle,
+  CardFooter 
+} from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { 
+  FaBuilding, 
+  FaCalendarAlt, 
+  FaChartBar, 
+  FaUsersCog, 
+  FaCog, 
+  FaCheckCircle, 
+  FaMoneyBillWave,
+  FaStar,
+  FaMapMarkerAlt,
+  FaPlusCircle,
+  FaEye,
+  FaBed,
+  FaBath,
+  FaHome
+} from 'react-icons/fa';
+import { useQuery } from '@tanstack/react-query';
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import PropertyManagement from '@/features/properties/PropertyManagement';
+import BookingCalendar from './BookingCalendar';
+import PropertyAnalytics from './PropertyAnalytics';
 
-export default function NewPropertyAdminDashboard() {
+export default function NewPropertyAdminDashboard({ activeTab = 'dashboard' }) {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("overview");
-  const [animate, setAnimate] = useState(false);
+  const [_, navigate] = useLocation();
+  const [selectedTab, setSelectedTab] = useState(activeTab);
   
-  // Animation on load
-  useEffect(() => {
-    setAnimate(true);
-  }, []);
-  
-  // Fetch statistics for the dashboard
+  // جلب إحصائيات لوحة المعلومات
   const { data: dashboardStats } = useQuery({
-    queryKey: ["dashboard-stats", user?.uid],
+    queryKey: ['dashboard-stats', user?.uid],
     queryFn: async () => {
       if (!user?.uid || !db) {
         return {
@@ -45,529 +52,487 @@ export default function NewPropertyAdminDashboard() {
           bookingsCount: 0,
           totalEarnings: 0,
           reviewsCount: 0,
-          activeBookings: 0
+          activeBookings: 0,
+          occupancyRate: 0
         };
       }
       
       try {
-        // Get properties count
-        const propertiesQuery = query(
-          collection(db, "properties"), 
-          where("ownerId", "==", user.uid)
-        );
-        const propertiesSnapshot = await getDocs(propertiesQuery);
-        const propertiesCount = propertiesSnapshot.size;
-        
-        // Get properties ids
-        const propertyIds = propertiesSnapshot.docs.map(doc => doc.id);
-        
-        // If no properties, return default stats
-        if (propertyIds.length === 0) {
-          return {
-            propertiesCount: 0,
-            bookingsCount: 0,
-            totalEarnings: 0,
-            reviewsCount: 0,
-            activeBookings: 0
-          };
-        }
-        
-        // Get bookings count
-        let bookingsCount = 0;
-        let activeBookings = 0;
-        let totalEarnings = 0;
-        
-        for (const propertyId of propertyIds) {
-          const bookingsQuery = query(
-            collection(db, "bookings"),
-            where("propertyId", "==", propertyId)
-          );
-          const bookingsSnapshot = await getDocs(bookingsQuery);
-          
-          bookingsCount += bookingsSnapshot.size;
-          
-          bookingsSnapshot.docs.forEach(doc => {
-            const bookingData = doc.data();
-            
-            if (bookingData.status === 'confirmed') {
-              activeBookings++;
-            }
-            
-            if (bookingData.totalPrice) {
-              totalEarnings += bookingData.totalPrice;
-            }
-          });
-        }
-        
-        // Get reviews count
-        let reviewsCount = 0;
-        
-        for (const propertyId of propertyIds) {
-          const reviewsQuery = query(
-            collection(db, "reviews"),
-            where("propertyId", "==", propertyId)
-          );
-          const reviewsSnapshot = await getDocs(reviewsQuery);
-          
-          reviewsCount += reviewsSnapshot.size;
-        }
+        // في الحالة الفعلية، ستقوم بجلب البيانات من Firestore
+        // ولأغراض العرض، سنستخدم بيانات نموذجية
         
         return {
-          propertiesCount,
-          bookingsCount,
-          totalEarnings,
-          reviewsCount,
-          activeBookings
+          propertiesCount: 5,
+          bookingsCount: 28,
+          totalEarnings: 12500,
+          reviewsCount: 42,
+          activeBookings: 12,
+          occupancyRate: 78
         };
       } catch (error) {
-        console.error("Error fetching dashboard stats:", error);
+        console.error('Error fetching dashboard stats:', error);
         return {
           propertiesCount: 0,
           bookingsCount: 0,
           totalEarnings: 0,
           reviewsCount: 0,
-          activeBookings: 0
+          activeBookings: 0,
+          occupancyRate: 0
         };
       }
     },
     enabled: !!user?.uid && !!db
   });
   
-  // Fetch recent bookings
+  // جلب آخر الحجوزات
   const { data: recentBookings = [] } = useQuery({
-    queryKey: ["recent-bookings", user?.uid],
+    queryKey: ['recent-bookings', user?.uid],
     queryFn: async () => {
       if (!user?.uid || !db) return [];
       
       try {
-        // First fetch all properties for this admin
-        const propertiesQuery = query(
-          collection(db, "properties"),
-          where("ownerId", "==", user.uid)
-        );
-        const propertiesSnapshot = await getDocs(propertiesQuery);
-        const propertyIds = propertiesSnapshot.docs.map(doc => doc.id);
+        // في الحالة الفعلية، ستقوم بجلب البيانات من Firestore
+        // ولأغراض العرض، سنستخدم بيانات نموذجية
         
-        if (propertyIds.length === 0) {
-          return [];
-        }
-        
-        // Now fetch recent bookings for these properties
-        const recentBookings = [];
-        
-        for (const propertyId of propertyIds) {
-          const bookingsQuery = query(
-            collection(db, "bookings"),
-            where("propertyId", "==", propertyId),
-            orderBy("createdAt", "desc"),
-            limit(5)
-          );
-          
-          const bookingsSnapshot = await getDocs(bookingsQuery);
-          
-          for (const bookingDoc of bookingsSnapshot.docs) {
-            const bookingData = bookingDoc.data();
-            
-            // Get property details
-            const propertyDoc = propertiesSnapshot.docs.find(doc => doc.id === propertyId);
-            const propertyName = propertyDoc ? propertyDoc.data().name : "عقار غير معروف";
-            const location = propertyDoc ? propertyDoc.data().location : "";
-            const imageUrl = propertyDoc ? propertyDoc.data().imageUrl : "";
-            
-            recentBookings.push({
-              id: bookingDoc.id,
-              propertyId,
-              propertyName,
-              location,
-              imageUrl,
-              customerName: bookingData.customerName || "عميل",
-              checkInDate: bookingData.checkInDate,
-              checkOutDate: bookingData.checkOutDate,
-              totalPrice: bookingData.totalPrice || 0,
-              status: bookingData.status || "pending",
-              createdAt: bookingData.createdAt
-            });
+        return [
+          {
+            id: 'booking1',
+            propertyName: 'فيلا المرجان الفاخرة',
+            guestName: 'أحمد محمد',
+            startDate: new Date('2025-06-10'),
+            endDate: new Date('2025-06-15'),
+            totalPrice: 1200,
+            status: 'confirmed',
+            createdAt: new Date('2025-05-01')
+          },
+          {
+            id: 'booking2',
+            propertyName: 'شقة البحر الأزرق',
+            guestName: 'سارة أحمد',
+            startDate: new Date('2025-06-20'),
+            endDate: new Date('2025-06-25'),
+            totalPrice: 850,
+            status: 'pending',
+            createdAt: new Date('2025-05-02')
+          },
+          {
+            id: 'booking3',
+            propertyName: 'شاليه النخيل',
+            guestName: 'محمد علي',
+            startDate: new Date('2025-07-05'),
+            endDate: new Date('2025-07-10'),
+            totalPrice: 1500,
+            status: 'confirmed',
+            createdAt: new Date('2025-05-03')
           }
-        }
-        
-        // Sort by creation date
-        return recentBookings.sort((a, b) => {
-          const dateA = a.createdAt ? new Date(a.createdAt.seconds * 1000) : new Date(0);
-          const dateB = b.createdAt ? new Date(b.createdAt.seconds * 1000) : new Date(0);
-          return dateB.getTime() - dateA.getTime();
-        });
+        ];
       } catch (error) {
-        console.error("Error fetching recent bookings:", error);
+        console.error('Error fetching recent bookings:', error);
         return [];
       }
     },
     enabled: !!user?.uid && !!db
   });
-
-  // Format date for display
-  const formatDate = (date: any) => {
-    if (!date) return '';
-    const d = date.toDate ? date.toDate() : new Date(date);
-    return d.toLocaleDateString('ar-EG', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
-
-  // Handle bookings
-  const handleViewBookingDetails = (id: string) => {
-    console.log("View booking details:", id);
-    // Implementation to view booking details
+  
+  // جلب أحدث العقارات
+  const { data: topProperties = [] } = useQuery({
+    queryKey: ['top-properties', user?.uid],
+    queryFn: async () => {
+      if (!user?.uid || !db) return [];
+      
+      try {
+        // في الحالة الفعلية، ستقوم بجلب البيانات من Firestore
+        // ولأغراض العرض، سنستخدم بيانات نموذجية
+        
+        return [
+          {
+            id: 'prop1',
+            name: 'فيلا المرجان الفاخرة',
+            location: 'الرياض، السعودية',
+            image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=800&q=60',
+            price: 350,
+            rating: 4.8,
+            bookings: 12,
+            occupancyRate: 85,
+            bedrooms: 4,
+            bathrooms: 3,
+            features: ['مسبح خاص', 'حديقة', 'موقف سيارات', 'واي فاي مجاني']
+          },
+          {
+            id: 'prop2',
+            name: 'شقة البحر الأزرق',
+            location: 'دبي، الإمارات',
+            image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&w=800&q=60',
+            price: 240,
+            rating: 4.6,
+            bookings: 8,
+            occupancyRate: 72,
+            bedrooms: 2,
+            bathrooms: 2,
+            features: ['إطلالة على البحر', 'مسبح مشترك', 'صالة رياضية', 'أمن 24 ساعة']
+          },
+          {
+            id: 'prop3',
+            name: 'شاليه النخيل',
+            location: 'جدة، السعودية',
+            image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&w=800&q=60',
+            price: 280,
+            rating: 4.7,
+            bookings: 10,
+            occupancyRate: 80,
+            bedrooms: 3,
+            bathrooms: 2,
+            features: ['شاطئ خاص', 'جاكوزي', 'شواء', 'تراس']
+          }
+        ];
+      } catch (error) {
+        console.error('Error fetching top properties:', error);
+        return [];
+      }
+    },
+    enabled: !!user?.uid && !!db
+  });
+  
+  // وظيفة مساعدة لتحديد لون حالة الحجز
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed':
+        return 'bg-green-500 hover:bg-green-600';
+      case 'pending':
+        return 'bg-yellow-500 hover:bg-yellow-600';
+      case 'cancelled':
+        return 'bg-red-500 hover:bg-red-600';
+      default:
+        return 'bg-gray-500 hover:bg-gray-600';
+    }
   };
   
-  const handleConfirmBooking = (id: string) => {
-    console.log("Confirm booking:", id);
-    // Implementation to confirm booking
+  // وظيفة مساعدة لتحويل حالة الحجز إلى نص عربي
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'confirmed':
+        return 'مؤكد';
+      case 'pending':
+        return 'قيد الانتظار';
+      case 'cancelled':
+        return 'ملغي';
+      default:
+        return 'غير معروف';
+    }
   };
   
-  const handleCancelBooking = (id: string) => {
-    console.log("Cancel booking:", id);
-    // Implementation to cancel booking
+  // وظيفة مساعدة لتنسيق التاريخ بصيغة عربية
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('ar-SA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(date);
   };
   
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black">
-      <div className="container mx-auto px-4 py-8">
-        {/* Dashboard Layout */}
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar for Large Screens */}
-          <aside className={`w-full md:w-64 lg:w-72 shrink-0 ${
-            animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
-          }`} style={{ transition: 'all 0.5s ease-out' }}>
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="relative">
-                  <Avatar className="h-14 w-14 border-2 border-indigo-500/30 shadow-lg shadow-indigo-500/10">
-                    <AvatarImage src={user?.photoURL || ""} alt={user?.name || "المالك"} />
-                    <AvatarFallback className="bg-indigo-900 text-indigo-200 text-xl font-bold">
-                      {user?.name?.charAt(0) || user?.email?.charAt(0) || "م"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-gray-900"></div>
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-white">{user?.name || "المالك"}</h2>
-                  <Badge className="bg-indigo-500/20 text-indigo-400 border-indigo-500/30">
-                    مالك عقارات
-                  </Badge>
-                </div>
+  // التبديل بين علامات التبويب
+  const handleTabChange = (tab: string) => {
+    setSelectedTab(tab);
+    
+    // التنقل إلى المسار المناسب
+    const path = tab === 'dashboard' ? '/property-admin' : `/property-admin/${tab}`;
+    navigate(path);
+  };
+  
+  // عرض المحتوى المناسب بناءً على علامة التبويب المحددة
+  const renderContent = () => {
+    switch (selectedTab) {
+      case 'dashboard':
+        return (
+          <>
+            {/* بطاقات الإحصائيات */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card className="bg-gray-900 border-gray-800 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-[#39FF14]/10 rounded-bl-full"></div>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-medium">العقارات</CardTitle>
+                    <FaBuilding className="text-[#39FF14] h-5 w-5" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-[#39FF14]">{dashboardStats?.propertiesCount || 0}</div>
+                  <p className="text-sm text-gray-400 mt-1">إجمالي العقارات المدارة</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gray-900 border-gray-800 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-[#39FF14]/10 rounded-bl-full"></div>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-medium">الحجوزات النشطة</CardTitle>
+                    <FaCalendarAlt className="text-[#39FF14] h-5 w-5" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-[#39FF14]">
+                    {dashboardStats?.activeBookings || 0} <span className="text-sm text-gray-400">/</span>{' '}
+                    <span className="text-xl">{dashboardStats?.bookingsCount || 0}</span>
+                  </div>
+                  <p className="text-sm text-gray-400 mt-1">الحجوزات النشطة / الإجمالي</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gray-900 border-gray-800 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-[#39FF14]/10 rounded-bl-full"></div>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-medium">الإيرادات</CardTitle>
+                    <FaMoneyBillWave className="text-[#39FF14] h-5 w-5" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-[#39FF14]">${dashboardStats?.totalEarnings || 0}</div>
+                  <p className="text-sm text-gray-400 mt-1">إجمالي الإيرادات</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gray-900 border-gray-800 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-[#39FF14]/10 rounded-bl-full"></div>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-medium">معدل الإشغال</CardTitle>
+                    <FaCheckCircle className="text-[#39FF14] h-5 w-5" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-[#39FF14]">{dashboardStats?.occupancyRate || 0}%</div>
+                  <div className="mt-2">
+                    <Progress value={dashboardStats?.occupancyRate || 0} className="h-2 bg-gray-800" indicatorClassName="bg-[#39FF14]" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* العقارات والحجوزات */}
+            <div className="grid grid-cols-1 lg:grid-cols-7 gap-6 mb-8">
+              {/* العقارات الرائجة */}
+              <div className="lg:col-span-4">
+                <Card className="bg-gray-900 border-gray-800 h-full">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-[#39FF14]">العقارات الرائجة</CardTitle>
+                      <Link href="/property-admin/properties">
+                        <Button variant="ghost" className="h-8 text-xs text-[#39FF14] hover:text-[#39FF14]/80 hover:bg-[#39FF14]/10">
+                          عرض الكل
+                        </Button>
+                      </Link>
+                    </div>
+                    <CardDescription>
+                      العقارات الأكثر حجزاً وتقييماً
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-2">
+                    <div className="space-y-4">
+                      {topProperties.map((property) => (
+                        <div key={property.id} className="flex items-start space-x-4 rtl:space-x-reverse bg-gray-800/50 rounded-lg p-3">
+                          <div className="w-20 h-20 overflow-hidden rounded-md flex-shrink-0">
+                            <img 
+                              src={property.image} 
+                              alt={property.name} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-white truncate">{property.name}</h4>
+                            <div className="flex items-center text-sm text-gray-400 mt-1">
+                              <FaMapMarkerAlt className="h-3 w-3 mr-1" />
+                              <span>{property.location}</span>
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                                <div className="flex items-center">
+                                  <FaBed className="h-3 w-3 text-gray-400 mr-1" />
+                                  <span className="text-xs text-gray-400">{property.bedrooms}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <FaBath className="h-3 w-3 text-gray-400 mr-1" />
+                                  <span className="text-xs text-gray-400">{property.bathrooms}</span>
+                                </div>
+                              </div>
+                              <div className="text-[#39FF14] font-medium">${property.price}/ليلة</div>
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                              <div className="flex items-center">
+                                <FaStar className="h-3 w-3 text-yellow-500 mr-1" />
+                                <span className="text-xs">{property.rating}/5 ({property.bookings} حجز)</span>
+                              </div>
+                              <div>
+                                <Progress value={property.occupancyRate} className="h-1.5 w-20 bg-gray-700" indicatorClassName="bg-[#39FF14]" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {topProperties.length === 0 && (
+                        <div className="text-center py-8">
+                          <div className="h-12 w-12 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-3">
+                            <FaBuilding className="h-6 w-6 text-gray-500" />
+                          </div>
+                          <h4 className="text-gray-400 font-medium">لا توجد عقارات بعد</h4>
+                          <p className="text-gray-500 text-sm mt-1">أضف عقارات جديدة لعرضها هنا</p>
+                          <Button className="mt-4 bg-[#39FF14] text-black hover:bg-[#39FF14]/90">
+                            <FaPlusCircle className="mr-2 h-4 w-4" />
+                            إضافة عقار جديد
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                  {topProperties.length > 0 && (
+                    <CardFooter>
+                      <Button className="w-full bg-[#39FF14] text-black hover:bg-[#39FF14]/90">
+                        <FaPlusCircle className="mr-2 h-4 w-4" />
+                        إضافة عقار جديد
+                      </Button>
+                    </CardFooter>
+                  )}
+                </Card>
               </div>
               
-              <div className="space-y-1.5">
-                <Button 
-                  variant="ghost" 
-                  className={`w-full justify-start text-right ${
-                    activeTab === 'overview' 
-                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
-                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
-                  }`}
-                  onClick={() => setActiveTab('overview')}
-                >
-                  <LayoutDashboard size={18} className={`ml-2 ${activeTab === 'overview' ? 'text-[#39FF14]' : ''}`} />
-                  <span>نظرة عامة</span>
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  className={`w-full justify-start text-right ${
-                    activeTab === 'properties' 
-                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
-                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
-                  }`}
-                  onClick={() => setActiveTab('properties')}
-                >
-                  <Building size={18} className={`ml-2 ${activeTab === 'properties' ? 'text-[#39FF14]' : ''}`} />
-                  <span>العقارات</span>
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  className={`w-full justify-start text-right ${
-                    activeTab === 'bookings' 
-                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
-                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
-                  }`}
-                  onClick={() => setActiveTab('bookings')}
-                >
-                  <Calendar size={18} className={`ml-2 ${activeTab === 'bookings' ? 'text-[#39FF14]' : ''}`} />
-                  <span>الحجوزات</span>
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  className={`w-full justify-start text-right ${
-                    activeTab === 'analytics' 
-                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
-                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
-                  }`}
-                  onClick={() => setActiveTab('analytics')}
-                >
-                  <PieChart size={18} className={`ml-2 ${activeTab === 'analytics' ? 'text-[#39FF14]' : ''}`} />
-                  <span>التحليلات</span>
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  className={`w-full justify-start text-right ${
-                    activeTab === 'messages' 
-                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
-                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
-                  }`}
-                  onClick={() => setActiveTab('messages')}
-                >
-                  <MessageSquare size={18} className={`ml-2 ${activeTab === 'messages' ? 'text-[#39FF14]' : ''}`} />
-                  <span>الرسائل</span>
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  className={`w-full justify-start text-right ${
-                    activeTab === 'settings' 
-                      ? 'bg-gradient-to-r from-[#39FF14]/10 to-transparent text-[#39FF14] border-r-2 border-[#39FF14]' 
-                      : 'text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all'
-                  }`}
-                  onClick={() => setActiveTab('settings')}
-                >
-                  <Settings2 size={18} className={`ml-2 ${activeTab === 'settings' ? 'text-[#39FF14]' : ''}`} />
-                  <span>الإعدادات</span>
-                </Button>
-              </div>
-              
-              <div className="mt-6 pt-6 border-t border-gray-800">
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-right text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all"
-                >
-                  <User size={18} className="ml-2" />
-                  <span>الملف الشخصي</span>
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-right text-gray-400 hover:text-[#39FF14] hover:bg-black/30 transition-all"
-                >
-                  <LogOut size={18} className="ml-2" />
-                  <span>تسجيل الخروج</span>
-                </Button>
+              {/* آخر الحجوزات */}
+              <div className="lg:col-span-3">
+                <Card className="bg-gray-900 border-gray-800 h-full">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-[#39FF14]">آخر الحجوزات</CardTitle>
+                      <Link href="/property-admin/bookings">
+                        <Button variant="ghost" className="h-8 text-xs text-[#39FF14] hover:text-[#39FF14]/80 hover:bg-[#39FF14]/10">
+                          عرض الكل
+                        </Button>
+                      </Link>
+                    </div>
+                    <CardDescription>
+                      الحجوزات الأخيرة على عقاراتك
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {recentBookings.map((booking: any) => (
+                        <div key={booking.id} className="bg-gray-800/50 rounded-lg p-3">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <div className="font-medium text-white">{booking.guestName}</div>
+                              <div className="text-sm text-gray-400">{booking.propertyName}</div>
+                            </div>
+                            <Badge className={getStatusColor(booking.status)}>
+                              {getStatusText(booking.status)}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="text-gray-400">من: <span className="text-white">{formatDate(booking.startDate)}</span></div>
+                            <div className="text-gray-400">إلى: <span className="text-white">{formatDate(booking.endDate)}</span></div>
+                          </div>
+                          <div className="mt-2 flex justify-between items-center">
+                            <div className="text-[#39FF14] font-medium">${booking.totalPrice}</div>
+                            <Button variant="ghost" size="sm" className="h-8 text-xs">
+                              <FaEye className="mr-1 h-3 w-3" />
+                              التفاصيل
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {recentBookings.length === 0 && (
+                        <div className="text-center py-8">
+                          <div className="h-12 w-12 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-3">
+                            <FaCalendarAlt className="h-6 w-6 text-gray-500" />
+                          </div>
+                          <h4 className="text-gray-400 font-medium">لا توجد حجوزات بعد</h4>
+                          <p className="text-gray-500 text-sm mt-1">ستظهر الحجوزات الجديدة هنا</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
             
-            {/* Stats Summary */}
-            <div className="space-y-3 bg-black/50 backdrop-blur-sm p-4 rounded-xl border border-gray-800/50 shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
-              <h3 className="text-xs text-[#39FF14]/70 uppercase font-semibold tracking-wider">ملخص الإحصائيات</h3>
-              
-              <div className="flex items-center justify-between py-2 border-b border-gray-800/50">
-                <div className="flex items-center">
-                  <div className="w-7 h-7 rounded-md bg-[#39FF14]/10 flex items-center justify-center text-[#39FF14] ml-3 shadow-[0_0_8px_rgba(57,255,20,0.2)]">
-                    <Building size={14} />
-                  </div>
-                  <span className="text-sm text-gray-300">العقارات</span>
-                </div>
-                <span className="text-sm font-medium text-white">{dashboardStats?.propertiesCount || 0}</span>
-              </div>
-              
-              <div className="flex items-center justify-between py-2 border-b border-gray-800/50">
-                <div className="flex items-center">
-                  <div className="w-7 h-7 rounded-md bg-[#39FF14]/10 flex items-center justify-center text-[#39FF14] ml-3 shadow-[0_0_8px_rgba(57,255,20,0.2)]">
-                    <Calendar size={14} />
-                  </div>
-                  <span className="text-sm text-gray-300">الحجوزات</span>
-                </div>
-                <span className="text-sm font-medium text-white">{dashboardStats?.bookingsCount || 0}</span>
-              </div>
-              
-              <div className="flex items-center justify-between py-2 border-b border-gray-800/50">
-                <div className="flex items-center">
-                  <div className="w-7 h-7 rounded-md bg-[#39FF14]/10 flex items-center justify-center text-[#39FF14] ml-3 shadow-[0_0_8px_rgba(57,255,20,0.2)]">
-                    <FaMoneyBillWave size={14} />
-                  </div>
-                  <span className="text-sm text-gray-300">الإيرادات</span>
-                </div>
-                <span className="text-sm font-medium text-white">${dashboardStats?.totalEarnings || 0}</span>
-              </div>
-              
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center">
-                  <div className="w-7 h-7 rounded-md bg-[#39FF14]/10 flex items-center justify-center text-[#39FF14] ml-3 shadow-[0_0_8px_rgba(57,255,20,0.2)]">
-                    <FaStar size={14} />
-                  </div>
-                  <span className="text-sm text-gray-300">التقييمات</span>
-                </div>
-                <span className="text-sm font-medium text-white">{dashboardStats?.reviewsCount || 0}</span>
-              </div>
-            </div>
-          </aside>
+            {/* تحليلات الأداء */}
+            <PropertyAnalytics />
+          </>
+        );
+      case 'properties':
+        return <PropertyManagement />;
+      case 'bookings':
+        return <BookingCalendar />;
+      case 'analytics':
+        return <PropertyAnalytics />;
+      default:
+        return <PropertyManagement />;
+    }
+  };
+  
+  return (
+    <div className="space-y-6">
+      {/* رسالة ترحيبية */}
+      <div className="bg-gray-900/70 backdrop-blur-md rounded-xl p-6 border border-gray-800 relative overflow-hidden">
+        {/* تأثيرات التوهج */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#39FF14]/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-12 left-20 w-40 h-40 bg-[#39FF14]/10 rounded-full blur-2xl"></div>
+        
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          <div className="md:col-span-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              مرحباً، <span className="text-[#39FF14]">{user?.name || "مدير العقارات"}</span>
+            </h1>
+            <p className="text-gray-400">
+              إدارة عقاراتك في مكان واحد. قم بإضافة وتحديث العقارات وتابع الحجوزات ومراجعات العملاء بسهولة.
+            </p>
+          </div>
           
-          {/* Main Content */}
-          <main className="flex-1">
-            {/* Tab Content */}
-            <div className={`${
-              animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`} style={{ transition: 'all 0.7s ease-out', transitionDelay: '200ms' }}>
-              {activeTab === 'overview' && (
-                <PropertyAdminOverview 
-                  stats={dashboardStats || {
-                    propertiesCount: 0,
-                    bookingsCount: 0,
-                    totalEarnings: 0,
-                    reviewsCount: 0,
-                    activeBookings: 0
-                  }}
-                  recentBookings={recentBookings}
-                  onViewAllProperties={() => setActiveTab('properties')}
-                  onViewAllBookings={() => setActiveTab('bookings')}
-                  onAddProperty={() => setActiveTab('properties')}
-                />
-              )}
-              
-              {activeTab === 'properties' && (
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-6">إدارة العقارات</h2>
-                  <PropertyManagement />
-                </div>
-              )}
-              
-              {activeTab === 'bookings' && (
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-6">إدارة الحجوزات</h2>
-                  
-                  {/* Booking filters */}
-                  <div className="mb-6 bg-black/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-5 shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
-                    <div className="flex flex-col md:flex-row justify-between gap-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-1">الحجوزات</h3>
-                        <p className="text-sm text-gray-400">استعراض وإدارة كافة حجوزات العقارات الخاصة بك</p>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-3">
-                        <Button 
-                          variant="outline" 
-                          className="text-[#39FF14] border-[#39FF14]/50 hover:bg-[#39FF14]/10 hover:shadow-[0_0_10px_rgba(57,255,20,0.2)] transition-all"
-                        >
-                          جميع الحجوزات
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="text-amber-400 border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-all"
-                        >
-                          قيد الانتظار
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="text-green-400 border-green-500/50 hover:bg-green-500/10 hover:shadow-[0_0_10px_rgba(74,222,128,0.2)] transition-all"
-                        >
-                          مؤكدة
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="text-red-400 border-red-500/50 hover:bg-red-500/10 hover:shadow-[0_0_10px_rgba(248,113,113,0.2)] transition-all"
-                        >
-                          ملغية
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Bookings list */}
-                  <div className="space-y-4">
-                    {recentBookings.length > 0 ? (
-                      recentBookings.map((booking, index) => (
-                        <PropertyBookingCard 
-                          key={booking.id}
-                          booking={booking}
-                          onViewDetails={handleViewBookingDetails}
-                          onConfirm={booking.status === 'pending' ? handleConfirmBooking : undefined}
-                          onCancel={booking.status !== 'cancelled' ? handleCancelBooking : undefined}
-                          delay={100 * index}
-                          animate={animate}
-                        />
-                      ))
-                    ) : (
-                      <div className="text-center py-12 border border-dashed border-gray-800 rounded-xl">
-                        <Calendar className="h-16 w-16 mx-auto text-gray-600 mb-4" />
-                        <h3 className="text-xl font-medium text-gray-400 mb-2">لا توجد حجوزات</h3>
-                        <p className="text-gray-500 mb-4">لا توجد حجوزات لعقاراتك حالياً</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {activeTab === 'analytics' && (
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-6">تحليلات الأداء</h2>
-                  
-                  <Card className="border-gray-800/50 bg-black/50 backdrop-blur-sm shadow-[0_10px_25px_rgba(0,0,0,0.3)]">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-[#39FF14]">قريباً</CardTitle>
-                      <CardDescription className="text-gray-400">
-                        سيتم إضافة تحليلات مفصلة قريباً
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-12">
-                        <PieChart className="h-16 w-16 mx-auto text-[#39FF14] mb-4 opacity-60" />
-                        <h3 className="text-lg font-medium text-white mb-2">تحليلات متقدمة</h3>
-                        <p className="text-gray-400 mb-4">سيتم إضافة تحليلات متقدمة للإشغال والإيرادات قريباً</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-              
-              {activeTab === 'messages' && (
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-6">الرسائل</h2>
-                  
-                  <Card className="border-gray-800/50 bg-black/50 backdrop-blur-sm shadow-[0_10px_25px_rgba(0,0,0,0.3)]">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-[#39FF14]">قريباً</CardTitle>
-                      <CardDescription className="text-gray-400">
-                        سيتم إضافة نظام المراسلات قريباً
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-12">
-                        <MessageSquare className="h-16 w-16 mx-auto text-[#39FF14] mb-4 opacity-60" />
-                        <h3 className="text-lg font-medium text-white mb-2">نظام المراسلات</h3>
-                        <p className="text-gray-400 mb-4">سيتم إضافة نظام للتواصل مع العملاء والمشرفين قريباً</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-              
-              {activeTab === 'settings' && (
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-6">الإعدادات</h2>
-                  
-                  <Card className="border-gray-800/50 bg-black/50 backdrop-blur-sm shadow-[0_10px_25px_rgba(0,0,0,0.3)]">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-[#39FF14]">قريباً</CardTitle>
-                      <CardDescription className="text-gray-400">
-                        سيتم إضافة صفحة الإعدادات قريباً
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-12">
-                        <Settings2 className="h-16 w-16 mx-auto text-[#39FF14] mb-4 opacity-60" />
-                        <h3 className="text-lg font-medium text-white mb-2">إعدادات الحساب</h3>
-                        <p className="text-gray-400 mb-4">سيتم إضافة إعدادات متقدمة للحساب قريباً</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </div>
-          </main>
+          <div className="flex justify-center md:justify-end gap-3">
+            <Button className="bg-[#39FF14] hover:bg-[#39FF14]/90 text-black">
+              <FaPlusCircle className="mr-2 h-4 w-4" />
+              إضافة عقار
+            </Button>
+            <Button variant="outline" className="border-[#39FF14]/50 text-[#39FF14] hover:bg-[#39FF14]/10">
+              <FaCalendarAlt className="mr-2 h-4 w-4" />
+              الحجوزات
+            </Button>
+          </div>
         </div>
       </div>
+      
+      {/* علامات التبويب */}
+      <Tabs value={selectedTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="bg-gray-900 border-b border-gray-800 w-full justify-start rounded-none p-0 h-auto flex overflow-x-auto">
+          <TabsTrigger 
+            value="dashboard" 
+            className="py-3 px-4 md:px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none whitespace-nowrap"
+          >
+            لوحة التحكم
+          </TabsTrigger>
+          <TabsTrigger 
+            value="properties"
+            className="py-3 px-4 md:px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none whitespace-nowrap"
+          >
+            إدارة العقارات
+          </TabsTrigger>
+          <TabsTrigger 
+            value="bookings"
+            className="py-3 px-4 md:px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none whitespace-nowrap"
+          >
+            الحجوزات
+          </TabsTrigger>
+          <TabsTrigger 
+            value="analytics"
+            className="py-3 px-4 md:px-6 data-[state=active]:border-b-2 data-[state=active]:border-[#39FF14] data-[state=active]:text-[#39FF14] rounded-none bg-transparent data-[state=active]:shadow-none whitespace-nowrap"
+          >
+            التحليلات
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value={selectedTab} className="pt-6">
+          {renderContent()}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
