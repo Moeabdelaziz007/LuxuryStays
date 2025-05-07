@@ -386,8 +386,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       console.log("بدء تسجيل الدخول باستخدام Google...");
-      console.log("Current domain:", window.location.host);
+      const currentDomain = window.location.host;
+      console.log("Current domain:", currentDomain);
       console.log("Firebase project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
+      
+      // حفظ النطاق الحالي في localStorage للاستخدام عند الحاجة
+      localStorage.setItem('currentAuthDomain', currentDomain);
       
       // استخدام طريقة النافذة المنبثقة من Firebase مباشرة
       try {

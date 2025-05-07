@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, Copy, ExternalLink } from "lucide-react";
 
 export default function GoogleLoginWarning() {
-  const currentDomain = window.location.host;
+  // استخدام النطاق المخزن في localStorage إذا كان موجودًا، وإلا استخدام النطاق الحالي
+  const savedDomain = localStorage.getItem('currentAuthDomain');
+  const currentDomain = savedDomain || window.location.host;
   
   const handleCopyDomain = () => {
     navigator.clipboard.writeText(currentDomain);
