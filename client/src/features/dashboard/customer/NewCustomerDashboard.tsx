@@ -703,19 +703,35 @@ export default function NewCustomerDashboard() {
                     </CardHeader>
                     <CardContent className="p-3">
                       <div className="grid grid-cols-2 gap-2">
-                        <Button variant="outline" className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto">
+                        <Button 
+                          variant="outline" 
+                          className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
+                          onClick={() => navigate("/")}
+                        >
                           <FaHome className="h-5 w-5 mb-2" />
                           <span className="text-xs">الرئيسية</span>
                         </Button>
-                        <Button variant="outline" className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto">
+                        <Button 
+                          variant="outline" 
+                          className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
+                          onClick={() => navigate("/properties")}
+                        >
                           <FaBed className="h-5 w-5 mb-2" />
                           <span className="text-xs">عقارات</span>
                         </Button>
-                        <Button variant="outline" className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto">
+                        <Button 
+                          variant="outline" 
+                          className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
+                          onClick={() => navigate("/booking")}
+                        >
                           <FaCalendarAlt className="h-5 w-5 mb-2" />
                           <span className="text-xs">حجز</span>
                         </Button>
-                        <Button variant="outline" className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto">
+                        <Button 
+                          variant="outline" 
+                          className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
+                          onClick={() => navigate("/customer/services")}
+                        >
                           <FaRegStar className="h-5 w-5 mb-2" />
                           <span className="text-xs">خدمات</span>
                         </Button>
