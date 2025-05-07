@@ -233,18 +233,36 @@ export const safeDoc = async (operation: () => Promise<any>, fallback: any = nul
       
       // Handle different error types with specific recovery strategies
       if (error.code === "unavailable" || error.code === "resource-exhausted") {
-        console.warn(`Firestore is currently unavailable (${error.code}). Retrying in 2 seconds...`);
+        // زيادة فترة الانتظار مع كل محاولة فاشلة (استراتيجية التراجع الأسي)
+        const backoffTime = Math.min(1000 * Math.pow(2, maxRetries - retriesLeft), 15000);
         
-        // Implement exponential backoff
-        const backoffTime = Math.min(1000 * Math.pow(1.5, maxRetries - retriesLeft), 10000);
+        // تحديث رسالة السجل مع معلومات أكثر تفصيلاً حول المحاولة التالية
+        console.warn(`Firestore is currently unavailable (${error.code}). Attempt ${maxRetries - retriesLeft + 1}/${maxRetries}. Retrying in ${backoffTime/1000} seconds...`);
+        
+        // تنفيذ فترة انتظار قبل المحاولة التالية
         await new Promise(resolve => setTimeout(resolve, backoffTime));
         
-        // Try re-enabling network before next retry
+        // محاولة تهيئة آلية الاتصال من جديد
         try {
-          await enableNetwork(db);
-          console.log("Successfully re-enabled Firestore network connection");
+          // التأكد من وجود كائن db قبل محاولة تعطيل/تفعيل الشبكة
+          if (db) {
+            // محاولة تعطيل الشبكة أولاً ثم إعادة تفعيلها (قد يساعد في إعادة ضبط الاتصال)
+            await disableNetwork(db).catch(() => {}); // تجاهل أي أخطاء هنا
+            await new Promise(resolve => setTimeout(resolve, 500)); // انتظار قصير بين العمليات
+            
+            // إعادة تفعيل الشبكة
+            await enableNetwork(db);
+            console.log("✅ Successfully re-enabled Firestore network connection");
+            
+            // التحقق من حالة الاتصال بالإنترنت في المتصفح
+            if (!navigator.onLine) {
+              console.warn("⚠️ Browser reports device is offline. Network operations may still fail.");
+            }
+          } else {
+            console.warn("⚠️ Cannot reset network: Firestore not initialized");
+          }
         } catch (networkError) {
-          console.warn("Failed to re-enable network:", networkError);
+          console.warn("Failed to reset network connection:", networkError);
         }
       } else if (error.code === "permission-denied") {
         console.error("Permission denied by Firestore security rules. Check your authentication status and security rules.");
@@ -268,25 +286,93 @@ export const safeDoc = async (operation: () => Promise<any>, fallback: any = nul
     }
   }
   
-  // If all retries failed, log additional diagnostic information
+  // If all retries failed, log additional diagnostic information and try recovery
   if (lastError) {
     console.error("All Firestore operation attempts failed:", lastError);
     
-    // Display specific guidance based on error type
+    // محاولة استخدام البيانات الموجودة محليًا إذا أمكن
+    let cachedData = null;
+    
+    // محاولة جلب البيانات المخزنة في localStorage
+    try {
+      // التحقق من وجود بيانات في localStorage مرتبطة بهذه العملية
+      if (operation.toString().includes('getDoc') || operation.toString().includes('collection')) {
+        // استخراج اسم المستند أو المجموعة المستهدفة إذا أمكن
+        const match = operation.toString().match(/(?:doc|collection)\([\w\s,.]*["']([^"']+)["']/);
+        const collectionName = match ? match[1] : null;
+        
+        if (collectionName) {
+          const cacheKey = `firestore_cache_${collectionName}`;
+          const cachedDataStr = localStorage.getItem(cacheKey);
+          
+          if (cachedDataStr) {
+            try {
+              cachedData = JSON.parse(cachedDataStr);
+              console.log(`✅ Successfully retrieved cached data for ${collectionName}`);
+              // استخدام البيانات المخزنة مؤقتًا حتى تتوفر Firestore مرة أخرى
+              return cachedData;
+            } catch (parseError) {
+              console.warn(`Failed to parse cached data for ${collectionName}:`, parseError);
+            }
+          }
+        }
+      }
+    } catch (cacheError) {
+      console.warn("Error accessing cache:", cacheError);
+    }
+    
+    // عرض إرشادات محددة بناءً على نوع الخطأ
     if (lastError.code === "unavailable") {
       console.warn("✋ GUIDANCE: Firestore is currently unavailable. This usually indicates:");
       console.warn("1. Network connectivity issues");
       console.warn("2. Firebase project may be experiencing issues");
       console.warn("3. Security rules might be blocking access");
       
+      // التحقق من حالة الاتصال بالإنترنت وتقديم معلومات أكثر تفصيلاً
       if (window.navigator.onLine === false) {
         console.warn("🔴 You appear to be offline. Please check your internet connection.");
+        
+        // عرض رسالة توضيحية للمستخدم إذا كان التطبيق يستخدم عنصر واجهة مستخدم للتنبيهات
+        if (typeof window !== 'undefined') {
+          try {
+            // التحقق إذا كان التطبيق يدعم العمل دون اتصال
+            const appSettings = localStorage.getItem('app_settings');
+            const supportOffline = appSettings ? JSON.parse(appSettings).offlineSupport : false;
+            
+            if (supportOffline) {
+              console.info("🟢 Application supports offline mode. Basic functionality should still work.");
+            } else {
+              console.warn("⚠️ App is in offline mode with limited functionality. Please reconnect to use all features.");
+            }
+          } catch (e) {
+            // تجاهل الأخطاء هنا
+          }
+        }
       } else {
         console.warn("🟡 Your device appears to be online, but cannot reach Firestore.");
         console.warn("   - Check Firebase console for service disruptions");
         console.warn("   - Verify your Firebase project ID and configuration");
         console.warn("   - Ensure your security rules allow the operation");
+        
+        // بدء آلية إعادة المحاولة بشكل سلس في الخلفية
+        // مع عرض رسالة تنبيه للمستخدم بوجود مشكلة مؤقتة ومحاولة إعادة الاتصال
+        setTimeout(() => {
+          // التأكد من وجود كائن db قبل محاولة إعادة الاتصال
+          if (db) {
+            enableNetwork(db).catch(() => {
+              // تجاهل أخطاء إعادة الاتصال هنا
+            });
+          } else {
+            console.warn("⚠️ Cannot re-enable network: Firestore not initialized");
+          }
+        }, 5000);
       }
+      
+      // توفير معلومات تشخيصية إضافية للمطورين
+      console.info("Additional diagnostic information:");
+      console.info("- Firebase project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
+      console.info("- Browser:", navigator.userAgent);
+      console.info("- Timestamp:", new Date().toISOString());
     }
   }
   
@@ -389,18 +475,80 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
   }
 };
 
+// وظيفة جديدة لتخزين البيانات محليًا كنسخة احتياطية
+export const cacheFirestoreData = (collectionName: string, data: any, id?: string) => {
+  try {
+    // Prefix all cache keys for easy recognition
+    const cacheKey = id 
+      ? `firestore_cache_${collectionName}_${id}` 
+      : `firestore_cache_${collectionName}`;
+    
+    // تخزين مع إضافة طابع زمني للتمكن من التحقق من حداثة البيانات لاحقًا
+    const cacheData = {
+      data,
+      timestamp: new Date().toISOString(),
+      collection: collectionName,
+      id: id || 'collection'
+    };
+    
+    localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+    return true;
+  } catch (error) {
+    console.warn(`Failed to cache Firestore data for ${collectionName}:`, error);
+    return false;
+  }
+};
+
+// وظيفة لاسترجاع البيانات المخزنة محليًا
+export const getFirestoreCache = (collectionName: string, id?: string) => {
+  try {
+    const cacheKey = id 
+      ? `firestore_cache_${collectionName}_${id}` 
+      : `firestore_cache_${collectionName}`;
+    
+    const cachedDataStr = localStorage.getItem(cacheKey);
+    if (!cachedDataStr) return null;
+    
+    const cache = JSON.parse(cachedDataStr);
+    
+    // التحقق مما إذا كانت البيانات المخزنة قديمة (أكثر من 24 ساعة)
+    const cacheTime = new Date(cache.timestamp).getTime();
+    const now = new Date().getTime();
+    const cacheAgeHours = (now - cacheTime) / (1000 * 60 * 60);
+    
+    if (cacheAgeHours > 24) {
+      console.warn(`Cache for ${collectionName} is older than 24 hours (${cacheAgeHours.toFixed(1)} hours)`);
+    }
+    
+    return cache.data;
+  } catch (error) {
+    console.warn(`Failed to retrieve cached data for ${collectionName}:`, error);
+    return null;
+  }
+};
+
 export const getUserData = async (uid: string): Promise<UserData | null> => {
   if (!db) {
     console.error("Firestore not initialized, returning default user data");
-    // إذا كان المستخدم قد سجل الدخول، نعود ببيانات أساسية من Auth
+    
+    // محاولة استخدام البيانات المخزنة في localStorage
+    const cachedUserData = getFirestoreCache('users', uid);
+    if (cachedUserData) {
+      console.log("⚡ Using cached user data:", cachedUserData);
+      return cachedUserData as UserData;
+    }
+    
+    // إذا لم توجد بيانات مخزنة وكان المستخدم قد سجل الدخول، نعود ببيانات أساسية من Auth
     if (auth && auth.currentUser) {
-      return {
+      const basicUserData = {
         uid,
         name: auth.currentUser.displayName || "مستخدم",
         email: auth.currentUser.email || "",
         role: UserRole.CUSTOMER, // دور افتراضي
         createdAt: new Date().toISOString(),
       };
+      console.warn("⚠️ تم استخدام بيانات المستخدم الأساسية من Firebase Auth بدون Firestore");
+      return basicUserData;
     }
     return null;
   }
@@ -417,6 +565,10 @@ export const getUserData = async (uid: string): Promise<UserData | null> => {
         data.createdAt = new Date((data.createdAt as any).toDate()).toISOString();
       }
       console.log("Retrieved user data from Firestore:", data);
+      
+      // تخزين البيانات في localStorage كنسخة احتياطية
+      cacheFirestoreData('users', data, uid);
+      
       return data;
     } else {
       // User document doesn't exist in Firestore
