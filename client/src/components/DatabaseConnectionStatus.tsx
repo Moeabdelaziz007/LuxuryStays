@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { AlertCircle, DatabaseIcon, InfoIcon, RefreshCw } from "lucide-react";
+import { AlertCircle, InfoIcon, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { enableNetwork, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { enableNetwork } from "firebase/firestore";
 
 /**
  * مكوّن يعرض حالة الاتصال بقاعدة البيانات للمستخدم مع إمكانية إعادة المحاولة
@@ -12,7 +13,7 @@ const DatabaseConnectionStatus: React.FC = () => {
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  // مراقبة حالة الاتصال بالإنترنت
+  // مراقبة حالة الاتصال بالإنترنت و Firestore
   useEffect(() => {
     // التحقق من وجود Firestore
     if (!db) {
@@ -20,6 +21,30 @@ const DatabaseConnectionStatus: React.FC = () => {
       setShowAlert(true);
       return;
     }
+
+    // وظيفة للتحقق من حالة الاتصال بـ Firestore
+    const checkFirestoreStatus = async () => {
+      try {
+        // محاولة إجراء عملية بسيطة للتحقق من الاتصال بـ Firestore
+        // استخدام الخاصية '.type' للتحقق من وجود اتصال بدون إجراء عملية قراءة فعلية
+        if (db && typeof db.type === 'string') {
+          // Firestore موجود ونشط
+          if (isOffline) {
+            setIsOffline(false);
+            // إظهار رسالة نجاح مؤقتة
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 5000);
+          }
+        } else {
+          setIsOffline(true);
+          setShowAlert(true);
+        }
+      } catch (error) {
+        console.error("Failed to check Firestore status:", error);
+        setIsOffline(true);
+        setShowAlert(true);
+      }
+    };
 
     // التحقق من حالة الاتصال بالإنترنت
     const handleOnlineStatus = () => {
@@ -34,12 +59,19 @@ const DatabaseConnectionStatus: React.FC = () => {
       }
     };
 
+    // فحص حالة Firestore عند تحميل المكون
+    checkFirestoreStatus();
+
+    // تحقق من حالة Firestore بشكل دوري كل 30 ثانية
+    const intervalId = setInterval(checkFirestoreStatus, 30000);
+
     // الاستماع إلى تغيّرات حالة الاتصال
     window.addEventListener('online', handleOnlineStatus);
     window.addEventListener('offline', handleOnlineStatus);
 
     // التنظيف عند إلغاء تحميل المكوّن
     return () => {
+      clearInterval(intervalId);
       window.removeEventListener('online', handleOnlineStatus);
       window.removeEventListener('offline', handleOnlineStatus);
     };

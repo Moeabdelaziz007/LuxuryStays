@@ -2,12 +2,13 @@ import { useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "./contexts/auth-context";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { UserRole } from "./features/auth/types";
 import Header from "./components/layout/Header";
 import SmartHeader from "./components/layout/SmartHeader";
 import Footer from "./components/layout/Footer";
 import { getAuth, getRedirectResult } from "firebase/auth";
+import DatabaseConnectionStatus from "./components/DatabaseConnectionStatus";
 import AppRoutes from "./routes";
 
 function RedirectHandler() {
@@ -182,6 +183,7 @@ function App() {
     <TooltipProvider>
       <Toaster />
       <RedirectHandler />
+      <DatabaseConnectionStatus />
       {showHeaderFooter && <SmartHeader />}
       <AppRoutes />
       {showHeaderFooter && <Footer />}
