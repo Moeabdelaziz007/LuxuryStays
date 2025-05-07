@@ -6,6 +6,16 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import adminRoutes from './routes/admin';
 import { authenticateUser, createCustomToken } from './firebase-admin-simple';
+import axios from "axios";
+
+// إعدادات OAuth للخدمات الخارجية
+const googleOAuth = {
+  clientId: "299280633489-3q6odgc86hhc1j0cev92bf28q7cep5hj.apps.googleusercontent.com",
+  clientSecret: "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",
+  redirectUri: "/auth/google/callback",
+  tokenEndpoint: "https://oauth2.googleapis.com/token",
+  userInfoEndpoint: "https://www.googleapis.com/oauth2/v3/userinfo"
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin routes
@@ -88,6 +98,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching coming soon services:", error);
       res.status(500).json({ error: "Failed to fetch coming soon services" });
+    }
+  });
+  
+  // واجهة برمجة لمعالجة ردود OAuth من Google
+  app.get("/auth/google/callback", async (req: Request, res: Response) => {
+    try {
+      const { code } = req.query;
+      
+      if (!code) {
+        return res.status(400).send("رمز التفويض غير موجود");
+      }
+      
+      console.log("تم استلام رمز تفويض Google OAuth:", code);
+      
+      // استبدال authorization code بـ access token
+      const tokenResponse = await axios.post(googleOAuth.tokenEndpoint, {
+        code,
+        client_id: googleOAuth.clientId,
+        client_secret: googleOAuth.clientSecret,
+        redirect_uri: `${req.protocol}://${req.get('host')}${googleOAuth.redirectUri}`,
+        grant_type: 'authorization_code'
+      });
+      
+      const { access_token } = tokenResponse.data;
+      
+      // استخدام access token للحصول على معلومات المستخدم
+      const userInfoResponse = await axios.get(googleOAuth.userInfoEndpoint, {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+      
+      const userInfo = userInfoResponse.data;
+      console.log("تم استلام معلومات المستخدم من Google:", userInfo);
+      
+      // إعادة توجيه المستخدم إلى الصفحة الرئيسية مع معلومات المستخدم
+      res.redirect('/?login=success');
+      
+    } catch (error: any) {
+      console.error("خطأ في معالجة رد OAuth من Google:", error.message);
+      res.redirect('/?login=error&reason=' + encodeURIComponent(error.message));
     }
   });
 

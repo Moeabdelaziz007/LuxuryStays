@@ -77,7 +77,7 @@ export default function SimpleLogin() {
     }
   };
 
-  // تسجيل الدخول باستخدام Google - مع إعدادات محددة لعنوان إعادة التوجيه
+  // تسجيل الدخول باستخدام Google - مع إعدادات محسّنة لعنوان إعادة التوجيه
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError("");
@@ -90,13 +90,17 @@ export default function SimpleLogin() {
       provider.addScope('profile');
       
       // تعيين إعدادات خاصة للمزود لضمان عمل إعادة التوجيه بشكل صحيح
-      // استخدام نفس عنوان Firebase المعتمد
       provider.setCustomParameters({
         'login_hint': 'الرجاء اختيار حساب Google الخاص بك',
-        'prompt': 'select_account'
+        'prompt': 'select_account',
+        'client_id': '299280633489-3q6odgc86hhc1j0cev92bf28q7cep5hj.apps.googleusercontent.com',
+        'origin': window.location.origin,
+        'redirect_uri': `${window.location.origin}/login`
       });
       
       console.log("محاولة تسجيل الدخول باستخدام Google...");
+      console.log("النطاق الحالي:", window.location.origin);
+      console.log("عنوان URI المستخدم للإعادة التوجيه:", `${window.location.origin}/login`);
       
       // استخدام طريقة signInWithRedirect بدلاً من signInWithPopup لتجنب مشاكل النافذة المنبثقة
       // تذكر: هذا سيقوم بإعادة تحميل الصفحة، لذلك لن يتم تنفيذ أي كود بعده
@@ -112,7 +116,7 @@ export default function SimpleLogin() {
       if (err.code === 'auth/popup-closed-by-user') {
         setError("تم إغلاق نافذة تسجيل الدخول");
       } else if (err.code === 'auth/unauthorized-domain') {
-        setError("نطاق التطبيق غير مصرح به. يرجى المحاولة بطريقة أخرى.");
+        setError(`نطاق التطبيق غير مصرح به (${window.location.origin}). يرجى إضافته في إعدادات Firebase.`);
       } else if (err.code === 'auth/redirect-cancelled-by-user') {
         setError("تم إلغاء عملية تسجيل الدخول من قبل المستخدم");
       } else if (err.code === 'auth/redirect-operation-pending') {
