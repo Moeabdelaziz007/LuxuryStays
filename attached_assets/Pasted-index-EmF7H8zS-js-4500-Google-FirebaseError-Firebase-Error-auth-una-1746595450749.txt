@@ -1,0 +1,94 @@
+index-EmF7H8zS.js:4500 خطأ في تسجيل الدخول باستخدام Google: FirebaseError: Firebase: Error (auth/unauthorized-domain).
+    at XI (index-EmF7H8zS.js:738:759)
+    at Ss (index-EmF7H8zS.js:738:30)
+    at Tpe (index-EmF7H8zS.js:1773:202)
+l @ index-EmF7H8zS.js:4500
+await in l
+use @ index-EmF7H8zS.js:37
+hse @ index-EmF7H8zS.js:37
+fse @ index-EmF7H8zS.js:37
+T3 @ index-EmF7H8zS.js:37
+vU @ index-EmF7H8zS.js:37
+(anonymous) @ index-EmF7H8zS.js:37
+xI @ index-EmF7H8zS.js:40
+UB @ index-EmF7H8zS.js:37
+iE @ index-EmF7H8zS.js:37
+Gj @ index-EmF7H8zS.js:37
+jse @ index-EmF7H8zS.js:37Understand this error
+index-EmF7H8zS.js:4500 النطاق غير مصرح به في Firebase: staychill-3ed08.web.app
+l @ index-EmF7H8zS.js:4500
+await in l
+use @ index-EmF7H8zS.js:37
+hse @ index-EmF7H8zS.js:37
+fse @ index-EmF7H8zS.js:37
+T3 @ index-EmF7H8zS.js:37
+vU @ index-EmF7H8zS.js:37
+(anonymous) @ index-EmF7H8zS.js:37
+xI @ index-EmF7H8zS.js:40
+UB @ index-EmF7H8zS.js:37
+iE @ index-EmF7H8zS.js:37
+Gj @ index-EmF7H8zS.js:37
+jse @ index-EmF7H8zS.js:37Understand this error
+index-EmF7H8zS.js:843 
+            
+            
+           POST https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyC4sz1O58husfZIByS0xuIJ2xhlA6NM-6w 400 (Bad Request)
+(anonymous) @ index-EmF7H8zS.js:843
+await in (anonymous)
+bq @ index-EmF7H8zS.js:843
+to @ index-EmF7H8zS.js:843
+Bv @ index-EmF7H8zS.js:843
+Dq @ index-EmF7H8zS.js:1368
+i1 @ index-EmF7H8zS.js:1398
+await in i1
+l @ index-EmF7H8zS.js:4500
+await in l
+use @ index-EmF7H8zS.js:37
+hse @ index-EmF7H8zS.js:37
+fse @ index-EmF7H8zS.js:37
+T3 @ index-EmF7H8zS.js:37
+vU @ index-EmF7H8zS.js:37
+(anonymous) @ index-EmF7H8zS.js:37
+xI @ index-EmF7H8zS.js:40
+UB @ index-EmF7H8zS.js:37
+iE @ index-EmF7H8zS.js:37
+Gj @ index-EmF7H8zS.js:37
+jse @ index-EmF7H8zS.js:37Understand this error
+index-EmF7H8zS.js:4500 فشل تسجيل الدخول كضيف: FirebaseError: Firebase: Error (auth/admin-restricted-operation).
+    at XI (index-EmF7H8zS.js:738:759)
+    at Ss (index-EmF7H8zS.js:738:30)
+    at bq (index-EmF7H8zS.js:843:1433)
+    at async Bv (index-EmF7H8zS.js:843:1570)
+    at async i1 (index-EmF7H8zS.js:1398:259)
+    at async l (index-EmF7H8zS.js:4500:7274)
+l @ index-EmF7H8zS.js:4500
+await in l
+use @ index-EmF7H8zS.js:37
+hse @ index-EmF7H8zS.js:37
+fse @ index-EmF7H8zS.js:37
+T3 @ index-EmF7H8zS.js:37
+vU @ index-EmF7H8zS.js:37
+(anonymous) @ index-EmF7H8zS.js:37
+xI @ index-EmF7H8zS.js:40
+UB @ index-EmF7H8zS.js:37
+iE @ index-EmF7H8zS.js:37
+Gj @ index-EmF7H8zS.js:37
+jse @ index-EmF7H8zS.js:37Understand this error
+index-EmF7H8zS.js:4289 `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+(anonymous) @ index-EmF7H8zS.js:4289
+v_ @ index-EmF7H8zS.js:40
+Fh @ index-EmF7H8zS.js:40
+qae @ index-EmF7H8zS.js:40
+Jc @ index-EmF7H8zS.js:40
+tR @ index-EmF7H8zS.js:40
+Fc @ index-EmF7H8zS.js:38
+qae @ index-EmF7H8zS.js:40
+Jc @ index-EmF7H8zS.js:40
+hz @ index-EmF7H8zS.js:40
+S @ index-EmF7H8zS.js:25
+R @ index-EmF7H8zS.js:25Understand this error
+index-EmF7H8zS.js:4289 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.

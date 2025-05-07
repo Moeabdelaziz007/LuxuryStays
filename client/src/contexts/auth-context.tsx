@@ -677,29 +677,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("تم حفظ مسار إعادة التوجيه للمستخدم المجهول:", path);
       }
       
-      const anonymousCred = await signInAnonymously(auth);
-      console.log("تم تسجيل الدخول كمستخدم مجهول بنجاح!");
+      // استخدام تسجيل الدخول المباشر مع بريد وكلمة مرور بدلاً من المجهول
+      // لأن تسجيل الدخول المجهول قد يكون معطلاً في إعدادات Firebase
       
-      // تحديث الملف الشخصي مع التحقق من وجود المستخدم
-      if (anonymousCred.user) {
-        await updateProfile(anonymousCred.user, {
+      // إنشاء بريد إلكتروني عشوائي وكلمة مرور لضيف
+      const guestEmail = `guest_${Math.floor(Math.random() * 1000000)}@staychill.example.com`;
+      const guestPassword = `GuestPass${Math.floor(Math.random() * 1000000)}!`;
+      
+      // محاولة إنشاء حساب جديد
+      const userCredential = await createUserWithEmailAndPassword(auth, guestEmail, guestPassword);
+      console.log("تم إنشاء حساب ضيف بنجاح!");
+      
+      // تحديث بيانات الملف الشخصي ليبدو كحساب مجهول
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
           displayName: "زائر StayX"
         });
       }
       
       // إضافة المستخدم إلى Firestore
-      if (db) {
+      if (db && userCredential.user) {
         try {
           const userData = {
-            uid: anonymousCred.user.uid,
-            email: null, // المستخدمين المجهولين ليس لديهم بريد إلكتروني
+            uid: userCredential.user.uid,
+            email: guestEmail, // استخدام البريد الإلكتروني المنشأ
             name: "زائر StayX",
             role: "CUSTOMER",
             createdAt: serverTimestamp(),
             isAnonymous: true
           };
           
-          await setDoc(doc(db, "users", anonymousCred.user.uid), userData);
+          await setDoc(doc(db, "users", userCredential.user.uid), userData);
         } catch (firestoreError) {
           console.error("خطأ في حفظ بيانات المستخدم المجهول:", firestoreError);
           // عدم منع التسجيل في حالة فشل Firestore
@@ -713,7 +721,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem('anonymousAuthRedirectPath');
       }
       
-      return anonymousCred;
+      console.log("تم تسجيل الدخول كضيف بنجاح باستخدام البريد الإلكتروني!");
+      return userCredential;
     } catch (error) {
       console.error("فشل في تسجيل الدخول كمستخدم مجهول:", error);
       setLoading(false);
