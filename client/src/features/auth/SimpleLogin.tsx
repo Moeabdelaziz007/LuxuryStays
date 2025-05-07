@@ -78,59 +78,8 @@ export default function SimpleLogin() {
     }
   };
 
-  // تسجيل الدخول باستخدام Google - مع إعدادات محسّنة لعنوان إعادة التوجيه
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      const provider = new GoogleAuthProvider();
-      
-      // إضافة نطاقات الوصول المطلوبة
-      provider.addScope('email');
-      provider.addScope('profile');
-      
-      // تعيين إعدادات خاصة للمزود لضمان عمل إعادة التوجيه بشكل صحيح
-      provider.setCustomParameters({
-        'login_hint': 'الرجاء اختيار حساب Google الخاص بك',
-        'prompt': 'select_account',
-        'client_id': '299280633489-3q6odgc86hhc1j0cev92bf28q7cep5hj.apps.googleusercontent.com',
-        'origin': window.location.origin,
-        'redirect_uri': `${window.location.origin}/login`
-      });
-      
-      console.log("محاولة تسجيل الدخول باستخدام Google...");
-      console.log("النطاق الحالي:", window.location.origin);
-      console.log("عنوان URI المستخدم للإعادة التوجيه:", `${window.location.origin}/login`);
-      
-      // استخدام طريقة signInWithRedirect بدلاً من signInWithPopup لتجنب مشاكل النافذة المنبثقة
-      // تذكر: هذا سيقوم بإعادة تحميل الصفحة، لذلك لن يتم تنفيذ أي كود بعده
-      await signInWithRedirect(auth, provider);
-      
-      // ملاحظة: هذا الكود لن يتم تنفيذه بسبب إعادة التوجيه
-      // سيتم معالجة نتيجة تسجيل الدخول في مكون RedirectHandler في App.tsx
-      
-    } catch (err: any) {
-      console.error("خطأ في تسجيل الدخول باستخدام Google:", err);
-      
-      // عرض رسالة خطأ مناسبة للمستخدم
-      if (err.code === 'auth/popup-closed-by-user') {
-        setError("تم إغلاق نافذة تسجيل الدخول");
-      } else if (err.code === 'auth/unauthorized-domain') {
-        setError(`نطاق التطبيق غير مصرح به (${window.location.origin}). يرجى إضافته في إعدادات Firebase.`);
-      } else if (err.code === 'auth/redirect-cancelled-by-user') {
-        setError("تم إلغاء عملية تسجيل الدخول من قبل المستخدم");
-      } else if (err.code === 'auth/redirect-operation-pending') {
-        setError("هناك عملية تسجيل دخول جارية بالفعل");
-      } else if (err.code === 'auth/network-request-failed') {
-        setError("فشل في الاتصال بالشبكة. تحقق من اتصالك بالإنترنت.");
-      } else {
-        setError(err.message || "حدث خطأ أثناء تسجيل الدخول باستخدام Google");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ملاحظة: تم استبدال دالة handleGoogleLogin بمكون GoogleLoginRedirect
+  // الذي يوفر وظيفة مماثلة مع تحسينات لمعالجة مشكلات المجالات غير المصرح بها
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
