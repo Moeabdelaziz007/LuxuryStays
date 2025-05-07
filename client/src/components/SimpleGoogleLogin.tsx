@@ -1,63 +1,139 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/auth-context';
+import { FcGoogle } from 'react-icons/fc';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { Loader2 } from 'lucide-react';
-import { FcGoogle } from 'react-icons/fc';
+import { login, handleRedirect } from '@/lib/firebase-auth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-/**
- * مكون تسجيل دخول بسيط باستخدام Google
- * يوفر زر واحد لتسجيل الدخول باستخدام Google
- */
-export default function SimpleGoogleLogin() {
-  const [loading, setLoading] = useState(false);
+interface SimpleGoogleLoginProps {
+  redirectPath?: string;
+  className?: string;
+  buttonText?: string;
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+}
+
+export default function SimpleGoogleLogin({
+  redirectPath = '/customer',
+  className = '',
+  buttonText = 'تسجيل الدخول باستخدام Google',
+  size = 'default',
+  variant = 'outline'
+}: SimpleGoogleLoginProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const [_, navigate] = useLocation();
 
+  // Check for redirect result on component mount
+  useEffect(() => {
+    async function checkRedirectResult() {
+      try {
+        console.log("[DEBUG] تحقق من نتيجة تسجيل الدخول مع Google");
+        const result = await handleRedirect();
+        
+        if (result.success && result.user) {
+          // Successfully signed in with Google
+          console.log("تم تسجيل الدخول بنجاح بعد إعادة التوجيه من Google");
+          toast({
+            title: "تم تسجيل الدخول بنجاح",
+            description: "مرحبًا بعودتك!",
+            variant: "default",
+          });
+          
+          // Navigate to the redirect path if successful
+          navigate(redirectPath);
+        } else if (result.errorCode) {
+          // Handle specific error codes
+          let errorMessage = "حدث خطأ أثناء تسجيل الدخول مع Google.";
+          
+          if (result.errorCode === 'auth/account-exists-with-different-credential') {
+            errorMessage = "هذا البريد الإلكتروني مسجل بطريقة تسجيل دخول أخرى.";
+          } else if (result.errorCode === 'auth/popup-closed-by-user') {
+            errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
+          } else if (result.errorCode === 'auth/popup-blocked') {
+            errorMessage = "تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة وإعادة المحاولة.";
+          } else if (result.errorCode === 'auth/cancelled-popup-request') {
+            // This is normal, don't show an error
+            return;
+          } else if (result.errorCode === 'auth/network-request-failed') {
+            errorMessage = "فشل طلب الشبكة. تحقق من اتصالك بالإنترنت.";
+          }
+          
+          setError(errorMessage);
+          toast({
+            title: "خطأ في تسجيل الدخول",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        } else {
+          console.log("لا توجد نتيجة إعادة توجيه من Google");
+        }
+      } catch (err) {
+        console.error("خطأ أثناء التحقق من نتيجة إعادة التوجيه:", err);
+      }
+    }
+    
+    checkRedirectResult();
+  }, [navigate, redirectPath, toast]);
+
   const handleGoogleLogin = async () => {
-    setLoading(true);
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    setError(null);
     
     try {
-      const provider = new GoogleAuthProvider();
-      // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول بحساب Google
-      await signInWithPopup(auth, provider);
-      // تتم إدارة حالة المستخدم تلقائيًا من خلال مزود السياق auth-context
+      // Use the redirect method from firebase-auth.ts
+      await login();
       
-      // قم بالتنقل إلى الصفحة الرئيسية أو لوحة التحكم بعد تسجيل الدخول بنجاح
-      navigate('/');
-    } catch (error: any) {
-      console.error('خطأ في تسجيل الدخول مع Google:', error);
+      // The page will reload after redirect returns
+      // We handle the result in the useEffect above
+    } catch (err: any) {
+      console.error("خطأ في بدء تسجيل الدخول مع Google:", err);
       
-      // عرض رسالة خطأ
+      let errorMessage = "حدث خطأ أثناء بدء تسجيل الدخول مع Google. يرجى المحاولة مرة أخرى.";
+      
+      if (err.code === 'auth/unauthorized-domain') {
+        errorMessage = "هذا النطاق غير مصرح به لتسجيل الدخول مع Google. يرجى التواصل مع المسؤول.";
+      }
+      
+      setError(errorMessage);
       toast({
-        title: "فشل تسجيل الدخول",
-        description: error.message || "حدث خطأ أثناء تسجيل الدخول باستخدام Google",
+        title: "خطأ في تسجيل الدخول",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center">
+    <div className={`${className} space-y-2`}>
       <Button
+        variant={variant}
+        size={size}
+        className="w-full flex items-center justify-center gap-2"
         onClick={handleGoogleLogin}
-        disabled={loading}
-        className="w-full max-w-sm h-12 bg-white text-black hover:bg-gray-100 border border-gray-300 flex items-center justify-center gap-2 transition-colors duration-300"
+        disabled={isLoading}
       >
-        {loading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-gray-500" />
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          <>
-            <FcGoogle className="h-5 w-5" />
-            <span>تسجيل الدخول باستخدام Google</span>
-          </>
+          <FcGoogle className="h-5 w-5" />
         )}
+        {buttonText}
       </Button>
+
+      {error && (
+        <Alert variant="destructive" className="mt-2">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

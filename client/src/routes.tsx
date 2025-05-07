@@ -28,6 +28,7 @@ import SplashScreen from "@/pages/SplashScreen";
 
 // Auth Components
 import SimpleLoginPage from "@/features/auth/SimpleLogin";
+import SimplifiedLogin from "@/features/auth/SimplifiedLogin";
 import UnauthorizedPage from "@/features/auth/Unauthorized";
 
 // Debugging Components
@@ -111,7 +112,11 @@ export default function AppRoutes() {
       </Route>
       
       <Route path="/login">
-        <SimpleLoginPage />
+        <SimplifiedLogin />
+      </Route>
+      
+      <Route path="/auth">
+        <SimplifiedLogin />
       </Route>
       
       <Route path="/properties">
