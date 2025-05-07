@@ -11,6 +11,8 @@ interface FirestoreStatusContextType {
   enableOfflineMode: () => Promise<void>;
   retryConnection: () => Promise<void>;
   isRetrying: boolean;
+  error: Error | null;
+  lastUpdated?: number;
 }
 
 const FirestoreStatusContext = createContext<FirestoreStatusContextType>({
@@ -21,6 +23,8 @@ const FirestoreStatusContext = createContext<FirestoreStatusContextType>({
   enableOfflineMode: async () => {},
   retryConnection: async () => {},
   isRetrying: false,
+  error: null,
+  lastUpdated: undefined,
 });
 
 export const useFirestoreStatus = () => useContext(FirestoreStatusContext);
@@ -39,6 +43,7 @@ export const FirestoreStatusProvider: React.FC<FirestoreStatusProviderProps> = (
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [connectionError, setConnectionError] = useState<Error | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<number | undefined>(undefined);
   const { toast } = useToast();
 
   // مراقبة حالة الاتصال بالإنترنت

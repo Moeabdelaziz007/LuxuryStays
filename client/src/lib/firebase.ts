@@ -7,6 +7,3 @@ import { app, auth, db, storage, safeDoc } from './firebase-config';
 
 // تصدير كل شيء
 export { app, auth, db, storage, safeDoc };
-
-// التصدير الافتراضي
-export default { app, auth, db, storage, safeDoc };
