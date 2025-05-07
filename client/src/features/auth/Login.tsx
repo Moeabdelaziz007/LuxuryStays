@@ -6,6 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import GoogleLoginWarning from "@/components/GoogleLoginWarning";
 import GoogleAuthDomainAlert from "@/components/GoogleAuthDomainAlert";
+import GoogleAuthDomainFeedback from "@/components/GoogleAuthDomainFeedback";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/auth-context";
 import GoogleLoginButton from "@/components/ui/GoogleLoginButtonFixed";
