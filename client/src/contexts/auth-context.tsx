@@ -402,15 +402,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         googleProvider.addScope('email');
         googleProvider.addScope('profile');
         
-        // إعداد المعرّف والسر لوحدة تحكم Google Cloud
+        // تبسيط إعدادات المزود لمنع مشاكل إعادة التوجيه
         googleProvider.setCustomParameters({
-          client_id: '299280633489-3q6odgc86hhc1j0cev92bf28q7cep5hj.apps.googleusercontent.com',
           prompt: 'select_account'
         });
         
-        console.log("تم تهيئة مزود Google، جاري تسجيل الدخول...");
-        
-        // محاولة تسجيل الدخول باستخدام نافذة منبثقة Google
+        console.log("تم تهيئة مزود Google، جاري تسجيل الدخول (باستخدام النافذة المنبثقة)...");
+
+        // استخدام signInWithPopup بدلاً من signInWithRedirect للتجاوز مشكلة إعادة التوجيه
         const result = await signInWithPopup(auth, googleProvider);
         
         // الحصول على النتيجة

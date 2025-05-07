@@ -32,15 +32,20 @@ export async function updateFirebaseAuthDomains(app: any): Promise<DomainRespons
     // محاكاة الطلب باستخدام تأخير مصطنع
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // محاكاة الاستجابة الناجحة مع تضمين النطاق الجديد
+    // محاكاة الاستجابة الناجحة مع تضمين النطاق الحالي والنطاقات المعروفة
     const mockDomains = [
       "localhost",
       "127.0.0.1",
       "staychill-3ed08.web.app",
       "staychill-3ed08.firebaseapp.com",
-      "f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev",
       currentDomain
     ];
+    
+    // إضافة جميع نطاقات Replit المحتملة
+    const replitDomainPattern = /-00-[a-z0-9]+\.spock\.replit\.dev$/;
+    if (replitDomainPattern.test(currentDomain) && !mockDomains.includes(currentDomain)) {
+      mockDomains.push(currentDomain);
+    }
     
     // حفظ النطاقات في التخزين المحلي للاستخدام المستقبلي
     localStorage.setItem('firebase_authorized_domains', JSON.stringify(mockDomains));

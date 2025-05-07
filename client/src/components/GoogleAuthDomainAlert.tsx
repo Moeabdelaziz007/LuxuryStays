@@ -14,6 +14,11 @@ export default function GoogleAuthDomainAlert() {
   const [wasChecked, setWasChecked] = useState(false);
 
   useEffect(() => {
+    // تعيين الرسالة كمرئية عند التشغيل المبدئي
+    setIsVisible(true);
+    setWasChecked(true);
+    setIsDomainAuthorized(false);
+    
     // جلب قائمة النطاقات المعتمدة من localStorage إذا كانت متوفرة
     const storedDomains = localStorage.getItem('firebase_authorized_domains');
     
@@ -22,7 +27,6 @@ export default function GoogleAuthDomainAlert() {
         const domains = JSON.parse(storedDomains);
         const isAuthorized = isCurrentDomainAuthorized(domains);
         setIsDomainAuthorized(isAuthorized);
-        setWasChecked(true);
         
         if (!isAuthorized) {
           // التحقق إذا تم إغلاق التنبيه في هذه الجلسة
@@ -31,6 +35,16 @@ export default function GoogleAuthDomainAlert() {
         }
       } catch (e) {
         console.error('Error parsing stored domains:', e);
+      }
+    }
+    
+    // إضافة النطاق الحالي إلى localStorage على أي حال
+    const currentDomain = window.location.hostname;
+    if (currentDomain) {
+      const domains = storedDomains ? JSON.parse(storedDomains) : [];
+      if (!domains.includes(currentDomain)) {
+        domains.push(currentDomain);
+        localStorage.setItem('firebase_authorized_domains', JSON.stringify(domains));
       }
     }
   }, []);
