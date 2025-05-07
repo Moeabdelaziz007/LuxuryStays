@@ -4,46 +4,13 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Logo from "@/components/Logo";
 import { ArrowRight, Building, Shield, Clock } from "lucide-react";
+import TechSpaceBackground from "./TechSpaceBackground";
 
 export default function NewHeroSection() {
   return (
     <div className="min-h-screen bg-gray-950 text-white relative overflow-hidden flex flex-col">
-      {/* Subtle background elements */}
-      <div className="absolute inset-0 z-0">
-        {/* Deep space gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950 to-gray-900"></div>
-        
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMyMDIwMjAiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0aDR2MWgtNHYtMXptMCAzaDR2MWgtNHYtMXptMCAzaDR2MWgtNHYtMXptLTYtNmg0djFoLTR2LTF6bTAgM2g0djFoLTR2LTF6bTAgM2g0djFoLTR2LTF6bS02LTZoNHYxaC00di0xem0wIDNoNHYxaC00di0xem0wIDNoNHYxaC00di0xem0wLTl2MWgtM1YzMWgzem0wIDNoLTN2MWgzdi0xem0wIDNoLTN2MWgzdi0xeiIvPjwvZz48L2c+PC9zdmc+')] opacity-10"></div>
-      </div>
-      
-      {/* Accent elements */}
-      <motion.div 
-        className="absolute top-[25%] left-[20%] w-40 h-40 bg-[#39FF14] rounded-full opacity-[0.02] blur-[100px]"
-        animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.02, 0.03, 0.02]
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          easings: ["easeInOut"],
-        }}
-      />
-      
-      <motion.div 
-        className="absolute bottom-[10%] right-[15%] w-60 h-60 bg-white rounded-full opacity-[0.01] blur-[100px]"
-        animate={{
-          scale: [1, 1.15, 1],
-          opacity: [0.01, 0.02, 0.01]
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          easings: ["easeInOut"],
-          delay: 2
-        }}
-      />
+      {/* Tech/Space Background with StayX branding */}
+      <TechSpaceBackground />
       
       <div className="relative z-10 container mx-auto px-4 py-8 flex flex-col h-screen">
         {/* Header with Logo */}
