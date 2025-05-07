@@ -5,6 +5,7 @@
 @import "./styles/breakpoints.css";
 @import "./styles/navigation.css";
 @import "./styles/touch-targets.css";
+@import "./styles/section-transitions.css";
 
 @tailwind base;
 @tailwind components;
@@ -40,6 +41,32 @@
   }
 }
 
+@keyframes glitchScan {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes text-pulse {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(57, 255, 20, 0.7);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(57, 255, 20, 1), 0 0 25px rgba(57, 255, 20, 0.7);
+  }
+}
+
 @keyframes subtleFloat {
   0%, 100% {
     transform: translateY(0);
@@ -60,6 +87,10 @@
 
 .animate-neon-pulse {
   animation: neonPulse 2s infinite;
+}
+
+.animate-text-pulse {
+  animation: text-pulse 3s infinite;
 }
 
 .animate-float {
@@ -173,6 +204,10 @@
 
 .text-gray {
   color: var(--light-gray);
+}
+
+.text-shadow-glow {
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.7);
 }
 
 /* Background styles */
