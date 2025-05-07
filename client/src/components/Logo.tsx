@@ -214,21 +214,23 @@ export default function Logo({
       );
     }
 
+    // استخدام safeVariant للتأكد من عدم وجود أخطاء
+    const safeVariant = colorClasses[variant] ? variant : 'futuristic';
     return (
       <span className={cn(
-        colorClasses[variant].x,
+        colorClasses[safeVariant].x,
         xSizeClasses[size],
         'font-extrabold relative'
       )}>
         <span className="relative z-10">X</span>
-        {variant === 'neon' && (
+        {safeVariant === 'neon' && (
           <>
             <span className="absolute inset-0 z-0 blur-[2px] text-[#39FF14]/70">X</span>
             <span className="absolute inset-0 z-0 blur-[4px] text-[#39FF14]/30 animate-neon-pulse" style={{ animationDelay: '0.5s' }}>X</span>
             <span className="absolute inset-0 z-0 blur-[8px] text-[#39FF14]/10 animate-pulse" style={{ animationDelay: '1s' }}>X</span>
           </>
         )}
-        {variant === 'glass' && (
+        {safeVariant === 'glass' && (
           <>
             <span className="absolute inset-0 z-0 blur-[2px] text-[#39FF14]/60">X</span>
             <span className="absolute inset-0 z-0 blur-[6px] text-[#39FF14]/20 animate-neon-pulse" style={{ animationDelay: '0.7s' }}>X</span>
@@ -302,8 +304,10 @@ export default function Logo({
       );
     }
     
+    // استخدام safeVariant للتأكد من عدم وجود أخطاء
+    const safeVariant = colorClasses[variant] ? variant : 'futuristic';
     return (
-      <span className={cn(colorClasses[variant].text, "mr-0.5")}>
+      <span className={cn(colorClasses[safeVariant].text, "mr-0.5")}>
         Stay
       </span>
     );
@@ -341,14 +345,19 @@ export default function Logo({
   );
 
   // Branded tech accent lines
-  const brandAccent = variant === 'futuristic'
-    ? getFuturisticAccent()
-    : (
-      <div className="absolute -bottom-1 left-0 right-0 flex justify-between items-center opacity-70 pointer-events-none">
-        <div className="h-px w-3/5 bg-gradient-to-r from-[#39FF14]/80 to-transparent"></div>
-        <div className="h-1 w-1 rounded-full bg-[#39FF14]"></div>
-      </div>
-    );
+  const getBrandAccent = () => {
+    // استخدام safeVariant للتأكد من عدم وجود أخطاء
+    const safeVariant = colorClasses[variant] ? variant : 'futuristic';
+    
+    return safeVariant === 'futuristic'
+      ? getFuturisticAccent()
+      : (
+        <div className="absolute -bottom-1 left-0 right-0 flex justify-between items-center opacity-70 pointer-events-none">
+          <div className="h-px w-3/5 bg-gradient-to-r from-[#39FF14]/80 to-transparent"></div>
+          <div className="h-1 w-1 rounded-full bg-[#39FF14]"></div>
+        </div>
+      );
+  };
 
   // Content wrapper based on linkToHome
   const LogoContent = () => {
@@ -371,17 +380,17 @@ export default function Logo({
           <div className={cn('font-bold tracking-tight flex items-center relative', textSizeClasses[size])}>
             {getStayElement()}
             {getXElement()}
-            {(variant === 'neon' || variant === 'futuristic') && brandAccent}
+            {(safeVariant === 'neon' || safeVariant === 'futuristic') && getBrandAccent()}
           </div>
         ) : (
           <div className="relative">
             {getXElement()}
-            {(variant === 'neon' || variant === 'futuristic') && brandAccent}
+            {(safeVariant === 'neon' || safeVariant === 'futuristic') && getBrandAccent()}
           </div>
         )}
         
         {/* Hover effects */}
-        {(variant === 'neon' || variant === 'futuristic') && (
+        {(safeVariant === 'neon' || safeVariant === 'futuristic') && (
           <motion.div 
             className="absolute -inset-2 rounded-md pointer-events-none z-0"
             animate={hovered ? { 
@@ -396,7 +405,7 @@ export default function Logo({
         )}
         
         {/* Interactive particle effect on hover for futuristic mode */}
-        {interactive && hovered && variant === 'futuristic' && (
+        {interactive && hovered && safeVariant === 'futuristic' && (
           <motion.div 
             className="absolute -inset-4 pointer-events-none z-0"
             initial={{ opacity: 0 }}
