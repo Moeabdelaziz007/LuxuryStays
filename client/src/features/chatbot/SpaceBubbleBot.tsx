@@ -295,6 +295,35 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
       </ThinkingDots>
     </div>
   );
+
+  // مكون لعرض حالة الخطأ في الاتصال
+  const ConnectionErrorIndicator = ({ retry }: { retry: () => void }) => {
+    const { status, error } = geminiService.getConnectionStatus();
+    return (
+      <div className="bg-black/60 p-3 rounded-lg border border-red-500/40 flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-red-400">
+          {status === 'offline' ? (
+            <Zap size={16} className="animate-pulse" />
+          ) : (
+            <X size={16} className="animate-pulse" />
+          )}
+          <span className="text-sm font-medium">
+            {status === 'offline' ? 'مشكلة في الاتصال' : 'خطأ في الخدمة'}
+          </span>
+        </div>
+        <p className="text-xs text-gray-300 mt-1">
+          {error || 'حدث خطأ أثناء الاتصال بالخدمة. يرجى المحاولة مرة أخرى.'}
+        </p>
+        <button 
+          onClick={retry}
+          className="mt-2 bg-[#39FF14]/10 hover:bg-[#39FF14]/20 text-[#39FF14] border border-[#39FF14]/30 rounded px-3 py-1 text-xs flex items-center gap-1 w-fit"
+        >
+          <RefreshCw size={12} />
+          <span>إعادة المحاولة</span>
+        </button>
+      </div>
+    );
+  };
   
   // أزرار سريعة للوصول إلى خدمات التوصية العقارية
   const QuickAccessButtons = () => {
