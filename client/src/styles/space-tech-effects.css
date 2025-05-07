@@ -98,8 +98,75 @@
 
 /* دوائر كهربائية تقنية */
 .tech-circuit {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%2339FF14' stroke-width='1'%3E%3Cpath d='M769 229L1037 260.9M927 880L731 737 520 660 309 538 40 599 295 764 126.5 879.5 40 599-197 493 102 382-31 229 126.5 79.5-69-63'/%3E%3Cpath d='M-31 229L237 261 390 382 603 493 308.5 537.5 101.5 381.5M370 905L295 764'/%3E%3Cpath d='M520 660L578 842 731 737 840 599 603 493 520 660 295 764 309 538 390 382 539 269 769 229 577.5 41.5 370 105 295 -36 126.5 79.5 237 261 102 382 40 599 -69 737 127 880'/%3E%3Cpath d='M520-140L578.5 42.5 731-63M603 493L539 269 237 261 370 105M902 382L539 269M390 382L102 382'/%3E%3Cpath d='M-222 42L126.5 79.5 370 105 539 269 577.5 41.5 927 80 769 229 902 382 603 493 731 737M295-36L577.5 41.5M578 842L295 764M40-201L127 80M102 382L-261 269'/%3E%3C/g%3E%3Cg fill='%2339FF14'%3E%3Ccircle cx='769' cy='229' r='5'/%3E%3Ccircle cx='539' cy='269' r='5'/%3E%3Ccircle cx='603' cy='493' r='5'/%3E%3Ccircle cx='731' cy='737' r='5'/%3E%3Ccircle cx='520' cy='660' r='5'/%3E%3Ccircle cx='309' cy='538' r='5'/%3E%3Ccircle cx='295' cy='764' r='5'/%3E%3Ccircle cx='40' cy='599' r='5'/%3E%3Ccircle cx='102' cy='382' r='5'/%3E%3Ccircle cx='127' cy='80' r='5'/%3E%3Ccircle cx='370' cy='105' r='5'/%3E%3Ccircle cx='578' cy='42' r='5'/%3E%3Ccircle cx='237' cy='261' r='5'/%3E%3Ccircle cx='390' cy='382' r='5'/%3E%3C/g%3E%3C/svg%3E");
-  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%2339FF14' stroke-width='1.5'%3E%3Cpath d='M769 229L1037 260.9M927 880L731 737 520 660 309 538 40 599 295 764 126.5 879.5 40 599-197 493 102 382-31 229 126.5 79.5-69-63'/%3E%3Cpath d='M-31 229L237 261 390 382 603 493 308.5 537.5 101.5 381.5M370 905L295 764'/%3E%3Cpath d='M520 660L578 842 731 737 840 599 603 493 520 660 295 764 309 538 390 382 539 269 769 229 577.5 41.5 370 105 295 -36 126.5 79.5 237 261 102 382 40 599 -69 737 127 880'/%3E%3Cpath d='M520-140L578.5 42.5 731-63M603 493L539 269 237 261 370 105M902 382L539 269M390 382L102 382'/%3E%3Cpath d='M-222 42L126.5 79.5 370 105 539 269 577.5 41.5 927 80 769 229 902 382 603 493 731 737M295-36L577.5 41.5M578 842L295 764M40-201L127 80M102 382L-261 269'/%3E%3C/g%3E%3Cg fill='%2339FF14'%3E%3Ccircle cx='769' cy='229' r='5'/%3E%3Ccircle cx='539' cy='269' r='5'/%3E%3Ccircle cx='603' cy='493' r='5'/%3E%3Ccircle cx='731' cy='737' r='5'/%3E%3Ccircle cx='520' cy='660' r='5'/%3E%3Ccircle cx='309' cy='538' r='5'/%3E%3Ccircle cx='295' cy='764' r='5'/%3E%3Ccircle cx='40' cy='599' r='5'/%3E%3Ccircle cx='102' cy='382' r='5'/%3E%3Ccircle cx='127' cy='80' r='5'/%3E%3Ccircle cx='370' cy='105' r='5'/%3E%3Ccircle cx='578' cy='42' r='5'/%3E%3Ccircle cx='237' cy='261' r='5'/%3E%3Ccircle cx='390' cy='382' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 800px 800px;
+  opacity: 0.3;
+  animation: circuit-pulse 8s infinite linear;
+}
+
+/* مؤثرات إضافية للدوائر الكهربائية */
+.tech-circuit-advanced {
+  position: relative;
+}
+
+.tech-circuit-advanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 30%, rgba(57, 255, 20, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 60%, rgba(57, 255, 20, 0.1) 0%, transparent 50%);
+  animation: circuit-gradient 15s infinite alternate ease-in-out;
+}
+
+.tech-circuit-advanced::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, 
+    transparent 45%, 
+    rgba(57, 255, 20, 0.3) 50%, 
+    transparent 55%);
+  background-size: 200% 200%;
+  animation: circuit-scan 5s infinite linear;
+  opacity: 0.3;
+}
+
+@keyframes circuit-pulse {
+  0%, 100% { 
+    opacity: 0.25;
+    background-position: 0px 0px;
+  }
+  50% { 
+    opacity: 0.35;
+    background-position: 20px 20px;
+  }
+}
+
+@keyframes circuit-gradient {
+  0% { 
+    opacity: 0.2;
+    transform: scale(0.95);
+  }
+  100% { 
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes circuit-scan {
+  0% { 
+    background-position: -100% -100%;
+  }
+  100% { 
+    background-position: 200% 200%;
+  }
 }
 
 /* تأثير تدفق البيانات */
@@ -295,4 +362,14 @@
 
 .shadow-glow-lg {
   box-shadow: 0 0 30px rgba(57, 255, 20, 0.4);
+}
+
+/* تأثير ظل وتوهج للنصوص */
+.text-shadow-glow {
+  text-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
+  transition: text-shadow 0.3s ease;
+}
+
+.text-shadow-glow:hover {
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.7);
 }
