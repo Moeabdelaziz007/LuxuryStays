@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import { MessageSquare, X, Settings, Zap } from 'lucide-react';
 
 // تعريف نوع الخصائص التي يستقبلها المكون
-interface SpaceChatBotProps {
-  botNameProp?: string;
-  fullScreen?: boolean;
+interface SpaceBubbleBotProps {
+  botName?: string; // إمكانية تخصيص اسم الروبوت
+  position?: 'bottom-right' | 'bottom-left'; // موقع فقاعة المحادثة
 }
 
 // نمط تصميم بتأثير الفضاء والتكنولوجيا
@@ -25,11 +25,11 @@ const spaceTheme = {
   userFontColor: '#000000',
 };
 
-// تنسيق أوسع للعناصر في الواجهة
-const ChatbotContainer = styled.div<{ isOpen: boolean }>\`
+// تنسيق حاوية الشات
+const ChatbotContainer = styled.div<{ isOpen: boolean; position: string }>`
   position: fixed;
   bottom: ${props => props.isOpen ? '0' : '-600px'};
-  right: 20px;
+  ${props => props.position === 'bottom-right' ? 'right: 20px;' : 'left: 20px;'}
   width: 350px;
   max-width: 90vw;
   z-index: 1000;
@@ -38,19 +38,19 @@ const ChatbotContainer = styled.div<{ isOpen: boolean }>\`
   overflow: hidden;
   box-shadow: 0 -5px 20px rgba(57, 255, 20, 0.3);
   direction: rtl;
-\`;
+`;
 
-const ChatButton = styled(motion.button)\`
+// زر فتح الشات
+const ChatButton = styled(motion.button)<{ position: string }>`
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  ${props => props.position === 'bottom-right' ? 'right: 20px;' : 'left: 20px;'}
   width: 60px;
   height: 60px;
   border-radius: 50%;
   background: black;
   border: 2px solid #39FF14;
   color: #39FF14;
-  font-size: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -63,9 +63,10 @@ const ChatButton = styled(motion.button)\`
     box-shadow: 0 0 20px rgba(57, 255, 20, 0.8);
     transform: scale(1.05);
   }
-\`;
+`;
 
-const CustomHeader = styled.div\`
+// رأس مخصص للشات
+const CustomHeader = styled.div`
   background-color: #111827;
   color: #39FF14;
   padding: 15px;
@@ -75,20 +76,20 @@ const CustomHeader = styled.div\`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(57, 255, 20, 0.3);
-\`;
+`;
 
-const HeaderTitle = styled.div\`
+const HeaderTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-\`;
+`;
 
-const HeaderControls = styled.div\`
+const HeaderControls = styled.div`
   display: flex;
   gap: 10px;
-\`;
+`;
 
-const ControlButton = styled.button\`
+const ControlButton = styled.button`
   background: none;
   border: none;
   color: #39FF14;
@@ -98,9 +99,9 @@ const ControlButton = styled.button\`
   &:hover {
     transform: scale(1.1);
   }
-\`;
+`;
 
-const BotNameInput = styled.input\`
+const BotNameInput = styled.input`
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid #39FF14;
   border-radius: 4px;
@@ -108,21 +109,21 @@ const BotNameInput = styled.input\`
   padding: 8px 12px;
   width: calc(100% - 20px);
   margin: 10px;
-  font-family: 'Cairo', Arial, sans-serif;
+  font-family: 'Cairo, Arial, sans-serif';
   
   &:focus {
     outline: none;
     box-shadow: 0 0 5px rgba(57, 255, 20, 0.8);
   }
-\`;
+`;
 
-const SettingsPanel = styled(motion.div)\`
+const SettingsPanel = styled(motion.div)`
   background: rgba(0, 0, 0, 0.95);
   padding: 15px;
   border-top: 1px solid rgba(57, 255, 20, 0.3);
-\`;
+`;
 
-const CircuitBackground = styled.div\`
+const CircuitBackground = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -131,54 +132,70 @@ const CircuitBackground = styled.div\`
   pointer-events: none;
   opacity: 0.1;
   overflow: hidden;
-\`;
+`;
 
-// خطوات الروبوت المحدد كمصفوفة
-const initialSteps = [
-  {
-    id: 'welcome',
-    message: 'مرحباً! أنا المساعد الرقمي الخاص بـ StayX. كيف يمكنني مساعدتك اليوم؟',
-    trigger: 'userInput',
-  },
-  {
-    id: 'userInput',
-    user: true,
-    trigger: 'botResponse',
-  },
-  {
-    id: 'botResponse',
-    component: <div>جاري التفكير...</div>,
-    asMessage: true,
-    waitAction: true,
-    trigger: 'userInput',
-  },
-];
-
-// مكون الروبوت المحادث
-const SpaceChatBot: React.FC = () => {
+// مكون فقاعة المحادثة الرئيسي
+const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({ 
+  botName: initialBotName = 'ستايكس',
+  position = 'bottom-right'
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [botName, setBotName] = useState(geminiService.getBotName());
-  const [steps, setSteps] = useState(initialSteps);
-  const [chatKey, setChatKey] = useState(Date.now()); // مفتاح لإعادة تحميل الشات
+  const [botName, setBotName] = useState(initialBotName || geminiService.getBotName());
+  const [steps, setSteps] = useState<any[]>([]);
+  const [chatKey, setChatKey] = useState(Date.now());
   const chatbotRef = useRef<any>(null);
+  
+  // تهيئة خطوات المحادثة
+  useEffect(() => {
+    const initialSteps = [
+      {
+        id: 'welcome',
+        message: `مرحباً! أنا ${botName}، المساعد الرقمي الخاص بـ StayX. كيف يمكنني مساعدتك اليوم؟`,
+        trigger: 'userInput',
+      },
+      {
+        id: 'userInput',
+        user: true,
+        trigger: 'botResponse',
+      },
+      {
+        id: 'botResponse',
+        component: <div>جاري التفكير...</div>,
+        asMessage: true,
+        waitAction: true,
+        trigger: 'userInput',
+      },
+    ];
+    
+    setSteps(initialSteps);
+    
+    // تحديث اسم الروبوت في الخدمة إذا تم تمريره كخاصية
+    if (initialBotName && initialBotName !== geminiService.getBotName()) {
+      geminiService.setBotName(initialBotName);
+    }
+  }, [initialBotName]);
   
   // تحديث الخطوات عندما يتغير اسم الروبوت
   useEffect(() => {
+    if (!steps.length) return;
+    
     // تحديث رسالة الترحيب باسم الروبوت الجديد
-    const updatedSteps = [...initialSteps];
-    updatedSteps[0] = {
-      ...updatedSteps[0],
-      message: `مرحباً! أنا ${botName}، المساعد الرقمي الخاص بـ StayX. كيف يمكنني مساعدتك اليوم؟`,
-    };
-    setSteps(updatedSteps);
+    const updatedSteps = [...steps];
+    if (updatedSteps[0]) {
+      updatedSteps[0] = {
+        ...updatedSteps[0],
+        message: `مرحباً! أنا ${botName}، المساعد الرقمي الخاص بـ StayX. كيف يمكنني مساعدتك اليوم؟`,
+      };
+      setSteps(updatedSteps);
+    }
     
     // تحديث اسم الروبوت في الخدمة
     geminiService.setBotName(botName);
     
     // إعادة تحميل الشات
     setChatKey(Date.now());
-  }, [botName]);
+  }, [botName, steps]);
 
   // فتح/إغلاق الشات
   const toggleChat = () => {
@@ -210,16 +227,21 @@ const SpaceChatBot: React.FC = () => {
       nextStep.completed = true;
       nextStep.trigger();
     } catch (error) {
-      console.error("Error in chat:", error);
-      nextStep.value = "عذراً، حدث خطأ في معالجة طلبك. يرجى المحاولة مرة أخرى.";
+      console.error("خطأ في التواصل مع Gemini API:", error);
+      nextStep.value = "عذراً، حدث خطأ في معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً.";
       nextStep.trigger();
     }
   };
+
+  if (!steps.length) {
+    return null; // انتظر حتى تكتمل تهيئة الخطوات
+  }
 
   return (
     <>
       {/* زر فتح الشات */}
       <ChatButton
+        position={position}
         onClick={toggleChat}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -239,7 +261,7 @@ const SpaceChatBot: React.FC = () => {
       </ChatButton>
       
       {/* حاوية الشات */}
-      <ChatbotContainer isOpen={isOpen}>
+      <ChatbotContainer isOpen={isOpen} position={position}>
         {/* رأس مخصص */}
         <CustomHeader>
           <HeaderTitle>
@@ -302,8 +324,8 @@ const SpaceChatBot: React.FC = () => {
               handleEnd={() => {}} // لا شيء عند الانتهاء
               headerTitle={botName}
               placeholder="اكتب رسالتك هنا..."
-              botAvatar="/assets/bot-avatar.png"
-              userAvatar="/assets/user-avatar.png"
+              botAvatar="/assets/bot-avatar.svg"
+              userAvatar="/assets/user-avatar.svg"
               customDelay={10}
               hideHeader={true}
               hideSubmitButton={true}
@@ -353,4 +375,4 @@ const SpaceChatBot: React.FC = () => {
   );
 };
 
-export default SpaceChatBot;
+export default SpaceBubbleBot;

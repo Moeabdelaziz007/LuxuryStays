@@ -4,6 +4,7 @@ import ServicesSection from "@/features/home/ServicesSection";
 import NewHeroSection from "@/features/home/NewHeroSection";
 import SpaceFooter from "@/components/layout/SpaceFooter";
 import { SpaceButton } from "@/components/ui/space-button";
+import SpaceBubbleBot from "@/features/chatbot/SpaceBubbleBot";
 
 export default function HomePage() {
   return (

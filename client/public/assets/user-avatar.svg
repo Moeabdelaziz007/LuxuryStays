@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="24" cy="24" r="23" fill="#111" stroke="#39FF14" stroke-width="2"/>
+  <circle cx="24" cy="24" r="18" fill="#0C1A12" stroke="#39FF14" stroke-width="1" stroke-opacity="0.3"/>
+  
+  <!-- User Silhouette -->
+  <path d="M24 14C21.2386 14 19 16.2386 19 19C19 21.7614 21.2386 24 24 24C26.7614 24 29 21.7614 29 19C29 16.2386 26.7614 14 24 14Z" fill="#39FF14" fill-opacity="0.7"/>
+  <path d="M16 34C16 28.4772 19.5817 26 24 26C28.4183 26 32 28.4772 32 34" stroke="#39FF14" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Tech Enhancements -->
+  <circle cx="38" cy="18" r="2" fill="#39FF14" fill-opacity="0.6">
+    <animate attributeName="fill-opacity" values="0.6;0.9;0.6" dur="3s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="10" cy="18" r="2" fill="#39FF14" fill-opacity="0.6">
+    <animate attributeName="fill-opacity" values="0.6;0.9;0.6" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Circuit Pattern -->
+  <path d="M10 28 H 14" stroke="#39FF14" stroke-width="0.5" stroke-opacity="0.7"/>
+  <path d="M34 28 H 38" stroke="#39FF14" stroke-width="0.5" stroke-opacity="0.7"/>
+  <path d="M24 34 V 38" stroke="#39FF14" stroke-width="0.5" stroke-opacity="0.7"/>
+  
+  <!-- Particle Effects -->
+  <circle cx="15" cy="15" r="0.5" fill="#39FF14">
+    <animate attributeName="cx" values="15;16;15" dur="4s" repeatCount="indefinite" />
+    <animate attributeName="cy" values="15;14;15" dur="4s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="33" cy="15" r="0.5" fill="#39FF14">
+    <animate attributeName="cx" values="33;32;33" dur="4s" repeatCount="indefinite" />
+    <animate attributeName="cy" values="15;14;15" dur="4s" repeatCount="indefinite" />
+  </circle>
+</svg>
