@@ -442,7 +442,7 @@ export default function Logo({
     );
     
     // Apply framer motion animations for more complex effects
-    if (withAnimation && animationType !== 'none' && animationType !== 'pulse' && !['futuristic', 'holographic'].includes(animationType)) {
+    if (withAnimation && animationType !== 'none' && animationType !== 'pulse' && animationType !== 'futuristic' && animationType !== 'holographic') {
       let animationProps = {};
       
       switch (animationType) {
