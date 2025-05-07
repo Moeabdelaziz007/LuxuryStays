@@ -153,8 +153,16 @@ export default function SimpleLogin() {
             className="w-full"
             buttonText="تسجيل الدخول باستخدام Google"
           />
+          
+          {error && error.includes("النطاق غير مصرح به") && (
+            <div className="mt-4 text-center">
+              <Link href="/auth/troubleshoot" className="text-[#39FF14] hover:text-[#39FF14]/80 text-sm">
+                واجهت مشكلة في تسجيل الدخول؟ انقر هنا لتشخيص المشكلة وحلها
+              </Link>
+            </div>
+          )}
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex flex-col space-y-3">
           <div className="text-sm text-gray-400">
             ليس لديك حساب؟{" "}
             <Link href="/auth/signup" className="text-[#39FF14] hover:text-[#39FF14]/80">

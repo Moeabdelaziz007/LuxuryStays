@@ -16,21 +16,16 @@ import { CopyIcon, CheckIcon, AlertCircleIcon } from "lucide-react";
  */
 export default function DomainHelper() {
   const [currentDomain, setCurrentDomain] = useState<string>("");
+  const [currentHostname, setCurrentHostname] = useState<string>("");
   const [copied, setCopied] = useState(false);
+  const [copiedHostname, setCopiedHostname] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [authorizedDomains, setAuthorizedDomains] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // الحصول على النطاق الحالي
-    setCurrentDomain(window.location.origin);
-  }, []);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(currentDomain);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
-  };
-
-  const checkAuthorization = async () => {
+  const fetchAuthorizedDomains = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         `https://www.googleapis.com/identitytoolkit/v3/relyingparty/getProjectConfig?key=AIzaSyCziEw9ASclqaqTyPtZu1Rih1_1ad8nmgs`
@@ -38,9 +33,9 @@ export default function DomainHelper() {
       const data = await response.json();
       
       if (data.authorizedDomains && Array.isArray(data.authorizedDomains)) {
-        const isDomainAuthorized = data.authorizedDomains.includes(
-          new URL(currentDomain).hostname
-        );
+        setAuthorizedDomains(data.authorizedDomains);
+        const isDomainAuthorized = data.authorizedDomains.includes(currentHostname);
+        setIsAuthorized(isDomainAuthorized);
         setChecked(true);
         return isDomainAuthorized;
       }
@@ -48,7 +43,36 @@ export default function DomainHelper() {
     } catch (error) {
       console.error("خطأ في التحقق من مجالات Firebase المصرح بها:", error);
       return false;
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    // الحصول على النطاق الحالي والاسم المضيف
+    setCurrentDomain(window.location.origin);
+    setCurrentHostname(window.location.hostname);
+    
+    // التحقق من حالة التصريح عند التحميل
+    setTimeout(() => {
+      fetchAuthorizedDomains();
+    }, 500);
+  }, []);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(currentDomain);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
+  
+  const handleCopyHostname = () => {
+    navigator.clipboard.writeText(currentHostname);
+    setCopiedHostname(true);
+    setTimeout(() => setCopiedHostname(false), 3000);
+  };
+
+  const checkAuthorization = () => {
+    fetchAuthorizedDomains();
   };
 
   return (
@@ -62,29 +86,64 @@ export default function DomainHelper() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Alert variant="destructive">
-          <AlertCircleIcon className="h-4 w-4" />
-          <AlertTitle>خطأ النطاق غير مصرح به</AlertTitle>
-          <AlertDescription>
-            النطاق الحالي غير مسجل في قائمة النطاقات المصرح بها في Firebase. يجب
-            إضافته لتمكين تسجيل الدخول باستخدام Google.
-          </AlertDescription>
-        </Alert>
+        {!isAuthorized && checked && (
+          <Alert variant="destructive">
+            <AlertCircleIcon className="h-4 w-4" />
+            <AlertTitle>خطأ النطاق غير مصرح به</AlertTitle>
+            <AlertDescription>
+              النطاق الحالي ({currentHostname}) غير مسجل في قائمة النطاقات المصرح بها في Firebase. يجب
+              إضافته لتمكين تسجيل الدخول باستخدام Google.
+            </AlertDescription>
+          </Alert>
+        )}
 
-        <div className="p-3 bg-gray-800 rounded-md flex items-center justify-between">
-          <code className="text-sm text-gray-300">{currentDomain}</code>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCopy}
-            className="ml-2"
-          >
-            {copied ? (
-              <CheckIcon className="h-4 w-4 text-green-500" />
-            ) : (
-              <CopyIcon className="h-4 w-4" />
-            )}
-          </Button>
+        {isAuthorized && checked && (
+          <Alert>
+            <CheckIcon className="h-4 w-4" />
+            <AlertTitle>النطاق مصرح به</AlertTitle>
+            <AlertDescription>
+              النطاق الحالي ({currentHostname}) مسجل بالفعل في قائمة النطاقات المصرح بها في Firebase.
+              يمكنك الآن استخدام تسجيل الدخول باستخدام Google.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div>
+          <h3 className="font-medium text-white mb-2">العنوان الكامل (URL):</h3>
+          <div className="p-3 bg-gray-800 rounded-md flex items-center justify-between">
+            <code className="text-sm text-gray-300">{currentDomain}</code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopy}
+              className="ml-2"
+            >
+              {copied ? (
+                <CheckIcon className="h-4 w-4 text-green-500" />
+              ) : (
+                <CopyIcon className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="font-medium text-white mb-2">اسم النطاق (Hostname):</h3>
+          <div className="p-3 bg-gray-800 rounded-md flex items-center justify-between">
+            <code className="text-sm text-gray-300">{currentHostname}</code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopyHostname}
+              className="ml-2"
+            >
+              {copiedHostname ? (
+                <CheckIcon className="h-4 w-4 text-green-500" />
+              ) : (
+                <CopyIcon className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -94,17 +153,34 @@ export default function DomainHelper() {
             <li>حدد مشروعك "staychill-3ed08"</li>
             <li>انتقل إلى "Authentication" في القائمة الجانبية</li>
             <li>اضغط على تبويب "Settings" ثم انتقل إلى قسم "Authorized domains"</li>
-            <li>اضغط على "Add domain" وألصق النطاق المنسوخ أعلاه</li>
+            <li>اضغط على "Add domain" وألصق اسم النطاق (Hostname) المنسوخ أعلاه</li>
             <li>اضغط على "Add"</li>
           </ol>
         </div>
+
+        {checked && (
+          <div className="mt-4">
+            <h3 className="font-medium text-white mb-2">النطاقات المصرح بها حاليًا:</h3>
+            <ul className="bg-gray-800 p-3 rounded-md list-inside space-y-1">
+              {authorizedDomains.map(domain => (
+                <li 
+                  key={domain} 
+                  className={`text-sm ${domain === currentHostname ? 'text-[#39FF14] font-medium' : 'text-gray-300'}`}
+                >
+                  {domain} {domain === currentHostname && '✓'}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
       <CardFooter>
         <Button
           className="w-full bg-[#39FF14] text-black hover:bg-[#39FF14]/90"
           onClick={checkAuthorization}
+          disabled={loading}
         >
-          تحقق من حالة النطاق
+          {loading ? "جاري التحقق..." : "تحقق من حالة النطاق"}
         </Button>
       </CardFooter>
     </Card>
