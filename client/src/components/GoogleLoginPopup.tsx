@@ -3,9 +3,8 @@ import { Button } from '@/components/ui/button';
 import { FcGoogle } from 'react-icons/fc';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { googleOAuthConfig } from '@/lib/oauth-config';
 import { useLocation } from 'wouter';
+import { loginWithPopup } from '@/lib/firebase-auth';
 
 interface GoogleLoginPopupProps {
   redirectPath?: string;
@@ -33,7 +32,6 @@ export default function GoogleLoginPopup({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const auth = getAuth();
   const [_, setLocation] = useLocation();
 
   const handleGoogleLogin = async () => {
@@ -44,24 +42,8 @@ export default function GoogleLoginPopup({
       console.log("محاولة تسجيل الدخول باستخدام Google (طريقة النافذة المنبثقة)...");
       console.log("النطاق الحالي:", window.location.origin);
       
-      // إنشاء مزود مصادقة Google
-      const provider = new GoogleAuthProvider();
-      
-      // إضافة نطاقات لطلب المعلومات
-      provider.addScope('email');
-      provider.addScope('profile');
-      
-      // تعيين إعدادات خاصة للمزود باستخدام معلومات OAuth المحدثة
-      provider.setCustomParameters({
-        'login_hint': 'الرجاء اختيار حساب Google الخاص بك',
-        'prompt': 'select_account'
-      });
-      
-      console.log("بدء عملية تسجيل الدخول باستخدام النافذة المنبثقة...");
-      
-      // استخدام طريقة النافذة المنبثقة
-      const result = await signInWithPopup(auth, provider);
-      
+      // استخدام وظيفة تسجيل الدخول المُحسنة
+      const result = await loginWithPopup();
       console.log("تم تسجيل الدخول بنجاح:", result.user.displayName);
       
       if (onLoginSuccess) {
@@ -86,13 +68,13 @@ export default function GoogleLoginPopup({
       let errorMessage = "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.";
       
       if (err.code === 'auth/unauthorized-domain') {
-        errorMessage = `هذا النطاق (${window.location.origin}) غير مصرح به في إعدادات Firebase. يرجى إضافته في وحدة تحكم Firebase في قسم "Authorized domains".`;
+        errorMessage = `هذا النطاق (${window.location.origin}) غير مصرح به للاستخدام. مع ذلك، طريقة النافذة المنبثقة يجب أن تعمل. قد تحتاج إلى تعطيل حاظر النوافذ المنبثقة في متصفحك.`;
       } else if (err.code === 'auth/popup-closed-by-user') {
         errorMessage = "تم إغلاق نافذة تسجيل الدخول.";
       } else if (err.code === 'auth/cancelled-popup-request') {
         errorMessage = "تم إلغاء طلب النافذة المنبثقة.";
       } else if (err.code === 'auth/popup-blocked') {
-        errorMessage = "تم حظر النافذة المنبثقة من قبل المتصفح.";
+        errorMessage = "تم حظر النافذة المنبثقة من قبل المتصفح. يرجى تعطيل حاظر النوافذ المنبثقة والمحاولة مرة أخرى.";
       } else if (err.code === 'auth/network-request-failed') {
         errorMessage = "فشل طلب الشبكة. تحقق من اتصالك بالإنترنت.";
       }

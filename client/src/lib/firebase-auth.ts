@@ -1,5 +1,6 @@
 import { 
   signInWithRedirect, 
+  signInWithPopup,
   GoogleAuthProvider, 
   getRedirectResult,
   signInAnonymously
@@ -13,9 +14,25 @@ const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
 
-// Login with Google using redirect (most reliable)
+// Login with Google using redirect (most reliable, but may have domain issues)
 export function login() {
-  return signInWithRedirect(auth, googleProvider);
+  try {
+    // Try popup first - this often works better in local development environments
+    return signInWithPopup(auth, googleProvider)
+      .catch((error) => {
+        // If popup fails, fall back to redirect
+        console.log("Popup login failed, falling back to redirect:", error);
+        return signInWithRedirect(auth, googleProvider);
+      });
+  } catch (error) {
+    console.error("Error during login attempt:", error);
+    throw error;
+  }
+}
+
+// Login with Google using popup (works better on unauthorized domains)
+export function loginWithPopup() {
+  return signInWithPopup(auth, googleProvider);
 }
 
 // Login anonymously
@@ -52,4 +69,4 @@ export async function handleRedirect() {
   }
 }
 
-export { auth };
+export { auth, googleProvider };

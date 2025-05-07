@@ -1,106 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FcGoogle } from 'react-icons/fc';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { login, handleRedirect } from '@/lib/firebase-auth';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { loginWithPopup, loginAsGuest } from '@/lib/firebase-auth';
 
 interface SimpleGoogleLoginProps {
   redirectPath?: string;
   className?: string;
-  buttonText?: string;
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  onLoginSuccess?: () => void;
+  size?: 'default' | 'sm' | 'lg';
+  showGuestOption?: boolean;
 }
 
+/**
+ * مكون مبسط لتسجيل الدخول باستخدام Google
+ * يستخدم أسلوب النافذة المنبثقة الذي يعمل حتى في النطاقات غير المعتمدة
+ */
 export default function SimpleGoogleLogin({
   redirectPath = '/customer',
   className = '',
-  buttonText = 'تسجيل الدخول باستخدام Google',
+  onLoginSuccess,
   size = 'default',
-  variant = 'outline'
+  showGuestOption = true
 }: SimpleGoogleLoginProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
   const { toast } = useToast();
-  const [_, navigate] = useLocation();
-
-  // Check for redirect result on component mount
-  useEffect(() => {
-    async function checkRedirectResult() {
-      try {
-        console.log("[DEBUG] تحقق من نتيجة تسجيل الدخول مع Google");
-        const result = await handleRedirect();
-        
-        if (result.success && result.user) {
-          // Successfully signed in with Google
-          console.log("تم تسجيل الدخول بنجاح بعد إعادة التوجيه من Google");
-          toast({
-            title: "تم تسجيل الدخول بنجاح",
-            description: "مرحبًا بعودتك!",
-            variant: "default",
-          });
-          
-          // Navigate to the redirect path if successful
-          navigate(redirectPath);
-        } else if (result.errorCode) {
-          // Handle specific error codes
-          let errorMessage = "حدث خطأ أثناء تسجيل الدخول مع Google.";
-          
-          if (result.errorCode === 'auth/account-exists-with-different-credential') {
-            errorMessage = "هذا البريد الإلكتروني مسجل بطريقة تسجيل دخول أخرى.";
-          } else if (result.errorCode === 'auth/popup-closed-by-user') {
-            errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
-          } else if (result.errorCode === 'auth/popup-blocked') {
-            errorMessage = "تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة وإعادة المحاولة.";
-          } else if (result.errorCode === 'auth/cancelled-popup-request') {
-            // This is normal, don't show an error
-            return;
-          } else if (result.errorCode === 'auth/network-request-failed') {
-            errorMessage = "فشل طلب الشبكة. تحقق من اتصالك بالإنترنت.";
-          }
-          
-          setError(errorMessage);
-          toast({
-            title: "خطأ في تسجيل الدخول",
-            description: errorMessage,
-            variant: "destructive",
-          });
-        } else {
-          console.log("لا توجد نتيجة إعادة توجيه من Google");
-        }
-      } catch (err) {
-        console.error("خطأ أثناء التحقق من نتيجة إعادة التوجيه:", err);
-      }
-    }
-    
-    checkRedirectResult();
-  }, [navigate, redirectPath, toast]);
+  const [_, setLocation] = useLocation();
 
   const handleGoogleLogin = async () => {
     if (isLoading) return;
     
-    setIsLoading(true);
-    setError(null);
-    
     try {
-      // Use the redirect method from firebase-auth.ts
-      await login();
+      setIsLoading(true);
       
-      // The page will reload after redirect returns
-      // We handle the result in the useEffect above
+      // استخدام طريقة النافذة المنبثقة التي تم تحسينها
+      const result = await loginWithPopup();
+      console.log("تم تسجيل الدخول بنجاح:", result.user.displayName);
+      
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      } else {
+        // عرض رسالة نجاح
+        toast({
+          title: "تم تسجيل الدخول بنجاح",
+          description: `مرحبًا ${result.user.displayName || "بكم"}!`,
+        });
+        
+        // الانتقال إلى الصفحة المحددة
+        setLocation(redirectPath);
+      }
     } catch (err: any) {
-      console.error("خطأ في بدء تسجيل الدخول مع Google:", err);
+      console.error("خطأ في تسجيل الدخول باستخدام Google:", err);
       
-      let errorMessage = "حدث خطأ أثناء بدء تسجيل الدخول مع Google. يرجى المحاولة مرة أخرى.";
+      let errorMessage = "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.";
       
-      if (err.code === 'auth/unauthorized-domain') {
-        errorMessage = "هذا النطاق غير مصرح به لتسجيل الدخول مع Google. يرجى التواصل مع المسؤول.";
+      if (err.code === 'auth/popup-blocked') {
+        errorMessage = "تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع والمحاولة مرة أخرى.";
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
       }
       
-      setError(errorMessage);
       toast({
         title: "خطأ في تسجيل الدخول",
         description: errorMessage,
@@ -111,12 +73,44 @@ export default function SimpleGoogleLogin({
     }
   };
 
+  const handleGuestLogin = async () => {
+    if (isGuestLoading) return;
+    
+    try {
+      setIsGuestLoading(true);
+      
+      await loginAsGuest();
+      console.log("تم تسجيل الدخول كضيف بنجاح");
+      
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      } else {
+        toast({
+          title: "تم تسجيل الدخول بنجاح",
+          description: "تم تسجيل الدخول كضيف بنجاح",
+        });
+        
+        setLocation(redirectPath);
+      }
+    } catch (err: any) {
+      console.error("خطأ في تسجيل الدخول كضيف:", err);
+      
+      toast({
+        title: "خطأ في تسجيل الدخول",
+        description: "تعذر تسجيل الدخول كضيف. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGuestLoading(false);
+    }
+  };
+
   return (
-    <div className={`${className} space-y-2`}>
+    <div className={`space-y-3 ${className}`}>
       <Button
-        variant={variant}
+        variant="outline"
         size={size}
-        className="w-full flex items-center justify-center gap-2"
+        className="w-full flex items-center justify-center gap-2 border border-gray-500/50 hover:border-[#39FF14]/50 hover:bg-black/30"
         onClick={handleGoogleLogin}
         disabled={isLoading}
       >
@@ -125,14 +119,22 @@ export default function SimpleGoogleLogin({
         ) : (
           <FcGoogle className="h-5 w-5" />
         )}
-        {buttonText}
+        تسجيل الدخول باستخدام Google
       </Button>
 
-      {error && (
-        <Alert variant="destructive" className="mt-2">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+      {showGuestOption && (
+        <Button
+          variant="secondary"
+          size={size}
+          className="w-full bg-opacity-20 hover:bg-opacity-30"
+          onClick={handleGuestLogin}
+          disabled={isGuestLoading}
+        >
+          {isGuestLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          ) : null}
+          الدخول كضيف
+        </Button>
       )}
     </div>
   );
