@@ -15,7 +15,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 // إنشاء كائن Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-04-30.basil' as any,
 });
 
 const router = Router();
@@ -95,7 +95,7 @@ router.post('/confirm-booking', async (req: Request, res: Response) => {
     await db.insert(transactions).values({
       bookingId: parseInt(bookingId),
       propertyId: bookingData.propertyId,
-      propertyAdminId: bookingData.propertyId, // استخدام propertyId المناسب من الحجز
+      propertyAdminId: bookingData.propertyId, // استخدام معرف العقار كبديل عن معرف المشرف
       customerId: bookingData.customerId,
       totalAmount,
       platformFee: Math.round(totalAmount * 0.1), // 10% عمولة المنصة
@@ -174,44 +174,47 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
   }
   
   try {
-    // الحصول على مرجع الحجز
-    const bookingRef = doc(db, 'bookings', bookingId);
-    const bookingSnap = await getDoc(bookingRef);
+    // الحصول على بيانات الحجز من قاعدة البيانات
+    const bookingData = await db.query.bookings.findFirst({
+      where: eq(bookings.id, parseInt(bookingId))
+    });
     
     // التحقق من وجود الحجز
-    if (!bookingSnap.exists()) {
+    if (!bookingData) {
       console.error(`لم يتم العثور على الحجز بالمعرف: ${bookingId}`);
       return;
     }
     
+    // تاريخ التحديث الحالي
+    const now = new Date();
+    
     // تحديث حالة الحجز إلى "مؤكد"
-    await updateDoc(bookingRef, {
-      status: BookingStatus.CONFIRMED,
-      paymentConfirmedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      stripePaymentIntentId: paymentIntent.id
-    });
+    await db.update(bookings)
+      .set({
+        status: BookingStatus.CONFIRMED,
+        paymentConfirmedAt: now,
+        updatedAt: now,
+        stripePaymentIntentId: paymentIntent.id
+      })
+      .where(eq(bookings.id, parseInt(bookingId)));
     
     // إنشاء سجل للمعاملة المالية
-    const bookingData = bookingSnap.data();
     const totalAmount = bookingData.totalPrice || 0;
     
-    const transactionData = {
-      bookingId,
+    // إضافة المعاملة إلى جدول المعاملات
+    await db.insert(transactions).values({
+      bookingId: parseInt(bookingId),
       propertyId: bookingData.propertyId,
-      propertyAdminId: bookingData.propertyAdminId,
+      propertyAdminId: bookingData.propertyId, // استخدام معرف العقار كبديل عن معرف المشرف
       customerId: bookingData.customerId,
       totalAmount,
-      platformFee: totalAmount * 0.1, // 10% عمولة المنصة
-      propertyOwnerAmount: totalAmount * 0.9, // 90% لمشرف العقار
-      timestamp: serverTimestamp(),
+      platformFee: Math.round(totalAmount * 0.1), // 10% عمولة المنصة
+      propertyOwnerAmount: Math.round(totalAmount * 0.9), // 90% لمشرف العقار
       status: 'completed',
       paymentMethod: 'card',
-      stripePaymentIntentId: paymentIntent.id
-    };
-    
-    // إضافة المعاملة إلى مجموعة المعاملات
-    await addDoc(collection(db, 'transactions'), transactionData);
+      stripePaymentIntentId: paymentIntent.id,
+      timestamp: now
+    });
     
     console.log(`تم تأكيد الحجز بنجاح: ${bookingId}`);
     
@@ -233,23 +236,29 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
   }
   
   try {
-    // الحصول على مرجع الحجز
-    const bookingRef = doc(db, 'bookings', bookingId);
-    const bookingSnap = await getDoc(bookingRef);
+    // الحصول على بيانات الحجز من قاعدة البيانات
+    const bookingData = await db.query.bookings.findFirst({
+      where: eq(bookings.id, parseInt(bookingId))
+    });
     
     // التحقق من وجود الحجز
-    if (!bookingSnap.exists()) {
+    if (!bookingData) {
       console.error(`لم يتم العثور على الحجز بالمعرف: ${bookingId}`);
       return;
     }
     
+    // تاريخ التحديث الحالي
+    const now = new Date();
+    
     // تحديث حالة الحجز إلى "معلق" مرة أخرى أو "فشل الدفع"
-    await updateDoc(bookingRef, {
-      paymentFailedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      paymentError: paymentIntent.last_payment_error?.message || 'فشل الدفع',
-      stripePaymentIntentId: paymentIntent.id
-    });
+    await db.update(bookings)
+      .set({
+        paymentFailedAt: now,
+        updatedAt: now,
+        paymentError: paymentIntent.last_payment_error?.message || 'فشل الدفع',
+        stripePaymentIntentId: paymentIntent.id
+      })
+      .where(eq(bookings.id, parseInt(bookingId)));
     
     console.log(`تم تحديث حالة الحجز بعد فشل الدفع: ${bookingId}`);
     
