@@ -28,32 +28,32 @@ const GoogleLoginButton = ({
   buttonText, 
   redirectPath 
 }: GoogleLoginButtonProps) => {
-  
+
   const handleGoogleLogin = async () => {
     try {
       if (!auth) throw new Error("خدمة المصادقة غير متوفرة");
-      
+
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      
+
       const result = await signInWithPopup(auth, provider);
-      
+
       if (onSuccess) {
         onSuccess();
       }
-      
+
       return result;
     } catch (error: any) {
       console.error("خطأ في تسجيل الدخول باستخدام Google:", error);
-      
+
       if (onError) {
         onError(error);
       }
-      
+
       throw error;
     }
   };
-  
+
   return (
     <Button 
       className={`relative w-full flex items-center justify-center gap-2 ${className || ""}`}
@@ -99,29 +99,29 @@ const GuestLoginButton = ({
   className, 
   buttonText 
 }: GuestLoginButtonProps) => {
-  
+
   const handleGuestLogin = async () => {
     try {
       if (!auth) throw new Error("خدمة المصادقة غير متوفرة");
-      
+
       const result = await signInAnonymously(auth);
-      
+
       if (onSuccess) {
         onSuccess();
       }
-      
+
       return result;
     } catch (error: any) {
       console.error("خطأ في تسجيل الدخول كزائر:", error);
-      
+
       if (onError) {
         onError(error);
       }
-      
+
       throw error;
     }
   };
-  
+
   return (
     <Button 
       className={`relative w-full ${className || ""}`}
@@ -142,13 +142,13 @@ export default function Login() {
   const [error, setError] = useState("");
   const [location, navigate] = useLocation();
   const { toast } = useToast();
-  
+
   // إضافة المتغيرات المفقودة
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [guestLoading, setGuestLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showGoogleWarning, setShowGoogleWarning] = useState(false);
-  
+
   // Helper function for toast styling
   const getSuccessToast = (title: string, description: string) => ({
     title,
@@ -156,20 +156,20 @@ export default function Login() {
     variant: "default" as const,
     className: "bg-gradient-to-r from-green-900/80 to-green-800/80 border-green-600/50 text-white",
   });
-  
+
   const getErrorToast = (title: string, description: string) => ({
     title,
     description,
     variant: "destructive" as const,
   });
-  
+
   const getWarningToast = (title: string, description: string) => ({
     title,
     description,
     variant: "default" as const,
     className: "bg-gradient-to-r from-amber-900/80 to-amber-700/80 border-amber-600/50 text-white",
   });
-  
+
   // دوال المساعدة للمصادقة
   const isCurrentDomainAuthorized = () => {
     // يمكن التحقق مما إذا كان النطاق الحالي مدرجًا في قائمة النطاقات المصرح بها
@@ -177,7 +177,7 @@ export default function Login() {
     // سنفترض هنا أن النطاق مصرح به لتبسيط الإصلاح
     return true;
   };
-  
+
   const storeCurrentDomain = () => {
     // تخزين النطاق الحالي في localStorage للرجوع إليه لاحقاً
     try {
@@ -186,21 +186,21 @@ export default function Login() {
       console.error('فشل في تخزين النطاق:', error);
     }
   };
-  
+
   const loginWithGoogle = async (redirectPath?: string) => {
     if (!auth) throw new Error('خدمة المصادقة غير متوفرة');
-    
+
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    
+
     try {
       const result = await signInWithPopup(auth, provider);
-      
+
       // تخزين بيانات المستخدم في Firestore إذا لزم الأمر
       if (db && result.user) {
         const userRef = doc(db, "users", result.user.uid);
         const userSnap = await getDoc(userRef);
-        
+
         if (!userSnap.exists()) {
           // إنشاء ملف تعريف المستخدم إذا لم يكن موجودًا
           const userProfile = {
@@ -211,29 +211,29 @@ export default function Login() {
             createdAt: new Date().toISOString(),
             photoURL: result.user.photoURL,
           };
-          
+
           await setDoc(userRef, userProfile);
         }
       }
-      
+
       return result;
     } catch (error: any) {
       console.error('خطأ في تسجيل الدخول باستخدام Google:', error);
       throw error;
     }
   };
-  
+
   const loginAnonymously = async (redirectPath?: string) => {
     if (!auth) throw new Error('خدمة المصادقة غير متوفرة');
-    
+
     try {
       const result = await signInAnonymously(auth);
-      
+
       // تخزين بيانات المستخدم المجهول في Firestore
       if (db && result.user) {
         const userRef = doc(db, "users", result.user.uid);
         const userSnap = await getDoc(userRef);
-        
+
         if (!userSnap.exists()) {
           // إنشاء ملف تعريف المستخدم المجهول
           const userProfile = {
@@ -245,11 +245,11 @@ export default function Login() {
             photoURL: null,
             isAnonymous: true,
           };
-          
+
           await setDoc(userRef, userProfile);
         }
       }
-      
+
       return result;
     } catch (error: any) {
       console.error('خطأ في تسجيل الدخول كزائر:', error);
@@ -261,7 +261,7 @@ export default function Login() {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const registered = searchParams.get('registered');
-    
+
     if (registered === 'true') {
       toast(getSuccessToast(
         "تم تسجيل الحساب بنجاح ✅",
@@ -269,13 +269,13 @@ export default function Login() {
       ));
     }
   }, [toast]);
-  
+
   // استخراج مسار إعادة التوجيه ومعلمات أخرى من معلمات URL
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const redirect = searchParams.get('redirect');
     const reset = searchParams.get('reset');
-    
+
     if (redirect) {
       setRedirectPath(redirect);
       toast(getWarningToast(
@@ -283,7 +283,7 @@ export default function Login() {
         "يرجى تسجيل الدخول للوصول إلى الصفحة المطلوبة"
       ));
     }
-    
+
     if (reset === 'success') {
       toast(getSuccessToast(
         "تم تغيير كلمة المرور بنجاح ✅",
@@ -291,13 +291,13 @@ export default function Login() {
       ));
     }
   }, [toast]);
-  
+
   // عرض رسالة إعادة التوجيه
   const renderRedirectMessage = () => {
     if (!redirectPath) return null;
-    
+
     let pageName = "الصفحة المطلوبة";
-    
+
     if (redirectPath.includes('booking')) {
       pageName = "صفحة الحجز";
     } else if (redirectPath.includes('property')) {
@@ -309,7 +309,7 @@ export default function Login() {
     } else if (redirectPath.includes('super-admin')) {
       pageName = "صفحة المشرف العام";
     }
-    
+
     return (
       <div className="mb-6 p-3 rounded-lg border border-[#39FF14]/30 bg-[#39FF14]/10 text-sm">
         بعد تسجيل الدخول، سيتم توجيهك مباشرةً إلى {pageName}.
@@ -322,19 +322,19 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    
+
     try {
       if (!auth) {
         throw new Error("خدمة المصادقة غير متوفرة حالياً، الرجاء المحاولة لاحقاً");
       }
-      
+
       const userCred = await signInWithEmailAndPassword(auth, email, password);
-      
+
       if (db) {
         try {
           const userRef = doc(db, "users", userCred.user.uid);
           const userSnap = await getDoc(userRef);
-          
+
           if (!userSnap.exists()) {
             const userProfile = {
               uid: userCred.user.uid,
@@ -344,7 +344,7 @@ export default function Login() {
               createdAt: new Date().toISOString(),
               photoURL: userCred.user.photoURL || null,
             };
-            
+
             try {
               await setDoc(userRef, userProfile);
               toast(getSuccessToast(
@@ -370,7 +370,7 @@ export default function Login() {
           ));
         }
       }
-      
+
       setTimeout(() => {
         if (redirectPath) {
           navigate(redirectPath);
@@ -378,7 +378,7 @@ export default function Login() {
           navigate("/");
         }
       }, 1000);
-      
+
     } catch (err: any) {
       const errorMessages: Record<string, string> = {
         'auth/invalid-credential': "البريد الإلكتروني أو كلمة المرور غير صحيحة. الرجاء التحقق وإعادة المحاولة.",
@@ -388,7 +388,7 @@ export default function Login() {
         'auth/too-many-requests': "تم إجراء عدة محاولات خاطئة. الرجاء المحاولة بعد قليل أو استخدام خيار 'نسيت كلمة المرور'.",
         'auth/network-request-failed': "يبدو أن هناك مشكلة في الاتصال بالإنترنت. الرجاء التحقق من اتصالك والمحاولة مرة أخرى.",
       };
-      
+
       setError(errorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول، الرجاء المحاولة مرة أخرى");
     } finally {
       setLoading(false);
@@ -399,24 +399,24 @@ export default function Login() {
   const handleGuestLogin = async () => {
     setError("");
     setGuestLoading(true);
-    
+
     try {
       await loginAnonymously(redirectPath || undefined);
-      
+
       toast(getSuccessToast(
         "تم تسجيل الدخول كزائر",
         "مرحباً بك في منصة StayX! يمكنك تصفح المنصة بدون إنشاء حساب."
       ));
-      
+
     } catch (err: any) {
       const anonymousErrorMessages: Record<string, string> = {
         'auth/operation-not-allowed': "تسجيل الدخول كزائر غير مُفعل في هذا التطبيق.",
         'auth/admin-restricted-operation': "تسجيل الدخول كزائر غير متاح حاليًا. الرجاء استخدام طريقة أخرى.",
         'auth/network-request-failed': "فشل في الاتصال بالشبكة. الرجاء التحقق من اتصالك بالإنترنت.",
       };
-      
+
       setError(anonymousErrorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
-      
+
       toast({
         title: "فشل تسجيل الدخول",
         description: anonymousErrorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول كزائر",
@@ -433,7 +433,7 @@ export default function Login() {
     try {
       console.log("بدء محاولة تسجيل الدخول باستخدام Google...");
       console.log("النطاق الحالي:", window.location.host);
-      
+
       // التحقق من النطاق قبل محاولة تسجيل الدخول
       if (!isCurrentDomainAuthorized()) {
         console.warn("النطاق الحالي غير مصرح به في Firebase. عرض تحذير...");
@@ -441,33 +441,43 @@ export default function Login() {
         setShowGoogleWarning(true);
         return;
       }
-      
+
       // إرسال مسار إعادة التوجيه إلى دالة تسجيل الدخول مع Google
       await loginWithGoogle(redirectPath || undefined);
-      
+
       toast(getSuccessToast(
         "تم تسجيل الدخول بنجاح",
         "مرحباً بك في منصة StayX!"
       ));
-      
+
       if (redirectPath) {
         navigate(redirectPath);
       } else {
         navigate("/");
       }
-      
-    } catch (error: any) {
-      console.error("خطأ أثناء تسجيل الدخول مع Google:", error);
-      
-      if (error.code === 'auth/unauthorized-domain') {
-        console.error("النطاق غير مصرح به في Firebase:", window.location.host);
-        console.error("يجب إضافة هذا النطاق إلى إعدادات المصادقة في لوحة تحكم Firebase");
-        setShowGoogleWarning(true);
+
+    } catch (err: any) {
+      console.error("Login error:", err);
+
+      // Specific error handling
+      if (err.code === 'auth/unauthorized-domain') {
+        console.error("Unauthorized domain:", window.location.host);
+        toast({
+          title: "Domain Error",
+          description: "This domain is not authorized. Please contact support.",
+          variant: "destructive"
+        });
+      } else if (err.code === 'auth/network-request-failed') {
+        toast({
+          title: "Network Error",
+          description: "Please check your internet connection",
+          variant: "destructive"
+        });
       } else {
         toast({
-          title: "خطأ في تسجيل الدخول",
-          description: error.message || "حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google",
-          variant: "destructive",
+          title: "Login Error",
+          description: err.message || "An unexpected error occurred",
+          variant: "destructive"
         });
       }
     } finally {
@@ -481,7 +491,7 @@ export default function Login() {
       <div className="absolute inset-0 bg-black z-0">
         {/* Grid lines */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KICA8cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgIDxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxMTExMTEiIHN0cm9rZS13aWR0aD0iMC41Ii8+CiAgPC9wYXR0ZXJuPgo8L2RlZnM+CjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiIC8+Cjwvc3ZnPg==')] opacity-20"></div>
-        
+
         {/* Digital particle effects */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20">
           <div className="absolute h-1 w-1 rounded-full bg-[#39FF14] top-[20%] left-[30%] animate-ping"></div>
@@ -490,7 +500,7 @@ export default function Login() {
           <div className="absolute h-1 w-1 rounded-full bg-[#39FF14] top-[80%] left-[15%] animate-ping" style={{animationDelay: '0.8s'}}></div>
           <div className="absolute h-1 w-1 rounded-full bg-[#39FF14] top-[10%] left-[50%] animate-ping" style={{animationDelay: '1.5s'}}></div>
         </div>
-        
+
         {/* Neon glow effects */}
         <div className="absolute h-96 w-96 rounded-full bg-[#39FF14] blur-[150px] opacity-5 top-[-15%] right-[-10%]"></div>
         <div className="absolute h-64 w-64 rounded-full bg-[#39FF14] blur-[120px] opacity-5 bottom-[-10%] left-[-5%]"></div>
@@ -503,10 +513,10 @@ export default function Login() {
         <div className="relative w-full md:w-1/2 px-4 sm:px-6 lg:px-8 z-10">
           <div className="backdrop-blur-lg bg-black/40 p-5 sm:p-8 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.3)] 
             border border-[#39FF14]/20 relative overflow-hidden">
-            
+
             {/* Background glow effect */}
             <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 w-40 h-40 bg-[#39FF14]/10 rounded-full blur-[80px] opacity-70"></div>
-            
+
             {/* Logo */}
             <div className="text-center mb-8 relative">
               <h1 className="inline-block text-[42px] font-black relative mb-2">
@@ -522,7 +532,7 @@ export default function Login() {
                 <span className="h-1 w-10 bg-gradient-to-r from-[#39FF14]/10 via-[#39FF14] to-[#39FF14]/10"></span>
               </p>
             </div>
-            
+
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-md mb-6 text-sm relative backdrop-blur-lg">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500/10 via-red-500/70 to-red-500/10 animate-pulse"></div>
@@ -536,9 +546,9 @@ export default function Login() {
                 </div>
               </div>
             )}
-            
+
             {renderRedirectMessage()}
-            
+
             <form onSubmit={(e) => {
               e.preventDefault(); 
               const emailInput = document.getElementById('email-input') as HTMLInputElement; 
@@ -583,7 +593,7 @@ export default function Login() {
                       style={{ boxShadow: "0 0 15px rgba(57, 255, 20, 0.3)" }}></div>
                 </div>
               </div>
-              
+
               {/* Login button with futuristic styling */}
               <button 
                 type="submit" 
@@ -593,7 +603,7 @@ export default function Login() {
                 <div className="relative z-10 bg-[#39FF14] text-black font-bold py-4 rounded-lg w-full text-center 
                   transform transition-all active:scale-[0.98] hover:scale-[1.01] flex items-center justify-center">
                   <span className="px-2">{loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}</span>
-                  
+
                   {loading ? (
                     <div className="absolute right-5 top-1/2 transform -translate-y-1/2">
                       <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
@@ -606,12 +616,12 @@ export default function Login() {
                     </svg>
                   )}
                 </div>
-                
+
                 {/* Button glow effect */}
                 <div className="absolute inset-0 bg-[#39FF14] blur-md opacity-40 group-hover:opacity-60 rounded-lg transition-opacity"></div>
               </button>
             </form>
-            
+
             <div className="my-4 flex items-center">
               <div className="flex-1 border-t border-gray-700/50"></div>
               <span className="px-4 text-sm text-gray-500">أو</span>
@@ -678,10 +688,10 @@ export default function Login() {
                       });
                       return;
                     }
-                    
+
                     const emailInput = document.getElementById("email-input") as HTMLInputElement;
                     const email = emailInput?.value;
-                    
+
                     if (!email) {
                       toast({
                         title: "الرجاء إدخال البريد الإلكتروني",
@@ -690,7 +700,7 @@ export default function Login() {
                       });
                       return;
                     }
-                    
+
                     if (auth) {
                       sendPasswordResetEmail(auth, email)
                         .then(() => {
@@ -700,7 +710,7 @@ export default function Login() {
                           ));
                         })
                       .catch((error) => {
-                        if (error.code === 'auth/user-not-found') {
+                        if (error.code ==='auth/user-not-found') {
                           toast({
                             title: "البريد الإلكتروني غير مسجل",
                             description: "لا يوجد حساب مسجل بهذا البريد الإلكتروني",
@@ -723,7 +733,7 @@ export default function Login() {
             </div>
           </div>
         </div>
-        
+
         {/* Hero Section - Only visible on desktop */}
         <div className="w-full md:w-1/2 hidden md:flex md:items-center md:justify-center">
           <div className="space-y-8 p-8">
@@ -734,7 +744,7 @@ export default function Login() {
               </h2>
               <p className="text-gray-400 text-lg">استمتع بتجربة حجز فريدة من نوعها مع أفضل العقارات الفاخرة في الساحل الشمالي</p>
             </div>
-            
+
             {/* Features Cards */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-black/50 backdrop-blur-sm border border-white/10 p-4 rounded-lg hover:border-[#39FF14]/20 transition-all">
@@ -748,7 +758,7 @@ export default function Login() {
                 </div>
                 <p className="text-sm text-gray-500">احجز عقارك المفضل بخطوات بسيطة وسريعة</p>
               </div>
-              
+
               <div className="bg-black/50 backdrop-blur-sm border border-white/10 p-4 rounded-lg hover:border-[#39FF14]/20 transition-all">
                 <div className="flex items-center mb-2">
                   <div className="w-8 h-8 bg-[#39FF14]/10 rounded-full flex items-center justify-center mr-3">
@@ -760,7 +770,7 @@ export default function Login() {
                 </div>
                 <p className="text-sm text-gray-500">خدمات حصرية ومتنوعة تلبي جميع احتياجاتك</p>
               </div>
-              
+
               <div className="bg-black/50 backdrop-blur-sm border border-white/10 p-4 rounded-lg hover:border-[#39FF14]/20 transition-all">
                 <div className="flex items-center mb-2">
                   <div className="w-8 h-8 bg-[#39FF14]/10 rounded-full flex items-center justify-center mr-3">
@@ -772,7 +782,7 @@ export default function Login() {
                 </div>
                 <p className="text-sm text-gray-500">إدارة متكاملة لجميع حجوزاتك وخدماتك الحالية والسابقة</p>
               </div>
-              
+
               <div className="bg-black/50 backdrop-blur-sm border border-white/10 p-4 rounded-lg hover:border-[#39FF14]/20 transition-all">
                 <div className="flex items-center mb-2">
                   <div className="w-8 h-8 bg-[#39FF14]/10 rounded-full flex items-center justify-center mr-3">
