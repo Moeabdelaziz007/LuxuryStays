@@ -571,6 +571,41 @@
   .animate-pulse-slow {
     animation: pulseSlow 6s ease-in-out infinite;
   }
+  
+  /* Shimmer effect animation */
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .shimmer-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(57, 255, 20, 0.05) 25%,
+      rgba(57, 255, 20, 0.2) 50%,
+      rgba(57, 255, 20, 0.05) 75%,
+      transparent 100%
+    );
+    transform: rotate(30deg);
+    animation: shimmer 3s linear infinite;
+    pointer-events: none;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%) rotate(30deg);
+    }
+    100% {
+      transform: translateX(100%) rotate(30deg);
+    }
+  }
 }
 
 /* RTL specific adjustments */
