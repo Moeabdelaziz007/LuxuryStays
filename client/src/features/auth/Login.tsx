@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import GoogleLoginWarning from "@/components/GoogleLoginWarning";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/auth-context";
+import GoogleLoginButton from "@/components/ui/GoogleLoginButton";
+import GuestLoginButton from "@/components/ui/GuestLoginButton";
 
 // صفحة تسجيل الدخول
 export default function LoginNew() {
