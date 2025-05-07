@@ -36,39 +36,50 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// دالة مساعدة لتخزين بيانات المستخدم في التخزين المحلي
+const cacheUserData = (user: FirebaseUser) => {
+  if (!user) return;
+  
+  try {
+    // حفظ بيانات المستخدم الأساسية في localStorage لتحسين الأداء
+    localStorage.setItem('cached_user', JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      lastUpdated: new Date().toISOString()
+    }));
+  } catch (err) {
+    console.warn('فشل في تخزين بيانات المستخدم:', err);
+  }
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [pathname] = useLocation();
 
   useEffect(() => {
+    console.log("[DEBUG] تحقق من حالة المصادقة");
+    
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
-        // Almacenar datos del usuario en la caché para optimizar
-        cacheCurrentUser(firebaseUser);
+        // تخزين بيانات المستخدم في التخزين المحلي
+        cacheUserData(firebaseUser);
         
-        // Transform Firebase user to our custom user object
+        // تحويل مستخدم Firebase إلى كائن المستخدم المخصص
         const userToSave: User = {
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           name: firebaseUser.displayName,
-          role: 'CUSTOMER', // Default role, would be updated from Firestore in a real app
+          role: 'CUSTOMER', // دور افتراضي، سيتم تحديثه من Firestore في تطبيق حقيقي
           emailVerified: firebaseUser.emailVerified,
           isAnonymous: firebaseUser.isAnonymous,
-          isAdmin: false, // Default value
+          isAdmin: false, // قيمة افتراضية
         };
 
-        // Obtener un token ID de usuario anticipadamente (cacheable)
-        getUserIdToken(false).then(token => {
-          if (token) {
-            console.log('[DEBUG] Token de usuario obtenido con éxito');
-          }
-        }).catch(err => {
-          console.error('Error al obtener token de usuario:', err);
-        });
-
-        // In a real app, we would fetch additional user data from Firestore
-        console.log('[DEBUG] Auth Context State:', {
+        // في تطبيق حقيقي، سنجلب بيانات مستخدم إضافية من Firestore
+        console.log('[DEBUG] حالة سياق المصادقة:', {
           user: userToSave,
           loading: false,
           isAuthenticated: true,
@@ -77,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         setUser(userToSave);
       } else {
-        console.log('[DEBUG] Auth Context State:', {
+        console.log('[DEBUG] حالة سياق المصادقة:', {
           user: null,
           loading: false,
           isAuthenticated: false,
