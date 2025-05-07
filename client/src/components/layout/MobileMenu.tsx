@@ -187,7 +187,7 @@ export default function MobileMenu({ isOpen, onClose, onLogin, onRegister }: Mob
                     <AlertCircle className="w-5 h-5 text-[#39FF14]/70 group-hover:text-[#39FF14] transition-colors" />
                   </div>
                   <span className="text-[#39FF14] group-hover:text-[#39FF14] transition-colors">
-                    {t && t.language === "en" ? "Admin Panel" : "لوحة الإدارة"}
+                    {t("nav.adminPanel")}
                   </span>
                 </Link>
               )}

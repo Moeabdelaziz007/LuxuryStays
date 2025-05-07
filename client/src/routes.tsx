@@ -168,7 +168,11 @@ export default function AppRoutes() {
       
       <Route path="/saved-searches">
         <Layout>
-          <SavedSearchPreferences />
+          <SavedSearchPreferences onSelectSearch={(searchData) => {
+            console.log("Selected search:", searchData);
+            // Redirect to search page with the selected search parameters
+            window.location.href = `/search?location=${searchData.location}&minPrice=${searchData.priceRange[0]}&maxPrice=${searchData.priceRange[1]}&type=${searchData.propertyType}&bedrooms=${searchData.minBedrooms}&hasPool=${searchData.hasPool}`;
+          }} />
         </Layout>
       </Route>
       
