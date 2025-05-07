@@ -1268,6 +1268,132 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
             </Card>
           )}
           
+          {/* Profile Tab */}
+          {activeTab === "profile" && (
+            <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)]">
+              <CardHeader className="border-b border-[#39FF14]/10 pb-3">
+                <CardTitle className="flex items-center">
+                  <FaUser className="mr-2 h-5 w-5 text-[#39FF14]" />
+                  الملف الشخصي
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-8">
+                  {/* Profile Information Section */}
+                  <div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex flex-col items-center md:items-start">
+                        <Avatar className="h-32 w-32 border-2 border-[#39FF14]/20 shadow-lg shadow-[#39FF14]/10 mb-4">
+                          <AvatarImage src={user?.photoURL || ""} alt={user?.name || "العميل"} />
+                          <AvatarFallback className="bg-gray-800 text-[#39FF14] text-4xl">
+                            {user?.name?.charAt(0) || user?.email?.charAt(0) || "م"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <Button variant="outline" size="sm" className="border-[#39FF14]/50 text-[#39FF14] hover:bg-[#39FF14]/10 mt-2">
+                          تغيير الصورة
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <h2 className="text-2xl font-bold text-white flex items-center">
+                          <span>{user?.name || "العميل"}</span>
+                          <Badge className="mr-2 bg-[#39FF14]/20 text-[#39FF14] hover:bg-[#39FF14]/30 border-none">عميل</Badge>
+                        </h2>
+                        <p className="text-gray-400">
+                          {user?.bio || "مرحباً! أنا مستخدم في منصة StayX وأتطلع لحجز أفضل العقارات الفاخرة."}
+                        </p>
+                        <div className="flex flex-wrap gap-3 mt-4">
+                          <div className="flex items-center text-sm text-gray-300">
+                            <FaCalendarAlt className="h-4 w-4 mr-2 text-[#39FF14]" />
+                            <span>انضم في: {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-EG', {
+                              year: 'numeric', month: 'long', day: 'numeric'
+                            }) : "غير متوفر"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Profile Details */}
+                  <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
+                    <h3 className="text-lg font-medium text-[#39FF14] mb-4">المعلومات الشخصية</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <div className="mb-4">
+                          <label className="text-sm text-gray-400 block mb-1">الاسم الكامل</label>
+                          <div className="bg-gray-800 p-3 rounded-md border border-gray-700">{user?.name || "غير محدد"}</div>
+                        </div>
+                        <div className="mb-4">
+                          <label className="text-sm text-gray-400 block mb-1">البريد الإلكتروني</label>
+                          <div className="bg-gray-800 p-3 rounded-md border border-gray-700">{user?.email || "غير محدد"}</div>
+                        </div>
+                        <div className="mb-4">
+                          <label className="text-sm text-gray-400 block mb-1">رقم الهاتف</label>
+                          <div className="bg-gray-800 p-3 rounded-md border border-gray-700">{user?.phone || "لم يتم إضافة رقم هاتف"}</div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="mb-4">
+                          <label className="text-sm text-gray-400 block mb-1">البلد</label>
+                          <div className="bg-gray-800 p-3 rounded-md border border-gray-700">{user?.country || "لم يتم التحديد"}</div>
+                        </div>
+                        <div className="mb-4">
+                          <label className="text-sm text-gray-400 block mb-1">المدينة</label>
+                          <div className="bg-gray-800 p-3 rounded-md border border-gray-700">{user?.city || "لم يتم التحديد"}</div>
+                        </div>
+                        <div className="mb-4">
+                          <label className="text-sm text-gray-400 block mb-1">اللغة المفضلة</label>
+                          <div className="bg-gray-800 p-3 rounded-md border border-gray-700">{user?.language === 'ar' ? "العربية" : "الإنجليزية"}</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end mt-6">
+                      <Button className="bg-[#39FF14] text-black hover:bg-[#50FF30]">
+                        تحديث المعلومات الشخصية
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Activity Summary */}
+                  <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
+                    <h3 className="text-lg font-medium text-[#39FF14] mb-4">ملخص النشاط</h3>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium text-gray-300">الحجوزات</h4>
+                          <FaCalendarAlt className="h-4 w-4 text-[#39FF14]" />
+                        </div>
+                        <p className="text-2xl font-bold text-white">{bookings.length}</p>
+                        <p className="text-xs text-gray-400 mt-1">إجمالي الحجوزات</p>
+                      </div>
+                      
+                      <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium text-gray-300">العقارات المفضلة</h4>
+                          <FaHeart className="h-4 w-4 text-[#39FF14]" />
+                        </div>
+                        <p className="text-2xl font-bold text-white">{favorites.length}</p>
+                        <p className="text-xs text-gray-400 mt-1">إجمالي المفضلات</p>
+                      </div>
+                      
+                      <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium text-gray-300">المدفوعات</h4>
+                          <FaCreditCard className="h-4 w-4 text-[#39FF14]" />
+                        </div>
+                        <p className="text-2xl font-bold text-white">$0</p>
+                        <p className="text-xs text-gray-400 mt-1">إجمالي المدفوعات</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           {/* Settings Tab */}
           {activeTab === "settings" && (
             <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)]">
