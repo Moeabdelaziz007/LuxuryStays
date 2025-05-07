@@ -6,6 +6,35 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 import { MessageSquare, X, Settings, Zap, Rocket, Bot, Sparkles, User, RefreshCw, Home, Search, Star, Building, BedDouble, Bath, DollarSign } from 'lucide-react';
 
+// زر وصول سريع للخدمات
+const QuickButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(57, 255, 20, 0.1);
+  color: #39FF14;
+  font-size: 0.8rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 0 5px rgba(57, 255, 20, 0.2);
+  
+  &:hover {
+    background-color: rgba(57, 255, 20, 0.2);
+    border-color: rgba(57, 255, 20, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(57, 255, 20, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(57, 255, 20, 0.2);
+  }
+`;
+
 // تعريف نوع الخصائص التي يستقبلها المكون
 interface SpaceBubbleBotProps {
   botName?: string; // إمكانية تخصيص اسم الروبوت
@@ -268,73 +297,47 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
   );
   
   // أزرار سريعة للوصول إلى خدمات التوصية العقارية
-  const QuickAccessButtons = () => (
-    <div className="flex flex-wrap gap-2 mt-4 mb-2 justify-center">
-      <QuickButton onClick={() => chatbotRef.current?.triggerNextStep({ 
-        value: 'ابحث لي عن أفضل فيلا فاخرة في راس الحكمة', trigger: 'userInput' 
-      })}>
-        <Building size={14} className="ml-1" />
-        <span>فيلا فاخرة</span>
-      </QuickButton>
-      
-      <QuickButton onClick={() => chatbotRef.current?.triggerNextStep({ 
-        value: 'اقترح لي شاليه رخيص قريب من الشاطئ', trigger: 'userInput' 
-      })}>
-        <Home size={14} className="ml-1" />
-        <span>شاليه رخيص</span>
-      </QuickButton>
-      
-      <QuickButton onClick={() => chatbotRef.current?.triggerNextStep({ 
-        value: 'أي عقار مناسب لعائلة مكونة من 6 أشخاص؟', trigger: 'userInput' 
-      })}>
-        <User size={14} className="ml-1" />
-        <span>لعائلة كبيرة</span>
-      </QuickButton>
-      
-      <QuickButton onClick={() => chatbotRef.current?.triggerNextStep({ 
-        value: 'ما هو أفضل عقار مميز للإيجار؟', trigger: 'userInput' 
-      })}>
-        <Star size={14} className="ml-1" />
-        <span>الأكثر تميزاً</span>
-      </QuickButton>
-    </div>
-  );
-  
-  // زر وصول سريع للخدمات
-  const QuickButton = styled.button`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(57, 255, 20, 0.1);
-    color: #39FF14;
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 20px;
-    border: 1px solid rgba(57, 255, 20, 0.3);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    box-shadow: 0 0 5px rgba(57, 255, 20, 0.2);
+  const QuickAccessButtons = () => {
+    const handleQuickQuestion = (question: string) => {
+      if (chatbotRef.current && chatbotRef.current.triggerNextStep) {
+        chatbotRef.current.triggerNextStep({ 
+          value: question, 
+          trigger: 'userInput' 
+        });
+      }
+    };
     
-    &:hover {
-      background-color: rgba(57, 255, 20, 0.2);
-      border-color: rgba(57, 255, 20, 0.5);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(57, 255, 20, 0.3);
-    }
-    
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(57, 255, 20, 0.2);
-    }
-  `;
+    return (
+      <div className="flex flex-wrap gap-2 mt-4 mb-2 justify-center">
+        <QuickButton onClick={() => handleQuickQuestion('ابحث لي عن أفضل فيلا فاخرة في راس الحكمة')}>
+          <Building size={14} className="ml-1" />
+          <span>فيلا فاخرة</span>
+        </QuickButton>
+        
+        <QuickButton onClick={() => handleQuickQuestion('اقترح لي شاليه رخيص قريب من الشاطئ')}>
+          <Home size={14} className="ml-1" />
+          <span>شاليه رخيص</span>
+        </QuickButton>
+        
+        <QuickButton onClick={() => handleQuickQuestion('أي عقار مناسب لعائلة مكونة من 6 أشخاص؟')}>
+          <User size={14} className="ml-1" />
+          <span>لعائلة كبيرة</span>
+        </QuickButton>
+        
+        <QuickButton onClick={() => handleQuickQuestion('ما هو أفضل عقار مميز للإيجار؟')}>
+          <Star size={14} className="ml-1" />
+          <span>الأكثر تميزاً</span>
+        </QuickButton>
+      </div>
+    );
+  };
   
   // تهيئة خطوات المحادثة
   useEffect(() => {
     const initialSteps = [
       {
         id: 'welcome',
-        message: `مرحباً! أنا ${botName}، المساعد الرقمي الخاص بـ StayX. كيف يمكنني مساعدتك اليوم؟`,
+        message: `مرحباً! أنا ${botName}، المساعد الرقمي الخاص بـ StayX. يمكنني مساعدتك في اختيار أفضل العقارات المناسبة لك وتقديم توصيات شخصية بناءً على احتياجاتك. ما الذي تبحث عنه اليوم؟`,
         trigger: 'userInput',
       },
       {
@@ -368,7 +371,7 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
     if (updatedSteps[0]) {
       updatedSteps[0] = {
         ...updatedSteps[0],
-        message: `مرحباً! أنا ${botName}، المساعد الرقمي الخاص بـ StayX. كيف يمكنني مساعدتك اليوم؟`,
+        message: `مرحباً! أنا ${botName}، المساعد الرقمي الخاص بـ StayX. يمكنني مساعدتك في اختيار أفضل العقارات المناسبة لك وتقديم توصيات شخصية بناءً على احتياجاتك. ما الذي تبحث عنه اليوم؟`,
       };
       setSteps(updatedSteps);
     }
