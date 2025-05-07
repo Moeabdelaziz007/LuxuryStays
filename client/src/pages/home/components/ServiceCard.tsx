@@ -1,19 +1,28 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Utensils, Wine, MapPin, Star, Users, Music, Car, Coffee, Umbrella, Spa, Compass, PlaneTakeoff } from "lucide-react";
+import { Utensils, Wine, MapPin, Star, Users, Music, Car, Coffee, Umbrella, Compass, PlaneTakeoff, HeartPulse } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Service } from "@shared/schema";
 
+// تعريف واجهة لمواقع الخدمة
+interface ServiceLocation {
+  name: string;
+  area: string;
+}
+
+// تعريف نوع البيانات للخدمة المخصصة
+interface CustomService {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  status: string;
+  iconClass?: string;
+  locations?: ServiceLocation[];
+}
+
 interface ServiceCardProps {
-  service: Service | {
-    id: string;
-    name: string;
-    description: string;
-    imageUrl: string;
-    status: string;
-    iconClass: string;
-    locations?: { name: string; area: string }[];
-  };
+  service: Service | CustomService;
   buttonText?: string;
   featured?: boolean;
 }
@@ -22,9 +31,15 @@ export default function ServiceCard({ service, buttonText, featured = false }: S
   const [isHovered, setIsHovered] = useState(false);
   const [showLocations, setShowLocations] = useState(false);
 
+  // Safely access locations with type check
+  const serviceLocations = 'locations' in service ? service.locations || [] : [];
+  const hasLocations = serviceLocations.length > 0;
+
   // Function to get the appropriate icon based on iconClass
   const getIcon = () => {
-    switch (service.iconClass?.toLowerCase()) {
+    const iconClass = service.iconClass?.toLowerCase() || '';
+    
+    switch (iconClass) {
       case 'utensils':
         return <Utensils className="mr-2" size={18} />;
       case 'glass-cheers':
@@ -37,8 +52,6 @@ export default function ServiceCard({ service, buttonText, featured = false }: S
         return <Car className="mr-2" size={18} />;
       case 'beach':
         return <Umbrella className="mr-2" size={18} />;
-      case 'spa':
-        return <Spa className="mr-2" size={18} />;
       case 'travel':
         return <Compass className="mr-2" size={18} />;
       case 'flight':
@@ -50,10 +63,10 @@ export default function ServiceCard({ service, buttonText, featured = false }: S
 
   // Function to render locations in an attractive way
   const renderLocations = () => {
-    if (!service.locations || service.locations.length === 0) return null;
+    if (!hasLocations) return null;
     
-    const locationsToShow = service.locations.slice(0, 3); // Show max 3 locations
-    const hasMore = service.locations.length > 3;
+    const locationsToShow = serviceLocations.slice(0, 3); // Show max 3 locations
+    const hasMore = serviceLocations.length > 3;
     
     return (
       <div className={`absolute inset-0 bg-black/90 p-6 flex flex-col transition-all duration-500 ${showLocations ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -71,7 +84,7 @@ export default function ServiceCard({ service, buttonText, featured = false }: S
         </div>
         <div className="flex-grow overflow-auto">
           <ul className="space-y-3">
-            {locationsToShow.map((location, idx) => (
+            {locationsToShow.map((location: ServiceLocation, idx: number) => (
               <li key={idx} className="border-b border-white/10 pb-2 last:border-0">
                 <div className="font-semibold text-white">{location.name}</div>
                 <div className="text-sm text-white/70 flex items-center">
@@ -82,7 +95,7 @@ export default function ServiceCard({ service, buttonText, featured = false }: S
           </ul>
           {hasMore && (
             <div className="mt-3 text-sm text-accent text-center">
-              +{service.locations.length - 3} مواقع أخرى
+              +{serviceLocations.length - 3} مواقع أخرى
             </div>
           )}
         </div>
@@ -148,7 +161,7 @@ export default function ServiceCard({ service, buttonText, featured = false }: S
               </Button>
               
               {/* Location button - only if service has locations */}
-              {service.locations && service.locations.length > 0 && (
+              {hasLocations && (
                 <Button 
                   variant="outline" 
                   className="px-4 py-2 border-white/20 text-white hover:bg-white/10 transition-colors duration-300 inline-flex items-center"
@@ -158,7 +171,7 @@ export default function ServiceCard({ service, buttonText, featured = false }: S
                   }}
                 >
                   <MapPin className="mr-2" size={16} />
-                  <span className="hidden sm:inline">المواقع</span> ({service.locations.length})
+                  <span className="hidden sm:inline">المواقع</span> ({serviceLocations.length})
                 </Button>
               )}
             </div>

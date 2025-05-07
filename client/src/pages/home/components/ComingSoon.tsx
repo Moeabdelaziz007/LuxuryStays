@@ -29,20 +29,33 @@ export default function ComingSoon() {
     fetchServices();
   }, []);
 
+  // تعريف واجهة للخدمة المخصصة لحل مشكلة التوافق
+  interface CustomService {
+    id: string;
+    name: string;
+    description: string;
+    imageUrl?: string;
+    status: string;
+    iconClass?: string;
+    launchDate?: string | Date | null;
+  }
+
   // Function to get the appropriate icon based on name
-  const getIcon = (service: Service, isHighlighted: boolean = false) => {
-    const iconClass = service.name.toLowerCase();
+  const getIcon = (service: Service | CustomService, isHighlighted: boolean = false) => {
     const iconSize = "h-12 w-12";
+    const nameStr = service.name.toLowerCase();
+    const iconClass = 'iconClass' in service && service.iconClass ? service.iconClass.toLowerCase() : '';
     
-    if (iconClass.includes('lounge') || iconClass.includes('room')) {
+    // Try to determine icon from iconClass first, then from name if no match
+    if (iconClass.includes('lounge') || nameStr.includes('lounge') || nameStr.includes('room')) {
       return <Sofa className={`${iconSize} ${isHighlighted ? 'text-accent' : 'text-white/80'}`} />;
-    } else if (iconClass.includes('yacht') || iconClass.includes('boat')) {
+    } else if (iconClass.includes('yacht') || nameStr.includes('yacht') || nameStr.includes('boat')) {
       return <Ship className={`${iconSize} ${isHighlighted ? 'text-accent' : 'text-white/80'}`} />;
-    } else if (iconClass.includes('plane') || iconClass.includes('transfer')) {
+    } else if (iconClass.includes('plane') || nameStr.includes('plane') || nameStr.includes('transfer')) {
       return <Plane className={`${iconSize} ${isHighlighted ? 'text-accent' : 'text-white/80'}`} />;
-    } else if (iconClass.includes('tech') || iconClass.includes('ai')) {
+    } else if (iconClass.includes('tech') || nameStr.includes('tech') || nameStr.includes('ai')) {
       return <Cpu className={`${iconSize} ${isHighlighted ? 'text-accent' : 'text-white/80'}`} />;
-    } else if (iconClass.includes('vr') || iconClass.includes('virtual')) {
+    } else if (iconClass.includes('vr') || nameStr.includes('vr') || nameStr.includes('virtual')) {
       return <Rocket className={`${iconSize} ${isHighlighted ? 'text-accent' : 'text-white/80'}`} />;
     } else {
       return <Satellite className={`${iconSize} ${isHighlighted ? 'text-accent' : 'text-white/80'}`} />;
@@ -70,11 +83,12 @@ export default function ComingSoon() {
   };
 
   // Fallback data if no services are found
-  const fallbackServices = [
+  const fallbackServices: CustomService[] = [
     {
       id: "1",
       name: "تجربة الواقع الافتراضي VR",
       description: "اختبر أحدث تقنيات الواقع الافتراضي لاستكشاف العقارات والوجهات من منزلك، مع إمكانية المشاهدة بزاوية 360 درجة وتجربة غامرة",
+      imageUrl: "https://images.unsplash.com/photo-1617802690992-15d93263d3a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       launchDate: "2025-09-15",
       status: "coming-soon",
       iconClass: "vr"
@@ -83,6 +97,7 @@ export default function ComingSoon() {
       id: "2",
       name: "رحلات اليخوت الفاخرة بتقنية ذكية",
       description: "استمتع برحلات بحرية على متن يخوت مجهزة بأحدث التقنيات الذكية للتحكم المناخي والإضاءة والصوت، مع طاقم خدمة متميز",
+      imageUrl: "https://images.unsplash.com/photo-1516550135131-fe3dcb0bedc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       launchDate: "2025-08-20",
       status: "coming-soon",
       iconClass: "yacht"
@@ -91,6 +106,7 @@ export default function ComingSoon() {
       id: "3",
       name: "مساعد السفر الذكي",
       description: "تطبيق ذكي بتقنية الذكاء الاصطناعي لتخطيط رحلتك بالكامل وحجز كافة الخدمات المتاحة أثناء إقامتك في الساحل الشمالي",
+      imageUrl: "https://images.unsplash.com/photo-1526406915894-7bcd65f60845?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       launchDate: "2025-07-01",
       status: "coming-soon",
       iconClass: "ai"
