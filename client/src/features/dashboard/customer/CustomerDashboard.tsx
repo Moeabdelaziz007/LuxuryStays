@@ -366,7 +366,7 @@ export default function CustomerDashboard({ activeTab = "dashboard" }: CustomerD
                             return checkInDate >= new Date();
                           })
                           .slice(0, 3)
-                          .map(booking => (
+                          .map((booking: Booking) => (
                             <div key={booking.id} className="bg-gray-800/50 rounded-lg p-3">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
@@ -434,7 +434,7 @@ export default function CustomerDashboard({ activeTab = "dashboard" }: CustomerD
                           <p className="text-gray-400">جاري تحميل المفضلة...</p>
                         </div>
                       ) : favorites && favorites.length > 0 ? (
-                        favorites.slice(0, 3).map(favorite => (
+                        favorites.slice(0, 3).map((favorite: FavoriteProperty) => (
                           <div key={favorite.id} className="flex items-start space-x-4 rtl:space-x-reverse bg-gray-800/50 rounded-lg p-3">
                             <div className="w-20 h-20 overflow-hidden rounded-md flex-shrink-0">
                               <img 
@@ -491,7 +491,7 @@ export default function CustomerDashboard({ activeTab = "dashboard" }: CustomerD
                 </div>
               ) : bookings && bookings.length > 0 ? (
                 <div className="space-y-4">
-                  {bookings.map(booking => (
+                  {bookings.map((booking: Booking) => (
                     <div key={booking.id} className="bg-gray-800/50 rounded-lg p-4">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-start space-x-4 rtl:space-x-reverse">
@@ -572,7 +572,7 @@ export default function CustomerDashboard({ activeTab = "dashboard" }: CustomerD
                 </div>
               ) : favorites && favorites.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {favorites.map(favorite => (
+                  {favorites.map((favorite: FavoriteProperty) => (
                     <div key={favorite.id} className="bg-gray-800/50 rounded-lg overflow-hidden group">
                       <div className="h-48 overflow-hidden relative">
                         <img 
