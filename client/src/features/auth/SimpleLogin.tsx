@@ -7,7 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GoogleLoginRedirect from "@/components/GoogleLoginRedirect";
+import GoogleLoginPopup from "@/components/GoogleLoginPopup";
 
 // صفحة تسجيل الدخول البسيطة
 export default function SimpleLogin() {
@@ -147,14 +149,42 @@ export default function SimpleLogin() {
             <div className="flex-grow border-t border-gray-700"></div>
           </div>
           
-          <GoogleLoginRedirect 
-            redirectPath="/dashboard/customer" 
-            variant="outline"
-            className="w-full"
-            buttonText="تسجيل الدخول باستخدام Google"
-          />
+          <Tabs defaultValue="popup" className="w-full mb-4">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="popup" className="text-xs">نافذة منبثقة</TabsTrigger>
+              <TabsTrigger value="redirect" className="text-xs">إعادة توجيه</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="popup" className="m-0">
+              <GoogleLoginPopup 
+                redirectPath="/customer" 
+                variant="outline"
+                className="w-full"
+                buttonText="تسجيل الدخول باستخدام Google"
+              />
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                يستخدم النافذة المنبثقة (مناسب للأجهزة المكتبية)
+              </p>
+            </TabsContent>
+            
+            <TabsContent value="redirect" className="m-0">
+              <GoogleLoginRedirect 
+                redirectPath="/customer" 
+                variant="outline"
+                className="w-full"
+                buttonText="تسجيل الدخول باستخدام Google"
+              />
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                يستخدم إعادة التوجيه (مناسب للأجهزة المحمولة)
+              </p>
+            </TabsContent>
+          </Tabs>
           
-          {error && error.includes("النطاق غير مصرح به") && (
+          <Link href="/auth/test" className="text-xs text-[#39FF14] hover:text-[#39FF14]/80 block text-center mt-2">
+            تجربة طرق متعددة للمصادقة مع Google
+          </Link>
+          
+          {error && (error.includes("النطاق غير مصرح به") || error.includes("unauthorized-domain")) && (
             <div className="mt-4 text-center">
               <Link href="/auth/troubleshoot" className="text-[#39FF14] hover:text-[#39FF14]/80 text-sm">
                 واجهت مشكلة في تسجيل الدخول؟ انقر هنا لتشخيص المشكلة وحلها
