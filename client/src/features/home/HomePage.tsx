@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "wouter";
 import FeaturedProperties from "@/features/home/FeaturedProperties";
 import ServicesSection from "@/features/home/ServicesSection";
-import Logo from "@/components/Logo";
 
 // استيراد المكونات الجديدة ذات طابع الفضاء-التقنية
 import { 

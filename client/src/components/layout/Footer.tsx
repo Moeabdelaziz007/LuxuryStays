@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Instagram, MapPin, Phone, Mail } from "lucide-react";
+import { Instagram, MapPin, Phone, Mail, Facebook } from "lucide-react";
 import Logo from "@/components/Logo";
 
 export default function Footer() {
@@ -21,6 +21,16 @@ export default function Footer() {
               بوابتك للإقامة الفاخرة في الساحل الشمالي وراس الحكمة، نوفر لك تجربة حجز مميزة وسلسة
             </p>
             <div className="flex space-x-4 rtl:space-x-reverse">
+              <a 
+                href="https://www.facebook.com/share/1L5CCr1JVD/?mibextid=wwXIfr" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex"
+              >
+                <Button variant="outline" size="icon" className="rounded-full border-[#39FF14]/30 hover:bg-[#39FF14]/10 hover:border-[#39FF14]">
+                  <Facebook size={18} className="text-[#39FF14]" />
+                </Button>
+              </a>
               <Button variant="outline" size="icon" className="rounded-full border-[#39FF14]/30 hover:bg-[#39FF14]/10 hover:border-[#39FF14]">
                 <Instagram size={18} className="text-[#39FF14]" />
               </Button>
