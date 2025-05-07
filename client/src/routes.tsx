@@ -34,6 +34,7 @@ import UnauthorizedPage from "@/features/auth/Unauthorized";
 // Debugging Components
 import FirebaseAuthTroubleshoot from "@/pages/FirebaseAuthTroubleshoot";
 import AuthTest from "@/pages/AuthTest";
+import SimpleAuthTest from "@/pages/SimpleAuthTest";
 
 // Booking Components
 import BookingConfirmation from "@/features/booking/BookingConfirmation";
@@ -100,6 +101,10 @@ export default function AppRoutes() {
       
       <Route path="/auth/test">
         <AuthTest />
+      </Route>
+      
+      <Route path="/auth/simple-test">
+        <SimpleAuthTest />
       </Route>
       
       {/* ===== صفحة الإدارة المبسطة - للمشرفين فقط ===== */}

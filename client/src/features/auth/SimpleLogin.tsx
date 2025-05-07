@@ -180,9 +180,14 @@ export default function SimpleLogin() {
             </TabsContent>
           </Tabs>
           
-          <Link href="/auth/test" className="text-xs text-[#39FF14] hover:text-[#39FF14]/80 block text-center mt-2">
-            تجربة طرق متعددة للمصادقة مع Google
-          </Link>
+          <div className="flex flex-col items-center justify-center gap-2 mt-2">
+            <Link href="/auth/test" className="text-xs text-[#39FF14] hover:text-[#39FF14]/80 block text-center">
+              تجربة طرق متعددة للمصادقة مع Google
+            </Link>
+            <Link href="/auth/simple-test" className="text-xs text-[#39FF14] hover:text-[#39FF14]/80 block text-center">
+              اختبار بسيط للمصادقة مع Google
+            </Link>
+          </div>
           
           {error && (error.includes("النطاق غير مصرح به") || error.includes("unauthorized-domain")) && (
             <div className="mt-4 text-center">
