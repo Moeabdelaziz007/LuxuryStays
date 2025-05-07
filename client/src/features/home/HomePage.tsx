@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "wouter";
 import ServicesSection from "@/features/home/ServicesSection";
 import NewHeroSection from "@/features/home/NewHeroSection";
-import ComingSoonSection from "@/features/home/ComingSoonSection";
+
 import LastMinuteDeals from "@/features/home/LastMinuteDeals";
 import SpaceFooter from "@/components/layout/SpaceFooter";
 import { SpaceButton } from "@/components/ui/space-button";
@@ -50,9 +50,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ✨ قسم الخدمات القادمة - ChillRoom وخدمات التنظيف والخدمات الأخرى */}
-      <ComingSoonSection />
-      
+
       {/* ✨ قسم العروض اللحظية - عروض خاصة لفترة محدودة */}
       <LastMinuteDeals />
       
