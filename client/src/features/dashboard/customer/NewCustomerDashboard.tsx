@@ -521,7 +521,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header Bar - Travel Dashboard Style */}
-        <header className="bg-[#1F2128] backdrop-blur-md shadow-lg px-5 py-4 flex items-center justify-between">
+        <header className="bg-black/80 backdrop-blur-md shadow-lg px-5 py-4 flex items-center justify-between border-b border-[#39FF14]/10">
           <div className="flex items-center gap-4">
             <Button variant="ghost" className="md:hidden text-[#39FF14] hover:bg-[#39FF14]/10 p-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -567,19 +567,19 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
           
           <div className="flex items-center gap-3">
             {/* Currency Toggle */}
-            <div className="hidden md:flex items-center bg-[#1F2128] border border-gray-700 rounded-lg overflow-hidden">
-              <button className="px-2.5 py-1.5 bg-[#39FF14]/10 text-[#39FF14] text-sm font-medium">USD</button>
-              <button className="px-2.5 py-1.5 text-gray-400 text-sm font-medium hover:bg-gray-800">EGP</button>
+            <div className="hidden md:flex items-center bg-black/80 border border-[#39FF14]/20 rounded-lg overflow-hidden">
+              <button className="px-2.5 py-1.5 bg-[#39FF14]/20 text-[#39FF14] text-sm font-medium hover:bg-[#39FF14]/30 transition-colors">USD</button>
+              <button className="px-2.5 py-1.5 text-gray-400 text-sm font-medium hover:bg-black hover:text-white transition-colors">EGP</button>
             </div>
             
             {/* Notification */}
-            <div className="relative p-2 bg-[#1F2128] rounded-lg hover:bg-[#2A2D3A] transition-colors cursor-pointer">
-              <FaBell className="h-5 w-5 text-gray-400" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-[#39FF14] rounded-full"></span>
+            <div className="relative p-2 bg-black/80 rounded-lg hover:bg-black transition-colors cursor-pointer border border-[#39FF14]/10">
+              <FaBell className="h-5 w-5 text-gray-400 hover:text-[#39FF14]" />
+              <span className="absolute top-1 right-1 h-2 w-2 bg-[#39FF14] rounded-full animate-pulse"></span>
             </div>
             
             {/* User Profile */}
-            <div className="flex items-center gap-3 p-1 border border-gray-700 rounded-lg bg-[#1F2128] cursor-pointer hover:border-[#39FF14]/30 transition-colors">
+            <div className="flex items-center gap-3 p-1 border border-[#39FF14]/20 rounded-lg bg-black/80 cursor-pointer hover:border-[#39FF14]/40 transition-colors">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.photoURL || ""} alt={user?.name || "العميل"} />
                 <AvatarFallback className="bg-[#39FF14]/20 text-[#39FF14] text-xs">
@@ -665,7 +665,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         {/* Quick Access Links */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                           <div 
-                            className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group"
+                            className="bg-black/80 rounded-xl p-4 border border-[#39FF14]/10 hover:border-[#39FF14]/30 cursor-pointer transition-all hover:shadow-[0_0_15px_rgba(57,255,20,0.15)] group"
                             onClick={() => navigate("/customer/bookings")}
                           >
                             <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
@@ -676,7 +676,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                           </div>
                           
                           <div 
-                            className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group"
+                            className="bg-black/80 rounded-xl p-4 border border-[#39FF14]/10 hover:border-[#39FF14]/30 cursor-pointer transition-all hover:shadow-[0_0_15px_rgba(57,255,20,0.15)] group"
                             onClick={() => navigate("/customer/favorites")}
                           >
                             <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
@@ -687,7 +687,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                           </div>
                           
                           <div 
-                            className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group"
+                            className="bg-black/80 rounded-xl p-4 border border-[#39FF14]/10 hover:border-[#39FF14]/30 cursor-pointer transition-all hover:shadow-[0_0_15px_rgba(57,255,20,0.15)] group"
                             onClick={() => navigate("/customer/payments")}
                           >
                             <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
@@ -698,7 +698,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                           </div>
                           
                           <div 
-                            className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group"
+                            className="bg-black/80 rounded-xl p-4 border border-[#39FF14]/10 hover:border-[#39FF14]/30 cursor-pointer transition-all hover:shadow-[0_0_15px_rgba(57,255,20,0.15)] group"
                             onClick={() => navigate("/customer/services")}
                           >
                             <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
