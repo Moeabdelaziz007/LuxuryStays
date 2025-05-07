@@ -1,29 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { auth, db } from "@/lib/firebase";
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
-import GoogleLoginWarning from "@/components/GoogleLoginWarning";
-import GoogleAuthDomainAlert from "@/components/GoogleAuthDomainAlert";
-import GoogleAuthDomainFeedback from "@/components/GoogleAuthDomainFeedback";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useAuth } from "@/contexts/auth-context";
-import GoogleLoginButton from "@/components/ui/GoogleLoginButtonFixed";
-import GuestLoginButton from "@/components/ui/GuestLoginButtonFixed";
-import { isCurrentDomainAuthorized, storeCurrentDomain } from "@/lib/FirebaseDomainHelper";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-// صفحة تسجيل الدخول
-export default function LoginNew() {
+// صفحة تسجيل الدخول البسيطة
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [guestLoading, setGuestLoading] = useState(false);
   const [error, setError] = useState("");
-  const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [location, navigate] = useLocation();
   const { toast } = useToast();
-  const { loginWithGoogle, loginAnonymously } = useAuth();
-  const [showGoogleWarning, setShowGoogleWarning] = useState(false);
   
   // Helper function for toast styling
   const getSuccessToast = (title: string, description: string) => ({
@@ -33,11 +25,10 @@ export default function LoginNew() {
     className: "bg-gradient-to-r from-green-900/80 to-green-800/80 border-green-600/50 text-white",
   });
   
-  const getWarningToast = (title: string, description: string) => ({
+  const getErrorToast = (title: string, description: string) => ({
     title,
     description,
-    variant: "default" as const,
-    className: "bg-gradient-to-r from-amber-900/80 to-amber-800/80 border-amber-600/50 text-white",
+    variant: "destructive" as const,
   });
 
   // التحقق من إذا كان المستخدم قد وصل من صفحة التسجيل
