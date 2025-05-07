@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useAuth } from '@/contexts/auth-context';
 import { 
@@ -41,6 +41,11 @@ export default function NewPropertyAdminDashboard({ activeTab = 'dashboard' }) {
   const { user } = useAuth();
   const [_, navigate] = useLocation();
   const [selectedTab, setSelectedTab] = useState(activeTab);
+  
+  // Synchronize with activeTab prop when it changes
+  useEffect(() => {
+    setSelectedTab(activeTab);
+  }, [activeTab]);
   
   // جلب إحصائيات لوحة المعلومات
   const { data: dashboardStats } = useQuery({
@@ -460,12 +465,131 @@ export default function NewPropertyAdminDashboard({ activeTab = 'dashboard' }) {
         );
       case 'properties':
         return <PropertyManagement />;
+        
       case 'bookings':
         return <BookingCalendar />;
+        
+      case 'customers':
+        return (
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-[#39FF14]">إدارة العملاء</CardTitle>
+              <CardDescription>عرض وإدارة العملاء وتفاصيل حجوزاتهم</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <div className="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                  <FaUsersCog className="h-8 w-8 text-[#39FF14]/50" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">قائمة العملاء</h3>
+                <p className="text-gray-400 max-w-md mx-auto mb-6">
+                  هنا يمكنك عرض جميع العملاء الذين قاموا بالحجز في عقاراتك، وإدارة تفاصيلهم وطلباتهم.
+                </p>
+                <Button className="bg-[#39FF14] text-black hover:bg-[#39FF14]/90">
+                  <FaUsersCog className="mr-2 h-4 w-4" />
+                  عرض جميع العملاء
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+        
+      case 'revenue':
+        return (
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-[#39FF14]">تقارير الإيرادات</CardTitle>
+              <CardDescription>تحليل مفصل للإيرادات والمدفوعات</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <div className="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                  <FaDollarSign className="h-8 w-8 text-[#39FF14]/50" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">تقارير الإيرادات</h3>
+                <p className="text-gray-400 max-w-md mx-auto mb-6">
+                  هنا يمكنك عرض تقارير مفصلة عن الإيرادات والمدفوعات وتحليل الأداء المالي لعقاراتك.
+                </p>
+                <Button className="bg-[#39FF14] text-black hover:bg-[#39FF14]/90">
+                  <FaChartBar className="mr-2 h-4 w-4" />
+                  عرض تقارير مفصلة
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+        
       case 'analytics':
         return <PropertyAnalytics />;
+        
+      case 'calendar':
+        return <BookingCalendar />;
+        
+      case 'settings':
+        return (
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-[#39FF14]">إعدادات الحساب</CardTitle>
+              <CardDescription>تخصيص إعدادات حسابك ونظام إدارة العقارات</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h3 className="font-medium text-white mb-2 flex items-center">
+                    <FaUserAlt className="mr-2 h-4 w-4 text-[#39FF14]" />
+                    معلومات الملف الشخصي
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-4">تحديث معلومات الملف الشخصي وإعدادات الحساب</p>
+                  <Button variant="outline" className="border-[#39FF14]/40 text-[#39FF14] hover:bg-[#39FF14]/10">
+                    تعديل الملف الشخصي
+                  </Button>
+                </div>
+                
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h3 className="font-medium text-white mb-2 flex items-center">
+                    <FaCog className="mr-2 h-4 w-4 text-[#39FF14]" />
+                    إعدادات النظام
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-4">تخصيص إعدادات النظام وتفضيلات العرض</p>
+                  <Button variant="outline" className="border-[#39FF14]/40 text-[#39FF14] hover:bg-[#39FF14]/10">
+                    تعديل الإعدادات
+                  </Button>
+                </div>
+                
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h3 className="font-medium text-white mb-2 flex items-center">
+                    <FaBuilding className="mr-2 h-4 w-4 text-[#39FF14]" />
+                    إعدادات العقارات
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-4">تخصيص إعدادات العقارات وقواعد الحجز</p>
+                  <Button variant="outline" className="border-[#39FF14]/40 text-[#39FF14] hover:bg-[#39FF14]/10">
+                    تعديل إعدادات العقارات
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+        
       default:
-        return <PropertyManagement />;
+        return (
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-[#39FF14]">الصفحة غير موجودة</CardTitle>
+              <CardDescription>عذراً، الصفحة التي تبحث عنها غير متوفرة.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <Button 
+                  className="bg-[#39FF14] text-black hover:bg-[#39FF14]/90"
+                  onClick={() => handleTabChange('dashboard')}
+                >
+                  العودة للوحة التحكم
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
     }
   };
   
