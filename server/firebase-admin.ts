@@ -1,7 +1,7 @@
-import * as admin from 'firebase-admin';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
-import { getStorage } from 'firebase-admin/storage';
+import { initializeApp, cert, type App, type ServiceAccount } from 'firebase-admin/app';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { getAuth, type Auth } from 'firebase-admin/auth';
+import { getStorage, type Storage } from 'firebase-admin/storage';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
@@ -16,10 +16,10 @@ const __dirname = path.dirname(__filename);
  */
 
 // Initialize variables for Firebase services
-let adminApp: admin.app.App | null = null;
-let db: FirebaseFirestore.Firestore;
-let auth: admin.auth.Auth;
-let storage: admin.storage.Storage;
+let adminApp: App | null = null;
+let db: Firestore;
+let auth: Auth;
+let storage: Storage;
 
 // Load service account file based on environment
 const getServiceAccountPath = () => {
@@ -110,7 +110,7 @@ try {
       // Add credential only if we found a service account
       if (serviceAccountPath) {
         try {
-          const serviceAccount = require(serviceAccountPath);
+          const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
           appConfig.credential = admin.credential.cert(serviceAccount);
         } catch (certError) {
           console.error('Error loading service account:', certError);

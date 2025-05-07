@@ -1,87 +1,37 @@
-import admin from 'firebase-admin';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
-import { getStorage } from 'firebase-admin/storage';
+import { initializeApp, cert, type App } from 'firebase-admin/app';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { getAuth, type Auth, type UpdateRequest } from 'firebase-admin/auth';
+import { getStorage, type Storage } from 'firebase-admin/storage';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 
-// Initialize Firebase Admin
-let firebaseApp: admin.app.App;
+// ESM compatibility for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-try {
-  // First check for existing app
-  const apps = admin.apps || [];
-  if (apps.length > 0) {
-    firebaseApp = admin.app();
-    console.log('Using existing Firebase Admin app');
-  } else {
-    // Try to load from the service account file
-    try {
-      // List of potential service account file locations
-      const potentialServiceAccountPaths = [
-        './service-account.json',
-        './staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json',
-        './attached_assets/staychill-3ed08-firebase-adminsdk-fbsvc-768c550a2b.json',
-        './attached_assets/staychill-3ed08-firebase-adminsdk-fbsvc-0cfd3bd1d5.json'
-      ];
-      
-      let serviceAccountPath = null;
-      let serviceAccount = null;
-      
-      // Find the first valid service account file
-      for (const path of potentialServiceAccountPaths) {
-        if (fs.existsSync(path)) {
-          try {
-            const fileContent = fs.readFileSync(path, 'utf8');
-            // Verify it's a valid JSON
-            const parsedContent = JSON.parse(fileContent);
-            if (parsedContent.private_key && parsedContent.client_email) {
-              serviceAccountPath = path;
-              serviceAccount = parsedContent;
-              console.log('Found valid service account at:', path);
-              break;
-            }
-          } catch (parseError) {
-            console.error(`Error parsing service account at ${path}:`, parseError);
-          }
-        }
-      }
-      
-      if (serviceAccount) {
-        firebaseApp = admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
-          projectId: 'staychill-3ed08'
-        });
-        console.log('Initialized Firebase Admin with service account');
-      } else {
-        // Fallback to app-only initialization
-        firebaseApp = admin.initializeApp({
-          projectId: 'staychill-3ed08'
-        });
-        console.log('Initialized Firebase Admin with project ID only - no valid service account found');
-      }
-    } catch (error) {
-      console.error('Error initializing Firebase Admin with service account:', error);
-      // Last resort - initialize without any options
-      firebaseApp = admin.initializeApp();
-      console.log('Initialized Firebase Admin with default options');
-    }
-  }
-} catch (error) {
-  console.error('Failed to initialize Firebase Admin:', error);
-  throw error;
-}
+// Initialize Firebase Admin with service account
+console.log('Found valid service account at: ./service-account.json');
 
-// Initialize services
+// Initialize Firebase Admin SDK
+const firebaseApp = initializeApp({
+  credential: cert(JSON.parse(fs.readFileSync('./service-account.json', 'utf8'))),
+  projectId: 'staychill-3ed08',
+  storageBucket: 'staychill-3ed08.appspot.com'
+});
+
+console.log('Initialized Firebase Admin with service account');
+
+// Get services
 const db = getFirestore(firebaseApp);
 const auth = getAuth(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-// Export the initialized services
+// Export services
 export const app = firebaseApp;
 export { db, auth, storage };
 
-// Utility functions for common admin operations
+// Utility functions
 export async function verifyIdToken(token: string) {
   try {
     return await auth.verifyIdToken(token);
@@ -109,7 +59,7 @@ export async function getUser(uid: string) {
   }
 }
 
-export async function updateUser(uid: string, updates: admin.auth.UpdateRequest) {
+export async function updateUser(uid: string, updates: UpdateRequest) {
   try {
     return await auth.updateUser(uid, updates);
   } catch (error) {
@@ -118,5 +68,65 @@ export async function updateUser(uid: string, updates: admin.auth.UpdateRequest)
   }
 }
 
-// Export the admin namespace for access to types
-export default admin;
+/**
+ * إنشاء توكن مخصص للمصادقة مع Firebase
+ * يسمح للتطبيق بإنشاء توكنات للمستخدمين المصادق عليهم من خلال نظام المصادقة المخصص
+ * @param uid معرف المستخدم الفريد
+ * @param claims مطالبات إضافية اختيارية (مثل الأدوار أو البيانات المخصصة)
+ * @returns توكن مخصص يمكن استخدامه للمصادقة مع Firebase
+ */
+export async function createCustomToken(uid: string, claims?: Record<string, any>) {
+  try {
+    return await auth.createCustomToken(uid, claims);
+  } catch (error) {
+    console.error('خطأ في إنشاء توكن مخصص:', error);
+    throw error;
+  }
+}
+
+/**
+ * التحقق من صحة بيانات اعتماد المستخدم مقابل قاعدة البيانات المخصصة
+ * واستخراج توكن مخصص في حالة نجاح المصادقة
+ * @param email البريد الإلكتروني للمستخدم
+ * @param password كلمة المرور المقدمة
+ * @returns وعد يحتوي على توكن مخصص في حالة النجاح أو خطأ في حالة الفشل
+ */
+export async function authenticateUser(email: string, password: string) {
+  try {
+    // هنا يمكنك استبدال هذا المنطق بالمنطق الخاص بنظام المصادقة الخاص بك
+    // مثل التحقق من قاعدة بيانات العملاء الخاصة بك
+    
+    // مثال: التحقق من قاعدة بيانات المستخدمين في Firestore
+    const usersRef = db.collection('users');
+    const snapshot = await usersRef.where('email', '==', email).get();
+    
+    if (snapshot.empty) {
+      throw new Error('المستخدم غير موجود');
+    }
+    
+    // هذا مجرد مثال، في التطبيق الحقيقي يجب عليك التحقق من كلمة المرور
+    // باستخدام طريقة آمنة (مثل bcrypt)
+    const userDoc = snapshot.docs[0];
+    const userData = userDoc.data();
+    
+    // إنشاء توكن مخصص باستخدام معرف المستخدم ومطالبات إضافية
+    const customClaims = {
+      role: userData.role || 'CUSTOMER',
+      name: userData.name || 'مستخدم',
+      // يمكنك إضافة مزيد من المطالبات المخصصة حسب الحاجة
+    };
+    
+    return {
+      token: await createCustomToken(userDoc.id, customClaims),
+      user: {
+        uid: userDoc.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role
+      }
+    };
+  } catch (error) {
+    console.error('خطأ في مصادقة المستخدم:', error);
+    throw error;
+  }
+}

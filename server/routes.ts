@@ -5,7 +5,7 @@ import { properties, services } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import adminRoutes from './routes/admin';
-import { authenticateUser, createCustomToken } from './firebase-admin';
+import { authenticateUser, createCustomToken } from './firebase-admin-simple';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin routes
