@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "wouter";
 import ServicesSection from "@/features/home/ServicesSection";
 import NewHeroSection from "@/features/home/NewHeroSection";
+import ComingSoonSection from "@/features/home/ComingSoonSection";
 import SpaceFooter from "@/components/layout/SpaceFooter";
 import { SpaceButton } from "@/components/ui/space-button";
 import SpaceBubbleBot from "@/features/chatbot/SpaceBubbleBot";
@@ -48,6 +49,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ✨ قسم الخدمات القادمة - ChillRoom وخدمات التنظيف والخدمات الأخرى */}
+      <ComingSoonSection />
+      
       {/* ✨ قسم الاتصال والتواصل - محسّن مع التأثيرات الفضائية */}
       <section className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
         {/* تأثير النجوم */}
