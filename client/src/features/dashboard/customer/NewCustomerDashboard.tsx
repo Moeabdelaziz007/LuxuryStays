@@ -1411,35 +1411,58 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#1F2128] border-t border-[#39FF14]/20 shadow-lg z-50">
         <div className="flex justify-around items-center h-16">
           <button 
-            className={`flex flex-col items-center justify-center w-1/4 h-full ${activeTab === "dashboard" ? "text-[#39FF14]" : "text-gray-400"}`}
-            onClick={() => navigate("/customer")}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "dashboard" ? "text-[#39FF14]" : "text-gray-400"}`}
+            onClick={() => {
+              setActiveTab("dashboard");
+              navigate("/customer");
+            }}
           >
             <FaTachometerAlt className="h-5 w-5 mb-1" />
             <span className="text-xs">الرئيسية</span>
           </button>
           
           <button 
-            className={`flex flex-col items-center justify-center w-1/4 h-full ${activeTab === "bookings" ? "text-[#39FF14]" : "text-gray-400"}`}
-            onClick={() => navigate("/customer/bookings")}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "bookings" ? "text-[#39FF14]" : "text-gray-400"}`}
+            onClick={() => {
+              setActiveTab("bookings");
+              navigate("/customer/bookings");
+            }}
           >
             <FaCalendarAlt className="h-5 w-5 mb-1" />
             <span className="text-xs">الحجوزات</span>
           </button>
           
           <button 
-            className={`flex flex-col items-center justify-center w-1/4 h-full ${activeTab === "favorites" ? "text-[#39FF14]" : "text-gray-400"}`}
-            onClick={() => navigate("/customer/favorites")}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "favorites" ? "text-[#39FF14]" : "text-gray-400"}`}
+            onClick={() => {
+              setActiveTab("favorites");
+              navigate("/customer/favorites");
+            }}
           >
             <FaHeart className="h-5 w-5 mb-1" />
             <span className="text-xs">المفضلة</span>
           </button>
           
           <button 
-            className={`flex flex-col items-center justify-center w-1/4 h-full ${activeTab === "settings" ? "text-[#39FF14]" : "text-gray-400"}`}
-            onClick={() => navigate("/customer/settings")}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "profile" ? "text-[#39FF14]" : "text-gray-400"}`}
+            onClick={() => {
+              setActiveTab("profile");
+              navigate("/customer/profile");
+            }}
           >
             <FaUser className="h-5 w-5 mb-1" />
             <span className="text-xs">الملف</span>
+          </button>
+          
+          <button 
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "settings" ? "text-[#39FF14]" : "text-gray-400"}`}
+            onClick={() => {
+              setActiveTab("settings");
+              navigate("/customer/settings");
+            }}
+          >
+            <FaCog className="h-5 w-5 mb-1" />
+            <span className="text-xs">الإعدادات</span>
           </button>
         </div>
       </div>
