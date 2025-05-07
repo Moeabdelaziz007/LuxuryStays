@@ -1,0 +1,127 @@
+/* أنماط لشريط التنقل المتجاوب */
+
+/* أنماط زر القائمة المتحركة للأجهزة المحمولة */
+.hamburger-icon {
+  position: relative;
+  width: 24px;
+  height: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger-icon .line {
+  display: block;
+  height: 2px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon.active .line:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger-icon.active .line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-icon.active .line:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* تأثيرات القائمة المتجاوبة */
+.nav-container {
+  transition: all 0.3s ease;
+}
+
+.nav-link {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--neon-green);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* تأثيرات للقائمة المتجاوبة للهواتف المحمولة */
+.mobile-nav {
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-nav-item {
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slideUpFadeIn 0.5s forwards;
+}
+
+@keyframes slideUpFadeIn {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* تأخير دخول عناصر القائمة للتأثير الحركي */
+.mobile-nav-item:nth-child(1) { animation-delay: 0.1s; }
+.mobile-nav-item:nth-child(2) { animation-delay: 0.15s; }
+.mobile-nav-item:nth-child(3) { animation-delay: 0.2s; }
+.mobile-nav-item:nth-child(4) { animation-delay: 0.25s; }
+.mobile-nav-item:nth-child(5) { animation-delay: 0.3s; }
+.mobile-nav-item:nth-child(6) { animation-delay: 0.35s; }
+.mobile-nav-item:nth-child(7) { animation-delay: 0.4s; }
+
+/* خلفية القائمة الفرعية الشفافة */
+.nav-dropdown {
+  backdrop-filter: blur(10px);
+  background-color: rgba(0, 0, 5, 0.8);
+  border: 1px solid rgba(57, 255, 20, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* تأثيرات متقدمة لشريط التنقل */
+.floating-nav {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  z-index: 1000;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(57, 255, 20, 0.1);
+  background-color: rgba(10, 10, 15, 0.75);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  animation: navFloat 0.5s ease-out forwards;
+}
+
+@keyframes navFloat {
+  from {
+    transform: translate(-50%, -10px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}

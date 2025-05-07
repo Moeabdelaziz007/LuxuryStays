@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import SmartHeader from "./SmartHeader";
-import Footer from "./Footer";
-import PublicMobileNavigation from "./PublicMobileNavigation";
 import TechBackground from "./TechBackground";
-import { TechButton } from "@/components/ui/TechButton";
+import { SpaceButton } from "@/components/ui/space-button";
 import { useLocation } from "wouter";
+import ResponsiveNavigation from "@/components/layout/ResponsiveNavigation";
+import SpaceFooter from "@/components/layout/SpaceFooter";
 
 /**
  * تخطيط للصفحات العامة - Public Pages Layout

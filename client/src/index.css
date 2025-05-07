@@ -1,5 +1,7 @@
 @import "./styles/animations.css";
 @import "./styles/space-effects.css";
+@import "./styles/breakpoints.css";
+@import "./styles/navigation.css";
 
 @tailwind base;
 @tailwind components;

@@ -1,0 +1,204 @@
+/* نقاط الانقطاع الموحدة للتطبيق */
+:root {
+  /* قيم نقاط الانقطاع */
+  --breakpoint-xs: 380px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* متغيرات وسائط الاستعلام لضمان الاتساق عبر التطبيق */
+@custom-media --viewport-xs (min-width: 380px);
+@custom-media --viewport-sm (min-width: 640px);
+@custom-media --viewport-md (min-width: 768px);
+@custom-media --viewport-lg (min-width: 1024px);
+@custom-media --viewport-xl (min-width: 1280px);
+@custom-media --viewport-2xl (min-width: 1536px);
+
+/* فئات المساعدة للتصميم المتجاوب */
+.hide-on-mobile {
+  @media (max-width: 767px) {
+    display: none !important;
+  }
+}
+
+.hide-on-tablet {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    display: none !important;
+  }
+}
+
+.hide-on-desktop {
+  @media (min-width: 1024px) {
+    display: none !important;
+  }
+}
+
+.show-on-mobile-only {
+  @media (min-width: 768px) {
+    display: none !important;
+  }
+}
+
+.show-on-tablet-only {
+  @media (max-width: 767px), (min-width: 1024px) {
+    display: none !important;
+  }
+}
+
+.show-on-desktop-only {
+  @media (max-width: 1023px) {
+    display: none !important;
+  }
+}
+
+/* مساحات التباعد المتجاوبة */
+.responsive-gap {
+  gap: var(--space-2);
+}
+@media (min-width: 768px) {
+  .responsive-gap {
+    gap: var(--space-4);
+  }
+}
+@media (min-width: 1024px) {
+  .responsive-gap {
+    gap: var(--space-6);
+  }
+}
+
+/* هوامش متجاوبة */
+.responsive-margin {
+  margin: var(--space-2);
+}
+@media (min-width: 768px) {
+  .responsive-margin {
+    margin: var(--space-4);
+  }
+}
+@media (min-width: 1024px) {
+  .responsive-margin {
+    margin: var(--space-6);
+  }
+}
+
+/* حشو متجاوب */
+.responsive-padding {
+  padding: var(--space-2);
+}
+@media (min-width: 768px) {
+  .responsive-padding {
+    padding: var(--space-4);
+  }
+}
+@media (min-width: 1024px) {
+  .responsive-padding {
+    padding: var(--space-6);
+  }
+}
+
+/* التخطيط المتجاوب - تحول من عمود على الجوال إلى صفوف على الشاشات الأكبر */
+.responsive-layout {
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 768px) {
+  .responsive-layout {
+    flex-direction: row;
+  }
+}
+
+/* تحكم متجاوب في اتجاه العناصر */
+.responsive-direction {
+  flex-direction: column;
+}
+@media (min-width: 768px) {
+  .responsive-direction {
+    flex-direction: row;
+  }
+}
+
+/* متغيرات المسافات المتجاوبة */
+:root {
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-7: 1.75rem;  /* 28px */
+  --space-8: 2rem;     /* 32px */
+  --space-9: 2.25rem;  /* 36px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-20: 5rem;    /* 80px */
+  --space-24: 6rem;    /* 96px */
+  --space-28: 7rem;    /* 112px */
+  --space-32: 8rem;    /* 128px */
+  
+  /* حجم الخط المتجاوب */
+  --font-size-xs: 0.75rem;  /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem;   /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem;  /* 20px */
+  --font-size-2xl: 1.5rem;  /* 24px */
+  --font-size-3xl: 1.875rem;/* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+  --font-size-5xl: 3rem;    /* 48px */
+}
+
+/* حجم خط متجاوب */
+.responsive-text {
+  font-size: var(--font-size-sm);
+}
+@media (min-width: 768px) {
+  .responsive-text {
+    font-size: var(--font-size-base);
+  }
+}
+@media (min-width: 1024px) {
+  .responsive-text {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* عنوان متجاوب */
+.responsive-heading {
+  font-size: var(--font-size-xl);
+}
+@media (min-width: 768px) {
+  .responsive-heading {
+    font-size: var(--font-size-2xl);
+  }
+}
+@media (min-width: 1024px) {
+  .responsive-heading {
+    font-size: var(--font-size-3xl);
+  }
+}
+
+/* صفوف الشبكة المتجاوبة */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-4);
+}
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1280px) {
+  .responsive-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
