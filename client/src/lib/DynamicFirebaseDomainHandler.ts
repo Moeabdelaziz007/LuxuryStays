@@ -36,8 +36,9 @@ export async function updateFirebaseAuthDomains(app: any): Promise<DomainRespons
     const mockDomains = [
       "localhost",
       "127.0.0.1",
-      "stay-chill-e3743.web.app",
-      "stay-chill-e3743.firebaseapp.com",
+      "staychill-3ed08.web.app",
+      "staychill-3ed08.firebaseapp.com",
+      "f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev",
       currentDomain
     ];
     

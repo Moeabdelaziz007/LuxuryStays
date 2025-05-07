@@ -42,7 +42,7 @@ function RedirectHandler() {
           console.log("User ID:", result.user.uid);
           
           // Get saved redirect path if any
-          const savedRedirectPath = localStorage.getItem('googleAuthRedirectPath');
+          let savedRedirectPath = localStorage.getItem('googleAuthRedirectPath');
           
           if (savedRedirectPath) {
             console.log("Redirecting to saved path after Google login:", savedRedirectPath);
