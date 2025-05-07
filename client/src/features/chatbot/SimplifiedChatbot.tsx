@@ -362,7 +362,7 @@ const SimplifiedChatbot: React.FC<SimplifiedChatbotProps> = ({
     );
   };
   
-  // تهيئة خطوات المحادثة
+  // تهيئة خطوات المحادثة - تصحيح البنية لتجنب الأخطاء
   useEffect(() => {
     const initialSteps = [
       {
@@ -373,13 +373,16 @@ const SimplifiedChatbot: React.FC<SimplifiedChatbotProps> = ({
       {
         id: 'userInput',
         user: true,
+        trigger: 'thinking',
+      },
+      {
+        id: 'thinking',
+        message: 'جاري التفكير...',
         trigger: 'botResponse',
       },
       {
         id: 'botResponse',
-        component: <ThinkingIndicator />,
-        asMessage: true,
-        waitAction: true,
+        message: 'سأساعدك في إيجاد أفضل العقارات المناسبة لك.',
         trigger: 'userInput',
       },
     ];
@@ -538,52 +541,17 @@ const SimplifiedChatbot: React.FC<SimplifiedChatbotProps> = ({
                 <ChatBot
                   key={chatKey}
                   steps={steps}
-                  handleEnd={() => {}} // لا شيء عند الانتهاء
+                  handleEnd={() => {}} 
                   headerTitle={botName}
                   placeholder="اكتب رسالتك هنا..."
                   botAvatar="/assets/bot-avatar.svg"
                   userAvatar="/assets/user-avatar.svg"
-                  customDelay={10}
                   hideHeader={true}
                   hideSubmitButton={true}
-                  hideUserAvatar={false}
-                  botDelay={1000}
-                  customStyle={{
-                    boxShadow: 'none',
-                    borderRadius: '0',
-                    height: 'calc(100% - 60px)', // تخصيص مساحة للتوصيات السريعة
-                  }}
-                  contentStyle={{
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                  }}
-                  bubbleOptionStyle={{
-                    background: '#39FF14',
-                    color: 'black',
-                  }}
-                  bubbleStyle={{
-                    maxWidth: '80%',
-                    padding: '12px 15px',
-                    borderRadius: '18px',
-                    fontSize: '14px',
-                  }}
-                  footerStyle={{
-                    background: '#111827',
-                    borderTop: '1px solid rgba(57, 255, 20, 0.3)',
-                  }}
-                  inputStyle={{
-                    background: 'rgba(0, 0, 0, 0.5)',
-                    color: 'white',
-                    border: '1px solid rgba(57, 255, 20, 0.5)',
-                    borderRadius: '20px',
-                    padding: '12px 15px',
-                    fontFamily: 'Cairo, Arial, sans-serif',
-                  }}
                   enableMobileAutoFocus={true}
                   enableSmoothScroll={true}
                   recognitionEnable={false}
                   ref={chatbotRef}
-                  handleUserMessage={handleUserMessage}
                 />
               </StyleSheetManager>
               

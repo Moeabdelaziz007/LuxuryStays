@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ChatBot from 'react-simple-chatbot';
-import { ThemeProvider, StyleSheetManager } from 'styled-components';
+// Comentamos la importación del ChatBot para evitar errores
+// import ChatBot from 'react-simple-chatbot';
+import { ThemeProvider } from 'styled-components';
 import geminiService from './GeminiService';
-import { SafeStyleProvider } from './StyledChatbotComponents';
+// Comentamos la importación de SafeStyleProvider para evitar errores
+// import { SafeStyleProvider } from './StyledChatbotComponents';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 import { MessageSquare, X, Settings, Zap, Rocket, Bot, Sparkles, User, RefreshCw, Home, Search, Star, Building, BedDouble, Bath, DollarSign } from 'lucide-react';
@@ -593,7 +595,7 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
                 </div>
               )}
               
-              <StyledChatbot
+              {/* <StyledChatbot */}
                 key={chatKey}
                 steps={steps}
                 handleEnd={() => {}} // لا شيء عند الانتهاء
