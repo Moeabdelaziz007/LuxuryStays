@@ -45,6 +45,7 @@ import AdminPage from "@/pages/admin-page";
 
 // Testing Tools Components
 import TestingToolsPage from "@/pages/testing-tools";
+import AutomatedTestingPage from "@/pages/automated-testing";
 
 // Branding Components
 import FuturisticBranding from "@/components/FuturisticBranding";
@@ -184,6 +185,10 @@ export default function AppRoutes() {
       {/* ===== أدوات اختبار واجهة المستخدم ===== */}
       <Route path="/testing-tools">
         <TestingToolsPage />
+      </Route>
+      
+      <Route path="/automated-testing">
+        <AutomatedTestingPage />
       </Route>
       
       {/* ===== مسارات الدفع ===== */}

@@ -25,11 +25,18 @@ export default function TestingToolsPage() {
               أدوات للتحقق من استجابة واجهة المستخدم ومراقبة الأداء عبر الأجهزة المختلفة
             </p>
           </div>
-          <Link href="/">
-            <div>
-              <Button>العودة إلى الصفحة الرئيسية</Button>
-            </div>
-          </Link>
+          <div className="flex space-x-2 rtl:space-x-reverse">
+            <Link href="/automated-testing">
+              <div>
+                <Button variant="outline">الاختبارات الآلية</Button>
+              </div>
+            </Link>
+            <Link href="/">
+              <div>
+                <Button>العودة إلى الصفحة الرئيسية</Button>
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
 
