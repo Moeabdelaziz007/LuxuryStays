@@ -56,15 +56,15 @@ interface CustomerDashboardProps {
   activeTab?: string;
 }
 
-export default function NewCustomerDashboard({ activeTab: initialTab = "dashboard" }: CustomerDashboardProps) {
+export default function NewCustomerDashboard({ activeTab = "dashboard" }: CustomerDashboardProps) {
   const { user, logout } = useAuth();
-  const [location, navigate] = useLocation();
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [_, navigate] = useLocation();
+  const [selectedTab, setSelectedTab] = useState(activeTab);
   
-  // Update active tab when prop changes
+  // Update selected tab when prop changes
   useEffect(() => {
-    setActiveTab(initialTab);
-  }, [initialTab]);
+    setSelectedTab(activeTab);
+  }, [activeTab]);
   
   // Fetch user's bookings with enhanced caching and error handling
   // Use memo for stable query key to prevent unnecessary re-renders

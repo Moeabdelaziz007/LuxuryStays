@@ -61,6 +61,7 @@ interface PropertyFormProps {
 
 export default function PropertyForm({ property, onSuccess, onCancel }: PropertyFormProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(property?.imageUrl || null);
 

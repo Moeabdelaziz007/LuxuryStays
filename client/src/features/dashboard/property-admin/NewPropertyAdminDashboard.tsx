@@ -28,7 +28,9 @@ import {
   FaEye,
   FaBed,
   FaBath,
-  FaHome
+  FaHome,
+  FaUserAlt,
+  FaDollarSign
 } from 'react-icons/fa';
 import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
