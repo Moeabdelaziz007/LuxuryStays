@@ -472,13 +472,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("محاولة تسجيل الدخول كضيف باستخدام المصادقة المجهولة...");
         
         // استخدام المصادقة المجهولة التي توفرها Firebase
+        // التحقق من أن auth ليس null قبل استخدامه
+        if (!auth) {
+          throw new Error("خدمة المصادقة غير متوفرة");
+        }
+        
         const guestCred = await signInAnonymously(auth);
         console.log("تم إنشاء حساب مجهول جديد");
         
         // تحديث اسم المستخدم
-        await updateProfile(guestCred.user, {
-          displayName: "ضيف StayX"
-        });
+        if (guestCred.user) {
+          await updateProfile(guestCred.user, {
+            displayName: "ضيف StayX"
+          });
+        }
         
         // إضافة معلومات إلى Firestore
         if (db) {
@@ -673,10 +680,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const anonymousCred = await signInAnonymously(auth);
       console.log("تم تسجيل الدخول كمستخدم مجهول بنجاح!");
       
-      // تحديث الملف الشخصي
-      await updateProfile(anonymousCred.user, {
-        displayName: "زائر StayX"
-      });
+      // تحديث الملف الشخصي مع التحقق من وجود المستخدم
+      if (anonymousCred.user) {
+        await updateProfile(anonymousCred.user, {
+          displayName: "زائر StayX"
+        });
+      }
       
       // إضافة المستخدم إلى Firestore
       if (db) {
@@ -731,9 +740,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 // Fast Refresh نستخدم أسلوب ثابت للتصدير لتجنب مشاكل مع
 
 // هذا هو الـ hook الذي سيتم استخدامه في التطبيق
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
 
 // للتوافق مع الكود الموجود
 export const useAuthContext = useAuth;
