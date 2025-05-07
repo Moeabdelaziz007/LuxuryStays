@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ChatBot from 'react-simple-chatbot';
+import StyledChatbot from './StyledChatbot';
 import { ThemeProvider } from 'styled-components';
 import geminiService from './GeminiService';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -592,7 +592,7 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
                 </div>
               )}
               
-              <ChatBot
+              <StyledChatbot
                 key={chatKey}
                 steps={steps}
                 handleEnd={() => {}} // لا شيء عند الانتهاء
