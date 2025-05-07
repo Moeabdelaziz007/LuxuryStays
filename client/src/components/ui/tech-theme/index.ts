@@ -1,11 +1,9 @@
 import { TechButton } from './TechButton';
 import TechCard from './TechCard';
 import TechBackground from './TechBackground';
+import { TechInput } from './TechInput';
 
-export { TechButton, TechCard, TechBackground };
-
-// Create a dummy TechInput for now
-export const TechInput = (props: any) => null;
+export { TechButton, TechCard, TechBackground, TechInput };
 
 // Export tech effect classes
 export const TECH_EFFECTS = {

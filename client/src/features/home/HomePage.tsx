@@ -137,43 +137,74 @@ export default function HomePage() {
                   {/* حقل الموقع */}
                   <div className="relative">
                     <label className="block text-[#39FF14] text-sm mb-1 font-medium">الموقع</label>
-                    <select className="w-full bg-black border border-[#39FF14]/30 rounded-md p-3 text-white focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] transition-colors appearance-none">
-                      <option value="">جميع المواقع</option>
-                      <option value="north-coast">الساحل الشمالي</option>
-                      <option value="ras-elhekma">رأس الحكمة</option>
-                      <option value="marina">مارينا</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-3 flex items-center pt-5 pointer-events-none text-[#39FF14]">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
+                    <div className="relative">
+                      <select className="w-full bg-black/30 backdrop-blur-sm border border-[#39FF14]/30 rounded-md p-3 text-white focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] focus:shadow-[0_0_10px_rgba(57,255,20,0.3)] transition-all appearance-none">
+                        <option value="">جميع المواقع</option>
+                        <option value="north-coast">الساحل الشمالي</option>
+                        <option value="ras-elhekma">رأس الحكمة</option>
+                        <option value="marina">مارينا</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[#39FF14]">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </div>
+                      
+                      {/* Slight scanline effect */}
+                      <div className="absolute inset-0 pointer-events-none opacity-10 overflow-hidden rounded-md">
+                        <div className="h-full w-full" style={{
+                          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(57, 255, 20, 0.1) 2px, transparent 4px)',
+                          backgroundSize: '100% 4px',
+                          mixBlendMode: 'overlay'
+                        }}></div>
+                      </div>
                     </div>
                   </div>
                   
                   {/* التاريخ */}
-                  <div>
-                    <label className="block text-[#39FF14] text-sm mb-1 font-medium">تاريخ الوصول</label>
-                    <input type="date" className="w-full bg-black border border-[#39FF14]/30 rounded-md p-3 text-white focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] transition-colors" />
-                  </div>
+                  <TechInput
+                    type="date"
+                    label="تاريخ الوصول"
+                    withGlow={true}
+                    variant="bordered"
+                  />
                   
                   {/* الأشخاص */}
-                  <div>
-                    <label className="block text-[#39FF14] text-sm mb-1 font-medium">عدد الأشخاص</label>
-                    <input type="number" min="1" max="20" defaultValue="2" className="w-full bg-black border border-[#39FF14]/30 rounded-md p-3 text-white focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] transition-colors" />
-                  </div>
+                  <TechInput
+                    type="number"
+                    min="1"
+                    max="20"
+                    defaultValue="2"
+                    label="عدد الأشخاص"
+                    withGlow={true}
+                    variant="bordered"
+                    icon={
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                    }
+                  />
                   
                   {/* زر البحث */}
                   <div className="flex items-end">
-                    <button type="submit" className="w-full bg-[#39FF14] text-black font-bold p-3 rounded-md hover:bg-[#39FF14]/90 transition-colors relative group">
-                      <span className="relative z-10 flex items-center justify-center">
+                    <TechButton
+                      type="submit"
+                      variant="default"
+                      className="w-full py-3"
+                      glowIntensity="medium"
+                      animation="pulse"
+                      shimmer={true}
+                    >
+                      <span className="flex items-center justify-center">
                         ابحث الآن
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 rtl:ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                       </span>
-                      {/* تأثير التوهج عند التحويم */}
-                      <span className="absolute inset-0 bg-[#39FF14] filter blur-md opacity-0 group-hover:opacity-50 transition-opacity"></span>
-                    </button>
+                    </TechButton>
                   </div>
                 </form>
                 
@@ -194,26 +225,31 @@ export default function HomePage() {
             
             {/* الأزرار الرئيسية */}
             <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-6 sm:mt-8">
-              <button className="group relative px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg font-semibold text-black bg-[#39FF14] rounded-md
-                              shadow-[0_0_15px_rgba(57,255,20,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.5)] overflow-hidden
-                              min-w-[120px] md:min-w-[160px] touch-action-manipulation">
-                <span className="relative z-10 flex items-center justify-center">
+              <TechButton
+                variant="default"
+                size="lg"
+                className="min-w-[120px] md:min-w-[160px]"
+                glowIntensity="medium"
+                shimmer={true}
+                onClick={() => window.location.href = '/properties'}
+              >
+                <span className="flex items-center justify-center">
                   تصفح العقارات
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 rtl:ml-1 sm:rtl:ml-2 rtl:transform rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                   </svg>
                 </span>
-                {/* تأثير الضوء الخاص */}
-                <span className="absolute top-0 left-0 w-full h-full bg-white/30 
-                                transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
-              </button>
+              </TechButton>
               
-              <button className="px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg font-semibold text-[#39FF14] bg-transparent border-2 border-[#39FF14]/50 
-                              rounded-md hover:bg-[#39FF14]/10 hover:border-[#39FF14] transition-colors
-                              shadow-[0_0_10px_rgba(57,255,20,0.1)] hover:shadow-[0_0_15px_rgba(57,255,20,0.3)]
-                              min-w-[120px] md:min-w-[160px] touch-action-manipulation">
+              <TechButton
+                variant="outline"
+                size="lg"
+                className="min-w-[120px] md:min-w-[160px]"
+                animation="pulse"
+                onClick={() => window.location.href = '/login'}
+              >
                 تسجيل الدخول
-              </button>
+              </TechButton>
             </div>
             
             {/* مؤشر التمرير للأسفل بتصميم تقني مميز */}
@@ -454,7 +490,7 @@ export default function HomePage() {
           <div className="max-w-3xl mx-auto mb-8 sm:mb-10">
             {/* ChillRoom - مكون واحد فقط */}
             <TechCard 
-              variant="holographic"
+              variant="gradient"
               withGlow={true}
               withShimmer={true}
               className="p-6 sm:p-8 transform transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
@@ -509,7 +545,8 @@ export default function HomePage() {
               <TechInput 
                 type="email" 
                 placeholder="بريدك الإلكتروني" 
-                variant="glowing"
+                variant="bordered"
+                withGlow={true}
                 className="w-full"
               />
               <TechButton
