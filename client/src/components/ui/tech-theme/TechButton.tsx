@@ -1,56 +1,75 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import React, { ButtonHTMLAttributes, forwardRef } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
-type TechButtonProps = React.ComponentPropsWithoutRef<typeof Button> & {
-  glowIntensity?: 'subtle' | 'medium' | 'strong';
-  variant?: 'default' | 'outline' | 'ghost' | 'neon';
-  animation?: 'none' | 'pulse' | 'flicker' | 'scanner';
-};
+const buttonVariants = cva(
+  'relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        neon: 'bg-transparent text-primary border border-primary hover:bg-primary/10',
+        dark: 'bg-card text-card-foreground border border-border hover:bg-muted',
+        light: 'bg-white text-black border border-gray-200 hover:bg-gray-50',
+      },
+      size: {
+        default: 'h-10 px-4 py-2',
+        sm: 'h-8 px-3 text-xs',
+        lg: 'h-12 px-6 text-lg',
+        icon: 'h-10 w-10',
+      },
+      glowIntensity: {
+        none: '',
+        light: 'shadow-[0_0_10px_rgba(57,255,20,0.3)]',
+        medium: 'shadow-[0_0_15px_rgba(57,255,20,0.4)]',
+        strong: 'shadow-[0_0_20px_rgba(57,255,20,0.5)]',
+      },
+      animation: {
+        none: '',
+        pulse: 'animate-pulse-subtle',
+        float: 'animate-float',
+        glow: 'animate-neon-pulse',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+      glowIntensity: 'none',
+      animation: 'none',
+    },
+  }
+);
 
-/**
- * Tech-themed button component with adjustable glow and animations
- */
-export default function TechButton({
-  children,
-  className,
-  glowIntensity = 'medium',
-  variant = 'default',
-  animation = 'none',
-  ...props
-}: TechButtonProps) {
-  const glowClasses = {
-    subtle: 'hover:shadow-[0_0_5px_rgba(57,255,20,0.3)]',
-    medium: 'hover:shadow-[0_0_10px_rgba(57,255,20,0.6)]',
-    strong: 'hover:shadow-[0_0_20px_rgba(57,255,20,0.8)]',
-  };
-
-  const animationClasses = {
-    none: '',
-    pulse: 'animate-neon-pulse',
-    flicker: 'animate-neon-flicker',
-    scanner: 'relative overflow-hidden before:absolute before:inset-0 before:bg-scanner-beam before:animate-scanner',
-  };
-
-  const variantClasses = {
-    default: 'bg-neon-green text-space-black font-bold',
-    outline: 'bg-transparent border border-neon-green text-neon-green hover:bg-neon-green/10',
-    ghost: 'bg-transparent text-neon-green hover:bg-neon-green/10',
-    neon: 'neon-btn',
-  };
-
-  return (
-    <Button
-      className={cn(
-        'transition-all duration-300',
-        variantClasses[variant],
-        glowClasses[glowIntensity],
-        animationClasses[animation],
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </Button>
-  );
+export interface TechButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  children: React.ReactNode;
+  shimmer?: boolean;
 }
+
+const TechButton = forwardRef<HTMLButtonElement, TechButtonProps>(
+  ({ className, variant, size, glowIntensity, animation, shimmer, children, ...props }, ref) => {
+    return (
+      <button
+        className={cn(
+          buttonVariants({ variant, size, glowIntensity, animation, className }),
+          shimmer && 'shimmer-effect'
+        )}
+        ref={ref}
+        {...props}
+      >
+        <span className="relative z-10">{children}</span>
+        
+        {/* Shimmer effect (conditional) */}
+        {shimmer && (
+          <span className="absolute inset-0 overflow-hidden rounded-md">
+            <span className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-primary/20 to-transparent"></span>
+          </span>
+        )}
+      </button>
+    );
+  }
+);
+TechButton.displayName = 'TechButton';
+
+export { TechButton, buttonVariants };

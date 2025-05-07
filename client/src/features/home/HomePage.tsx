@@ -9,7 +9,7 @@ import {
   TechCard, 
   TechButton, 
   TechInput, 
-  TechEffects 
+  TECH_EFFECTS 
 } from "@/components/ui/tech-theme";
 
 export default function HomePage() {
@@ -426,13 +426,15 @@ export default function HomePage() {
           animated={true}
           withGradient={true}
         >
-          <TechEffects 
-            type="scanlines" 
-            intensity="medium" 
-            color="#39FF14" 
-            className="absolute inset-x-0 top-1/3 h-12 opacity-30"
-            withAnimation={true}
-          />
+          {/* Scanlines effect */}
+          <div className={`absolute inset-x-0 top-1/3 h-12 opacity-30 ${TECH_EFFECTS.pulse}`}>
+            <div className="w-full h-full bg-[#39FF14]/10 relative overflow-hidden">
+              {Array.from({length: 10}).map((_, i) => (
+                <div key={i} className="h-px bg-[#39FF14]/30 w-full" 
+                     style={{position: 'absolute', top: `${i * 10}%`}}></div>
+              ))}
+            </div>
+          </div>
           
           <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-10 text-center text-neon-green">الخدمات المتوفرة</h2>
           <ServicesSection />
