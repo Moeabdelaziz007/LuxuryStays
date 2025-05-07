@@ -52,30 +52,19 @@ interface FavoriteProperty {
   addedAt: any;
 }
 
-export default function NewCustomerDashboard() {
+interface CustomerDashboardProps {
+  activeTab?: string;
+}
+
+export default function NewCustomerDashboard({ activeTab: initialTab = "dashboard" }: CustomerDashboardProps) {
   const { user, logout } = useAuth();
   const [location, navigate] = useLocation();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState(initialTab);
   
-  // Match different customer routes to appropriate tab values
-  const [isRootMatch] = useRoute("/customer");
-  const [isBookingsMatch] = useRoute("/customer/bookings");
-  const [isFavoritesMatch] = useRoute("/customer/favorites");
-  const [isSettingsMatch] = useRoute("/customer/settings");
-  const [isProfileMatch] = useRoute("/customer/profile");
-  
-  // Sync tab state with current route
+  // Update active tab when prop changes
   useEffect(() => {
-    if (isRootMatch) {
-      setActiveTab("dashboard");
-    } else if (isBookingsMatch) {
-      setActiveTab("bookings");
-    } else if (isFavoritesMatch) {
-      setActiveTab("favorites");
-    } else if (isSettingsMatch || isProfileMatch) {
-      setActiveTab("settings");
-    }
-  }, [isRootMatch, isBookingsMatch, isFavoritesMatch, isSettingsMatch, isProfileMatch]);
+    setActiveTab(initialTab);
+  }, [initialTab]);
   
   // Fetch user's bookings with better error handling and fallback
   const { data: bookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery({
