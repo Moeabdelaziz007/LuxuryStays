@@ -43,6 +43,9 @@ import BookingCheckout from "@/features/booking/BookingCheckout";
 // Admin Components
 import AdminPage from "@/pages/admin-page";
 
+// Branding Components
+import FuturisticBranding from "@/components/FuturisticBranding";
+
 /**
  * تعريف مسارات التطبيق الرئيسية
  */
@@ -145,6 +148,16 @@ export default function AppRoutes() {
       
       <Route path="/unauthorized">
         <UnauthorizedPage />
+      </Route>
+      
+      {/* ===== صفحة عرض العلامة التجارية الجديدة ===== */}
+      <Route path="/branding">
+        <Layout>
+          <div className="container mx-auto px-4 py-6">
+            <h1 className="text-3xl font-bold text-[#39FF14] mb-6">StayX Brand Showcase</h1>
+            <FuturisticBranding />
+          </div>
+        </Layout>
       </Route>
       
       {/* ===== صفحات تشخيص مصادقة Firebase ===== */}

@@ -1,4 +1,4 @@
-/* تأثيرات حركية للواجهة التكنولوجية */
+/* تأثيرات حركية للواجهة التكنولوجية بنمط فضائي متقدم */
 
 @keyframes float {
   0% { transform: translate(0, 0); }
@@ -58,6 +58,148 @@
   50% { border-color: #39FF14 }
 }
 
+/* New space/tech themed animations */
+@keyframes space-pulse {
+  0%, 100% { 
+    filter: brightness(1) drop-shadow(0 0 5px rgba(57, 255, 20, 0.3)); 
+    transform: scale(1);
+  }
+  50% { 
+    filter: brightness(1.2) drop-shadow(0 0 15px rgba(57, 255, 20, 0.7)); 
+    transform: scale(1.02);
+  }
+}
+
+@keyframes hologram-flicker {
+  0%, 100% { 
+    opacity: 1;
+    filter: brightness(1) blur(0px);
+  }
+  8%, 10% { 
+    opacity: 0.95;
+    filter: brightness(1.1) blur(0.5px);
+  }
+  12% { 
+    opacity: 0.9;
+    filter: brightness(0.9) blur(0px);
+  }
+  38%, 40% { 
+    opacity: 0.95;
+    filter: brightness(1.2) blur(0.5px);
+  }
+  45% { 
+    opacity: 1;
+    filter: brightness(0.8) blur(0.2px);
+  }
+  50% { 
+    opacity: 0.95;
+    filter: brightness(1.1) blur(0.5px);
+  }
+  70% { 
+    opacity: 0.9;
+    filter: brightness(0.9) blur(0px);
+  }
+}
+
+@keyframes circuit-pulse {
+  0%, 100% {
+    box-shadow: 0 0 3px rgba(57, 255, 20, 0.3),
+                inset 0 0 2px rgba(57, 255, 20, 0.2);
+    border-color: rgba(57, 255, 20, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.7),
+                inset 0 0 5px rgba(57, 255, 20, 0.5);
+    border-color: rgba(57, 255, 20, 0.9);
+  }
+}
+
+@keyframes data-flow {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.3;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    background-position: 0% 0%;
+    opacity: 0.3;
+  }
+}
+
+@keyframes scan-grid {
+  0% {
+    background-position: 0px 0px;
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    background-position: 50px 50px;
+    opacity: 0.2;
+  }
+}
+
+@keyframes star-twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes hologram-scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes threedee-hover {
+  0% {
+    transform: translateZ(0) translateY(0) rotateX(0);
+    filter: brightness(1);
+  }
+  25% {
+    transform: translateZ(5px) translateY(-5px) rotateX(5deg);
+    filter: brightness(1.1);
+  }
+  50% {
+    transform: translateZ(10px) translateY(-10px) rotateX(0);
+    filter: brightness(1.2);
+  }
+  75% {
+    transform: translateZ(5px) translateY(-5px) rotateX(-5deg);
+    filter: brightness(1.1);
+  }
+  100% {
+    transform: translateZ(0) translateY(0) rotateX(0);
+    filter: brightness(1);
+  }
+}
+
 /* تكوينات حركية شائعة الاستخدام */
 .animate-float {
   animation: float 6s ease-in-out infinite;
@@ -104,4 +246,97 @@
   animation: 
     typing 3.5s steps(40, end) forwards,
     cursor .75s step-end infinite;
+}
+
+/* New space/tech theme animations */
+.animate-space-pulse {
+  animation: space-pulse 3s ease-in-out infinite;
+}
+
+.animate-hologram-flicker {
+  animation: hologram-flicker 5s ease-in-out infinite;
+}
+
+.animate-circuit-pulse {
+  animation: circuit-pulse 2s ease-in-out infinite;
+}
+
+.animate-data-flow {
+  background-size: 400% 400%;
+  animation: data-flow 8s ease infinite;
+}
+
+.animate-scan-grid {
+  background-image: linear-gradient(rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(57, 255, 20, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: scan-grid 3s linear infinite;
+}
+
+.animate-star-twinkle {
+  animation: star-twinkle 2s ease-in-out infinite;
+}
+
+.animate-hologram-scan {
+  animation: hologram-scan 3s ease-in-out infinite;
+}
+
+.animate-threedee-hover {
+  animation: threedee-hover 8s ease-in-out infinite;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+/* Add an AI bot typing animation */
+.animate-ai-typing::after {
+  content: '|';
+  animation: blink 1s step-start infinite;
+}
+
+/* Special class for the futuristic tech grid background */
+.tech-grid-bg {
+  background-image: 
+    linear-gradient(rgba(57, 255, 20, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 255, 20, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-grid-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.7), transparent);
+  animation: shimmer-x 3s infinite;
+  z-index: 1;
+}
+
+/* Holographic style for special elements */
+.holographic {
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0) 0%,
+    rgba(57, 255, 20, 0.05) 25%, 
+    rgba(0, 247, 255, 0.05) 50%,
+    rgba(57, 255, 20, 0.05) 75%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  z-index: 1;
+  background-size: 400% 400%;
+  animation: gradient-x 5s ease infinite;
+  pointer-events: none;
 }
