@@ -1,5 +1,7 @@
 @import "./styles/animations.css";
 @import "./styles/space-effects.css";
+@import "./styles/space-tech-effects.css";
+@import "./styles/hologram-effects.css";
 @import "./styles/breakpoints.css";
 @import "./styles/navigation.css";
 @import "./styles/touch-targets.css";
