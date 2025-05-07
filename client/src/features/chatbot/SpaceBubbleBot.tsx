@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import StyledChatbot from './StyledChatbot';
 import { ThemeProvider } from 'styled-components';
 import geminiService from './GeminiService';
+import { SafeStyleProvider } from './StyledChatbotComponents';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 import { MessageSquare, X, Settings, Zap, Rocket, Bot, Sparkles, User, RefreshCw, Home, Search, Star, Building, BedDouble, Bath, DollarSign } from 'lucide-react';

@@ -1,5 +1,20 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { StyleSheetManager } from 'styled-components';
+
+// Función para filtrar propiedades no válidas y evitar advertencias
+const shouldForwardProp = (prop: string): boolean => {
+  // Lista de propiedades que generan advertencias y no deben pasarse al DOM
+  const invalidProps = [
+    'showAvatar', 'isFirst', 'isLast', 'delay', 'opened', 
+    'floatingStyle', 'invalid', 'hasButton'
+  ];
+  
+  // Si la propiedad empieza con $, es una propiedad transient y debería pasar
+  if (prop.startsWith('$')) return true;
+  
+  // Devolver true solo si la propiedad no está en la lista de inválidas
+  return !invalidProps.includes(prop);
+};
 
 // Componente de burbuja de mensaje
 interface BubbleComponentProps {
@@ -48,3 +63,12 @@ export const StyledAvatar = styled.div<StyledAvatarProps>`
   overflow: hidden;
   margin-right: 8px;
 `;
+
+// Componente envoltorio que aplica filtrado de propiedades
+export const SafeStyleProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  return (
+    <StyleSheetManager shouldForwardProp={shouldForwardProp}>
+      {children}
+    </StyleSheetManager>
+  );
+};
