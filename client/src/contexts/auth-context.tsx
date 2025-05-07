@@ -183,11 +183,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               } else {
                 // Firestore not available - still use Firebase auth data
                 console.warn("Firestore غير متاح، استخدام بيانات Firebase Auth فقط");
+                
+                // Try to detect property admin from email domain or claims
+                let detectedRole = 'CUSTOMER';
+                
+                // If email has a specific domain that indicates admin roles
+                if (firebaseUser.email) {
+                  // Check for property admin patterns
+                  if (firebaseUser.email.includes('admin') || 
+                      firebaseUser.email.includes('property') || 
+                      firebaseUser.email.includes('manager')) {
+                    detectedRole = 'PROPERTY_ADMIN';
+                  }
+                  
+                  // If a verified admin domain
+                  if (firebaseUser.email.endsWith('stayx.com') || 
+                      firebaseUser.email.endsWith('propertyadmin.com')) {
+                    detectedRole = 'PROPERTY_ADMIN';
+                  }
+                }
+                
+                // Check for admin claims if available
+                if (firebaseUser.getIdTokenResult) {
+                  try {
+                    const idTokenResult = await firebaseUser.getIdTokenResult();
+                    if (idTokenResult.claims.role === 'PROPERTY_ADMIN') {
+                      detectedRole = 'PROPERTY_ADMIN';
+                    } else if (idTokenResult.claims.role === 'SUPER_ADMIN') {
+                      detectedRole = 'SUPER_ADMIN';
+                    }
+                  } catch (claimsError) {
+                    console.warn("Failed to get token claims", claimsError);
+                  }
+                }
+                
                 const fallbackUser: UserData = {
                   uid: firebaseUser.uid,
                   email: firebaseUser.email || '',
                   name: firebaseUser.displayName || 'مستخدم',
-                  role: 'CUSTOMER',
+                  role: detectedRole,
                   createdAt: new Date().toISOString(),
                 };
                 setUser(fallbackUser);

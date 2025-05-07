@@ -51,12 +51,8 @@ export interface TechButtonProps
 
 const TechButton = forwardRef<HTMLButtonElement, TechButtonProps>(
   ({ className, variant, size, glowIntensity, animation, shimmer, children, ...props }, ref) => {
-    // Create a new props object without the 'shimmer' attribute
-    const buttonProps = { ...props };
-    // Add data attribute instead of directly passing shimmer boolean
-    if (shimmer) {
-      buttonProps['data-shimmer'] = 'true';
-    }
+    // Extract our custom properties to avoid passing non-standard props to HTML elements
+    const buttonAttrs = { ...props };
     
     return (
       <button
@@ -65,7 +61,8 @@ const TechButton = forwardRef<HTMLButtonElement, TechButtonProps>(
           shimmer ? 'shimmer-effect' : ''
         )}
         ref={ref}
-        {...buttonProps}
+        data-shimmer={shimmer ? 'true' : undefined}
+        {...buttonAttrs}
       >
         <span className="relative z-10">{children}</span>
         

@@ -97,8 +97,13 @@ export default function TechBackground({
   
   // Add glow effect if enabled
   const glowClass = withGlow 
-    ? `before:content-[""] before:absolute before:inset-0 before:opacity-10 before:bg-[${accentColor}]/10 before:z-0 before:pointer-events-none`
+    ? `before:content-[""] before:absolute before:inset-0 before:opacity-10 before:z-0 before:pointer-events-none`
     : '';
+    
+  // Set background glow color dynamically in styles instead of className
+  const glowStyle = withGlow ? { 
+    '--glow-color': `${accentColor}10` 
+  } as React.CSSProperties : {};
   
   // Add animation if enabled  
   const animationClass = animated ? 'relative overflow-hidden' : '';
@@ -113,6 +118,12 @@ export default function TechBackground({
     '--accent-b': accentColorRgb.b 
   } as React.CSSProperties;
 
+  // Combine all styles
+  const combinedStyles = {
+    ...particlesStyle,
+    ...glowStyle
+  };
+
   return (
     <div
       className={cn(
@@ -124,7 +135,7 @@ export default function TechBackground({
         containerClass,
         className
       )}
-      style={particlesStyle}
+      style={combinedStyles}
     >
       {variant === 'stars' && (
         <>
