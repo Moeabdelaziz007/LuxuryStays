@@ -32,6 +32,12 @@ export function login() {
 
 // Login with Google using popup (works better on unauthorized domains)
 export function loginWithPopup() {
+  // Set custom parameters for better compatibility
+  googleProvider.setCustomParameters({
+    prompt: 'select_account',
+    login_hint: ''
+  });
+  
   return signInWithPopup(auth, googleProvider);
 }
 
