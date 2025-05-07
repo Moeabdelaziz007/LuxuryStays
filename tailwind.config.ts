@@ -87,6 +87,14 @@ export default {
             "background-position": "100% 50%",
           },
         },
+        "gradient-xy": {
+          "0%, 100%": {
+            "background-position": "0% 0%",
+          },
+          "50%": {
+            "background-position": "100% 100%",
+          },
+        },
         "pulse-glow": {
           "0%, 100%": {
             opacity: "0.4",
@@ -120,6 +128,48 @@ export default {
           },
           "50%": {
             transform: "translateY(-10px)",
+          },
+        },
+        "fadeIn": {
+          "0%": {
+            opacity: "0",
+          },
+          "100%": {
+            opacity: "1",
+          },
+        },
+        "slideUpAndFade": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(20px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "pulse-slow": {
+          "0%, 100%": {
+            opacity: "0.4",
+          },
+          "50%": {
+            opacity: "0.7",
+          },
+        },
+        "pulse-very-slow": {
+          "0%, 100%": {
+            opacity: "0.3",
+          },
+          "50%": {
+            opacity: "0.5",
+          },
+        },
+        "glow": {
+          "0%": {
+            transform: "translateX(-100%)",
+          },
+          "100%": {
+            transform: "translateX(100%)",
           },
         },
         // New animations for the hero section
@@ -204,16 +254,33 @@ export default {
           "50%": {
             textShadow: "0 0 8px rgba(57, 255, 20, 0.5), 0 0 22px rgba(57, 255, 20, 0.5), 0 0 38px rgba(57, 255, 20, 0.5)",
           }
+        },
+        "ping": {
+          "0%": {
+            transform: "scale(1)",
+            opacity: "1",
+          },
+          "75%, 100%": {
+            transform: "scale(2)",
+            opacity: "0",
+          },
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "gradient-x": "gradient-x 3s ease infinite",
+        "gradient-xy": "gradient-xy 6s ease infinite",
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
         "text-glow": "text-glow 2s ease-in-out infinite",
         "border-flow": "border-flow 3s ease infinite",
         "float": "float 3s ease-in-out infinite",
+        "fadeIn": "fadeIn 0.7s ease-out forwards",
+        "slideUpAndFade": "slideUpAndFade 0.8s ease-out forwards",
+        "pulse-slow": "pulse-slow 6s ease-in-out infinite",
+        "pulse-very-slow": "pulse-very-slow 8s ease-in-out infinite",
+        "glow": "glow 4s ease-in-out infinite",
+        "ping": "ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite",
         // New animations for the hero section
         "blink": "blink 1.5s infinite",
         "scan": "scan 2s linear infinite",
