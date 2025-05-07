@@ -163,21 +163,21 @@ export default function AppRoutes() {
 
       {/* ===== مسارات لوحة تحكم العميل ===== */}
       {/* استخدام نمط القالب الموحد مع مسارات متعددة */}
-      <Route path="/customer/:tab?">
-        {(params) => (
-          <RouteGuard role={UserRole.CUSTOMER}>
-            <CustomerLayout>
-              <CustomerDashboard activeTab={params.tab || "dashboard"} />
-            </CustomerLayout>
-          </RouteGuard>
-        )}
-      </Route>
-
       <Route path="/customer/booking/confirmation/:bookingId">
         {(params) => (
           <RouteGuard role={UserRole.CUSTOMER}>
             <CustomerLayout>
               <BookingConfirmation bookingId={params.bookingId} />
+            </CustomerLayout>
+          </RouteGuard>
+        )}
+      </Route>
+      
+      <Route path="/customer/:tab?">
+        {(params) => (
+          <RouteGuard role={UserRole.CUSTOMER}>
+            <CustomerLayout>
+              <CustomerDashboard activeTab={params.tab || "dashboard"} />
             </CustomerLayout>
           </RouteGuard>
         )}
