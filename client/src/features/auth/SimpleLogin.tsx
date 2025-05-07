@@ -79,11 +79,12 @@ export default function SimpleLogin() {
             <Button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full h-12 bg-white text-black hover:bg-gray-100 hover:scale-[1.02] border border-gray-300 flex items-center justify-center gap-2 transition-all duration-300 shadow-md animate-fadeIn"
+              variant="neon"
+              className="w-full h-12 flex items-center justify-center gap-2 animate-fadeIn"
               style={{ animationDelay: '600ms' }}
             >
               {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin text-gray-500" />
+                <Loader2 className="h-5 w-5 animate-spin text-[#39FF14]" />
               ) : (
                 <>
                   <FcGoogle className="h-5 w-5" />

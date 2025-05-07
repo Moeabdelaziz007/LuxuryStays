@@ -71,7 +71,7 @@ export default function Logo({
   // Animation classes
   const animationClass = withAnimation 
     ? variant === 'neon' 
-      ? 'animate-neon-pulse' 
+      ? 'animate-neon-pulse animate-float' 
       : 'animate-pulse'
     : '';
 
@@ -95,7 +95,10 @@ export default function Logo({
           )}>
             <span className="relative z-10">X</span>
             {variant === 'neon' && (
-              <span className="absolute inset-0 z-0 blur-[2px] text-[#39FF14]/70">X</span>
+              <>
+                <span className="absolute inset-0 z-0 blur-[2px] text-[#39FF14]/70">X</span>
+                <span className="absolute inset-0 z-0 blur-[4px] text-[#39FF14]/30 animate-neon-pulse" style={{ animationDelay: '0.5s' }}>X</span>
+              </>
             )}
           </span>
         </div>
@@ -107,7 +110,10 @@ export default function Logo({
         )}>
           <span className="relative z-10">X</span>
           {variant === 'neon' && (
-            <span className="absolute inset-0 z-0 blur-[2px] text-[#39FF14]/70">X</span>
+            <>
+              <span className="absolute inset-0 z-0 blur-[2px] text-[#39FF14]/70">X</span>
+              <span className="absolute inset-0 z-0 blur-[4px] text-[#39FF14]/30 animate-neon-pulse" style={{ animationDelay: '0.5s' }}>X</span>
+            </>
           )}
         </div>
       )}
