@@ -376,8 +376,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // تسجيل الدخول باستخدام Google - طريقة بديلة لا تتطلب تسجيل النطاق في Firebase
-  // تسجيل الدخول باستخدام Google - مُبسط لاستخدام نطاق Firebase المعتمد
+  // تسجيل الدخول باستخدام Google - باستخدام إعادة التوجيه بدلاً من النافذة المنبثقة
   const loginWithGoogle = async (redirectPath?: string) => {
     setLoading(true);
     setError(null);
@@ -393,7 +392,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("تم حفظ مسار إعادة التوجيه:", path);
       }
       
-      console.log("محاولة تسجيل الدخول باستخدام Google...");
+      console.log("محاولة تسجيل الدخول باستخدام Google (طريقة إعادة التوجيه)...");
+      console.log("النطاق الحالي:", window.location.origin);
       
       // إنشاء مزود مصادقة Google
       const googleProvider = new GoogleAuthProvider();
@@ -402,53 +402,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       googleProvider.addScope('email');
       googleProvider.addScope('profile');
       
-      // استخدام signInWithPopup لمحاولة تسجيل الدخول
-      try {
-        console.log("تم تهيئة مزود Google، جاري تسجيل الدخول باستخدام النافذة المنبثقة...");
-        const result = await signInWithPopup(auth, googleProvider);
-        
-        // تسجيل معلومات المستخدم
-        console.log("تم تسجيل الدخول باستخدام Google بنجاح!");
-        const user = result.user;
-        
-        // إضافة المستخدم إلى Firestore إذا لم يكن موجودًا
-        if (db) {
-          try {
-            const userRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userRef);
-            
-            if (!userDoc.exists()) {
-              // إنشاء سجل مستخدم جديد
-              const userData = {
-                uid: user.uid,
-                email: user.email,
-                name: user.displayName || "مستخدم StayX",
-                role: "CUSTOMER",
-                createdAt: new Date().toISOString(),
-                photoURL: user.photoURL,
-                googleProvider: true
-              };
-              
-              await setDoc(userRef, userData);
-              console.log("تم إنشاء سجل جديد للمستخدم في Firestore");
-            } else {
-              console.log("المستخدم موجود بالفعل في قاعدة البيانات");
-            }
-          } catch (firestoreError) {
-            console.warn("تعذر حفظ معلومات المستخدم في Firestore:", firestoreError);
-          }
-        }
-      } catch (popupError: any) {
-        console.error("خطأ في تسجيل الدخول باستخدام النافذة المنبثقة:", popupError);
-        
-        // محاولة تسجيل الدخول باستخدام المصادقة المجهولة
-        if (popupError.code === 'auth/unauthorized-domain') {
-          console.log("النطاق غير مصرح به في Firebase، محاولة تسجيل الدخول كضيف...");
-          await loginAnonymously();
-        } else {
-          throw popupError;
-        }
-      }
+      // تعيين إعدادات خاصة لضمان عمل إعادة التوجيه بشكل صحيح
+      googleProvider.setCustomParameters({
+        'login_hint': 'الرجاء اختيار حساب Google الخاص بك',
+        'prompt': 'select_account',
+        'client_id': '299280633489-3q6odgc86hhc1j0cev92bf28q7cep5hj.apps.googleusercontent.com',
+        'redirect_uri': `${window.location.origin}/auth/google/callback`,
+        'origin': window.location.origin
+      });
+      
+      // استخدام signInWithRedirect بدلاً من signInWithPopup
+      console.log("بدء عملية تسجيل الدخول باستخدام طريقة إعادة التوجيه...");
+      await signInWithRedirect(auth, googleProvider);
+      
+      // ملاحظة: الكود التالي لن يتم تنفيذه بسبب إعادة التوجيه
+      // عملية معالجة نتائج تسجيل الدخول ستتم في مكون RedirectHandler في App.tsx
+      console.log("هذا الكود لن يتم تنفيذه بسبب إعادة التوجيه");
+      
+      return {}; // هذا لن يتم تنفيذه
     } catch (error: any) {
       console.error("خطأ في تسجيل الدخول باستخدام Google:", error);
       
