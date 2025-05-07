@@ -4,13 +4,10 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Logo from "@/components/Logo";
 import { ArrowRight, Building, Shield, Clock } from "lucide-react";
-import TechSpaceBackground from "./TechSpaceBackground";
 
 export default function NewHeroSection() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white relative overflow-hidden flex flex-col">
-      {/* Tech/Space Background with StayX branding */}
-      <TechSpaceBackground />
+    <div className="min-h-screen text-white relative overflow-hidden flex flex-col">
       
       <div className="relative z-10 container mx-auto px-4 py-8 flex flex-col h-screen">
         {/* Header with Logo */}
