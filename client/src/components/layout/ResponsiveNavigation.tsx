@@ -201,7 +201,7 @@ const NavLink = ({ href, label, currentPath }: { href: string; label: string; cu
   
   return (
     <Link href={href}>
-      <a className={`relative px-4 py-3 rounded-md text-sm transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center touch-target ${
+      <div className={`relative px-4 py-3 rounded-md text-sm transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center touch-target ${
         isActive 
           ? "text-[#39FF14] bg-[#39FF14]/10" 
           : "text-gray-300 hover:text-white hover:bg-gray-800/50"
@@ -210,7 +210,7 @@ const NavLink = ({ href, label, currentPath }: { href: string; label: string; cu
         {isActive && (
           <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#39FF14] transform origin-left mx-3"></span>
         )}
-      </a>
+      </div>
     </Link>
   );
 };
@@ -227,12 +227,12 @@ const MobileNavLink = ({
 }) => {
   return (
     <Link href={href}>
-      <a 
+      <div 
         className="block w-full text-xl py-3 text-white hover:text-[#39FF14] transition-colors min-h-[48px] flex items-center justify-center mobile-touch-target touch-feedback"
         onClick={() => setIsOpen(false)}
       >
         {label}
-      </a>
+      </div>
     </Link>
   );
 };

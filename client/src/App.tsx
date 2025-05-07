@@ -42,7 +42,7 @@ function RedirectHandler() {
               uid: result.user.uid,
               email: result.user.email || '',
               name: result.user.displayName || 'مستخدم Google',
-              role: UserRole.CUSTOMER as UserRole,
+              role: UserRole.CUSTOMER,
               createdAt: new Date().toISOString(),
               photoURL: result.user.photoURL || ''
             });

@@ -97,6 +97,7 @@ export function usePerformanceMode(): [PerformanceSettings, (mode: PerformanceMo
 
 /**
  * وظيفة الكشف التلقائي عن وضع الأداء الأنسب للجهاز
+ * تستخدم عدة معايير تقنية لتقييم قدرات الجهاز
  */
 function detectPerformanceMode(): PerformanceMode {
   // اختيار وضع الأداء المتوسط كوضع افتراضي
@@ -127,5 +128,65 @@ function detectPerformanceMode(): PerformanceMode {
     mode = mode === PerformanceMode.LOW ? PerformanceMode.LOW : PerformanceMode.MEDIUM;
   }
   
+  // محاولة قياس معدل الإطارات الأولي من خلال اختبار بسيط
+  try {
+    measureInitialFrameRate().then(fps => {
+      // إذا كان معدل الإطارات منخفضًا جدًا، قم بتخزين هذه المعلومة لاستخدامها لاحقًا
+      if (fps < PERFORMANCE_THRESHOLDS.LOW_FPS) {
+        localStorage.setItem('detected-low-fps', 'true');
+        // إذا كان المستخدم لم يحدد وضعًا مخصصًا، قم بتحديث الوضع
+        if (!localStorage.getItem('performance-mode')) {
+          localStorage.setItem('performance-mode', PerformanceMode.LOW);
+        }
+      } else {
+        localStorage.removeItem('detected-low-fps');
+      }
+    });
+  } catch (e) {
+    console.error('فشل في قياس معدل الإطارات:', e);
+  }
+  
   return mode;
+}
+
+/**
+ * وظيفة لقياس معدل الإطارات الأولي عند تحميل التطبيق
+ * تستخدم requestAnimationFrame لحساب عدد الإطارات المعروضة في وحدة زمنية
+ */
+async function measureInitialFrameRate(): Promise<number> {
+  return new Promise((resolve) => {
+    let frameCount = 0;
+    let startTime: number;
+    let rafId: number;
+    
+    // وظيفة لعد الإطارات
+    const countFrames = (timestamp: number) => {
+      if (!startTime) {
+        startTime = timestamp;
+      }
+      
+      frameCount++;
+      const elapsedTime = timestamp - startTime;
+      
+      // قياس معدل الإطارات بعد مرور وقت كافٍ (500 مللي ثانية)
+      if (elapsedTime >= 500) {
+        const fps = (frameCount / elapsedTime) * 1000;
+        cancelAnimationFrame(rafId);
+        resolve(fps);
+      } else {
+        rafId = requestAnimationFrame(countFrames);
+      }
+    };
+    
+    // بدء قياس معدل الإطارات
+    rafId = requestAnimationFrame(countFrames);
+    
+    // إذا لم نحصل على نتيجة بعد 1 ثانية، افترض FPS عالية
+    setTimeout(() => {
+      if (frameCount === 0) {
+        cancelAnimationFrame(rafId);
+        resolve(60); // افتراض معدل إطارات مقبول
+      }
+    }, 1000);
+  });
 }
