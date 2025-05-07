@@ -1,0 +1,283 @@
+/* Enhanced Section Transitions for Space Theme */
+
+/* Base section styling */
+.space-section {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Divider wave transitions for section separation */
+.space-divider {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+  z-index: 2;
+}
+
+.space-divider svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 80px;
+  transform: rotateY(180deg);
+}
+
+.space-divider .shape-fill {
+  fill: rgba(57, 255, 20, 0.08);
+}
+
+/* Glowing section boundaries */
+.section-boundary {
+  position: relative;
+}
+
+.section-boundary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(57, 255, 20, 0.5), transparent);
+  opacity: 0.7;
+  z-index: 5;
+}
+
+.section-boundary::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(57, 255, 20, 0.5), transparent);
+  opacity: 0.7;
+  z-index: 5;
+}
+
+/* Enhanced background gradient for deep space effect */
+.deep-space-bg {
+  background: linear-gradient(to bottom, 
+    rgba(10, 10, 15, 0.95) 0%, 
+    rgba(5, 5, 10, 0.98) 50%,
+    rgba(8, 8, 12, 0.95) 100%
+  );
+  position: relative;
+}
+
+.deep-space-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(57, 255, 20, 0.07) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(0, 191, 255, 0.05) 0%, transparent 50%);
+  z-index: 0;
+}
+
+/* Animated particles for section backgrounds */
+.particle-field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.space-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: floatingParticle 15s infinite linear;
+}
+
+.space-particle.green {
+  background-color: rgba(57, 255, 20, 0.8);
+  box-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
+}
+
+.space-particle.blue {
+  background-color: rgba(0, 191, 255, 0.8);
+  box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+}
+
+@keyframes floatingParticle {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(10px, 10px) rotate(90deg);
+  }
+  50% {
+    transform: translate(0, 20px) rotate(180deg);
+  }
+  75% {
+    transform: translate(-10px, 10px) rotate(270deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg);
+  }
+}
+
+/* Glitch effect for section transitions */
+.glitch-transition {
+  position: relative;
+  overflow: hidden;
+}
+
+.glitch-transition::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 300%;
+  height: 2px;
+  background: linear-gradient(to right, 
+    rgba(57, 255, 20, 0),
+    rgba(57, 255, 20, 0.8),
+    rgba(57, 255, 20, 0)
+  );
+  animation: glitchScan 4s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes glitchScan {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Parallax star field */
+.parallax-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  perspective: 100px;
+  z-index: 0;
+}
+
+.star-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform-style: preserve-3d;
+}
+
+.star-layer.layer-1 {
+  transform: translateZ(-10px);
+}
+
+.star-layer.layer-2 {
+  transform: translateZ(-30px);
+}
+
+.star-layer.layer-3 {
+  transform: translateZ(-50px);
+}
+
+/* Neural grid background */
+.neural-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(57, 255, 20, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(57, 255, 20, 0.05) 1px, transparent 1px);
+  opacity: 0.3;
+  z-index: 1;
+}
+
+/* Nebula effect for section backgrounds */
+.space-nebula-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: screen;
+  opacity: 0.1;
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.space-nebula-green {
+  background: radial-gradient(
+    circle at 70% 30%,
+    rgba(57, 255, 20, 0.3),
+    transparent 60%
+  );
+}
+
+.space-nebula-blue {
+  background: radial-gradient(
+    circle at 30% 70%,
+    rgba(0, 191, 255, 0.3),
+    transparent 60%
+  );
+}
+
+/* Animated Orbital Lines */
+.orbital-lines {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  border: 1px dashed rgba(57, 255, 20, 0.1);
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.orbital-lines:nth-child(2) {
+  width: 400px;
+  height: 400px;
+  animation: rotate 60s linear infinite;
+}
+
+.orbital-lines:nth-child(3) {
+  width: 300px;
+  height: 300px;
+  animation: rotate 45s linear infinite reverse;
+}
+
+.orbital-lines:nth-child(4) {
+  width: 200px;
+  height: 200px;
+  animation: rotate 30s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
