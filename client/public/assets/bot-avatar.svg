@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="24" cy="24" r="23" fill="black" stroke="#39FF14" stroke-width="2"/>
+  <circle cx="24" cy="24" r="18" fill="#111827" stroke="#39FF14" stroke-width="1" stroke-opacity="0.3"/>
+  
+  <!-- Robot Face Features -->
+  <rect x="14" y="16" width="20" height="16" rx="2" fill="#1E293B" stroke="#39FF14" stroke-width="1"/>
+  
+  <!-- Eyes -->
+  <circle cx="19" cy="22" r="3" fill="#39FF14" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="29" cy="22" r="3" fill="#39FF14" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Mouth -->
+  <rect x="18" y="28" width="12" height="2" rx="1" fill="#39FF14" opacity="0.7"/>
+  
+  <!-- Antenna -->
+  <line x1="24" y1="10" x2="24" y2="16" stroke="#39FF14" stroke-width="1.5"/>
+  <circle cx="24" cy="9" r="2" fill="#39FF14">
+    <animate attributeName="r" values="1.5;2.5;1.5" dur="2s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Robot Ears/Processors -->
+  <rect x="10" y="21" width="4" height="6" rx="1" fill="#1E293B" stroke="#39FF14" stroke-width="1"/>
+  <rect x="34" y="21" width="4" height="6" rx="1" fill="#1E293B" stroke="#39FF14" stroke-width="1"/>
+  
+  <!-- Tech Circuit Lines -->
+  <path d="M14 34 C 18 36, 30 36, 34 34" stroke="#39FF14" stroke-width="0.5" fill="none" opacity="0.6"/>
+  <path d="M8 24 L 10 24" stroke="#39FF14" stroke-width="0.5" opacity="0.6"/>
+  <path d="M38 24 L 40 24" stroke="#39FF14" stroke-width="0.5" opacity="0.6"/>
+</svg>
