@@ -31,30 +31,59 @@ export default function FeaturedProperties() {
     refetchOnWindowFocus: false, // لا تعيد جلب البيانات عند استعادة التركيز لتقليل عمليات الاتصال
     queryFn: async () => {
       try {
-        // تنفيذ عملية الاسترداد مع safeDoc المُحسّنة مع 3 محاولات كحد أقصى
+        // تنفيذ عملية الاسترداد مع safeDoc المُحسّنة مع ميزة التخزين المؤقت
         return await safeDoc(
           async () => {
             if (!db) {
               throw new Error("Firestore is not initialized");
             }
             
-            console.log("جاري جلب جميع العقارات من Firestore...");
+            console.log("جاري جلب العقارات المميزة من Firestore...");
             
-            // الحصول على جميع العقارات المضافة بواسطة مدراء العقارات
-            const allPropertiesQuery = query(
-              collection(db, "properties")
+            // تحسين الاستعلام ليركز على العقارات المميزة فقط
+            const featuredPropertiesQuery = query(
+              collection(db, "properties"),
+              where("featured", "==", true)
             );
             
             // استخدام تجميع الاتصالات لتقليل عدد الاتصالات المطلوبة
-            const snapshot = await getDocs(allPropertiesQuery);
+            const snapshot = await getDocs(featuredPropertiesQuery);
             
             if (snapshot.empty) {
-              console.log("لم يتم العثور على أي عقارات في Firestore");
-              // لا نقوم بإضافة بيانات أولية - نعرض فقط العقارات المضافة من مدراء العقارات
-              return localProperties; // مصفوفة فارغة
+              console.log("لم يتم العثور على أي عقارات مميزة في Firestore");
+              
+              // محاولة جلب جميع العقارات للتحقق مما إذا كانت هناك عقارات غير مميزة
+              const allPropertiesQuery = query(collection(db, "properties"));
+              const allSnapshot = await getDocs(allPropertiesQuery);
+              
+              if (allSnapshot.empty) {
+                console.log("لا توجد عقارات على الإطلاق في Firestore");
+                return [];
+              } else {
+                console.log(`تم العثور على ${allSnapshot.docs.length} عقارات غير مميزة`);
+                
+                // أخذ أحدث 3 عقارات (أو أقل) واعتبارها مميزة
+                const properties = allSnapshot.docs
+                  .slice(0, Math.min(3, allSnapshot.docs.length))
+                  .map(doc => {
+                    const docData = doc.data() as Record<string, any>;
+                    return {
+                      id: doc.id,
+                      name: docData.name || "عقار بدون اسم",
+                      imageUrl: docData.imageUrl || "https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1200",
+                      description: docData.description || "لا يوجد وصف متاح",
+                      location: docData.location || "موقع غير محدد",
+                      pricePerNight: docData.pricePerNight || 0,
+                      featured: true, // اعتبارها مميزة للعرض
+                      ownerId: docData.ownerId || "unknown"
+                    } as Property;
+                  });
+                
+                return properties;
+              }
             }
             
-            console.log(`تم العثور على ${snapshot.docs.length} عقار في Firestore`);
+            console.log(`تم العثور على ${snapshot.docs.length} عقار مميز في Firestore`);
             
             // تحويل وثائق Firestore إلى كائنات Property مع تدقيق وتصحيح البيانات
             const properties = snapshot.docs.map(doc => {
@@ -67,20 +96,22 @@ export default function FeaturedProperties() {
                 description: docData.description || "لا يوجد وصف متاح",
                 location: docData.location || "موقع غير محدد",
                 pricePerNight: docData.pricePerNight || 0,
-                featured: docData.featured || false, // احتفظ بقيمة featured الفعلية
+                featured: true,
                 ownerId: docData.ownerId || "unknown"
               } as Property;
             });
             
             return properties;
           }, 
-          localProperties, // استخدام البيانات المحلية كاحتياطي
-          5 // محاولات أكثر لأهمية هذه البيانات
+          [], // القيمة الافتراضية للعودة في حالة فشل العملية هي مصفوفة فارغة
+          5, // عدد محاولات إعادة المحاولة
+          "featured-properties" // مفتاح التخزين المؤقت
         );
       } catch (error: any) {
-        console.error("Error in query function:", error);
+        console.error("❌ حدث خطأ أثناء جلب العقارات المميزة:", error);
         setError(`حدث خطأ في الوصول إلى بيانات العقارات: ${error.message || "خطأ غير معروف"}`);
-        return localProperties;
+        // في حالة الفشل، نعيد مصفوفة فارغة
+        return [];
       }
     }
   });

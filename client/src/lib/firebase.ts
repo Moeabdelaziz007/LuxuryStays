@@ -195,7 +195,35 @@ if (app) {
  * Helper function to safely handle Firestore operations with advanced error handling and retry logic
  * This ensures we don't crash the app if Firestore is unavailable
  */
-export const safeDoc = async (operation: () => Promise<any>, fallback: any = null, maxRetries = 3): Promise<any> => {
+export const safeDoc = async (operation: () => Promise<any>, fallback: any = null, maxRetries = 3, cacheKey?: string): Promise<any> => {
+  // أولاً، محاولة استرداد البيانات المخزنة مؤقتًا إذا كان هناك مفتاح تخزين مؤقت
+  if (cacheKey) {
+    try {
+      const cachedData = getFirestoreCache(cacheKey);
+      if (cachedData) {
+        console.log(`✅ Using cached data for key: ${cacheKey}`);
+        
+        // محاولة تحديث البيانات في الخلفية بدون انتظار النتيجة
+        setTimeout(() => {
+          if (db) {
+            operation().then(freshResult => {
+              if (JSON.stringify(freshResult) !== JSON.stringify(cachedData)) {
+                console.log(`ℹ️ Updating cache for key: ${cacheKey}`);
+                cacheFirestoreData(cacheKey, freshResult);
+              }
+            }).catch(err => {
+              console.warn(`ℹ️ Background refresh failed for key: ${cacheKey}`, err);
+            });
+          }
+        }, 100);
+        
+        return cachedData;
+      }
+    } catch (cacheError) {
+      console.warn("Error accessing cache:", cacheError);
+    }
+  }
+
   if (!db) {
     console.error("Firestore not initialized, operation skipped");
     return fallback;
@@ -203,6 +231,7 @@ export const safeDoc = async (operation: () => Promise<any>, fallback: any = nul
 
   let retriesLeft = maxRetries;
   let lastError: any = null;
+  let isNetworkReset = false;
 
   while (retriesLeft > 0) {
     try {
@@ -212,15 +241,25 @@ export const safeDoc = async (operation: () => Promise<any>, fallback: any = nul
       }
 
       // Try to re-enable network if it might have been disabled
-      try {
-        await enableNetwork(db);
-      } catch (networkError) {
-        console.warn("Failed to ensure network is enabled:", networkError);
-        // Continue anyway, the operation might work with offline persistence
+      if (!isNetworkReset) {
+        try {
+          await enableNetwork(db);
+          isNetworkReset = true;
+          console.log("Firestore network enabled for operation");
+        } catch (networkError) {
+          console.warn("Failed to ensure network is enabled:", networkError);
+          // Continue anyway, the operation might work with offline persistence
+        }
       }
 
       // Attempt the operation
       const result = await operation();
+      
+      // Operation succeeded, save to cache if we have a key
+      if (cacheKey && result) {
+        cacheFirestoreData(cacheKey, result);
+      }
+      
       if (retriesLeft < maxRetries) {
         console.log(`✅ Operation succeeded after ${maxRetries - retriesLeft} retries`);
       }
@@ -233,33 +272,38 @@ export const safeDoc = async (operation: () => Promise<any>, fallback: any = nul
       
       // Handle different error types with specific recovery strategies
       if (error.code === "unavailable" || error.code === "resource-exhausted") {
-        // زيادة فترة الانتظار مع كل محاولة فاشلة (استراتيجية التراجع الأسي)
-        const backoffTime = Math.min(1000 * Math.pow(2, maxRetries - retriesLeft), 15000);
+        // تحسين استراتيجية التراجع الأسي - زيادة فترة الانتظار مع كل محاولة فاشلة مع وجود حد أقصى
+        const baseDelay = 1000; // 1 ثانية كأساس
+        const maxDelay = 15000; // 15 ثانية كحد أقصى
+        const attemptNumber = maxRetries - retriesLeft;
         
-        // تحديث رسالة السجل مع معلومات أكثر تفصيلاً حول المحاولة التالية
-        console.warn(`Firestore is currently unavailable (${error.code}). Attempt ${maxRetries - retriesLeft + 1}/${maxRetries}. Retrying in ${backoffTime/1000} seconds...`);
+        // استخدام صيغة jitter للتراجع الأسي لتقليل التصادمات عند وجود العديد من العملاء
+        const randomFactor = 0.5 * Math.random(); // عامل عشوائي بين 0 و 0.5
+        const exponentialPart = Math.pow(2, attemptNumber);
+        const backoffTime = Math.min(baseDelay * exponentialPart * (1 + randomFactor), maxDelay);
+        
+        console.warn(`Firestore is currently unavailable (${error.code}). Attempt ${maxRetries - retriesLeft + 1}/${maxRetries}. Retrying in ${Math.round(backoffTime/1000)} seconds with jitter...`);
         
         // تنفيذ فترة انتظار قبل المحاولة التالية
         await new Promise(resolve => setTimeout(resolve, backoffTime));
         
-        // محاولة تهيئة آلية الاتصال من جديد
+        // محاولة إعادة ضبط اتصال Firestore
         try {
-          // التأكد من وجود كائن db قبل محاولة تعطيل/تفعيل الشبكة
           if (db) {
-            // محاولة تعطيل الشبكة أولاً ثم إعادة تفعيلها (قد يساعد في إعادة ضبط الاتصال)
-            await disableNetwork(db).catch(() => {}); // تجاهل أي أخطاء هنا
-            await new Promise(resolve => setTimeout(resolve, 500)); // انتظار قصير بين العمليات
-            
-            // إعادة تفعيل الشبكة
-            await enableNetwork(db);
-            console.log("✅ Successfully re-enabled Firestore network connection");
-            
-            // التحقق من حالة الاتصال بالإنترنت في المتصفح
-            if (!navigator.onLine) {
-              console.warn("⚠️ Browser reports device is offline. Network operations may still fail.");
+            // استراتيجية تعافي محسّنة - إعادة تفعيل الشبكة مباشرة
+            // التأكد من أن db ليس null قبل استخدامه
+            if (db) {
+              const firestore = db; // Create a non-null reference to satisfy type checking
+              await enableNetwork(firestore).catch(() => {
+                // في حالة فشل تفعيل الشبكة مباشرةً، نجرب استراتيجية التعطيل ثم التفعيل
+                return disableNetwork(firestore)
+                  .then(() => new Promise(r => setTimeout(r, 1000)))
+                  .then(() => enableNetwork(firestore));
+              });
             }
-          } else {
-            console.warn("⚠️ Cannot reset network: Firestore not initialized");
+            
+            console.log("✅ Successfully reset Firestore network connection");
+            isNetworkReset = true;
           }
         } catch (networkError) {
           console.warn("Failed to reset network connection:", networkError);
@@ -359,7 +403,8 @@ export const safeDoc = async (operation: () => Promise<any>, fallback: any = nul
         setTimeout(() => {
           // التأكد من وجود كائن db قبل محاولة إعادة الاتصال
           if (db) {
-            enableNetwork(db).catch(() => {
+            const firestore = db; // Create a non-null reference to satisfy type checking
+            enableNetwork(firestore).catch(() => {
               // تجاهل أخطاء إعادة الاتصال هنا
             });
           } else {
