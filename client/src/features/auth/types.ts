@@ -1,9 +1,5 @@
-// Enum لأدوار المستخدمين
-export enum UserRole {
-  CUSTOMER = "CUSTOMER",
-  PROPERTY_ADMIN = "PROPERTY_ADMIN",
-  SUPER_ADMIN = "SUPER_ADMIN"
-}
+// استيراد UserRole من shared/schema بدلاً من تعريفه مرة أخرى لتجنب التكرار
+import { UserRole } from "@shared/schema";
 
 // واجهة لبيانات المستخدم
 export interface UserData {

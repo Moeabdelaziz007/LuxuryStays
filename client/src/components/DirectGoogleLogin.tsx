@@ -145,18 +145,36 @@ export default function DirectGoogleLogin({
             console.log("سبب عدم عرض واجهة Google:", notification.getNotDisplayedReason() || notification.getSkippedReason());
             
             // إظهار نافذة منبثقة بدلاً من ذلك
-            // TypeScript non-null assertion operator because we already checked if window.google exists
-            window.google!.accounts.id.renderButton(
-              document.getElementById('google-signin-button-container') || document.createElement('div'),
-              { theme: 'outline', size: 'large', width: 250 }
-            );
+            // التأكد من وجود حاوية زر Google Sign-In
+            const buttonContainer = document.getElementById('google-signin-button-container');
+            if (!buttonContainer) {
+              console.error('حاوية زر Google Sign-In غير موجودة');
+              setError("تعذر إيجاد حاوية زر Google Sign-In. يرجى تحديث الصفحة.");
+              setIsLoading(false);
+              return;
+            }
             
-            // محاكاة النقر على الزر المعروض
-            const googleButton = document.querySelector('[aria-labelledby="button-label"]');
-            if (googleButton) {
-              (googleButton as HTMLElement).click();
-            } else {
-              setError("تعذر عرض نافذة تسجيل الدخول من Google. يرجى المحاولة مرة أخرى.");
+            try {
+              // التأكد من أن window.google موجود بالفعل
+              if (window.google && window.google.accounts && window.google.accounts.id) {
+                window.google.accounts.id.renderButton(
+                  buttonContainer,
+                  { theme: 'outline', size: 'large', width: 250 }
+                );
+                
+                // محاكاة النقر على الزر المعروض
+                const googleButton = document.querySelector('[aria-labelledby="button-label"]');
+                if (googleButton) {
+                  (googleButton as HTMLElement).click();
+                } else {
+                  setError("تعذر العثور على زر Google. يرجى المحاولة مرة أخرى.");
+                }
+              } else {
+                setError("مكتبة Google Sign-In غير متاحة. يرجى تحديث الصفحة والمحاولة مرة أخرى.");
+              }
+            } catch (renderError) {
+              console.error('خطأ أثناء عرض زر Google Sign-In:', renderError);
+              setError("حدث خطأ أثناء عرض زر Google Sign-In. يرجى المحاولة مرة أخرى.");
             }
           }
           setIsLoading(false);
