@@ -253,7 +253,7 @@ export default function HomePage() {
         </div>
         
         {/* إضافة الأنماط الديناميكية */}
-        <style jsx>{`
+        <style>{`
           @keyframes panGrid {
             from { background-position: 0 0; }
             to { background-position: 100px 0; }

@@ -11,6 +11,8 @@ const buttonVariants = cva(
         neon: 'bg-transparent text-primary border border-primary hover:bg-primary/10',
         dark: 'bg-card text-card-foreground border border-border hover:bg-muted',
         light: 'bg-white text-black border border-gray-200 hover:bg-gray-50',
+        ghost: 'bg-transparent text-primary hover:bg-primary/10 hover:text-primary',
+        outline: 'border border-primary bg-transparent text-primary hover:bg-primary/10',
       },
       size: {
         default: 'h-10 px-4 py-2',
