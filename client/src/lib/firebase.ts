@@ -11,6 +11,8 @@ import {
   signInAnonymously,
   sendPasswordResetEmail,
   signInWithCustomToken,
+  linkWithPopup,
+  updateProfile,
   UserCredential,
   connectAuthEmulator,
   Auth 

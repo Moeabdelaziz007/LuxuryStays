@@ -5,10 +5,13 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   GoogleAuthProvider,
+  FacebookAuthProvider,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   updateProfile,
+  linkWithPopup,
+  signInAnonymously,
   Auth
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp, Firestore } from "firebase/firestore";
@@ -42,6 +45,8 @@ interface AuthContextType {
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: (redirectPath?: string) => Promise<any>;
+  loginWithFacebook: (redirectPath?: string) => Promise<any>;
+  loginAnonymously: (redirectPath?: string) => Promise<any>;
   updateUserInfo: (userData: UserData) => void;
 }
 
@@ -52,6 +57,8 @@ const AuthContext = createContext<AuthContextType>({
   register: async () => {},
   logout: async () => {},
   loginWithGoogle: async () => {},
+  loginWithFacebook: async () => {},
+  loginAnonymously: async () => {},
   updateUserInfo: () => {},
 });
 
