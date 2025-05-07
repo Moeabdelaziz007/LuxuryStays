@@ -389,9 +389,10 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
     return null;
   };
 
-  // تصميم وإظهار القائمة المتحركة للأجهزة المحمولة
+  // تصميم وإظهار القائمة المتحركة للأجهزة المحمولة مع تخصيص حسب نوع المستخدم
   const renderMobileMenu = () => {
     if (mobileMenuOpen) {
+      // الروابط الأساسية المشتركة
       const mobilePrimaryLinks = [
         { to: '/', label: 'الرئيسية', icon: <Home size={20} /> },
         { to: '/properties', label: 'العقارات', icon: <Building size={20} /> },
@@ -399,216 +400,537 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
         { to: '/about', label: 'من نحن', icon: <Info size={20} /> },
       ];
       
+      // روابط إضافية خاصة بكل نوع مستخدم
+      const getRoleSpecificLinks = () => {
+        if (!user) return [];
+        
+        switch(user.role) {
+          case "SUPER_ADMIN":
+            return [
+              { to: '/super-admin/dashboard', label: 'لوحة الإحصائيات', icon: <PieChart size={20} className="text-[#39FF14]" /> },
+              { to: '/super-admin/users', label: 'إدارة المستخدمين', icon: <Users size={20} className="text-[#39FF14]" /> },
+              { to: '/super-admin/settings', label: 'إعدادات النظام', icon: <Settings size={20} className="text-[#39FF14]" /> },
+            ];
+          case "PROPERTY_ADMIN":
+            return [
+              { to: '/property-admin/properties', label: 'عقاراتي', icon: <Building size={20} className="text-[#00BFFF]" /> },
+              { to: '/property-admin/bookings', label: 'الحجوزات', icon: <CalendarCheck size={20} className="text-[#00BFFF]" /> },
+              { to: '/property-admin/earnings', label: 'الأرباح', icon: <CircleDollarSign size={20} className="text-[#00BFFF]" /> },
+            ];
+          case "CUSTOMER":
+            return [
+              { to: '/customer/bookings', label: 'حجوزاتي', icon: <CalendarCheck size={20} className="text-[#FF1493]" /> },
+              { to: '/customer/favorites', label: 'المفضلة', icon: <Heart size={20} className="text-[#FF1493]" /> },
+              { to: '/customer/profile', label: 'الملف الشخصي', icon: <UserCircle size={20} className="text-[#FF1493]" /> },
+            ];
+          default:
+            return [];
+        }
+      };
+      
+      const roleSpecificLinks = getRoleSpecificLinks();
+      const themeColor = getRoleThemeColor();
+      
       const dashboardLink = user ? (
         {
           to: `/${user.role.toLowerCase().replace('_', '-')}`,
           label: 'لوحة التحكم',
-          icon: <PanelLeftOpen size={20} className="text-[#39FF14]" />
+          icon: <LayoutDashboard size={20} style={{ color: themeColor }} />
         }
       ) : null;
       
+      // تأثير الخلفية حسب نوع المستخدم
+      const getMenuBackgroundEffect = () => {
+        if (!user) return null;
+        
+        let gradientClass = "";
+        switch(user.role) {
+          case "SUPER_ADMIN":
+            gradientClass = "bg-gradient-to-b from-black via-black to-green-950/30";
+            break;
+          case "PROPERTY_ADMIN":
+            gradientClass = "bg-gradient-to-b from-black via-black to-blue-950/30";
+            break; 
+          case "CUSTOMER":
+            gradientClass = "bg-gradient-to-b from-black via-black to-pink-950/30";
+            break;
+          default:
+            gradientClass = "bg-black/90";
+        }
+        
+        return (
+          <div className={`absolute inset-0 ${gradientClass} z-[-1]`}></div>
+        );
+      };
+      
+      // كمية النجوم في الخلفية حسب نوع المستخدم
+      const getStarDensity = () => {
+        if (!user) return "low";
+        
+        switch(user.role) {
+          case "SUPER_ADMIN": return "high";
+          case "PROPERTY_ADMIN": return "medium";
+          case "CUSTOMER": return "low";
+          default: return "low";
+        }
+      };
+      
       return (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex flex-col">
-          {/* قائمة الهاتف الجوال */}
-          <div className="py-4 px-6 flex justify-between items-center border-b border-[#39FF14]/20">
-            {/* الشعار */}
-            <div className="text-2xl font-bold">
-              <span className="text-[#39FF14]">Stay</span>
-              <span className="text-white">X</span>
+        <AnimatePresence>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 backdrop-blur-xl flex flex-col bg-black/90 overflow-hidden"
+          >
+            {/* خلفية خاصة حسب نوع المستخدم */}
+            {getMenuBackgroundEffect()}
+            
+            {/* طبقة النجوم الخلفية */}
+            <div className="absolute inset-0 overflow-hidden opacity-20 pointer-events-none">
+              <div className={`stars-container stars-density-${getStarDensity()}`}>
+                <div className="stars-small"></div>
+                <div className="stars-medium"></div>
+                <div className="stars-large"></div>
+              </div>
             </div>
             
-            {/* زر الإغلاق */}
-            <button 
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-full bg-[#39FF14]/10 hover:bg-[#39FF14]/20 transition-colors"
+            {/* الدوائر الكهربائية الخلفية */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
+              <div className="circuit-lines"></div>
+            </div>
+            
+            {/* رأس القائمة المحمولة */}
+            <motion.div 
+              initial={{ y: -20 }}
+              animate={{ y: 0 }}
+              transition={{ type: "spring", damping: 20 }}
+              className="py-4 px-6 flex justify-between items-center border-b border-[#39FF14]/20"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#39FF14]">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-          
-          {/* روابط القائمة */}
-          <div className="flex-1 overflow-y-auto py-4 px-6">
-            {user && (
-              <div className="mb-6 border-b border-[#39FF14]/20 pb-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
-                    <UserCircle size={24} className="text-[#39FF14]" />
-                  </div>
-                  <div>
-                    <div className="text-white font-medium">{user.name || "مستخدم"}</div>
-                    <div className="text-xs text-[#39FF14]">
-                      {user.role === "SUPER_ADMIN" && "مدير النظام"}
-                      {user.role === "PROPERTY_ADMIN" && "مدير عقارات"}
-                      {user.role === "CUSTOMER" && "عميل"}
+              {/* الشعار */}
+              <div className="text-2xl font-bold">
+                <span className="text-[#39FF14] animate-neon-pulse">Stay</span>
+                <span className="text-white">X</span>
+              </div>
+              
+              {/* زر الإغلاق مع تأثير حركي */}
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-full bg-[#39FF14]/10 hover:bg-[#39FF14]/20 transition-colors relative group"
+              >
+                <X size={20} className="text-[#39FF14]" />
+                <div className="absolute inset-0 bg-[#39FF14]/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+              </motion.button>
+            </motion.div>
+            
+            {/* محتوى القائمة */}
+            <div className="flex-1 overflow-y-auto py-4 px-6">
+              {/* قسم المستخدم إذا كان مسجلاً */}
+              {user && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className={`mb-6 border-b border-[${themeColor}]/20 pb-4`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-12 h-12 rounded-full bg-[${themeColor}]/10 flex items-center justify-center relative overflow-hidden group`}>
+                      {getRoleIcon()}
+                      <div className={`absolute inset-0 bg-[${themeColor}]/10 scale-0 group-hover:scale-100 transition-transform duration-500 rounded-full`}></div>
+                    </div>
+                    <div>
+                      <div className="text-white font-medium">{user.name || "مستخدم"}</div>
+                      <div className="text-xs" style={{ color: themeColor }}>
+                        {getRoleName()}
+                      </div>
                     </div>
                   </div>
-                </div>
+                  
+                  {/* رابط لوحة التحكم الرئيسية */}
+                  {dashboardLink && (
+                    <Link 
+                      to={dashboardLink.to}
+                      className="flex items-center gap-2 p-3 rounded-lg bg-black/40 backdrop-blur-md border border-[#39FF14]/20 hover:border-[#39FF14]/50 text-white mb-2 w-full relative overflow-hidden group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        {dashboardLink.icon}
+                        <span>{dashboardLink.label}</span>
+                      </span>
+                      <div className={`absolute inset-0 bg-gradient-to-r from-[${themeColor}]/0 via-[${themeColor}]/10 to-[${themeColor}]/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000`}></div>
+                    </Link>
+                  )}
+                  
+                  {/* زر تسجيل الخروج */}
+                  <motion.button 
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 p-3 rounded-lg bg-red-900/20 hover:bg-red-900/30 transition-colors text-white w-full group relative overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      <LogOut size={18} className="text-red-400" />
+                      <span>تسجيل الخروج</span>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-900/0 via-red-900/20 to-red-900/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  </motion.button>
+                </motion.div>
+              )}
+              
+              {/* روابط مخصصة للمستخدم حسب الدور */}
+              {user && roleSpecificLinks.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-1 mb-6 border-b border-[#39FF14]/10 pb-4"
+                >
+                  <h3 className="text-xs uppercase text-gray-500 mb-2 px-2">لوحة التحكم</h3>
+                  
+                  {roleSpecificLinks.map((link, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + (index * 0.05) }}
+                    >
+                      <Link 
+                        to={link.to}
+                        className={`flex items-center gap-3 p-3 rounded-lg hover:bg-[${themeColor}]/10 transition-colors ${location === link.to ? `text-[${themeColor}] bg-[${themeColor}]/5 border-r-2 border-[${themeColor}]` : 'text-white'} group relative overflow-hidden`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span className="relative z-10 flex items-center gap-3">
+                          {link.icon}
+                          <span className="font-medium">{link.label}</span>
+                        </span>
+                        <div className={`absolute left-0 top-0 bottom-0 w-0.5 bg-[${themeColor}] opacity-0 group-hover:opacity-100 transition-opacity`}></div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+              
+              {/* الروابط الرئيسية */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-1"
+              >
+                <h3 className="text-xs uppercase text-gray-500 mb-2 px-2">التنقل السريع</h3>
                 
-                {dashboardLink && (
+                {mobilePrimaryLinks.map((link, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + (index * 0.05) }}
+                  >
+                    <Link 
+                      to={link.to}
+                      className={`flex items-center gap-3 p-3 rounded-lg hover:bg-[#39FF14]/10 transition-colors ${location === link.to ? 'text-[#39FF14] bg-[#39FF14]/5 border-r-2 border-[#39FF14]' : 'text-white'} group relative overflow-hidden`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="relative z-10 flex items-center gap-3">
+                        {link.icon}
+                        <span className="font-medium">{link.label}</span>
+                      </span>
+                      <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#39FF14] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+              
+              {/* قسم تسجيل الدخول للمستخدمين غير المسجلين */}
+              {!user && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="mt-8 space-y-3 border-t border-[#39FF14]/20 pt-6"
+                >
                   <Link 
-                    to={dashboardLink.to}
-                    className="flex items-center gap-2 p-3 rounded-lg bg-[#39FF14]/10 hover:bg-[#39FF14]/20 transition-colors text-white mb-2 w-full"
+                    to="/login"
+                    className="flex items-center justify-center gap-2 p-3 rounded-lg border border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors w-full relative overflow-hidden group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {dashboardLink.icon}
-                    <span>{dashboardLink.label}</span>
+                    <span className="relative z-10 flex items-center gap-2">
+                      <LogOut size={18} className="transform rotate-180" />
+                      <span className="font-medium">تسجيل الدخول</span>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/10 to-[#39FF14]/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                   </Link>
-                )}
-                
-                <button 
-                  onClick={() => {
-                    handleLogout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex items-center gap-2 p-3 rounded-lg bg-red-900/20 hover:bg-red-900/30 transition-colors text-white w-full"
-                >
-                  <LogOut size={20} className="text-red-400" />
-                  <span>تسجيل الخروج</span>
-                </button>
-              </div>
-            )}
-            
-            <div className="space-y-2">
-              {mobilePrimaryLinks.map((link, index) => (
+                </motion.div>
+              )}
+              
+              {/* جزء المساعدة دائماً في الأسفل */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8 pt-4 border-t border-[#39FF14]/10"
+              >
                 <Link 
-                  key={index}
-                  to={link.to}
-                  className={`flex items-center gap-3 p-4 rounded-lg hover:bg-[#39FF14]/10 transition-colors ${location === link.to ? 'text-[#39FF14] bg-[#39FF14]/5 border-r-2 border-[#39FF14]' : 'text-white'}`}
+                  to="/help"
+                  className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#39FF14] transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {link.icon}
-                  <span className="font-medium">{link.label}</span>
+                  <HelpCircle size={16} />
+                  <span>مساعدة وأسئلة متكررة</span>
                 </Link>
-              ))}
-              
-
+              </motion.div>
             </div>
             
-            {!user && (
-              <div className="mt-8 space-y-3 border-t border-[#39FF14]/20 pt-6">
-                <Link 
-                  to="/login"
-                  className="flex items-center justify-center gap-2 p-3 rounded-lg border border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors w-full"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <LogOut size={18} className="transform rotate-180" />
-                  <span className="font-medium">تسجيل الدخول</span>
-                </Link>
-                
-
-              </div>
-            )}
-          </div>
-        </div>
+            {/* تأثير جاذبية في الأسفل */}
+            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
+          </motion.div>
+        </AnimatePresence>
       );
     }
     
     return null;
   };
 
+  // وظيفة العرض الرئيسية للشريط العلوي
   return (
-    <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled || !isPublicPage 
-        ? "bg-black/80 backdrop-blur-xl shadow-md border-b border-[#39FF14]/10" 
-        : "bg-transparent"
-    }`}>
+    <header 
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled || !isPublicPage 
+          ? "bg-black/80 backdrop-blur-xl shadow-md" 
+          : "bg-transparent"
+      }`}
+    >
+      {/* خط مضيء متحرك أسفل الشريط */}
+      {isScrolled && (
+        <motion.div 
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5 }}
+          className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/30 to-transparent"
+        />
+      )}
+      
+      {/* شريط القائمة الرئيسي */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex justify-between items-center relative">
-          {/* Logo with Neon Glow Effect */}
+          {/* الشعار مع تأثير التوهج - يتغير لون التوهج حسب نوع المستخدم */}
           <Link 
             to={user ? `/${user.role.toLowerCase().replace('_', '-')}` : "/"} 
             className="relative group"
             title={user ? "الذهاب إلى لوحة التحكم" : "الصفحة الرئيسية"}
           >
             <span className="text-2xl font-bold inline-block transition-all">
-              <span className="text-[#39FF14] animate-neon-pulse" 
-                    style={{ textShadow: "0 0 5px rgba(57, 255, 20, 0.7), 0 0 10px rgba(57, 255, 20, 0.5)" }}>
+              <span 
+                className="animate-neon-pulse" 
+                style={{ 
+                  color: user ? getRoleThemeColor() : "#39FF14",
+                  textShadow: `0 0 5px ${user ? getRoleThemeColor() : "rgba(57, 255, 20, 0.7)"}, 0 0 10px ${user ? getRoleThemeColor() : "rgba(57, 255, 20, 0.5)"}` 
+                }}
+              >
                 Stay
               </span>
               <span className="text-white group-hover:text-[#39FF14] transition-colors">X</span>
             </span>
             
-            {/* Background glow effect */}
-            <div className="absolute -inset-1 bg-[#39FF14]/20 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
+            {/* تأثير التوهج في الخلفية */}
+            <motion.div 
+              initial={{ opacity: 0.5 }}
+              whileHover={{ opacity: 1 }}
+              className="absolute -inset-1 rounded-full blur-xl transition-opacity"
+              style={{ 
+                background: `radial-gradient(circle, ${user ? getRoleThemeColor() : "#39FF14"}30 0%, transparent 70%)` 
+              }}
+            ></motion.div>
           </Link>
 
-          {/* Nav Links - Dynamic based on page/role */}
+          {/* روابط التنقل - ديناميكية حسب نوع الصفحة/المستخدم */}
           {renderNavLinks()}
 
-          {/* Mobile Controls - Only for dashboard */}
+          {/* أزرار التحكم للأجهزة المحمولة */}
           {renderMobileControls()}
 
-          {/* User Section */}
+          {/* قسم المستخدم */}
           <div className="flex items-center gap-4">
+            {/* عرض معلومات المستخدم المسجل (للأجهزة المكتبية فقط) */}
             {user && !isMobile && (
-              <div className="text-sm hidden md:block">
-                <span className="text-gray-400">أهلاً،</span>{" "}
-                <span className="text-white font-medium">{user.name || "مستخدم"}</span>{" "}
-                <span className="text-[#39FF14] text-xs font-medium">
-                  {user.role === "SUPER_ADMIN" && "مدير النظام"}
-                  {user.role === "PROPERTY_ADMIN" && "مدير عقارات"}
-                  {user.role === "CUSTOMER" && "عميل"}
-                </span>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-sm hidden md:flex items-center gap-2"
+              >
+                <div className="relative overflow-hidden rounded-full w-8 h-8 bg-black/40 backdrop-blur-sm border border-[#39FF14]/20 flex items-center justify-center">
+                  {getRoleIcon()}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-white font-medium">{user.name || "مستخدم"}</span>
+                  <span className="text-xs" style={{ color: getRoleThemeColor() }}>
+                    {getRoleName()}
+                  </span>
+                </div>
+              </motion.div>
             )}
             
+            {/* عناصر التحكم للمستخدم المسجل */}
             {user ? (
               !isMobile && (
                 <div className="hidden md:flex items-center gap-2">
-                  {/* زر الإشعارات للأجهزة المكتبية */}
-                  <button 
-                    onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  {/* زر الإشعارات مع تأثيرات متحركة */}
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setNotificationsOpen(!notificationsOpen);
+                      setSearchOpen(false);
+                      setUserMenuOpen(false);
+                    }}
                     className="relative p-2 rounded-full bg-black/40 backdrop-blur-md border border-[#39FF14]/20 hover:border-[#39FF14]/50 transition-colors"
                   >
-                    <Bell size={18} className="text-white" />
-                    {/* رمز تنبيه (إذا كان هناك إشعارات جديدة) */}
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                  </button>
+                    <Bell size={18} style={{ color: getRoleThemeColor() }} />
+                    {/* مؤشر الإشعارات الجديدة */}
+                    <motion.span 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring" }}
+                      className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"
+                    ></motion.span>
+                  </motion.button>
                   
-                  {/* زر البحث للأجهزة المكتبية */}
-                  <button className="p-2 rounded-full bg-black/40 backdrop-blur-md border border-[#39FF14]/20 hover:border-[#39FF14]/50 transition-colors">
-                    <Search size={18} className="text-white" />
-                  </button>
-                  
-                  {/* زر تسجيل الخروج */}
-                  <button 
-                    onClick={handleLogout}
-                    className="relative group overflow-hidden ml-2"
+                  {/* زر البحث مع تأثيرات تفاعلية */}
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setSearchOpen(!searchOpen);
+                      setNotificationsOpen(false);
+                      setUserMenuOpen(false);
+                    }}
+                    className="relative p-2 rounded-full bg-black/40 backdrop-blur-md border border-[#39FF14]/20 hover:border-[#39FF14]/50 transition-colors"
                   >
-                    <span className="relative z-10 px-4 py-2 inline-block bg-black/60 backdrop-blur-md text-[#39FF14] rounded-lg border border-[#39FF14]/50 group-hover:border-[#39FF14] group-hover:bg-black/80 transition-all duration-300 flex items-center gap-1.5">
-                      <LogOut size={16} className="inline-block" />
-                      <span>تسجيل الخروج</span>
-                    </span>
-                    <div className="absolute inset-0 bg-[#39FF14]/10 blur group-hover:bg-[#39FF14]/20 rounded-lg transition-colors duration-300"></div>
-                  </button>
+                    <Search size={18} className="text-white" />
+                  </motion.button>
+                  
+                  {/* شريط البحث المنزلق عند النقر على أيقونة البحث */}
+                  <AnimatePresence>
+                    {searchOpen && (
+                      <motion.div
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: 200, opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full right-0 mt-2 z-50"
+                      >
+                        <div className="relative">
+                          <input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder="بحث..."
+                            className="w-full px-4 py-2 pr-10 bg-black/80 backdrop-blur-xl text-white rounded-lg border border-[#39FF14]/30 focus:border-[#39FF14] outline-none"
+                          />
+                          <Search size={16} className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  
+                  {/* زر أو قائمة المستخدم */}
+                  <motion.div
+                    ref={userMenuRef}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative"
+                  >
+                    <motion.button
+                      onClick={() => {
+                        setUserMenuOpen(!userMenuOpen);
+                        setNotificationsOpen(false);
+                        setSearchOpen(false);
+                      }}
+                      className={`relative group overflow-hidden ml-2 px-4 py-2 rounded-lg border ${userMenuOpen ? 'bg-black/80 border-[#39FF14]' : 'bg-black/40 border-[#39FF14]/30'} backdrop-blur-md transition-all duration-300`}
+                      style={{ borderColor: userMenuOpen ? getRoleThemeColor() : `${getRoleThemeColor()}50` }}
+                    >
+                      <span className="relative z-10 flex items-center gap-1.5 text-white">
+                        <Command size={14} style={{ color: getRoleThemeColor() }} />
+                        <span>المزيد</span>
+                      </span>
+                    </motion.button>
+                    
+                    {/* قائمة المستخدم المنسدلة */}
+                    <AnimatePresence>
+                      {userMenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ type: "spring", damping: 20 }}
+                          className="absolute top-full right-0 mt-2 w-48 bg-black/90 backdrop-blur-xl rounded-lg border shadow-lg z-50 overflow-hidden"
+                          style={{ borderColor: `${getRoleThemeColor()}40` }}
+                        >
+                          <div className="absolute inset-0 overflow-hidden opacity-10">
+                            <div className="circuit-lines"></div>
+                          </div>
+                          
+                          <div className="py-1">
+                            <Link
+                              to={`/${user.role.toLowerCase().replace('_', '-')}/settings`}
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-[#39FF14]/10 transition-colors"
+                              onClick={() => setUserMenuOpen(false)}
+                            >
+                              <Settings size={16} className="text-gray-400" />
+                              <span>الإعدادات</span>
+                            </Link>
+                            <Link
+                              to="/help"
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-[#39FF14]/10 transition-colors"
+                              onClick={() => setUserMenuOpen(false)}
+                            >
+                              <HelpCircle size={16} className="text-gray-400" />
+                              <span>المساعدة</span>
+                            </Link>
+                            <div className="border-t border-gray-800 my-1"></div>
+                            <button
+                              onClick={() => {
+                                handleLogout();
+                                setUserMenuOpen(false);
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-red-900/20 transition-colors w-full text-right"
+                            >
+                              <LogOut size={16} className="text-red-400" />
+                              <span>تسجيل الخروج</span>
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
                 </div>
               )
             ) : (
+              // زر تسجيل الدخول للمستخدمين غير المسجلين
               isPublicPage && !isMobile && (
-                <div className="hidden md:flex gap-3">
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Link 
-                      to="/login" 
-                      className="relative group overflow-hidden"
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="hidden md:flex gap-3"
+                >
+                  <Link 
+                    to="/login" 
+                    className="relative group overflow-hidden"
+                  >
+                    <TechButton
+                      variant="outline" 
+                      glowIntensity="medium"
+                      className="flex items-center gap-1.5"
                     >
-                      <TechButton
-                        variant="outline" 
-                        glowIntensity="medium"
-                        className="flex items-center gap-1.5"
-                      >
-                        <LogOut size={16} className="inline-block transform rotate-180" />
-                        <span>تسجيل الدخول</span>
-                      </TechButton>
-                    </Link>
-                    
-
-                  </div>
-
-
-                </div>
+                      <LogOut size={16} className="inline-block transform rotate-180" />
+                      <span>تسجيل الدخول</span>
+                    </TechButton>
+                  </Link>
+                </motion.div>
               )
             )}
           </div>
@@ -621,9 +943,9 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
       {/* Mobile Menu */}
       {renderMobileMenu()}
       
-      {/* Decorative header element - horizontal line with glow */}
+      {/* تأثير ظل أفقي عند التمرير */}
       {isScrolled && (
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/30 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-t from-black/30 to-transparent"></div>
       )}
     </header>
   );
