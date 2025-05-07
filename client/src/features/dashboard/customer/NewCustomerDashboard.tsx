@@ -502,7 +502,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
               onClick={() => {
-                setActiveTab("bookings");
+                setSelectedTab("bookings");
                 navigate("/customer/bookings");
               }}
             >
@@ -516,7 +516,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
               onClick={() => {
-                setActiveTab("favorites");
+                setSelectedTab("favorites");
                 navigate("/customer/favorites");
               }}
             >
@@ -530,7 +530,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
               onClick={() => {
-                setActiveTab("profile");
+                setSelectedTab("profile");
                 navigate("/customer/profile");
               }}
             >
@@ -543,7 +543,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
               onClick={() => {
-                setActiveTab("settings");
+                setSelectedTab("settings");
                 navigate("/customer/settings");
               }}
             >
@@ -1097,7 +1097,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
                           <Button 
                             variant="outline" 
                             className="w-full text-[#39FF14] border-[#39FF14]/20 hover:bg-[#39FF14]/10"
-                            onClick={() => setActiveTab("bookings")}
+                            onClick={() => setSelectedTab("bookings")}
                           >
                             عرض كل الحجوزات ({bookings.length})
                           </Button>
@@ -1167,7 +1167,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
                           <Button 
                             variant="outline" 
                             className="w-full text-[#39FF14] border-[#39FF14]/20 hover:bg-[#39FF14]/10"
-                            onClick={() => setActiveTab("favorites")}
+                            onClick={() => setSelectedTab("favorites")}
                           >
                             عرض كل المفضلة ({favorites.length})
                           </Button>
