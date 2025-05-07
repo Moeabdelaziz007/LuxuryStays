@@ -623,17 +623,17 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
             
             <h1 className="text-xl font-bold hidden md:flex items-center gap-2">
               <span className="text-[#39FF14]">
-                {activeTab === "dashboard" && <FaTachometerAlt />}
-                {activeTab === "bookings" && <FaCalendarAlt />}
-                {activeTab === "favorites" && <FaHeart />}
-                {activeTab === "profile" && <FaUser />}
-                {activeTab === "settings" && <FaCog />}
+                {selectedTab === "dashboard" && <FaTachometerAlt />}
+                {selectedTab === "bookings" && <FaCalendarAlt />}
+                {selectedTab === "favorites" && <FaHeart />}
+                {selectedTab === "profile" && <FaUser />}
+                {selectedTab === "settings" && <FaCog />}
               </span>
-              {activeTab === "dashboard" && "لوحة العميل"}
-              {activeTab === "bookings" && "حجوزاتي"}
-              {activeTab === "favorites" && "المفضلة"}
-              {activeTab === "profile" && "الملف الشخصي"}
-              {activeTab === "settings" && "الإعدادات"}
+              {selectedTab === "dashboard" && "لوحة العميل"}
+              {selectedTab === "bookings" && "حجوزاتي"}
+              {selectedTab === "favorites" && "المفضلة"}
+              {selectedTab === "profile" && "الملف الشخصي"}
+              {selectedTab === "settings" && "الإعدادات"}
             </h1>
           </div>
           
@@ -682,7 +682,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
         {/* Dashboard Content - Travel Dashboard Style */}
         <main className="flex-1 overflow-y-auto bg-[#000005] p-4 md:p-5 pb-20 md:pb-5">
           {/* Dashboard Tab */}
-          {activeTab === "dashboard" && (
+          {selectedTab === "dashboard" && (
             <div className="space-y-4 sm:space-y-6">
               {/* Travel Summary & Welcome Card */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
@@ -1190,7 +1190,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
           )}
           
           {/* Bookings Tab */}
-          {activeTab === "bookings" && (
+          {selectedTab === "bookings" && (
             <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)]">
               <CardHeader className="border-b border-[#39FF14]/10 pb-3 flex justify-between items-center">
                 <CardTitle className="flex items-center">
@@ -1284,7 +1284,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
           )}
           
           {/* Favorites Tab */}
-          {activeTab === "favorites" && (
+          {selectedTab === "favorites" && (
             <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)]">
               <CardHeader className="border-b border-[#39FF14]/10 pb-3">
                 <CardTitle className="flex items-center">
@@ -1371,7 +1371,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
           )}
           
           {/* Profile Tab */}
-          {activeTab === "profile" && (
+          {selectedTab === "profile" && (
             <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)]">
               <CardHeader className="border-b border-[#39FF14]/10 pb-3">
                 <CardTitle className="flex items-center">
@@ -1497,7 +1497,7 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
           )}
           
           {/* Settings Tab */}
-          {activeTab === "settings" && (
+          {selectedTab === "settings" && (
             <Card className="bg-black border border-[#39FF14]/20 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)]">
               <CardHeader className="border-b border-[#39FF14]/10 pb-3">
                 <CardTitle className="flex items-center">
