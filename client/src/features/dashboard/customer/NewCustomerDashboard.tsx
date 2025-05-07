@@ -66,7 +66,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
     setActiveTab(initialTab);
   }, [initialTab]);
   
-  // Fetch user's bookings with better error handling and fallback
+  // Fetch user's bookings with enhanced caching and error handling
   // Use memo for stable query key to prevent unnecessary re-renders
   const bookingsQueryKey = useMemo(() => ["customer-bookings", user?.uid], [user?.uid]);
   
@@ -74,6 +74,30 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
     queryKey: bookingsQueryKey,
     queryFn: async () => {
       if (!user?.uid || !db) return [];
+      
+      // استخدام متغيرات مؤقتة للتخزين المؤقت لتجنب أخطاء الشاشة السوداء
+      let cachedData = null;
+      let cacheTimestamp = null;
+      const now = Date.now();
+      let cacheAge = Infinity;
+      const maxCacheAge = 2 * 60 * 1000; // 2 دقائق
+      
+      try {
+        // استخدام sessionStorage كطبقة تخزين مؤقت إضافية لتحسين الأداء
+        cachedData = sessionStorage.getItem(`bookings_${user.uid}`);
+        cacheTimestamp = sessionStorage.getItem(`bookings_${user.uid}_timestamp`);
+        
+        // تحقق من وجود بيانات مخزنة مؤقتاً صالحة (أقل من 2 دقائق)
+        cacheAge = cacheTimestamp ? now - parseInt(cacheTimestamp) : Infinity;
+
+        if (cachedData && cacheAge < maxCacheAge) {
+          console.log("استخدام البيانات المخزنة مؤقتاً للحجوزات");
+          return JSON.parse(cachedData);
+        }
+      } catch (e) {
+        console.error("خطأ في قراءة التخزين المؤقت:", e);
+        // استمر في تنفيذ الاستعلام
+      }
       
       try {
         return await safeDoc(async () => {
@@ -83,14 +107,18 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
             return [];
           }
           
+          console.log("جلب بيانات الحجوزات من Firestore...");
+          
           // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
           const bookingsCollectionRef = collection(db, "bookings");
         
           // إعداد الاستعلام لجلب حجوزات المستخدم، مرتبة حسب تاريخ الإنشاء تنازلياً
+          // تحسين الاستعلام باستخدام حدود لتقليل كمية البيانات المنقولة
           const q = query(
             bookingsCollectionRef, 
             where("userId", "==", user.uid),
-            orderBy("createdAt", "desc")
+            orderBy("createdAt", "desc"),
+            limit(20) // جلب أحدث 20 حجز فقط لتحسين الأداء
           );
         
         // تنفيذ الاستعلام واستخراج المستندات
@@ -166,6 +194,15 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
         }
         
         console.log(`تم استرجاع ${bookingsWithDetails.length} حجز بنجاح`);
+        
+        // تخزين البيانات مؤقتاً لتحسين الأداء في المرات القادمة
+        try {
+          sessionStorage.setItem(`bookings_${user.uid}`, JSON.stringify(bookingsWithDetails));
+          sessionStorage.setItem(`bookings_${user.uid}_timestamp`, now.toString());
+        } catch (cacheError) {
+          console.warn("تعذر تخزين بيانات الحجوزات مؤقتاً:", cacheError);
+        }
+        
         return bookingsWithDetails;
       });
       } catch (error) {
@@ -189,7 +226,23 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
     queryFn: async () => {
       if (!user?.uid || !db) return [];
       
+      // استخدام sessionStorage كطبقة تخزين مؤقت إضافية لتحسين الأداء
+      const cachedData = sessionStorage.getItem(`favorites_${user.uid}`);
+      const cacheTimestamp = sessionStorage.getItem(`favorites_${user.uid}_timestamp`);
+      
+      // تحقق من وجود بيانات مخزنة مؤقتاً صالحة (أقل من 2 دقائق)
+      const now = Date.now();
+      const cacheAge = cacheTimestamp ? now - parseInt(cacheTimestamp) : Infinity;
+      const maxCacheAge = 2 * 60 * 1000; // 2 دقائق
+
+      if (cachedData && cacheAge < maxCacheAge) {
+        console.log("استخدام البيانات المخزنة مؤقتاً للمفضلات");
+        return JSON.parse(cachedData);
+      }
+      
       try {
+        console.log("جلب بيانات المفضلات من Firestore...");
+        
         // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
         const favoritesCollectionRef = collection(db, "favorites");
         if (!favoritesCollectionRef) {
