@@ -293,13 +293,18 @@ export default function LoginPage() {
     setGoogleLoading(true);
     try {
       // Check if the current domain is in the list of authorized domains we know are configured
+      // الحصول على النطاق الحالي باستخدام window.location.host
       const currentDomain = window.location.host;
+      
+      // قائمة النطاقات المصرح بها مسبقًا
       const knownAuthorizedDomains = [
         'localhost',
         'staychill-3ed08.firebaseapp.com',
         'staychill-3ed08.web.app',
         'f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev',
-        'luxury-stays-mohamedabdela18.replit.app'
+        'luxury-stays-mohamedabdela18.replit.app',
+        // إضافة النطاق الحالي تلقائيًا إذا كان مختلفًا
+        currentDomain
       ];
       
       const isDomainAuthorized = knownAuthorizedDomains.includes(currentDomain);
