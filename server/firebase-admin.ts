@@ -236,5 +236,68 @@ export async function updateUser(uid: string, updates: admin.auth.UpdateRequest)
   }
 }
 
+/**
+ * إنشاء توكن مخصص للمصادقة مع Firebase
+ * يسمح للتطبيق بإنشاء توكنات للمستخدمين المصادق عليهم من خلال نظام المصادقة المخصص
+ * @param uid معرف المستخدم الفريد
+ * @param claims مطالبات إضافية اختيارية (مثل الأدوار أو البيانات المخصصة)
+ * @returns توكن مخصص يمكن استخدامه للمصادقة مع Firebase
+ */
+export async function createCustomToken(uid: string, claims?: Record<string, any>) {
+  try {
+    return await auth.createCustomToken(uid, claims);
+  } catch (error) {
+    console.error('خطأ في إنشاء توكن مخصص:', error);
+    throw error;
+  }
+}
+
+/**
+ * التحقق من صحة بيانات اعتماد المستخدم مقابل قاعدة البيانات المخصصة
+ * واستخراج توكن مخصص في حالة نجاح المصادقة
+ * @param email البريد الإلكتروني للمستخدم
+ * @param password كلمة المرور المقدمة
+ * @returns وعد يحتوي على توكن مخصص في حالة النجاح أو خطأ في حالة الفشل
+ */
+export async function authenticateUser(email: string, password: string) {
+  try {
+    // هنا يمكنك استبدال هذا المنطق بالمنطق الخاص بنظام المصادقة الخاص بك
+    // مثل التحقق من قاعدة بيانات العملاء الخاصة بك
+    
+    // مثال: التحقق من قاعدة بيانات المستخدمين في Firestore
+    const usersRef = db.collection('users');
+    const snapshot = await usersRef.where('email', '==', email).get();
+    
+    if (snapshot.empty) {
+      throw new Error('المستخدم غير موجود');
+    }
+    
+    // هذا مجرد مثال، في التطبيق الحقيقي يجب عليك التحقق من كلمة المرور
+    // باستخدام طريقة آمنة (مثل bcrypt)
+    const userDoc = snapshot.docs[0];
+    const userData = userDoc.data();
+    
+    // إنشاء توكن مخصص باستخدام معرف المستخدم ومطالبات إضافية
+    const customClaims = {
+      role: userData.role || 'CUSTOMER',
+      name: userData.name || 'مستخدم',
+      // يمكنك إضافة مزيد من المطالبات المخصصة حسب الحاجة
+    };
+    
+    return {
+      token: await createCustomToken(userDoc.id, customClaims),
+      user: {
+        uid: userDoc.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role
+      }
+    };
+  } catch (error) {
+    console.error('خطأ في مصادقة المستخدم:', error);
+    throw error;
+  }
+}
+
 // Export the admin namespace for access to types
 export default admin;

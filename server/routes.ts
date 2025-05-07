@@ -1,10 +1,11 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { properties, services } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import adminRoutes from './routes/admin';
+import { authenticateUser, createCustomToken } from './firebase-admin';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin routes
@@ -13,6 +14,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API endpoint to check server status
   app.get("/api/status", (_req, res) => {
     res.json({ status: "ok" });
+  });
+  
+  // API endpoint for custom authentication
+  app.post("/api/auth/custom-token", async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ 
+          error: "البريد الإلكتروني وكلمة المرور مطلوبان" 
+        });
+      }
+      
+      // استدعاء وظيفة المصادقة
+      const authResult = await authenticateUser(email, password);
+      
+      // إرجاع التوكن المخصص إلى العميل
+      res.json({
+        token: authResult.token,
+        user: authResult.user
+      });
+    } catch (error: any) {
+      console.error("خطأ في المصادقة المخصصة:", error);
+      res.status(401).json({ 
+        error: error.message || "فشل في المصادقة" 
+      });
+    }
   });
 
   // API endpoint to fetch featured properties

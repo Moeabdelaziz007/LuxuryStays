@@ -5,10 +5,12 @@ import {
   createUserWithEmailAndPassword, 
   signOut,
   GoogleAuthProvider,
+  FacebookAuthProvider,
   signInWithPopup,
   signInWithRedirect,
   signInAnonymously,
   sendPasswordResetEmail,
+  signInWithCustomToken,
   UserCredential,
   connectAuthEmulator,
   Auth 
