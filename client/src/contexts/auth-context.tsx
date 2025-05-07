@@ -41,7 +41,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  loginWithGoogle: () => Promise<any>;
+  loginWithGoogle: (redirectPath?: string) => Promise<any>;
   updateUserInfo: (userData: UserData) => void;
 }
 
@@ -370,7 +370,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // تسجيل الدخول باستخدام Google - Firebase فقط
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (redirectPath?: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -379,9 +379,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       // حفظ مسار إعادة التوجيه إذا كان موجودًا
-      const redirectPath = redirectAfterLoginRef.current;
-      if (redirectPath) {
-        localStorage.setItem('googleAuthRedirectPath', redirectPath);
+      const path = redirectPath || redirectAfterLoginRef.current;
+      if (path) {
+        localStorage.setItem('googleAuthRedirectPath', path);
+        console.log("Saving redirect path for after Google login:", path);
       }
       
       console.log("بدء تسجيل الدخول باستخدام Google...");

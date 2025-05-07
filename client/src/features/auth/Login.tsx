@@ -18,7 +18,7 @@ export default function LoginPage() {
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [location, navigate] = useLocation();
   const { toast } = useToast();
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, loading: authLoading } = useAuth();
   const [showGoogleWarning, setShowGoogleWarning] = useState(false);
   
   // Helper function to get a unique ID for toast notifications
@@ -315,6 +315,7 @@ export default function LoginPage() {
       console.log("محاولة تسجيل الدخول باستخدام Google...");
       
       // Use auth context login method instead of direct Firebase call
+      // The auth context will handle the redirect path automatically
       await loginWithGoogle();
       
       // Handle successful login
@@ -322,6 +323,8 @@ export default function LoginPage() {
         "تم تسجيل الدخول بنجاح",
         "مرحباً بك في منصة StayX!"
       ));
+      
+      // Navigation will be handled in the auth context after successful login
       
     } catch (error: any) {
       console.error("فشل تسجيل الدخول باستخدام Google:", error);
