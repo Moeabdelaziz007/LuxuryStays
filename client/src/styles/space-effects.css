@@ -1,0 +1,274 @@
+/* تأثيرات الأزرار الفضائية */
+@keyframes scanline {
+  0%, 5% {
+    transform: translateX(-110%);
+  }
+  95%, 100% {
+    transform: translateX(110%);
+  }
+}
+
+@keyframes particle1 {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + 30px), calc(-50% - 20px)) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes particle2 {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% - 40px), calc(-50% + 10px)) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes particle3 {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + 20px), calc(-50% + 30px)) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes circuit-glow {
+  0%, 100% {
+    opacity: 0.7;
+    box-shadow: 0 0 5px rgba(57, 255, 20, 0.7);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(57, 255, 20, 1);
+  }
+}
+
+@keyframes space-ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* تأثيرات فضائية متقدمة */
+.space-circuit-pattern {
+  position: relative;
+  overflow: hidden;
+}
+
+.space-circuit-pattern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 30% 20%, rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 70% 40%, rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 40% 80%, rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 80% 60%, rgba(57, 255, 20, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: 0 0;
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.space-hologram-effect {
+  position: relative;
+}
+
+.space-hologram-effect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(57, 255, 20, 0.05) 2px,
+    rgba(57, 255, 20, 0.05) 4px
+  );
+  pointer-events: none;
+  opacity: 0.2;
+  mix-blend-mode: overlay;
+}
+
+.space-glow {
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.4), 0 0 20px rgba(57, 255, 20, 0.2);
+}
+
+.space-glow-red {
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4), 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+.space-ripple-effect {
+  position: relative;
+}
+
+.space-ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  border-radius: inherit;
+  border: 1px solid rgba(57, 255, 20, 0.5);
+  animation: space-ripple 1.5s linear infinite;
+  pointer-events: none;
+}
+
+/* نافذة طاقة فضائية */
+.space-energy-window {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  background: rgba(0, 0, 5, 0.7);
+  backdrop-filter: blur(10px);
+}
+
+.space-energy-window::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #39FF14, transparent);
+  animation: circuit-glow 2s infinite;
+}
+
+/* اختيار القائمة الفضائية */
+.space-select {
+  background: rgba(0, 0, 5, 0.8);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  border-radius: 0.5rem;
+  color: white;
+  padding: 0.5rem 1rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.space-select:focus {
+  border-color: rgba(57, 255, 20, 0.8);
+  box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
+  outline: none;
+}
+
+.space-select option {
+  background-color: rgba(0, 0, 5, 0.95);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 8px;
+}
+
+/* مربع اختيار فضائي */
+.space-checkbox {
+  appearance: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid rgba(57, 255, 20, 0.5);
+  border-radius: 0.25rem;
+  background-color: rgba(0, 0, 5, 0.6);
+  cursor: pointer;
+  position: relative;
+}
+
+.space-checkbox:checked {
+  background-color: rgba(57, 255, 20, 0.2);
+  border-color: rgba(57, 255, 20, 0.8);
+}
+
+.space-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: rgba(57, 255, 20, 0.9);
+  border-radius: 0.125rem;
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.8);
+}
+
+/* إدخال نصي فضائي */
+.space-input {
+  background: rgba(0, 0, 5, 0.6);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  border-radius: 0.25rem;
+  color: white;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.space-input:focus {
+  border-color: rgba(57, 255, 20, 0.8);
+  box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
+  outline: none;
+}
+
+.space-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* زر تبديل (Toggle) فضائي */
+.space-toggle {
+  position: relative;
+  width: 3rem;
+  height: 1.5rem;
+  border-radius: 1.5rem;
+  background-color: rgba(0, 0, 5, 0.6);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.space-toggle::after {
+  content: '';
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+}
+
+.space-toggle.active {
+  background-color: rgba(57, 255, 20, 0.3);
+  border-color: rgba(57, 255, 20, 0.8);
+}
+
+.space-toggle.active::after {
+  transform: translateX(1.5rem);
+  background-color: rgba(57, 255, 20, 0.9);
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.6);
+}
