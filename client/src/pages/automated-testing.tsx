@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'wouter';
 import AutomatedUITester from '@/tests/automated/AutomatedUITester';
 import PerformanceMonitor from '@/tests/automated/PerformanceMonitor';
+import AccessibilityAudit from '@/tests/automated/AccessibilityAudit';
 
 /**
  * صفحة الاختبارات الآلية ومراقبة الأداء
@@ -38,12 +39,15 @@ export default function AutomatedTestingPage() {
       </div>
 
       <Tabs defaultValue="performance-monitor" className="w-full">
-        <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6">
+        <TabsList className="grid grid-cols-3 w-full max-w-md mx-auto mb-6">
           <TabsTrigger value="performance-monitor">
             مراقبة الأداء
           </TabsTrigger>
           <TabsTrigger value="automated-testing">
             الاختبارات الآلية
+          </TabsTrigger>
+          <TabsTrigger value="accessibility-audit">
+            تدقيق الوصول
           </TabsTrigger>
         </TabsList>
 
@@ -123,6 +127,10 @@ export default function AutomatedTestingPage() {
               </div>
             </div>
           </div>
+        </TabsContent>
+        
+        <TabsContent value="accessibility-audit" className="space-y-6">
+          <AccessibilityAudit />
         </TabsContent>
       </Tabs>
     </div>
