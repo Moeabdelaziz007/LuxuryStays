@@ -150,177 +150,282 @@ export default function ServicesSection() {
 
   return (
     <div>
-      <div className="max-w-4xl mx-auto text-center mb-6 sm:mb-8 md:mb-12">
-        <p className="text-gray-400 mb-4 sm:mb-8 text-sm sm:text-base px-2 sm:px-0">
+      <div className="max-w-4xl mx-auto text-center mb-5 sm:mb-8">
+        <p className="text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base px-3 sm:px-4 md:px-0">
           استمتع بخدماتنا الحصرية التي تجعل إقامتك تجربة لا تُنسى. نتعاون مع أفضل المطاعم والنوادي الليلية في الساحل الشمالي وراس الحكمة.
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-        {servicesList.map((service) => (
-          <HolographicCard
-            key={service.id}
-            className="overflow-hidden h-full"
-            glowColor="#39FF14"
-            glowIntensity="medium"
-            withBorder={true}
-            interactive={true}
-            variant="transparent"
-          >
-            {/* Service Header with Background Image */}
-            <div className="relative h-40 overflow-hidden">
-              {/* Background Image with Overlay */}
-              <img 
-                src={service.name?.includes("مطاعم") 
-                  ? "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1170" 
-                  : "https://images.unsplash.com/photo-1532452119098-a3650b3c46d3?q=80&w=1170"} 
-                alt={service.name} 
-                className="absolute inset-0 w-full h-full object-cover filter brightness-[0.6] transform group-hover:scale-105 transition-transform duration-700" 
-              />
-              
-              {/* إضافة تأثير التكنو-فضائي */}
+      {/* Mobile Services Carousel for Small Screens */}
+      <div className="block sm:hidden mb-6">
+        <div className="overflow-auto pb-4 hide-scrollbar -mx-4 px-4">
+          <div className="flex gap-3 w-max">
+            {servicesList.map((service) => (
               <div 
-                className="absolute inset-0 opacity-10 pointer-events-none" 
-                style={{
-                  backgroundImage: 'linear-gradient(to right, rgba(57, 255, 20, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(57, 255, 20, 0.1) 1px, transparent 1px)',
-                  backgroundSize: '20px 20px',
-                  mixBlendMode: 'overlay'
-                }}
-              ></div>
-              
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-gray-900/50 to-transparent"></div>
-              
-              {/* Price Badge - Top Right */}
-              <div className="absolute top-0 right-0 z-10 m-4">
-                <span className="inline-block px-4 py-1 rounded-full text-sm font-bold bg-[#39FF14] text-black shadow-[0_0_15px_rgba(57,255,20,0.3)] backdrop-blur-sm border border-[#39FF14]/20">
-                  {service.name?.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
-                </span>
+                key={service.id} 
+                className="w-[280px] flex-shrink-0 bg-gray-900/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 shadow-lg"
+              >
+                {/* Service Header with Background Image */}
+                <div className="relative h-36 overflow-hidden">
+                  {/* Background Image with Overlay */}
+                  <img 
+                    src={service.name?.includes("مطاعم") 
+                      ? "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1170" 
+                      : "https://images.unsplash.com/photo-1532452119098-a3650b3c46d3?q=80&w=1170"} 
+                    alt={service.name} 
+                    className="absolute inset-0 w-full h-full object-cover filter brightness-[0.6]" 
+                  />
+                  
+                  {/* إضافة تأثير التكنو-فضائي */}
+                  <div 
+                    className="absolute inset-0 opacity-10 pointer-events-none" 
+                    style={{
+                      backgroundImage: 'linear-gradient(to right, rgba(57, 255, 20, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(57, 255, 20, 0.1) 1px, transparent 1px)',
+                      backgroundSize: '20px 20px',
+                      mixBlendMode: 'overlay'
+                    }}
+                  ></div>
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-gray-900/50 to-transparent"></div>
+                  
+                  {/* Price Badge - Top Right */}
+                  <div className="absolute top-0 right-0 z-10 m-3">
+                    <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#39FF14] text-black shadow-[0_0_15px_rgba(57,255,20,0.3)] backdrop-blur-sm border border-[#39FF14]/20">
+                      {service.name?.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
+                    </span>
+                  </div>
+                  
+                  {/* Icon and Service Title - Positioned at Bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3 z-10 flex items-center">
+                    {/* Icon Container */}
+                    <div className="flex-shrink-0 p-2 rounded-full mr-2 bg-gradient-to-br from-[#39FF14] to-[#39FF14]/80 shadow-[0_0_15px_rgba(57,255,20,0.4)] border border-[#39FF14]">
+                      <span className="text-base">
+                        {service.name?.includes("مطاعم") ? "🍽️" : "💃"}
+                      </span>
+                    </div>
+                    
+                    {/* Service Title */}
+                    <h3 className="text-base font-bold text-white leading-tight line-clamp-1">{service.name}</h3>
+                  </div>
+                </div>
+                
+                {/* Mobile Service Content - Simplified */}
+                <div className="p-3">
+                  {/* Description - Shorter for Mobile */}
+                  <p className="text-xs text-gray-300 leading-relaxed line-clamp-2 mb-3">
+                    {service.description}
+                  </p>
+                  
+                  {/* Location Highlights - Simplified for Mobile */}
+                  {service.locations && (
+                    <div className="mb-3">
+                      <h5 className="text-xs font-semibold text-[#39FF14] mb-2 flex items-center">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#39FF14] mr-1.5 animate-pulse"></span>
+                        المناطق المتاحة:
+                      </h5>
+                      <div className="flex flex-wrap gap-1.5">
+                        {service.locations.slice(0, 2).map((location, idx) => (
+                          <div key={idx} className="text-xs bg-black/50 rounded-full px-2 py-0.5 border border-gray-800 text-white">
+                            {location.name}
+                          </div>
+                        ))}
+                        {service.locations.length > 2 && (
+                          <div className="text-xs bg-black/50 rounded-full px-2 py-0.5 border border-gray-800 text-gray-400">
+                            +{service.locations.length - 2}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* CTA Button - Simplified */}
+                  <a 
+                    href={`/services/${service.id}`} 
+                    className="w-full block text-center bg-[#39FF14] text-black font-bold py-2 px-3 rounded-lg text-xs"
+                  >
+                    احجز الآن
+                  </a>
+                </div>
               </div>
-              
-              {/* Icon and Service Title - Positioned at Bottom */}
-              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 z-10 flex items-center">
-                {/* Icon Container */}
-                <div className="p-2 sm:p-3 rounded-full mr-2 sm:mr-4 bg-gradient-to-br from-[#39FF14] to-[#39FF14]/80 shadow-[0_0_15px_rgba(57,255,20,0.4)] border border-[#39FF14]">
-                  <span className="text-xl sm:text-2xl">
-                    {service.name?.includes("مطاعم") ? "🍽️" : "💃"}
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Desktop and Tablet Grid Layout */}
+      <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+        {servicesList.map((service) => (
+          <div
+            key={service.id}
+            className="group"
+          >
+            <HolographicCard
+              className="overflow-hidden h-full"
+              glowColor="#39FF14"
+              glowIntensity="medium"
+              withBorder={true}
+              interactive={true}
+              variant="transparent"
+            >
+              {/* Service Header with Background Image */}
+              <div className="relative h-40 overflow-hidden">
+                {/* Background Image with Overlay */}
+                <img 
+                  src={service.name?.includes("مطاعم") 
+                    ? "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1170" 
+                    : "https://images.unsplash.com/photo-1532452119098-a3650b3c46d3?q=80&w=1170"} 
+                  alt={service.name} 
+                  className="absolute inset-0 w-full h-full object-cover filter brightness-[0.6] transform group-hover:scale-105 transition-transform duration-700" 
+                />
+                
+                {/* إضافة تأثير التكنو-فضائي */}
+                <div 
+                  className="absolute inset-0 opacity-10 pointer-events-none" 
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, rgba(57, 255, 20, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(57, 255, 20, 0.1) 1px, transparent 1px)',
+                    backgroundSize: '20px 20px',
+                    mixBlendMode: 'overlay'
+                  }}
+                ></div>
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-gray-900/50 to-transparent"></div>
+                
+                {/* Price Badge - Top Right */}
+                <div className="absolute top-0 right-0 z-10 m-4">
+                  <span className="inline-block px-4 py-1 rounded-full text-sm font-bold bg-[#39FF14] text-black shadow-[0_0_15px_rgba(57,255,20,0.3)] backdrop-blur-sm border border-[#39FF14]/20">
+                    {service.name?.includes("مطاعم") ? "مجاناً" : "5$ فقط"}
                   </span>
                 </div>
                 
-                {/* Service Title */}
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white group-hover:text-[#39FF14] transition-colors drop-shadow-md leading-tight">{service.name}</h3>
-              </div>
-            </div>
-            
-            {/* Service Content */}
-            <div className="p-5">
-              {/* Description */}
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 sm:p-4 mb-4 sm:mb-5 border border-[#39FF14]/10">
-                <p className="text-sm sm:text-md text-gray-300 leading-relaxed">{service.description}</p>
-              </div>
-              
-              {/* Location Filter Pills */}
-              {service.locations && (
-                <div className="mb-5">
-                  <h4 className="text-sm font-semibold text-[#39FF14] mb-2 flex items-center">
-                    <span className="w-4 h-0.5 bg-[#39FF14] mr-2 opacity-70 rounded-full"></span>
-                    تصفية حسب المنطقة:
-                    <span className="w-4 h-0.5 bg-[#39FF14] ml-2 opacity-70 rounded-full"></span>
-                  </h4>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <button
-                      onClick={() => setSelectedLocation(null)}
-                      className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation === null 
-                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
-                        : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
-                    >
-                      الكل
-                    </button>
-                    <button
-                      onClick={() => setSelectedLocation("راس الحكمة")}
-                      className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation?.includes("راس الحكمة") 
-                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
-                        : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
-                    >
-                      راس الحكمة
-                    </button>
-                    <button
-                      onClick={() => setSelectedLocation("الساحل الشمالي")}
-                      className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation?.includes("الساحل") 
-                        ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
-                        : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
-                    >
-                      الساحل الشمالي
-                    </button>
-                  </div>
-                  
-                  {/* Locations List */}
-                  <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-[#39FF14]/20">
-                    <h5 className="text-sm font-semibold text-white mb-3 flex items-center">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#39FF14] mr-2 animate-pulse-subtle"></span>
-                      الأماكن المتاحة:
-                    </h5>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {service.locations
-                        .filter(loc => selectedLocation ? loc.area.includes(selectedLocation) : true)
-                        .map((location, idx) => (
-                        <div key={idx} className="flex items-center text-sm bg-black/50 backdrop-blur-sm rounded-md p-2 border border-gray-800 hover:border-[#39FF14]/30 transition-colors">
-                          <span className="w-2 h-2 rounded-full bg-[#39FF14] mr-2 flex-shrink-0 shadow-[0_0_5px_rgba(57,255,20,0.7)]"></span>
-                          <div className="flex flex-col flex-grow">
-                            <span className="font-medium text-white">{location.name}</span>
-                            <span className="text-gray-400 text-xs">({location.area})</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Divider Line - futuristic divider */}
-              <div className="relative h-px my-4">
-                <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/40 to-transparent"></div>
-                <div className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full bg-[#39FF14] transform -translate-x-1/2 -translate-y-1/2 animate-pulse-subtle"></div>
-              </div>
-              
-              {/* Footer with Availability & CTA */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-gray-400 block mb-1">أماكن متاحة اليوم</span>
-                  <div className="flex items-center">
-                    <div className="h-2 w-32 bg-black/50 rounded-full overflow-hidden border border-[#39FF14]/10">
-                      <div className={`h-full ${service.name?.includes("مطاعم") 
-                        ? "bg-gradient-to-r from-[#39FF14] to-[#2ac70d] w-3/4" 
-                        : "bg-gradient-to-r from-[#39FF14] to-[#45ff25] w-1/2"}`}>
-                      </div>
-                    </div>
-                    <span className="text-sm text-white ml-2 font-medium">
-                      {service.name?.includes("مطاعم") ? "75%" : "50%"}
+                {/* Icon and Service Title - Positioned at Bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 z-10 flex items-center">
+                  {/* Icon Container */}
+                  <div className="p-2 sm:p-3 rounded-full mr-2 sm:mr-4 bg-gradient-to-br from-[#39FF14] to-[#39FF14]/80 shadow-[0_0_15px_rgba(57,255,20,0.4)] border border-[#39FF14]">
+                    <span className="text-xl sm:text-2xl">
+                      {service.name?.includes("مطاعم") ? "🍽️" : "💃"}
                     </span>
                   </div>
+                  
+                  {/* Service Title */}
+                  <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-[#39FF14] transition-colors drop-shadow-md leading-tight">{service.name}</h3>
+                </div>
+              </div>
+              
+              {/* Service Content */}
+              <div className="p-4 sm:p-5">
+                {/* Description */}
+                <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 sm:p-4 mb-4 border border-[#39FF14]/10">
+                  <p className="text-sm text-gray-300 leading-relaxed">{service.description}</p>
                 </div>
                 
-                <a 
-                  href={`/services/${service.id}`} 
-                  className="relative overflow-hidden bg-[#39FF14] hover:bg-[#45ff25] text-black font-bold py-2.5 px-5 rounded-lg transition-all shadow-[0_0_15px_rgba(57,255,20,0.2)] hover:shadow-[0_0_15px_rgba(57,255,20,0.5)] group"
-                >
-                  <span className="relative z-10">احجز الآن</span>
-                  <span className="absolute inset-0 w-full h-full bg-white/30 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-                </a>
+                {/* Location Filter Pills */}
+                {service.locations && (
+                  <div className="mb-5">
+                    <h4 className="text-sm font-semibold text-[#39FF14] mb-2 flex items-center">
+                      <span className="w-4 h-0.5 bg-[#39FF14] mr-2 opacity-70 rounded-full"></span>
+                      تصفية حسب المنطقة:
+                      <span className="w-4 h-0.5 bg-[#39FF14] ml-2 opacity-70 rounded-full"></span>
+                    </h4>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <button
+                        onClick={() => setSelectedLocation(null)}
+                        className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation === null 
+                          ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
+                          : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
+                      >
+                        الكل
+                      </button>
+                      <button
+                        onClick={() => setSelectedLocation("راس الحكمة")}
+                        className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation?.includes("راس الحكمة") 
+                          ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
+                          : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
+                      >
+                        راس الحكمة
+                      </button>
+                      <button
+                        onClick={() => setSelectedLocation("الساحل الشمالي")}
+                        className={`text-xs px-3 py-1 rounded-full transition-colors ${selectedLocation?.includes("الساحل") 
+                          ? 'bg-[#39FF14] text-black shadow-[0_0_8px_rgba(57,255,20,0.5)] border border-[#39FF14]/80' 
+                          : 'bg-black/40 text-white border border-gray-700 hover:border-[#39FF14]/50 backdrop-blur-sm'}`}
+                      >
+                        الساحل الشمالي
+                      </button>
+                    </div>
+                    
+                    {/* Locations List */}
+                    <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-[#39FF14]/20">
+                      <h5 className="text-sm font-semibold text-white mb-3 flex items-center">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#39FF14] mr-2 animate-pulse"></span>
+                        الأماكن المتاحة:
+                      </h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {service.locations
+                          .filter(loc => selectedLocation ? loc.area.includes(selectedLocation) : true)
+                          .map((location, idx) => (
+                          <div key={idx} className="flex items-center text-sm bg-black/50 backdrop-blur-sm rounded-md p-2 border border-gray-800 hover:border-[#39FF14]/30 transition-colors">
+                            <span className="w-2 h-2 rounded-full bg-[#39FF14] mr-2 flex-shrink-0 shadow-[0_0_5px_rgba(57,255,20,0.7)]"></span>
+                            <div className="flex flex-col flex-grow">
+                              <span className="font-medium text-white">{location.name}</span>
+                              <span className="text-gray-400 text-xs">({location.area})</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Divider Line - futuristic divider */}
+                <div className="relative h-px my-4">
+                  <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/40 to-transparent"></div>
+                  <div className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full bg-[#39FF14] transform -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+                </div>
+                
+                {/* Footer with Availability & CTA */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-gray-400 block mb-1">أماكن متاحة اليوم</span>
+                    <div className="flex items-center">
+                      <div className="h-2 w-28 sm:w-32 bg-black/50 rounded-full overflow-hidden border border-[#39FF14]/10">
+                        <div className={`h-full ${service.name?.includes("مطاعم") 
+                          ? "bg-gradient-to-r from-[#39FF14] to-[#2ac70d] w-3/4" 
+                          : "bg-gradient-to-r from-[#39FF14] to-[#45ff25] w-1/2"}`}>
+                        </div>
+                      </div>
+                      <span className="text-sm text-white mr-2 font-medium">
+                        {service.name?.includes("مطاعم") ? "75%" : "50%"}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <a 
+                    href={`/services/${service.id}`} 
+                    className="relative overflow-hidden bg-[#39FF14] hover:bg-[#45ff25] text-black font-bold py-2 px-4 sm:px-5 rounded-lg text-sm transition-all shadow-[0_0_15px_rgba(57,255,20,0.2)] hover:shadow-[0_0_15px_rgba(57,255,20,0.5)] group"
+                  >
+                    <span className="relative z-10">احجز الآن</span>
+                    <span className="absolute inset-0 w-full h-full bg-white/30 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+                  </a>
+                </div>
               </div>
-            </div>
-          </HolographicCard>
+            </HolographicCard>
+          </div>
         ))}
       </div>
       
-      <div className="text-center mt-12">
-        <a href="/services" className="inline-flex items-center justify-center gap-2 text-[#39FF14] hover:text-[#50FF30] font-bold text-lg">
+      {/* "View All" Link */}
+      <div className="text-center mt-8 sm:mt-12">
+        <a href="/services" className="inline-flex items-center justify-center gap-2 text-[#39FF14] hover:text-[#50FF30] font-bold text-base sm:text-lg bg-black/30 px-5 py-2 rounded-full backdrop-blur-sm border border-gray-800 hover:border-[#39FF14]/30 transition-all">
           عرض جميع الخدمات
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
         </a>
       </div>
+      
+      {/* CSS لإخفاء شريط التمرير سيتم إضافته في ملف CSS العام */}
     </div>
   );
 }
