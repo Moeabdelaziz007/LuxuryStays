@@ -59,8 +59,8 @@ export default function GoogleLoginRedirect({
       provider.setCustomParameters({
         'login_hint': 'الرجاء اختيار حساب Google الخاص بك',
         'prompt': 'select_account',
-        'client_id': googleOAuthConfig.clientId,
-        'redirect_uri': `${window.location.origin}/auth/google/callback`,
+        // لا حاجة لتحديد client_id أو redirect_uri صراحة هنا 
+        // لأن Firebase Auth سيستخدم الإعدادات المكونة في وحدة تحكم Firebase
         'origin': window.location.origin
       });
       
