@@ -4,6 +4,7 @@ import { Link, useLocation } from "wouter";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { TechButton } from "@/components/ui/TechButton";
 import { 
   BellIcon, 
   PanelLeftOpen, 
@@ -437,22 +438,28 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
                     to="/login" 
                     className="relative group overflow-hidden"
                   >
-                    <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-black/60 backdrop-blur-md text-[#39FF14] border border-[#39FF14]/50 group-hover:border-[#39FF14] group-hover:bg-black/80 transition-all duration-300 flex items-center gap-1.5">
+                    <TechButton
+                      variant="outline" 
+                      glowIntensity="medium"
+                      className="flex items-center gap-1.5"
+                    >
                       <LogOut size={16} className="inline-block transform rotate-180" />
                       <span>تسجيل الدخول</span>
-                    </span>
-                    <div className="absolute inset-0 bg-[#39FF14]/10 blur group-hover:bg-[#39FF14]/20 rounded-lg transition-colors duration-300"></div>
+                    </TechButton>
                   </Link>
 
                   <Link 
                     to="/signup" 
-                    className="relative group overflow-hidden"
                   >
-                    <span className="relative z-10 px-4 py-2 inline-block rounded-lg bg-[#39FF14] text-black font-medium transform group-hover:scale-[1.03] transition-transform duration-300 flex items-center gap-1.5">
+                    <TechButton
+                      variant="cyber" 
+                      glowIntensity="strong"
+                      shimmer={true}
+                      className="flex items-center gap-1.5"
+                    >
                       <User size={16} className="inline-block" />
                       <span>إنشاء حساب</span>
-                    </span>
-                    <div className="absolute inset-0 bg-[#39FF14] blur-sm opacity-50 group-hover:opacity-70 rounded-lg transition-opacity duration-300"></div>
+                    </TechButton>
                   </Link>
                 </div>
               )

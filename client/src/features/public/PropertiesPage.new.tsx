@@ -759,7 +759,7 @@ function PropertyCard({ property, index }: PropertyCardProps) {
                 <span>{property.bedrooms} غرف نوم</span>
               </div>
               <div className="flex items-center gap-1.5 text-sm text-gray-300">
-                <Shower size={16} className="text-[#39FF14]/70" />
+                <Bath size={16} className="text-[#39FF14]/70" />
                 <span>{property.bathrooms} حمام</span>
               </div>
               <div className="flex items-center gap-1.5 text-sm text-gray-300">
@@ -841,7 +841,7 @@ function PropertyCard({ property, index }: PropertyCardProps) {
 
 // مشابك CSS لإضافة مؤثرات التصميم
 const CyberStyles = () => (
-  <style jsx global>{`
+  <style>{`
     @keyframes scan {
       0% { transform: translateY(-100%); }
       100% { transform: translateY(100%); }
