@@ -16,7 +16,12 @@ import {
 } from "firebase/auth";
 
 // استيراد خدمات Firebase المُهيأة من الملف الرئيسي
-import { auth, app, db, storage } from './firebase-config';
+import { auth as firebaseAuth, app as firebaseApp, db as firestoreDb, storage as firebaseStorage } from './firebase-config';
+// إعادة تصدير المتغيرات للتوافق
+export const auth = firebaseAuth;
+export const app = firebaseApp;
+export const db = firestoreDb;
+export const storage = firebaseStorage;
 
 // دالة مساعدة للتعامل مع وثائق Firestore بشكل آمن
 export const safeDoc = (doc: any) => {
