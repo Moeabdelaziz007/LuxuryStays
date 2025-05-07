@@ -12,6 +12,7 @@ import WelcomeMessage from "./components/WelcomeMessage";
 import GoogleAuthDomainAlert from "./components/GoogleAuthDomainAlert";
 import AppRoutes from "./routes";
 import { useToast } from "@/hooks/use-toast";
+import TechBackgroundLayout from "./components/layout/TechBackgroundLayout";
 
 function RedirectHandler() {
   const { user, loading, updateUserInfo } = useAuth();
@@ -152,9 +153,11 @@ function App() {
       <DatabaseConnectionStatus />
       <GoogleAuthDomainAlert />
       <WelcomeMessage />
-      {showHeaderFooter && <SmartHeader />}
-      <AppRoutes />
-      {showHeaderFooter && <Footer />}
+      <TechBackgroundLayout>
+        {showHeaderFooter && <SmartHeader />}
+        <AppRoutes />
+        {showHeaderFooter && <Footer />}
+      </TechBackgroundLayout>
     </TooltipProvider>
   );
 }
