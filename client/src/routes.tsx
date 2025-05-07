@@ -16,7 +16,7 @@ import {
   LazyPropertyAnalytics,
   LazyBookingCheckout,
   LazyBookingConfirmation
-} from "@/components/LazyComponents";
+} from "@/components/LazyComponentsList";
 
 // Regular Imported Components
 import FinancialTransactions from "@/features/dashboard/super-admin/FinancialTransactions";
