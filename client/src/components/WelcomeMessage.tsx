@@ -29,6 +29,11 @@ export default function WelcomeMessage() {
       setShowWelcome(true);
       // إزالة العلامة لمنع ظهور الرسالة في كل مرة يتم فيها تحميل الصفحة
       sessionStorage.removeItem('justLoggedIn');
+    } else if (user && !sessionStorage.getItem('welcomed')) {
+      // إظهار الرسالة الترحيبية للمستخدم المسجل دخوله بعد تحميل الصفحة مباشرة
+      // للأغراض التجريبية فقط - يمكننا إزالة هذا في الإنتاج
+      setShowWelcome(true);
+      sessionStorage.setItem('welcomed', 'true');
     }
     
     if (isNewUser === 'true' && user) {

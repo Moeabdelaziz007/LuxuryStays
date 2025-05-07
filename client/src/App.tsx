@@ -10,6 +10,7 @@ import Footer from "./components/layout/Footer";
 import { getAuth, getRedirectResult } from "firebase/auth";
 import DatabaseConnectionStatus from "./components/DatabaseConnectionStatus";
 import WelcomeMessage from "./components/WelcomeMessage";
+import GoogleAuthDomainAlert from "./components/GoogleAuthDomainAlert";
 import AppRoutes from "./routes";
 
 function RedirectHandler() {
@@ -142,49 +143,15 @@ function App() {
     }
   }, [location, loading, setLocation]);
   
-  // Handle redirect from Google sign-in
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          const { user } = result;
-          console.log("Google sign-in successful", {
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
-            emailVerified: user.emailVerified,
-            isRedirect: true
-          });
-          
-          // يمكن أن نعرض رسالة ترحيب للمستخدم هنا باستخدام toast
-          // لكن هذا سيتم معالجته في سياق المصادقة
-        }
-      } catch (error: any) {
-        console.error("Google redirect error:", error);
-        
-        // معالجة أنواع مختلفة من الأخطاء
-        if (error.code === 'auth/account-exists-with-different-credential') {
-          console.warn("حساب موجود بالفعل بنفس البريد الإلكتروني ولكن بطريقة تسجيل دخول مختلفة");
-        } else if (error.code === 'auth/user-cancelled') {
-          console.warn("تم إلغاء عملية تسجيل الدخول من قبل المستخدم");
-        } else if (error.code === 'auth/user-not-found') {
-          console.warn("لم يتم العثور على المستخدم");
-        } else if (error.code === 'auth/invalid-credential') {
-          console.warn("بيانات الاعتماد غير صالحة");
-        }
-      }
-    };
-    
-    // معالجة نتيجة إعادة التوجيه مباشرة بعد تحميل الصفحة
-    handleRedirectResult();
-  }, [auth]);
+  // نستخدم RedirectHandler للتعامل مع جميع عمليات إعادة التوجيه من مزودي المصادقة
+  // تم إزالة معالجة إعادة التوجيه الإضافية هنا لتجنب التداخل والتكرار
 
   return (
     <TooltipProvider>
       <Toaster />
       <RedirectHandler />
       <DatabaseConnectionStatus />
+      <GoogleAuthDomainAlert />
       <WelcomeMessage />
       {showHeaderFooter && <SmartHeader />}
       <AppRoutes />
