@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <rect width="800" height="600" fill="#1a2e3d"/>
+  
+  <!-- Waves for the sea -->
+  <path d="M0 400 Q 100 380, 200 400 Q 300 420, 400 400 Q 500 380, 600 400 Q 700 420, 800 400 L 800 600 L 0 600 Z" fill="#2a5674" opacity="0.8"/>
+  <path d="M0 420 Q 100 400, 200 420 Q 300 440, 400 420 Q 500 400, 600 420 Q 700 440, 800 420 L 800 600 L 0 600 Z" fill="#1e3d52" opacity="0.9"/>
+  
+  <!-- Beach -->
+  <path d="M0 450 Q 200 430, 400 450 Q 600 470, 800 450 L 800 600 L 0 600 Z" fill="#d9c7a8" opacity="0.6"/>
+  
+  <!-- Chalet structure -->
+  <rect x="250" y="150" width="300" height="200" fill="#5d4037"/>
+  
+  <!-- Roof -->
+  <polygon points="250,150 400,50 550,150" fill="#8d6e63"/>
+  
+  <!-- Windows -->
+  <rect x="280" y="200" width="60" height="60" fill="#90caf9"/>
+  <rect x="460" y="200" width="60" height="60" fill="#90caf9"/>
+  
+  <!-- Door -->
+  <rect x="370" y="260" width="60" height="90" fill="#4e342e"/>
+  
+  <!-- Balcony -->
+  <rect x="230" y="220" width="340" height="10" fill="#8d6e63"/>
+  <line x1="250" y1="220" x2="250" y2="270" stroke="#8d6e63" stroke-width="5"/>
+  <line x1="300" y1="220" x2="300" y2="270" stroke="#8d6e63" stroke-width="5"/>
+  <line x1="350" y1="220" x2="350" y2="270" stroke="#8d6e63" stroke-width="5"/>
+  <line x1="450" y1="220" x2="450" y2="270" stroke="#8d6e63" stroke-width="5"/>
+  <line x1="500" y1="220" x2="500" y2="270" stroke="#8d6e63" stroke-width="5"/>
+  <line x1="550" y1="220" x2="550" y2="270" stroke="#8d6e63" stroke-width="5"/>
+  
+  <!-- Swimming Pool -->
+  <rect x="600" y="300" width="150" height="100" rx="5" ry="5" fill="#2196f3" opacity="0.7"/>
+  <path d="M600 310 Q 675 300, 750 310" stroke="white" stroke-width="2" fill="none" opacity="0.3"/>
+  <path d="M600 330 Q 675 320, 750 330" stroke="white" stroke-width="2" fill="none" opacity="0.3"/>
+  
+  <!-- Palm Trees -->
+  <line x1="150" y1="450" x2="150" y2="350" stroke="#795548" stroke-width="10"/>
+  <path d="M150 350 Q 120 340, 110 320" stroke="#4caf50" stroke-width="8" fill="none"/>
+  <path d="M150 350 Q 180 340, 190 320" stroke="#4caf50" stroke-width="8" fill="none"/>
+  <path d="M150 360 Q 130 350, 100 350" stroke="#4caf50" stroke-width="8" fill="none"/>
+  <path d="M150 360 Q 170 350, 200 350" stroke="#4caf50" stroke-width="8" fill="none"/>
+  
+  <line x1="650" y1="450" x2="650" y2="380" stroke="#795548" stroke-width="10"/>
+  <path d="M650 380 Q 620 370, 610 350" stroke="#4caf50" stroke-width="8" fill="none"/>
+  <path d="M650 380 Q 680 370, 690 350" stroke="#4caf50" stroke-width="8" fill="none"/>
+  <path d="M650 390 Q 630 380, 600 380" stroke="#4caf50" stroke-width="8" fill="none"/>
+  <path d="M650 390 Q 670 380, 700 380" stroke="#4caf50" stroke-width="8" fill="none"/>
+  
+  <!-- Sun -->
+  <circle cx="100" cy="100" r="40" fill="#ffeb3b"/>
+  <line x1="100" y1="30" x2="100" y2="50" stroke="#ffeb3b" stroke-width="6"/>
+  <line x1="100" y1="150" x2="100" y2="170" stroke="#ffeb3b" stroke-width="6"/>
+  <line x1="30" y1="100" x2="50" y2="100" stroke="#ffeb3b" stroke-width="6"/>
+  <line x1="150" y1="100" x2="170" y2="100" stroke="#ffeb3b" stroke-width="6"/>
+  <line x1="52" y1="52" x2="65" y2="65" stroke="#ffeb3b" stroke-width="6"/>
+  <line x1="135" y1="135" x2="148" y2="148" stroke="#ffeb3b" stroke-width="6"/>
+  <line x1="52" y1="148" x2="65" y2="135" stroke="#ffeb3b" stroke-width="6"/>
+  <line x1="135" y1="65" x2="148" y2="52" stroke="#ffeb3b" stroke-width="6"/>
+  
+  <!-- Luxury text -->
+  <text x="400" y="550" font-family="Arial" font-size="30" text-anchor="middle" fill="white">شاليه فاخر بإطلالة بحرية</text>
+</svg>

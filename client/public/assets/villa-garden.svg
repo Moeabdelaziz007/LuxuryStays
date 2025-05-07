@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <rect width="800" height="600" fill="#2c3e50"/>
+  
+  <!-- Sky gradient -->
+  <rect width="800" height="300" fill="#3498db" opacity="0.5"/>
+  
+  <!-- Grass area -->
+  <rect x="0" y="300" width="800" height="300" fill="#27ae60" opacity="0.7"/>
+  
+  <!-- Villa structure -->
+  <rect x="200" y="150" width="400" height="230" fill="#ecf0f1"/>
+  
+  <!-- Roof -->
+  <polygon points="200,150 400,50 600,150" fill="#e74c3c"/>
+  
+  <!-- Windows -->
+  <rect x="230" y="180" width="70" height="70" fill="#3498db" opacity="0.8"/>
+  <rect x="350" y="180" width="70" height="70" fill="#3498db" opacity="0.8"/>
+  <rect x="500" y="180" width="70" height="70" fill="#3498db" opacity="0.8"/>
+  <rect x="230" y="280" width="70" height="70" fill="#3498db" opacity="0.8"/>
+  <rect x="500" y="280" width="70" height="70" fill="#3498db" opacity="0.8"/>
+  
+  <!-- Front door -->
+  <rect x="380" y="280" width="80" height="100" fill="#d35400"/>
+  <circle cx="400" cy="330" r="5" fill="#f1c40f"/>
+  
+  <!-- Garden paths -->
+  <path d="M420 380 Q 500 450, 700 450" stroke="#f5deb3" stroke-width="15" fill="none"/>
+  <path d="M380 380 Q 300 450, 100 450" stroke="#f5deb3" stroke-width="15" fill="none"/>
+  <path d="M400 380 L 400 550" stroke="#f5deb3" stroke-width="15" fill="none"/>
+  
+  <!-- Swimming pool -->
+  <rect x="500" y="480" width="200" height="100" rx="20" ry="20" fill="#3498db" opacity="0.8"/>
+  <path d="M500 500 Q 600 490, 700 500" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M500 520 Q 600 510, 700 520" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
+  
+  <!-- Barbecue area -->
+  <rect x="150" y="480" width="50" height="50" fill="#7f8c8d"/>
+  <rect x="155" y="470" width="40" height="10" fill="#95a5a6"/>
+  <path d="M160 475 Q 175 440, 190 475" stroke="#c0392b" stroke-width="3" fill="none"/>
+  <path d="M170 475 Q 185 450, 200 475" stroke="#c0392b" stroke-width="3" fill="none"/>
+  
+  <!-- Trees in garden -->
+  <!-- Tree 1 -->
+  <line x1="100" y1="400" x2="100" y2="350" stroke="#795548" stroke-width="10"/>
+  <circle cx="100" cy="320" r="30" fill="#2ecc71"/>
+  
+  <!-- Tree 2 -->
+  <line x1="150" y1="400" x2="150" y2="340" stroke="#795548" stroke-width="12"/>
+  <circle cx="150" cy="310" r="40" fill="#27ae60"/>
+  
+  <!-- Tree 3 -->
+  <line x1="700" y1="400" x2="700" y2="350" stroke="#795548" stroke-width="10"/>
+  <circle cx="700" cy="320" r="30" fill="#2ecc71"/>
+  
+  <!-- Tree 4 -->
+  <line x1="650" y1="400" x2="650" y2="340" stroke="#795548" stroke-width="12"/>
+  <circle cx="650" cy="310" r="40" fill="#27ae60"/>
+  
+  <!-- Flowers -->
+  <circle cx="50" cy="500" r="10" fill="#e74c3c"/>
+  <circle cx="70" cy="510" r="10" fill="#f1c40f"/>
+  <circle cx="90" cy="500" r="10" fill="#9b59b6"/>
+  <circle cx="30" cy="510" r="10" fill="#e74c3c"/>
+  
+  <circle cx="550" cy="400" r="10" fill="#e74c3c"/>
+  <circle cx="570" cy="410" r="10" fill="#f1c40f"/>
+  <circle cx="590" cy="400" r="10" fill="#9b59b6"/>
+  <circle cx="530" cy="410" r="10" fill="#e74c3c"/>
+  
+  <!-- Sun -->
+  <circle cx="700" cy="100" r="40" fill="#f1c40f"/>
+  <line x1="700" y1="40" x2="700" y2="60" stroke="#f1c40f" stroke-width="6"/>
+  <line x1="700" y1="140" x2="700" y2="160" stroke="#f1c40f" stroke-width="6"/>
+  <line x1="640" y1="100" x2="660" y2="100" stroke="#f1c40f" stroke-width="6"/>
+  <line x1="740" y1="100" x2="760" y2="100" stroke="#f1c40f" stroke-width="6"/>
+  <line x1="656" y1="56" x2="670" y2="70" stroke="#f1c40f" stroke-width="6"/>
+  <line x1="730" y1="130" x2="744" y2="144" stroke="#f1c40f" stroke-width="6"/>
+  <line x1="656" y1="144" x2="670" y2="130" stroke="#f1c40f" stroke-width="6"/>
+  <line x1="730" y1="70" x2="744" y2="56" stroke="#f1c40f" stroke-width="6"/>
+  
+  <!-- Title -->
+  <text x="400" y="580" font-family="Arial" font-size="28" text-anchor="middle" fill="white">فيلا مع حديقة خاصة</text>
+</svg>
