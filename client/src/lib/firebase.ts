@@ -105,6 +105,14 @@ if (app) {
     // Skip local emulators completely - we'll use the real Firebase instance
     console.log("Using production Firebase instance - skipping local emulators");
     
+    // Improved error handling and connection robustness for Firestore
+    try {
+      // Set a longer timeout for Firestore operations (helps with slower connections)
+      const firestoreSettings = {
+        cacheSizeBytes: 50000000, // Increase cache size to 50MB
+        ignoreUndefinedProperties: true // Ignore undefined properties to prevent errors
+      };
+    
     // تكوين متقدم للتخزين المحلي وإدارة الشبكة لتحسين الأداء في كل الظروف
     if (db) {
       console.log("Enabling advanced offline capabilities for Firestore...");
@@ -180,8 +188,10 @@ if (app) {
   }
 }
 
-// Helper function to safely handle Firestore operations with advanced error handling and retry logic
-// This ensures we don't crash the app if Firestore is unavailable
+/**
+ * Helper function to safely handle Firestore operations with advanced error handling and retry logic
+ * This ensures we don't crash the app if Firestore is unavailable
+ */
 export const safeDoc = async (operation: () => Promise<any>, fallback: any = null, maxRetries = 3): Promise<any> => {
   if (!db) {
     console.error("Firestore not initialized, operation skipped");

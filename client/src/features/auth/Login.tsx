@@ -491,13 +491,15 @@ export default function LoginPage() {
                       return;
                     }
                     
-                    sendPasswordResetEmail(auth, email)
-                      .then(() => {
-                        toast(getSuccessToast(
-                          "تم إرسال رابط إعادة تعيين كلمة المرور",
-                          "تفقد بريدك الإلكتروني واتبع التعليمات لإعادة تعيين كلمة المرور"
-                        ));
-                      })
+                    // Ensure auth is not null before calling sendPasswordResetEmail
+                    if (auth) {
+                      sendPasswordResetEmail(auth, email)
+                        .then(() => {
+                          toast(getSuccessToast(
+                            "تم إرسال رابط إعادة تعيين كلمة المرور",
+                            "تفقد بريدك الإلكتروني واتبع التعليمات لإعادة تعيين كلمة المرور"
+                          ));
+                        })
                       .catch((error) => {
                         if (error.code === 'auth/user-not-found') {
                           toast({
@@ -513,6 +515,14 @@ export default function LoginPage() {
                           });
                         }
                       });
+                    } else {
+                      // Handle case where auth is null
+                      toast({
+                        title: "خدمة المصادقة غير متوفرة",
+                        description: "لا يمكن إعادة تعيين كلمة المرور حاليًا، الرجاء المحاولة لاحقًا",
+                        variant: "destructive",
+                      });
+                    }
                   }}
                 >
                   إعادة تعيين كلمة المرور
