@@ -164,7 +164,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
         
         console.log(`تم استرجاع ${bookingsWithDetails.length} حجز بنجاح`);
         return bookingsWithDetails;
-      }, []);
+      });
       } catch (error) {
         console.error("خطأ في استرجاع الحجوزات:", error);
         // إرجاع مصفوفة فارغة لتجنب انهيار التطبيق
@@ -846,14 +846,14 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                     <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-lg mb-2 border border-[#39FF14]/5">
                       <div className="text-sm text-white">حجوزات قيد الانتظار</div>
                       <div className="text-sm font-medium text-[#39FF14]">
-                        {bookings.filter(booking => booking.status === 'pending').length}
+                        {bookings.filter((booking: Booking) => booking.status === 'pending').length}
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-lg border border-[#39FF14]/5">
                       <div className="text-sm text-white">حجوزات ملغاة</div>
                       <div className="text-sm font-medium text-[#39FF14]">
-                        {bookings.filter(booking => booking.status === 'cancelled').length}
+                        {bookings.filter((booking: Booking) => booking.status === 'cancelled').length}
                       </div>
                     </div>
                   </div>
@@ -972,7 +972,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                   <CardContent className="p-6">
                     {bookings.length > 0 ? (
                       <div className="space-y-4">
-                        {bookings.slice(0, 3).map((booking) => (
+                        {bookings.slice(0, 3).map((booking: Booking) => (
                           <div key={booking.id} className="flex items-center gap-4 border-b border-gray-800 pb-4">
                             <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
                               {booking.propertyImage ? (
@@ -1137,7 +1137,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {bookings.map((booking) => (
+                    {bookings.map((booking: Booking) => (
                       <div key={booking.id} className="flex flex-col md:flex-row gap-6 border-b border-gray-800 pb-6">
                         <div className="w-full md:w-1/4 h-48 md:h-32 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
                           {booking.propertyImage ? (
