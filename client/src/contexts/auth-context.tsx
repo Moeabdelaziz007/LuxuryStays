@@ -535,6 +535,182 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const updateUserInfo = (userData: UserData) => {
     setUser(userData);
   };
+  
+  // تسجيل الدخول باستخدام Facebook
+  const loginWithFacebook = async (redirectPath?: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!auth) {
+        throw new Error("خدمات Firebase غير متوفرة");
+      }
+      
+      console.log("محاولة تسجيل الدخول باستخدام Facebook...");
+      
+      // حفظ مسار إعادة التوجيه إذا كان موجودًا
+      const path = redirectPath || redirectAfterLoginRef.current;
+      if (path) {
+        localStorage.setItem('facebookAuthRedirectPath', path);
+        console.log("تم حفظ مسار إعادة التوجيه:", path);
+      }
+      
+      // التحقق مما إذا كان المستخدم الحالي مجهولاً للترقية المحتملة
+      const currentUser = auth.currentUser;
+      const isAnonymous = currentUser && currentUser.isAnonymous;
+      
+      try {
+        // إعداد مزود المصادقة Facebook
+        const provider = new FacebookAuthProvider();
+        
+        let userCred;
+        
+        if (isAnonymous && currentUser) {
+          // ربط الحساب المجهول بحساب Facebook
+          try {
+            userCred = await linkWithPopup(currentUser, provider);
+            console.log("تم ربط الحساب المجهول بنجاح بحساب Facebook");
+            
+            // تحديث بيانات المستخدم في Firestore
+            if (db) {
+              await setDoc(
+                doc(db, "users", userCred.user.uid),
+                {
+                  email: userCred.user.email,
+                  name: userCred.user.displayName || "مستخدم Facebook",
+                  provider: "facebook",
+                  wasAnonymous: true,
+                  updatedAt: serverTimestamp()
+                },
+                { merge: true }
+              );
+            }
+          } catch (linkError: any) {
+            console.error("فشل ربط الحساب المجهول:", linkError.code);
+            
+            if (linkError.code === 'auth/credential-already-in-use' ||
+                linkError.code === 'auth/email-already-in-use') {
+              // حذف الحساب المجهول والتسجيل بالحساب الموجود
+              await currentUser.delete();
+              userCred = await signInWithPopup(auth, provider);
+            } else if (linkError.code === 'auth/unauthorized-domain') {
+              // استخدام المصادقة المجهولة كبديل
+              throw linkError; // سيتم معالجته في الـ catch الخارجي
+            } else {
+              throw linkError;
+            }
+          }
+        } else {
+          // تسجيل دخول عادي باستخدام Facebook
+          userCred = await signInWithPopup(auth, provider);
+        }
+        
+        // إضافة/تحديث المستخدم في Firestore
+        if (db && userCred) {
+          const user = userCred.user;
+          
+          // التحقق مما إذا كان المستخدم موجودًا بالفعل
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          
+          if (!userDoc.exists()) {
+            // إنشاء مستخدم جديد
+            const userData = {
+              uid: user.uid,
+              email: user.email,
+              name: user.displayName || "مستخدم Facebook",
+              role: "CUSTOMER",
+              createdAt: serverTimestamp(),
+              provider: "facebook",
+              wasAnonymous: isAnonymous
+            };
+            
+            await setDoc(doc(db, "users", user.uid), userData);
+          }
+        }
+        
+        // توجيه المستخدم بعد تسجيل الدخول
+        const savedRedirectPath = localStorage.getItem('facebookAuthRedirectPath');
+        if (savedRedirectPath) {
+          navigate(savedRedirectPath);
+          localStorage.removeItem('facebookAuthRedirectPath');
+        }
+        
+        return userCred;
+      } catch (popupError: any) {
+        console.error("خطأ في نافذة تسجيل الدخول:", popupError.code);
+        
+        if (popupError.code === 'auth/unauthorized-domain') {
+          // استخدام المصادقة المجهولة كبديل
+          throw popupError; // سيتم معالجته في الـ catch الخارجي
+        } else {
+          throw popupError;
+        }
+      }
+    } catch (error: any) {
+      console.error("خطأ في تسجيل الدخول باستخدام Facebook:", error);
+      setLoading(false);
+      throw error;
+    }
+  };
+  
+  // تسجيل الدخول بشكل مجهول (Anonymous)
+  const loginAnonymously = async (redirectPath?: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!auth) {
+        throw new Error("خدمات Firebase غير متوفرة");
+      }
+      
+      console.log("محاولة تسجيل الدخول كمستخدم مجهول...");
+      
+      // حفظ مسار إعادة التوجيه إذا كان موجودًا
+      const path = redirectPath || redirectAfterLoginRef.current;
+      if (path) {
+        localStorage.setItem('anonymousAuthRedirectPath', path);
+        console.log("تم حفظ مسار إعادة التوجيه للمستخدم المجهول:", path);
+      }
+      
+      const anonymousCred = await signInAnonymously(auth);
+      console.log("تم تسجيل الدخول كمستخدم مجهول بنجاح!");
+      
+      // تحديث الملف الشخصي
+      await updateProfile(anonymousCred.user, {
+        displayName: "زائر StayX"
+      });
+      
+      // إضافة المستخدم إلى Firestore
+      if (db) {
+        try {
+          const userData = {
+            uid: anonymousCred.user.uid,
+            email: null, // المستخدمين المجهولين ليس لديهم بريد إلكتروني
+            name: "زائر StayX",
+            role: "CUSTOMER",
+            createdAt: serverTimestamp(),
+            isAnonymous: true
+          };
+          
+          await setDoc(doc(db, "users", anonymousCred.user.uid), userData);
+        } catch (firestoreError) {
+          console.error("خطأ في حفظ بيانات المستخدم المجهول:", firestoreError);
+          // عدم منع التسجيل في حالة فشل Firestore
+        }
+      }
+      
+      // توجيه المستخدم بعد تسجيل الدخول
+      const savedRedirectPath = localStorage.getItem('anonymousAuthRedirectPath');
+      if (savedRedirectPath) {
+        navigate(savedRedirectPath);
+        localStorage.removeItem('anonymousAuthRedirectPath');
+      }
+      
+      return anonymousCred;
+    } catch (error) {
+      console.error("فشل في تسجيل الدخول كمستخدم مجهول:", error);
+      setLoading(false);
+      throw error;
+    }
+  };
 
   const contextValue = {
     user,
@@ -543,6 +719,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     register,
     logout,
     loginWithGoogle,
+    loginWithFacebook,
+    loginAnonymously,
     updateUserInfo,
   };
 
