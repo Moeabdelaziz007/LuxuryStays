@@ -116,7 +116,8 @@ export default function Header() {
                 { to: "#featured", label: t("nav.properties") },
                 { to: "#services", label: t("nav.services") },
                 { to: "#coming-soon", label: t("nav.comingSoon") },
-                { to: "#about", label: t("nav.about") }
+                { to: "#about", label: t("nav.about") },
+                { to: "/search", label: "البحث على الخريطة" }
               ].map(item => (
                 <Link 
                   key={item.to} 

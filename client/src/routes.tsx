@@ -159,6 +159,19 @@ export default function AppRoutes() {
         <UnauthorizedPage />
       </Route>
       
+      {/* ===== مسارات البحث عن العقارات ===== */}
+      <Route path="/search">
+        <Layout>
+          <MapSearch />
+        </Layout>
+      </Route>
+      
+      <Route path="/saved-searches">
+        <Layout>
+          <SavedSearchPreferences />
+        </Layout>
+      </Route>
+      
       {/* ===== صفحة عرض العلامة التجارية الجديدة ===== */}
       <Route path="/branding">
         <Layout>
