@@ -384,23 +384,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.setItem('googleAuthRedirectPath', redirectPath);
       }
       
-      console.log("بدء تسجيل الدخول باستخدام Google (طريقة إعادة التوجيه)...");
+      console.log("بدء تسجيل الدخول باستخدام Google...");
       console.log("Current domain:", window.location.host);
       console.log("Firebase project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
-      console.log("All domains to authorize:", [
-        window.location.host,
-        "staychill-3ed08.web.app",
-        "staychill-3ed08.firebaseapp.com"
-      ].join(", "));
       
-      const provider = new GoogleAuthProvider();
-      provider.addScope('profile');
-      provider.addScope('email');
-      
-      // استخدام طريقة إعادة التوجيه بدلاً من النافذة المنبثقة
-      await signInWithRedirect(auth, provider);
-      
-      // لن يتم تنفيذ أي كود بعد هذا لأن الصفحة ستتم إعادة تحميلها
+      // استخدام نفس الدالة المستخدمة في firebase.ts
+      try {
+        // محاولة استخدام النافذة المنبثقة أولاً (تعمل بشكل أفضل في بيئة Replit)
+        return await signInWithGoogle();
+      } catch (popupError: any) {
+        // إذا فشلت النافذة المنبثقة، يمكننا تجربة طريقة إعادة التوجيه
+        if (popupError.code === 'auth/popup-blocked' || 
+            popupError.code === 'auth/popup-closed-by-user' || 
+            popupError.code === 'auth/cancelled-popup-request') {
+          
+          console.log("النافذة المنبثقة غير متاحة، محاولة تسجيل الدخول باستخدام إعادة التوجيه...");
+          
+          const provider = new GoogleAuthProvider();
+          provider.addScope('profile');
+          provider.addScope('email');
+          
+          await signInWithRedirect(auth, provider);
+          // لن يتم تنفيذ أي كود بعد هذا لأن الصفحة ستتم إعادة تحميلها
+        } else {
+          // في حالة أخطاء أخرى، نمرر الخطأ ليتم التعامل معه في الـ catch الرئيسي
+          throw popupError;
+        }
+      }
       console.log("هذه الرسالة لن تظهر بسبب إعادة التوجيه");
       
     } catch (err: any) {

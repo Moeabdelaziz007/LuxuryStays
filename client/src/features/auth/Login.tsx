@@ -287,9 +287,92 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Instead of trying to authenticate directly, show the warning dialog
-    setShowGoogleWarning(true);
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      // Check if the current domain is in the list of authorized domains we know are configured
+      const currentDomain = window.location.host;
+      const knownAuthorizedDomains = [
+        'localhost',
+        'staychill-3ed08.firebaseapp.com',
+        'staychill-3ed08.web.app',
+        'f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev',
+        'luxury-stays-mohamedabdela18.replit.app'
+      ];
+      
+      const isDomainAuthorized = knownAuthorizedDomains.includes(currentDomain);
+      
+      if (!isDomainAuthorized) {
+        // If domain is not in our known list, show the warning dialog
+        setShowGoogleWarning(true);
+        setGoogleLoading(false);
+        return;
+      }
+      
+      // If domain is authorized, try to sign in with Google
+      if (!auth) {
+        throw new Error("خدمة المصادقة غير متوفرة حالياً");
+      }
+      
+      console.log("محاولة تسجيل الدخول باستخدام Google...");
+      
+      // Use firebase.ts signInWithGoogle function directly
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      provider.addScope('profile');
+      provider.addScope('email');
+      
+      // Try popup first (works better in Replit environment)
+      const result = await signInWithPopup(auth, provider);
+      
+      // Handle successful login
+      toast(getSuccessToast(
+        "تم تسجيل الدخول بنجاح",
+        "مرحباً بك في منصة StayX!"
+      ));
+      
+      // Redirect after login
+      setTimeout(() => {
+        if (redirectPath) {
+          navigate(redirectPath);
+        } else {
+          navigate("/");
+        }
+      }, 1000);
+      
+    } catch (error: any) {
+      console.error("فشل تسجيل الدخول باستخدام Google:", error);
+      
+      if (error.code === 'auth/unauthorized-domain') {
+        setShowGoogleWarning(true);
+      } else if (error.code === 'auth/popup-blocked') {
+        toast({
+          title: "تم حظر النافذة المنبثقة",
+          description: "يرجى السماح بالنوافذ المنبثقة في متصفحك ثم المحاولة مرة أخرى",
+          variant: "destructive",
+        });
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        toast({
+          title: "تم إغلاق النافذة",
+          description: "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية",
+          variant: "destructive",
+        });
+      } else if (error.code === 'auth/network-request-failed') {
+        toast({
+          title: "مشكلة في الاتصال",
+          description: "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "خطأ في تسجيل الدخول",
+          description: error.message || "حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
