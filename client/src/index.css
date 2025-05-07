@@ -2,6 +2,7 @@
 @import "./styles/space-effects.css";
 @import "./styles/breakpoints.css";
 @import "./styles/navigation.css";
+@import "./styles/touch-targets.css";
 
 @tailwind base;
 @tailwind components;

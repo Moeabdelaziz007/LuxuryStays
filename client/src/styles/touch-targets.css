@@ -1,0 +1,117 @@
+/**
+ * أنماط أهداف اللمس - تحسين التفاعل مع الشاشات التي تعمل باللمس
+ * هذا الملف يحسن توافقية الأجهزة المحمولة من حيث أحجام مناطق اللمس
+ */
+
+/* متغيرات أحجام أهداف اللمس المتوافقة - 48×48 كحد أدنى */
+:root {
+  --touch-target-size: 48px;
+  --touch-target-padding: 12px;
+  --touch-target-min-spacing: 8px;
+}
+
+/* تطبيق الحجم الأدنى لأهداف اللمس على الأزرار والروابط */
+button,
+.btn,
+a.btn,
+.nav-link,
+.tab-button,
+input[type="checkbox"],
+input[type="radio"],
+.mobile-touch-target,
+.touch-target {
+  min-height: var(--touch-target-size);
+  min-width: var(--touch-target-size);
+  padding: var(--touch-target-padding);
+  /* مساحة كافية للأصابع الكبيرة */
+  touch-action: manipulation;
+}
+
+/* تطبيق حجم 48×48 للأيقونات القابلة للضغط كحد أدنى */
+.clickable-icon,
+button.icon-button,
+.icon-btn {
+  min-height: var(--touch-target-size);
+  min-width: var(--touch-target-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+/* أضف مساحة كافية بين عناصر التنقل المتقاربة */
+nav a,
+nav button,
+.nav-item {
+  margin: var(--touch-target-min-spacing);
+}
+
+/* تحسين أزرار التنقل في الهاتف المحمول لتكون أكبر حجمًا */
+@media (max-width: 768px) {
+  .mobile-nav button,
+  .mobile-nav a,
+  .mobile-menu-item {
+    min-height: calc(var(--touch-target-size) * 1.2);
+    min-width: calc(var(--touch-target-size) * 1.2);
+    padding: calc(var(--touch-target-padding) * 1.25);
+  }
+  
+  /* زيادة حجم النص في عناصر القوائم المنسدلة على الأجهزة المحمولة */
+  .dropdown-item,
+  .mobile-select-option {
+    min-height: var(--touch-target-size);
+    padding: var(--touch-target-padding);
+    font-size: 1rem;
+  }
+  
+  /* ضمان مساحة كافية بين عناصر النموذج على الهواتف المحمولة */
+  .form-group,
+  .form-element {
+    margin-bottom: 20px;
+  }
+  
+  /* زيادة حجم حقول الإدخال والتحديد على الجوال */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  select,
+  .select-trigger {
+    min-height: var(--touch-target-size);
+    padding: 10px 16px;
+    font-size: 16px; /* منع تصغير تلقائي للنص على iOS */
+  }
+  
+  /* تكبير أزرار الإرسال وغيرها من أزرار التحكم الرئيسية */
+  button[type="submit"],
+  .primary-action-button,
+  .main-cta {
+    min-height: calc(var(--touch-target-size) * 1.2);
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+}
+
+/* تعريف لحاوية بحجم لمس آمن */
+.touch-container {
+  position: relative;
+  min-height: var(--touch-target-size);
+  min-width: var(--touch-target-size);
+}
+
+/* حل مشكلة الأيقونات الصغيرة عبر زيادة منطقة اللمس باستخدام pseudo-element */
+.small-icon-button {
+  position: relative;
+}
+
+.small-icon-button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--touch-target-size);
+  height: var(--touch-target-size);
+  z-index: -1;
+}
