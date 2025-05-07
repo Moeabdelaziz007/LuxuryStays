@@ -1,132 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase-client';
-import { onSnapshotsInSync, disableNetwork, enableNetwork } from 'firebase/firestore';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { useFirestoreStatus } from '@/contexts/FirestoreStatusContext';
+import { AlertCircle, WifiOff, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+
+interface FirestoreErrorHandlerProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+  retry?: () => void;
+}
 
 /**
- * مكون للتعامل مع أخطاء الاتصال بـ Firestore وعرض حالة الاتصال للمستخدم
- * يقدم واجهة مستخدم لإدارة مشاكل الاتصال وإعادة المحاولة
+ * مكون للتعامل مع أخطاء الاتصال بـ Firestore
+ * يعرض حالة مناسبة عندما يكون الاتصال بـ Firestore معطلاً
  */
-export default function FirestoreErrorHandler() {
-  const [online, setOnline] = useState(window.navigator.onLine);
-  const [firestoreConnected, setFirestoreConnected] = useState(true);
-  const [isRetrying, setIsRetrying] = useState(false);
-  const [offlineMode, setOfflineMode] = useState(false);
+const FirestoreErrorHandler: React.FC<FirestoreErrorHandlerProps> = ({
+  children,
+  fallback,
+  retry
+}) => {
+  const { isConnected, error, lastUpdated } = useFirestoreStatus();
+  const { toast } = useToast();
+  const [retryCount, setRetryCount] = useState(0);
 
-  // مراقبة حالة الاتصال بالإنترنت
+  // عرض إشعار عند إعادة الاتصال بـ Firestore
   useEffect(() => {
-    function updateOnlineStatus() {
-      const isOnline = window.navigator.onLine;
-      setOnline(isOnline);
-      
-      // إذا عاد الاتصال، حاول إعادة تمكين الشبكة تلقائيًا
-      if (isOnline && offlineMode) {
-        handleRetryConnection();
-      }
+    if (isConnected && retryCount > 0) {
+      toast({
+        title: 'تم إعادة الاتصال',
+        description: 'تم استعادة الاتصال بقاعدة البيانات بنجاح.',
+        variant: 'default',
+      });
     }
+  }, [isConnected, retryCount, toast]);
 
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-
-    return () => {
-      window.removeEventListener('online', updateOnlineStatus);
-      window.removeEventListener('offline', updateOnlineStatus);
-    };
-  }, [offlineMode]);
-
-  // مراقبة حالة الاتصال بـ Firestore
-  useEffect(() => {
-    const unsubscribe = onSnapshotsInSync(db, () => {
-      setFirestoreConnected(true);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // إعادة محاولة الاتصال
-  const handleRetryConnection = async () => {
-    try {
-      setIsRetrying(true);
-      await enableNetwork(db);
-      setOfflineMode(false);
-      setFirestoreConnected(true);
-      console.log("تم إعادة الاتصال بنجاح!");
-    } catch (error) {
-      console.error("فشلت إعادة الاتصال:", error);
-      setFirestoreConnected(false);
-    } finally {
-      setIsRetrying(false);
+  // التعامل مع إعادة محاولة الاتصال
+  const handleRetry = () => {
+    setRetryCount(count => count + 1);
+    
+    if (retry) {
+      retry();
+    } else {
+      // محاولة إعادة تحميل الصفحة أو إعادة الاتصال
+      window.location.reload();
     }
   };
 
-  // تمكين وضع عدم الاتصال
-  const handleEnableOfflineMode = async () => {
-    try {
-      await disableNetwork(db);
-      setOfflineMode(true);
-      console.log("تم تمكين وضع عدم الاتصال");
-    } catch (error) {
-      console.error("فشل تمكين وضع عدم الاتصال:", error);
-    }
-  };
-
-  // إذا كان كل شيء يعمل بشكل صحيح، لا تعرض أي شيء
-  if (online && firestoreConnected && !offlineMode) {
-    return null;
+  // إذا كان متصلاً، عرض المحتوى العادي
+  if (isConnected) {
+    return <>{children}</>;
   }
 
+  // إذا كان هناك واجهة بديلة مخصصة، استخدمها
+  if (fallback) {
+    return <>{fallback}</>;
+  }
+
+  // عرض واجهة خطأ الاتصال الافتراضية
   return (
-    <Alert variant={online ? "default" : "destructive"} className="border-2 mb-4">
-      <AlertCircle className="h-4 w-4" />
-      <AlertTitle className="font-bold">
-        {!online 
-          ? "أنت غير متصل بالإنترنت"
-          : !firestoreConnected
-          ? "مشكلة في الاتصال بقاعدة البيانات"
-          : "وضع عدم الاتصال نشط"}
-      </AlertTitle>
-      <AlertDescription className="mt-2">
-        {!online ? (
-          <p>لا يمكن الاتصال بالإنترنت. بعض الميزات قد تكون محدودة.</p>
-        ) : !firestoreConnected ? (
-          <p>هناك مشكلة في الاتصال بخدمة البيانات. يمكنك المحاولة مرة أخرى أو استخدام الوضع غير المتصل.</p>
-        ) : (
-          <p>تعمل حاليًا في وضع عدم الاتصال. البيانات السابقة متاحة ولكن التغييرات الجديدة ستتم مزامنتها عند إعادة الاتصال.</p>
+    <Card className="shadow-lg border-yellow-200 bg-yellow-50 dark:bg-yellow-950/10">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center text-yellow-600 dark:text-yellow-400">
+          <WifiOff className="h-5 w-5 mr-2" />
+          خطأ في الاتصال بقاعدة البيانات
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-sm text-gray-700 dark:text-gray-300">
+        <p>
+          لا يمكن الاتصال بخدمة Firestore حاليًا. قد تكون هناك مشكلة في الشبكة أو أن الخدمة غير متاحة مؤقتًا.
+        </p>
+        {error && (
+          <div className="mt-2 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs text-yellow-800 dark:text-yellow-300">
+            <div className="flex items-start">
+              <AlertCircle className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold">تفاصيل الخطأ:</p>
+                <p className="mt-1">{error.message}</p>
+              </div>
+            </div>
+          </div>
         )}
-        
-        <div className="flex gap-2 mt-4">
-          {online && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRetryConnection}
-              disabled={isRetrying}
-              className="flex items-center gap-1"
-            >
-              {isRetrying ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <Wifi className="h-4 w-4" />
-              )}
-              {isRetrying ? "جاري المحاولة..." : "إعادة الاتصال"}
-            </Button>
-          )}
-          
-          {online && !offlineMode && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleEnableOfflineMode}
-              className="flex items-center gap-1"
-            >
-              <WifiOff className="h-4 w-4" />
-              وضع عدم الاتصال
-            </Button>
-          )}
-        </div>
-      </AlertDescription>
-    </Alert>
+        {lastUpdated && (
+          <p className="text-xs text-gray-500 mt-2">
+            آخر اتصال ناجح: {new Date(lastUpdated).toLocaleString()}
+          </p>
+        )}
+      </CardContent>
+      <CardFooter>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRetry}
+          className="flex items-center gap-1"
+        >
+          <RefreshCw className="h-4 w-4" />
+          إعادة المحاولة
+        </Button>
+      </CardFooter>
+    </Card>
   );
-}
+};
+
+export default FirestoreErrorHandler;

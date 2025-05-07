@@ -12,8 +12,6 @@ const axiosInstance = axios.create({
 
 // Error handler function
 const handleApiError = (error: AxiosError) => {
-  const toast = useToast;
-
   // Extract error message
   let errorMessage = 'An error occurred while processing your request.';
   
