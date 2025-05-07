@@ -2,13 +2,13 @@ import React from 'react';
 import Layout from '@/components/layout/Layout';
 import AdminHealthCheck from '@/features/admin/AdminHealthCheck';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuthContext } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/auth-context';
 import { UserRole } from '@shared/schema';
 import { useLocation, useRoute } from 'wouter';
 import { Loader2 } from 'lucide-react';
 
 export default function AdminPage() {
-  const { user, loading } = useAuthContext();
+  const { user, loading } = useAuth();
   
   // Show loading indicator while checking authentication
   if (loading) {
