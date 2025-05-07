@@ -239,11 +239,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               console.error("Error accessing Firestore:", error);
               // في حالة خطأ Firestore، يمكننا استخدام بيانات Firebase Auth على الأقل
               if (firebaseUser) {
+                // Try to detect property admin from email domain or claims
+                let detectedRole = 'CUSTOMER';
+                
+                // If email has a specific domain that indicates admin roles
+                if (firebaseUser.email) {
+                  // Check for property admin patterns
+                  if (firebaseUser.email.includes('admin') || 
+                      firebaseUser.email.includes('property') || 
+                      firebaseUser.email.includes('manager')) {
+                    detectedRole = 'PROPERTY_ADMIN';
+                  }
+                  
+                  // If a verified admin domain
+                  if (firebaseUser.email.endsWith('stayx.com') || 
+                      firebaseUser.email.endsWith('propertyadmin.com')) {
+                    detectedRole = 'PROPERTY_ADMIN';
+                  }
+                }
+                
+                // Check for admin claims if available
+                if (firebaseUser.getIdTokenResult) {
+                  try {
+                    const idTokenResult = await firebaseUser.getIdTokenResult();
+                    if (idTokenResult.claims.role === 'PROPERTY_ADMIN') {
+                      detectedRole = 'PROPERTY_ADMIN';
+                    } else if (idTokenResult.claims.role === 'SUPER_ADMIN') {
+                      detectedRole = 'SUPER_ADMIN';
+                    }
+                  } catch (claimsError) {
+                    console.warn("Failed to get token claims", claimsError);
+                  }
+                }
+                
                 const backupUser: UserData = {
                   uid: firebaseUser.uid,
                   email: firebaseUser.email || '',
                   name: firebaseUser.displayName || 'مستخدم',
-                  role: 'CUSTOMER',
+                  role: detectedRole,
                   createdAt: new Date().toISOString(),
                 };
                 setUser(backupUser);
@@ -698,13 +731,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 // Fast Refresh نستخدم أسلوب ثابت للتصدير لتجنب مشاكل مع
 
 // هذا هو الـ hook الذي سيتم استخدامه في التطبيق
-export const useAuth = () => {
+function useAuthInternal() {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-};
+}
+
+// Named functions to avoid Fast Refresh issues
+export const useAuth = useAuthInternal;
 
 // للتوافق مع الكود الموجود
-export const useAuthContext = useAuth;
+export const useAuthContext = useAuthInternal;
