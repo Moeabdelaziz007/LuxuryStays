@@ -13,6 +13,7 @@ import GoogleAuthDomainAlert from "./components/GoogleAuthDomainAlert";
 import AppRoutes from "./routes";
 import { useToast } from "@/hooks/use-toast";
 import TechBackgroundLayout from "./components/layout/TechBackgroundLayout";
+import { PerformanceProvider } from "./contexts/performance-context";
 
 function RedirectHandler() {
   const { user, loading, updateUserInfo } = useAuth();
@@ -147,18 +148,20 @@ function App() {
                            !location.includes('/splash');
 
   return (
-    <TooltipProvider>
-      <Toaster />
-      <RedirectHandler />
-      <DatabaseConnectionStatus />
-      <GoogleAuthDomainAlert />
-      <WelcomeMessage />
-      <TechBackgroundLayout>
-        {showHeaderFooter && <SmartHeader />}
-        <AppRoutes />
-        {showHeaderFooter && <Footer />}
-      </TechBackgroundLayout>
-    </TooltipProvider>
+    <PerformanceProvider>
+      <TooltipProvider>
+        <Toaster />
+        <RedirectHandler />
+        <DatabaseConnectionStatus />
+        <GoogleAuthDomainAlert />
+        <WelcomeMessage />
+        <TechBackgroundLayout>
+          {showHeaderFooter && <SmartHeader />}
+          <AppRoutes />
+          {showHeaderFooter && <Footer />}
+        </TechBackgroundLayout>
+      </TooltipProvider>
+    </PerformanceProvider>
   );
 }
 
