@@ -166,11 +166,33 @@ export default {
         },
         "glow": {
           "0%": {
-            transform: "translateX(-100%)",
+            filter: "drop-shadow(0 0 2px rgba(57, 255, 20, 0.3))",
+          },
+          "50%": {
+            filter: "drop-shadow(0 0 10px rgba(57, 255, 20, 0.8))",
           },
           "100%": {
-            transform: "translateX(100%)",
+            filter: "drop-shadow(0 0 2px rgba(57, 255, 20, 0.3))",
+          }
+        },
+        "hue-rotate": {
+          "0%": {
+            filter: "hue-rotate(0deg)",
           },
+          "50%": {
+            filter: "hue-rotate(30deg)",
+          },
+          "100%": {
+            filter: "hue-rotate(0deg)",
+          }
+        },
+        "spin-slow": {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "100%": {
+            transform: "rotate(360deg)",
+          }
         },
         // New animations for the hero section
         "blink": {
