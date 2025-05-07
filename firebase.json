@@ -8,6 +8,22 @@
     ],
     "rewrites": [
       {
+        "source": "/customer/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/property-admin/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/super-admin/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/login/**",
+        "destination": "/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

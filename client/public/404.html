@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>StayChill | إعادة توجيه</title>
+  <script>
+    // هذا الملف مسؤول عن توجيه URL المباشرة مثل /customer و /property-admin 
+    // إلى الصفحة الرئيسية مع حفظ مسار URL الأصلي
+    
+    // استخراج مسار URL الحالي من العنوان
+    var pathSegmentsToKeep = 0; // لا نحتفظ بأي قطع من المسار حيث أن التطبيق في الجذر
+    
+    var l = window.location;
+    var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '');
+    
+    // إضافة الجذر الصحيح إذا كان هناك أي
+    var rootPath = '';
+    redirectUrl = redirectUrl + rootPath;
+    
+    // إضافة مسار URL الأصلي كمعلمة لاستخدامها بعد إعادة التوجيه
+    var path = l.pathname.split('/');
+    if (path.length > 0) {
+      path = path.slice(pathSegmentsToKeep);
+      var fullPath = path.join('/');
+      if (fullPath !== '' && fullPath !== '/') {
+        // تخزين المسار المطلوب في sessionStorage
+        sessionStorage.setItem('redirect_path', fullPath);
+        
+        // إعادة التوجيه إلى الصفحة الرئيسية
+        redirectUrl = redirectUrl + '/?redirect=' + encodeURIComponent(fullPath);
+      }
+    }
+    
+    window.location.replace(redirectUrl);
+  </script>
+</head>
+<body>
+  <h1 style="text-align: center; font-family: Arial, sans-serif; margin-top: 50px; color: #39FF14;">
+    جاري إعادة التوجيه...
+  </h1>
+  <p style="text-align: center; font-family: Arial, sans-serif;">
+    إذا لم يتم إعادة توجيهك تلقائيًا، <a href="/" style="color: #39FF14;">انقر هنا</a>.
+  </p>
+</body>
+</html>
