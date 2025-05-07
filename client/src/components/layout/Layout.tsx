@@ -3,6 +3,7 @@ import SmartHeader from "./SmartHeader";
 import Footer from "./Footer";
 import PublicMobileNavigation from "./PublicMobileNavigation";
 import TechBackground from "./TechBackground";
+import { TechButton } from "@/components/ui/TechButton";
 import { useLocation } from "wouter";
 
 /**
@@ -12,13 +13,9 @@ import { useLocation } from "wouter";
  * مع خلفية تقنية مميزة بتصميم سايبر/فضائي
  */
 export default function Layout({ 
-  children,
-  variant = 'cyber',
-  intensity = 'low'
+  children, 
 }: { 
-  children: React.ReactNode; 
-  variant?: 'cyber' | 'matrix' | 'stars' | 'grid';
-  intensity?: 'high' | 'medium' | 'low' | 'subtle';
+  children: React.ReactNode;
 }) {
   const [location] = useLocation();
   const [showScroll, setShowScroll] = useState(false);
@@ -38,15 +35,14 @@ export default function Layout({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
+  const isHomePage = location === '/';
+
   return (
     <TechBackground
-      variant={variant}
-      intensity={intensity}
-      animated={true}
-      withGradient={true}
-      withGlow={true}
+      variant="default"
+      withParticles={isHomePage}
       withScanlines={true}
-      withFloatingParticles={location === '/' ? true : false}
+      withGrid={true}
       className="flex flex-col min-h-screen"
     >
       {/* استخدام شريط SmartHeader المشترك مع تمييزه كصفحة عامة */}
@@ -65,16 +61,20 @@ export default function Layout({
       
       {/* زر التمرير للأعلى */}
       {showScroll && (
-        <button 
-          onClick={scrollToTop}
-          className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-50 bg-black/80 border border-[#39FF14]/30 hover:border-[#39FF14] rounded-full p-3 text-[#39FF14] transition-all duration-300 hover:bg-[#39FF14]/10 group"
-          aria-label="التمرير للأعلى"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform rotate-180 group-hover:-translate-y-1 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-          <div className="absolute -inset-0.5 rounded-full bg-[#39FF14]/20 opacity-0 group-hover:opacity-100 blur transition-opacity duration-300"></div>
-        </button>
+        <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-50">
+          <TechButton 
+            onClick={scrollToTop}
+            variant="outline"
+            size="icon"
+            glowIntensity="medium"
+            className="rounded-full"
+            aria-label="التمرير للأعلى"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform rotate-180 group-hover:-translate-y-1 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </TechButton>
+        </div>
       )}
       
       {/* عناصر الزخرفة في الزوايا */}
