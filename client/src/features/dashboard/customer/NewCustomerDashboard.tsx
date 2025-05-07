@@ -442,6 +442,19 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
               onClick={() => {
+                setActiveTab("profile");
+                navigate("/customer/profile");
+              }}
+            >
+              <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "profile" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
+              <FaUser className="mr-2 h-5 w-5" />
+              <span>الملف الشخصي</span>
+            </Button>
+
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
+              onClick={() => {
                 setActiveTab("settings");
                 navigate("/customer/settings");
               }}
@@ -525,11 +538,13 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                 {activeTab === "dashboard" && <FaTachometerAlt />}
                 {activeTab === "bookings" && <FaCalendarAlt />}
                 {activeTab === "favorites" && <FaHeart />}
+                {activeTab === "profile" && <FaUser />}
                 {activeTab === "settings" && <FaCog />}
               </span>
               {activeTab === "dashboard" && "لوحة العميل"}
               {activeTab === "bookings" && "حجوزاتي"}
               {activeTab === "favorites" && "المفضلة"}
+              {activeTab === "profile" && "الملف الشخصي"}
               {activeTab === "settings" && "الإعدادات"}
             </h1>
           </div>
