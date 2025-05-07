@@ -1,24 +1,35 @@
 import React from "react";
 import TechSpaceBackground from "@/features/home/TechSpaceBackground";
+import PerformanceControls from "@/components/PerformanceControls";
+import { usePerformanceContext } from "@/contexts/performance-context";
 
 interface TechBackgroundLayoutProps {
   children: React.ReactNode;
 }
 
 /**
- * A layout component that applies the tech/space background to all pages
- * Includes the animated tech elements and StayX branding
+ * مكون التخطيط الذي يطبق خلفية التقنية/الفضاء على جميع الصفحات
+ * يتضمن عناصر التقنية المتحركة وعلامة StayX التجارية
+ * كما يتضمن مراقبة الأداء لضبط الرسوم المتحركة حسب قدرات الجهاز
  */
 export default function TechBackgroundLayout({ children }: TechBackgroundLayoutProps) {
+  const { settings } = usePerformanceContext();
+  
+  // تحديد ما إذا كان سيتم تحميل خلفية الفضاء التقنية بناءً على إعدادات الأداء
+  const shouldLoadBackground = settings.useBackgroundEffects;
+  
   return (
     <div className="min-h-screen text-white relative">
-      {/* Apply the tech space background to the entire app */}
-      <TechSpaceBackground className="fixed" />
+      {/* تطبيق خلفية الفضاء التقنية على التطبيق بأكمله - فقط إذا كان الأداء يسمح بذلك */}
+      {shouldLoadBackground && <TechSpaceBackground className="fixed" />}
       
-      {/* Content container with proper z-index */}
+      {/* حاوية المحتوى مع z-index مناسب */}
       <div className="relative z-10">
         {children}
       </div>
+      
+      {/* زر التحكم في الأداء - متوفر دائمًا للمستخدم */}
+      <PerformanceControls />
     </div>
   );
 }
