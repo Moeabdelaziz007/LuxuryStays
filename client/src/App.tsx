@@ -19,32 +19,60 @@ function RedirectHandler() {
   useEffect(() => {
     const handleRedirectResult = async () => {
       try {
-        console.log("Checking for redirect result...");
+        console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location });
+        console.log("Checking for redirect result from Google sign-in...");
+        
         const result = await getRedirectResult(auth);
         
         if (result) {
-          console.log("Redirect result found, user signed in:", result.user.email);
+          console.log("✅ Google redirect sign-in successful!");
+          console.log("User signed in:", result.user.email);
+          console.log("Display name:", result.user.displayName);
+          console.log("User ID:", result.user.uid);
           
           // Get saved redirect path if any
           const savedRedirectPath = localStorage.getItem('googleAuthRedirectPath');
+          
           if (savedRedirectPath) {
             console.log("Redirecting to saved path after Google login:", savedRedirectPath);
             localStorage.removeItem('googleAuthRedirectPath'); // Clear it after use
             setLocation(savedRedirectPath);
           } else {
-            // Default to homepage if no specific redirect
-            setLocation('/');
+            // Redirect based on role if available in the token
+            const idTokenResult = await result.user.getIdTokenResult();
+            const role = idTokenResult.claims.role;
+            
+            if (role) {
+              console.log("User role from token:", role);
+              if (role === UserRole.SUPER_ADMIN) {
+                setLocation('/super-admin');
+              } else if (role === UserRole.PROPERTY_ADMIN) {
+                setLocation('/property-admin');
+              } else {
+                setLocation('/customer');
+              }
+            } else {
+              // Default to homepage if no specific role or redirect
+              setLocation('/');
+            }
           }
+        } else {
+          console.log("No redirect result found");
         }
-      } catch (error) {
-        console.error("Error handling redirect result:", error);
+      } catch (error: any) {
+        console.error("❌ Error handling Google redirect result:", error);
+        console.error("Error code:", error.code);
+        console.error("Error message:", error.message);
+        
+        if (error.code === 'auth/unauthorized-domain') {
+          console.error("Unauthorized domain. Please add current domain to Firebase Auth settings");
+        }
       }
     };
     
-    if (!user && !loading) {
-      handleRedirectResult();
-    }
-  }, [auth, user, loading, setLocation]);
+    // Always check for redirect results since the page could have loaded from a redirect
+    handleRedirectResult();
+  }, [auth, user, loading, setLocation, location]);
   
   // Regular auth state redirect handling
   useEffect(() => {

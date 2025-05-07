@@ -7,6 +7,7 @@ import { doc, getDoc, setDoc, getDocs, collection, query, where } from "firebase
 import { useToast } from "@/hooks/use-toast";
 import GoogleLoginWarning from "@/components/GoogleLoginWarning";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAuth } from "@/contexts/auth-context";
 
 // Simple login page without advanced form components
 export default function LoginPage() {
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [location, navigate] = useLocation();
   const { toast } = useToast();
+  const { loginWithGoogle } = useAuth();
   const [showGoogleWarning, setShowGoogleWarning] = useState(false);
   
   // Helper function to get a unique ID for toast notifications
@@ -310,35 +312,16 @@ export default function LoginPage() {
       }
       
       // If domain is authorized, try to sign in with Google
-      if (!auth) {
-        throw new Error("خدمة المصادقة غير متوفرة حالياً");
-      }
-      
       console.log("محاولة تسجيل الدخول باستخدام Google...");
       
-      // Use firebase.ts signInWithGoogle function directly
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      provider.addScope('profile');
-      provider.addScope('email');
-      
-      // Try popup first (works better in Replit environment)
-      const result = await signInWithPopup(auth, provider);
+      // Use auth context login method instead of direct Firebase call
+      await loginWithGoogle();
       
       // Handle successful login
       toast(getSuccessToast(
         "تم تسجيل الدخول بنجاح",
         "مرحباً بك في منصة StayX!"
       ));
-      
-      // Redirect after login
-      setTimeout(() => {
-        if (redirectPath) {
-          navigate(redirectPath);
-        } else {
-          navigate("/");
-        }
-      }, 1000);
       
     } catch (error: any) {
       console.error("فشل تسجيل الدخول باستخدام Google:", error);

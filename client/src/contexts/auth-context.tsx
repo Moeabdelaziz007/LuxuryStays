@@ -41,7 +41,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: () => Promise<any>;
   updateUserInfo: (userData: UserData) => void;
 }
 
@@ -388,10 +388,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Current domain:", window.location.host);
       console.log("Firebase project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
       
-      // استخدام نفس الدالة المستخدمة في firebase.ts
+      // استخدام طريقة النافذة المنبثقة من Firebase مباشرة
       try {
         // محاولة استخدام النافذة المنبثقة أولاً (تعمل بشكل أفضل في بيئة Replit)
-        return await signInWithGoogle();
+        console.log("Trying popup signin first");
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        provider.addScope('profile');
+        provider.addScope('email');
+        const result = await signInWithPopup(auth, provider);
+        console.log("Popup signin successful");
       } catch (popupError: any) {
         // إذا فشلت النافذة المنبثقة، يمكننا تجربة طريقة إعادة التوجيه
         if (popupError.code === 'auth/popup-blocked' || 
@@ -477,13 +483,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 // إعادة تصدير السياق والأدوات المساعدة
-// هذه الطريقة تساعد في تجنب مشاكل Fast Refresh
-export const AuthConsumer = AuthContext.Consumer;
-export const useAuthContext = () => useContext(AuthContext);
+// Fast Refresh نستخدم أسلوب ثابت للتصدير لتجنب مشاكل مع
 
 // هذا هو الـ hook الذي سيتم استخدامه في التطبيق
-function useAuth() {
+export function useAuth() {
   return useContext(AuthContext);
 }
 
-export { useAuth };
+// للتوافق مع الكود الموجود
+export const useAuthContext = useAuth;
