@@ -93,32 +93,23 @@ export default function LastMinuteDeals() {
 
   return (
     <section className="py-16 relative overflow-hidden">
-      {/* خلفية القسم مع تأثيرات النجوم والدوائر التكنولوجية */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-slate-900/90 to-black"></div>
+      {/* خلفية بسيطة */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900/10 to-black"></div>
       
-      {/* نقاط النجوم المتألقة */}
+      {/* عدد قليل من النجوم */}
       <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 30 }).map((_, i) => (
+        {Array.from({ length: 10 }).map((_, i) => (
           <div 
             key={i}
-            className="absolute w-1 h-1 bg-white rounded-full animate-twinkle"
+            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              opacity: Math.random() * 0.7 + 0.3
+              animationDuration: `${5 + Math.random() * 5}s`,
+              opacity: Math.random() * 0.4 + 0.2
             }}
           />
         ))}
-        
-        {/* دوائر تكنولوجية */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="tech-circuit h-full w-full"></div>
-        </div>
-        
-        {/* شعاع ضوئي متحرك */}
-        <div className="absolute top-0 bottom-0 left-0 w-1/3 bg-gradient-to-r from-transparent to-[#39FF14]/5 animate-scan opacity-20"
-             style={{animationDuration: '8s'}}></div>
       </div>
       
       {/* محتوى القسم - تم إزالته بناءً على طلب المستخدم */}

@@ -13,29 +13,26 @@ export default function HomePage() {
       {/* ✨ قسم البداية - مستقبل الإقامة الفاخرة */}
       <NewHeroSection />
 
-      {/* ✨ قسم الخدمات مع تأثيرات النجوم والدوائر الكهربائية */}
+      {/* ✨ قسم الخدمات مع خلفية بسيطة */}
       <section className="py-20 bg-black min-h-screen flex items-center relative overflow-hidden">
-        {/* تأثير النجوم */}
+        {/* خلفية بسيطة */}
         <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 50 }).map((_, i) => (
+          {/* عدد أقل من النجوم للخلفية */}
+          {Array.from({ length: 20 }).map((_, i) => (
             <div 
               key={i}
               className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                animationDuration: `${3 + Math.random() * 5}s`,
-                opacity: Math.random() * 0.7 + 0.3
+                animationDuration: `${5 + Math.random() * 5}s`,
+                opacity: Math.random() * 0.5 + 0.2
               }}
             />
           ))}
           
-          {/* دوائر كهربائية */}
-          <div className="tech-circuit absolute inset-0 opacity-10"></div>
-          
-          {/* Nebula effects - simple gradients */}
-          <div className="absolute top-0 right-0 w-1/2 h-1/2 rounded-full blur-3xl opacity-10 bg-gradient-radial from-[#39FF14]/10 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 w-1/2 h-1/2 rounded-full blur-3xl opacity-10 bg-gradient-radial from-blue-500/5 to-transparent"></div>
+          {/* تدرج بسيط أحادي اللون */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black to-gray-900/30 opacity-40"></div>
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
@@ -56,31 +53,27 @@ export default function HomePage() {
       {/* ✨ قسم العروض اللحظية - عروض خاصة لفترة محدودة */}
       <LastMinuteDeals />
       
-      {/* ✨ قسم الاتصال والتواصل - محسّن مع التأثيرات الفضائية */}
+      {/* ✨ قسم الاتصال والتواصل - مبسط */}
       <section className="py-20 min-h-screen flex items-center relative overflow-hidden">
-        {/* تأثير النجوم */}
+        {/* خلفية بسيطة */}
         <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 40 }).map((_, i) => (
+          {/* عدد قليل من النجوم */}
+          {Array.from({ length: 15 }).map((_, i) => (
             <div 
               key={i}
               className="absolute w-[2px] h-[2px] rounded-full animate-pulse"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                backgroundColor: Math.random() > 0.8 ? "#39FF14" : "#fff",
-                animationDuration: `${3 + Math.random() * 5}s`,
-                opacity: Math.random() * 0.7 + 0.3
+                backgroundColor: "#fff",
+                animationDuration: `${5 + Math.random() * 5}s`,
+                opacity: Math.random() * 0.4 + 0.2
               }}
             />
           ))}
           
-          {/* دوائر كهربائية */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="tech-circuit h-full w-full"></div>
-          </div>
-          
-          {/* Simple gradient backgrounds */}
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/95 to-black"></div>
+          {/* خلفية متدرجة بسيطة */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-gray-900/30 to-black"></div>
         </div>
         
         <div className="container mx-auto px-4 relative z-10">

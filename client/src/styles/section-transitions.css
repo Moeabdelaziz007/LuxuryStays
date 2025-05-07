@@ -1,15 +1,15 @@
 /* Section-transitions.css - Enhanced space-themed section transitions */
 
-/* Deep space background styles */
+/* Deep space background styles - simplified */
 .deep-space-bg {
   background-color: black;
   background-image: 
-    radial-gradient(circle at 25% 25%, rgba(10, 20, 30, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(20, 40, 60, 0.2) 0%, transparent 50%);
+    radial-gradient(circle at 25% 25%, rgba(10, 20, 30, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(20, 40, 60, 0.1) 0%, transparent 50%);
   position: relative;
 }
 
-/* Neural grid for background effect */
+/* Neural grid for background effect - simplified */
 .neural-grid {
   position: absolute;
   top: 0;
@@ -17,43 +17,43 @@
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(to right, rgba(57, 255, 20, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(57, 255, 20, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(57, 255, 20, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(57, 255, 20, 0.02) 1px, transparent 1px);
   background-size: 50px 50px;
-  opacity: 0.3;
+  opacity: 0.2;
 }
 
-/* Space nebulae effects */
+/* Space nebulae effects - more subtle */
 .space-nebula-bg {
   position: absolute;
-  opacity: 0.3;
+  opacity: 0.2;
   width: 100%;
   height: 100%;
   mix-blend-mode: screen;
 }
 
 .space-nebula-green {
-  background: radial-gradient(ellipse at bottom right, rgba(57, 255, 20, 0.1), transparent 70%);
-  animation: nebula-pulse 15s ease-in-out infinite alternate;
+  background: radial-gradient(ellipse at bottom right, rgba(57, 255, 20, 0.05), transparent 70%);
+  animation: nebula-pulse 20s ease-in-out infinite alternate;
 }
 
 .space-nebula-blue {
-  background: radial-gradient(ellipse at top left, rgba(0, 100, 255, 0.1), transparent 70%);
-  animation: nebula-pulse 20s ease-in-out infinite alternate;
+  background: radial-gradient(ellipse at top left, rgba(0, 100, 255, 0.05), transparent 70%);
+  animation: nebula-pulse 25s ease-in-out infinite alternate;
   animation-delay: 5s;
 }
 
 @keyframes nebula-pulse {
   0% {
-    opacity: 0.1;
+    opacity: 0.05;
     transform: scale(1);
   }
   50% {
-    opacity: 0.25;
-    transform: scale(1.1);
+    opacity: 0.1;
+    transform: scale(1.05);
   }
   100% {
-    opacity: 0.1;
+    opacity: 0.05;
     transform: scale(1);
   }
 }
@@ -79,7 +79,7 @@
   fill: rgba(0, 0, 0, 0.8);
 }
 
-/* Space particle animations */
+/* Space particle animations - simpler and fewer */
 .particle-field {
   position: absolute;
   top: 0;
@@ -87,79 +87,70 @@
   right: 0;
   bottom: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .space-particle {
   position: absolute;
   background-color: white;
   border-radius: 50%;
-  opacity: 0.6;
-  animation: float 15s ease-in-out infinite alternate;
+  opacity: 0.4;
+  animation: float 20s ease-in-out infinite alternate;
 }
 
 .space-particle.green {
-  background-color: rgba(57, 255, 20, 0.8);
-  box-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
-  opacity: 0.7;
+  background-color: rgba(57, 255, 20, 0.6);
+  box-shadow: 0 0 3px rgba(57, 255, 20, 0.3);
+  opacity: 0.5;
 }
 
 .space-particle.blue {
-  background-color: rgba(20, 120, 255, 0.8);
-  box-shadow: 0 0 5px rgba(20, 120, 255, 0.5);
-  opacity: 0.7;
+  background-color: rgba(20, 120, 255, 0.6);
+  box-shadow: 0 0 3px rgba(20, 120, 255, 0.3);
+  opacity: 0.5;
 }
 
 @keyframes float {
   0%, 100% {
     transform: translate(0, 0);
   }
-  25% {
-    transform: translate(20px, 10px);
-  }
   50% {
-    transform: translate(10px, 30px);
-  }
-  75% {
-    transform: translate(-10px, 20px);
+    transform: translate(10px, 15px);
   }
 }
 
-/* Orbital lines */
+/* Orbital lines - simplified */
 .orbital-lines {
   position: absolute;
   width: 300px;
   height: 300px;
-  border: 1px solid rgba(57, 255, 20, 0.1);
+  border: 1px solid rgba(57, 255, 20, 0.05);
   border-radius: 50%;
   transform: rotate(45deg);
-  animation: orbital-spin 60s linear infinite;
+  animation: orbital-spin 80s linear infinite;
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .orbital-lines:nth-child(3) {
-  width: 500px;
-  height: 500px;
-  right: -250px;
-  top: -250px;
-  border-width: 2px;
-  animation-duration: 90s;
-  animation-direction: reverse;
+  width: 450px;
+  height: 450px;
+  right: -225px;
+  top: -225px;
+  border-width: 1px;
+  opacity: 0.5;
 }
 
 .orbital-lines:nth-child(4) {
-  width: 700px;
-  height: 700px;
-  bottom: -350px;
-  left: -350px;
-  animation-duration: 120s;
+  display: none; /* Hiding the largest orbital to simplify */
 }
 
 .orbital-lines:nth-child(5) {
-  width: 400px;
-  height: 400px;
+  width: 350px;
+  height: 350px;
   top: 50%;
   left: 70%;
-  animation-duration: 80s;
-  animation-direction: reverse;
+  opacity: 0.5;
 }
 
 @keyframes orbital-spin {
