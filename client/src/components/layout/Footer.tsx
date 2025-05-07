@@ -53,28 +53,38 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-[#39FF14] mb-4">روابط سريعة</h3>
             <ul className="space-y-2 text-center md:text-right">
               <li>
-                <Link href="/" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
-                  الرئيسية
+                <Link href="/">
+                  <div className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                    الرئيسية
+                  </div>
                 </Link>
               </li>
               <li>
-                <Link href="/properties" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
-                  العقارات
+                <Link href="/properties">
+                  <div className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                    العقارات
+                  </div>
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
-                  الخدمات
+                <Link href="/services">
+                  <div className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                    الخدمات
+                  </div>
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
-                  من نحن
+                <Link href="/about">
+                  <div className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                    من نحن
+                  </div>
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
-                  اتصل بنا
+                <Link href="/contact">
+                  <div className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                    اتصل بنا
+                  </div>
                 </Link>
               </li>
             </ul>
