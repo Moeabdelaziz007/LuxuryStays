@@ -5,7 +5,7 @@ import NewHeroSection from "@/features/home/NewHeroSection";
 import LastMinuteDeals from "@/features/home/LastMinuteDeals";
 import SpaceFooter from "@/components/layout/SpaceFooter";
 import { SpaceButton } from "@/components/ui/space-button";
-import BasicChatbot from "@/features/chatbot/BasicChatbot";
+import ChatLoader from "@/components/ChatLoader";
 
 export default function HomePage() {
   return (
@@ -180,7 +180,7 @@ export default function HomePage() {
       <SpaceFooter />
       
       {/* ✨ مساعد محادثة ذكي بنمط فقاعة */}
-      <BasicChatbot botName="ستايكس" position="bottom-right" />
+      <ChatLoader />
     </div>
   );
 }
