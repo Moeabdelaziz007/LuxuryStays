@@ -1,8 +1,9 @@
 // features/home/ServicesSection.tsx
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
-import { db, safeDoc } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useState, useEffect } from "react";
+import { retryOperation } from "@/lib/utils";
 import { HolographicCard } from "@/components/ui/holographic-card";
 
 interface ServiceLocation {
@@ -65,7 +66,7 @@ export default function ServicesSection() {
     queryKey: ["services", "active"],
     queryFn: async () => {
       try {
-        return await safeDoc(
+        return await retryOperation(
           async () => {
             if (!db) {
               throw new Error("Firebase DB not available");
@@ -88,9 +89,9 @@ export default function ServicesSection() {
               ...doc.data() 
             })) as Service[];
           },
-          [], // قيمة افتراضية فارغة في حالة الفشل
-          3, // عدد محاولات إعادة المحاولة
-          "services-active" // مفتاح التخزين المؤقت
+          (error, attempt) => {
+            console.error(`فشل في المحاولة ${attempt}/3 لجلب الخدمات النشطة:`, error);
+          }
         );
       } catch (error: any) {
         console.error("Error fetching services:", error);

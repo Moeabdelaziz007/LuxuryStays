@@ -195,15 +195,17 @@ export default function PropertyForm({ property, onSuccess, onCancel }: Property
       try {
         console.log("جاري إضافة العقار إلى Firestore...");
         
-        // استخدام وظيفة safeDoc للتعامل مع الأخطاء المحتملة
-        return await safeDoc(async () => {
+        // استخدام وظيفة retryOperation للتعامل مع الأخطاء المحتملة
+        return await retryOperation(async () => {
           // Add to Firestore
           const docRef = await addDoc(collection(db, "properties"), propertyData);
           console.log("تم إضافة العقار بنجاح بمعرف:", docRef.id);
           
           // إرجاع البيانات الكاملة مع المعرف
           return { id: docRef.id, ...propertyData };
-        }, null, 3); // 3 محاولات كحد أقصى
+        }, (error, attempt) => {
+          console.error(`فشل في المحاولة ${attempt}/3 لإضافة العقار:`, error);
+        });
       } catch (firestoreError: any) {
         console.error("خطأ في إضافة العقار إلى Firestore:", firestoreError);
         
@@ -357,8 +359,8 @@ export default function PropertyForm({ property, onSuccess, onCancel }: Property
       try {
         console.log("جاري تحديث العقار في Firestore...");
         
-        // استخدام وظيفة safeDoc للتعامل مع الأخطاء المحتملة
-        return await safeDoc(async () => {
+        // استخدام وظيفة retryOperation للتعامل مع الأخطاء المحتملة
+        return await retryOperation(async () => {
           // Update in Firestore
           if (db) {
             const docRef = doc(db, "properties", data.id!.toString());
@@ -387,7 +389,9 @@ export default function PropertyForm({ property, onSuccess, onCancel }: Property
           } else {
             throw new Error("قاعدة البيانات غير متاحة حالياً");
           }
-        }, null, 3); // 3 محاولات كحد أقصى
+        }, (error, attempt) => {
+          console.error(`فشل في المحاولة ${attempt}/3 لتحديث العقار:`, error);
+        });
       } catch (firestoreError: any) {
         console.error("خطأ في تحديث العقار في Firestore:", firestoreError);
         
