@@ -182,6 +182,9 @@ export default function HomePage() {
 
       {/* ✨ تذييل الصفحة المحسّن بمكون منفصل */}
       <SpaceFooter />
+      
+      {/* ✨ مساعد محادثة ذكي بنمط فقاعة */}
+      <SpaceBubbleBot botName="ستايكس" position="bottom-right" />
     </div>
   );
 }
