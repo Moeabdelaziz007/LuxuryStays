@@ -533,11 +533,43 @@
     0%, 100% {
       opacity: 0.3;
       transform: scale(1);
+      filter: blur(0);
     }
     50% {
       opacity: 0.8;
       transform: scale(1.2);
+      filter: blur(1px);
     }
+  }
+  
+  /* Neon pulse animation for text */
+  @keyframes neonPulse {
+    0%, 100% {
+      text-shadow: 0 0 5px rgba(57, 255, 20, 0.8), 0 0 10px rgba(57, 255, 20, 0.6);
+    }
+    50% {
+      text-shadow: 0 0 15px rgba(57, 255, 20, 1), 0 0 30px rgba(57, 255, 20, 0.8), 0 0 40px rgba(57, 255, 20, 0.4);
+    }
+  }
+  
+  /* Slow pulse animation for background elements */
+  @keyframes pulseSlow {
+    0%, 100% {
+      opacity: 0.05;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.2;
+      transform: scale(1.05);
+    }
+  }
+  
+  .animate-neon-pulse {
+    animation: neonPulse 3s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulseSlow 6s ease-in-out infinite;
   }
 }
 

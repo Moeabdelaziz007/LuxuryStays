@@ -17,6 +17,8 @@ import CustomerDashboard from "@/features/dashboard/customer/NewCustomerDashboar
 import PublicHome from "@/features/public/Home";
 import ServicesPage from "@/features/public/ServicesPage";
 import PropertiesPage from "@/features/public/PropertiesPage";
+import PrivacyPolicy from "@/features/public/PrivacyPolicy";
+import TermsConditions from "@/features/public/TermsConditions";
 import NotFound from "@/pages/not-found";
 import RoutingDebugPage from "@/features/public/RoutingDebugPage";
 import SplashScreen from "@/pages/SplashScreen";
@@ -100,6 +102,14 @@ export default function AppRoutes() {
             </div>
           </div>
         </Layout>
+      </Route>
+      
+      <Route path="/privacy">
+        <PrivacyPolicy />
+      </Route>
+      
+      <Route path="/terms">
+        <TermsConditions />
       </Route>
       
       <Route path="/unauthorized">
