@@ -1,30 +1,24 @@
 import React from "react";
 import SmartHeader from "./SmartHeader";
-import Sidebar from "./Sidebar";
-import MobileNavigation from "./MobileNavigation";
-import { useIsMobile } from "@/hooks/use-mobile";
+import Footer from "./Footer";
+import { useLocation } from "wouter";
 
-// تخطيط للصفحات العامة
+// تخطيط للصفحات العامة - Public Pages Layout
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const isMobile = useIsMobile();
+  const [location] = useLocation();
   
   return (
-    <div className="flex h-screen bg-black">
-      {/* إظهار الشريط الجانبي فقط على سطح المكتب */}
-      {!isMobile && <Sidebar />}
+    <div className="flex flex-col min-h-screen bg-black">
+      {/* استخدام شريط SmartHeader المشترك مع تمييزه كصفحة عامة */}
+      <SmartHeader role="PUBLIC" />
       
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* استخدام شريط SmartHeader المشترك مع تمييزه كصفحة عامة */}
-        <SmartHeader role="PUBLIC" />
-        
-        {/* المنطقة الرئيسية للمحتوى */}
-        <main className="flex-1 overflow-y-auto text-white p-6 pb-20 md:pb-6">
-          {children}
-        </main>
-        
-        {/* شريط التنقل السفلي للموبايل */}
-        <MobileNavigation />
-      </div>
+      {/* المنطقة الرئيسية للمحتوى */}
+      <main className="flex-1 overflow-y-auto text-white">
+        {children}
+      </main>
+      
+      {/* تذييل الصفحة (Footer) */}
+      <Footer />
     </div>
   );
 }
