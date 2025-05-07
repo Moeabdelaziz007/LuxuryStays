@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import StyledChatbot from './StyledChatbot';
-import { ThemeProvider } from 'styled-components';
+import ChatBot from 'react-simple-chatbot';
+import { ThemeProvider, StyleSheetManager } from 'styled-components';
 import geminiService from './GeminiService';
 import { SafeStyleProvider } from './StyledChatbotComponents';
 import { motion, AnimatePresence } from 'framer-motion';

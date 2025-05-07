@@ -43,6 +43,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
+        // Almacenar datos del usuario en la caché para optimizar
+        cacheCurrentUser(firebaseUser);
+        
         // Transform Firebase user to our custom user object
         const userToSave: User = {
           uid: firebaseUser.uid,
@@ -53,6 +56,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           isAnonymous: firebaseUser.isAnonymous,
           isAdmin: false, // Default value
         };
+
+        // Obtener un token ID de usuario anticipadamente (cacheable)
+        getUserIdToken(false).then(token => {
+          if (token) {
+            console.log('[DEBUG] Token de usuario obtenido con éxito');
+          }
+        }).catch(err => {
+          console.error('Error al obtener token de usuario:', err);
+        });
 
         // In a real app, we would fetch additional user data from Firestore
         console.log('[DEBUG] Auth Context State:', {
