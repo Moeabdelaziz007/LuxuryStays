@@ -184,18 +184,23 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error("خطأ في تسجيل الدخول:", err);
       
-      // رسائل خطأ مخصصة أكثر وضوحاً للمستخدم
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found') {
-        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
-      } else if (err.code === 'auth/wrong-password') {
-        setError("كلمة المرور غير صحيحة، الرجاء التحقق منها والمحاولة مرة أخرى");
-      } else if (err.code === 'auth/too-many-requests') {
-        setError("تم إجراء عدة محاولات خاطئة، الرجاء المحاولة بعد قليل");
-      } else if (err.code === 'auth/network-request-failed') {
-        setError("يبدو أن هناك مشكلة في الاتصال بالإنترنت، الرجاء التحقق من اتصالك");
-      } else {
-        setError(err.message || "حدث خطأ أثناء تسجيل الدخول، الرجاء المحاولة مرة أخرى");
-      }
+      // رسائل خطأ مخصصة أكثر وضوحاً للمستخدم مع نصائح للمساعدة
+      const errorMessages: Record<string, string> = {
+        'auth/invalid-credential': "البريد الإلكتروني أو كلمة المرور غير صحيحة. الرجاء التحقق وإعادة المحاولة.",
+        'auth/invalid-email': "يرجى إدخال بريد إلكتروني صالح.",
+        'auth/user-not-found': "لم يتم العثور على حساب بهذا البريد الإلكتروني. هل ترغب في إنشاء حساب جديد؟",
+        'auth/wrong-password': "كلمة المرور غير صحيحة. الرجاء التحقق منها والمحاولة مرة أخرى.",
+        'auth/too-many-requests': "تم إجراء عدة محاولات خاطئة. الرجاء المحاولة بعد قليل أو استخدام خيار 'نسيت كلمة المرور'.",
+        'auth/network-request-failed': "يبدو أن هناك مشكلة في الاتصال بالإنترنت. الرجاء التحقق من اتصالك والمحاولة مرة أخرى.",
+        'auth/email-already-in-use': "هذا البريد الإلكتروني مستخدم بالفعل. الرجاء تسجيل الدخول أو استخدام بريد إلكتروني آخر.",
+        'auth/weak-password': "كلمة المرور ضعيفة جدًا. الرجاء استخدام كلمة مرور أقوى تحتوي على 8 أحرف على الأقل.",
+        'auth/operation-not-allowed': "تسجيل الدخول بهذه الطريقة غير مسموح به حاليًا. الرجاء التواصل مع الدعم الفني.",
+        'auth/account-exists-with-different-credential': "يوجد حساب بهذا البريد الإلكتروني ولكن باستخدام طريقة تسجيل دخول مختلفة. حاول تسجيل الدخول بطريقة أخرى.",
+        'auth/popup-closed-by-user': "تم إغلاق نافذة تسجيل الدخول قبل اكتمال العملية. الرجاء المحاولة مرة أخرى."
+      };
+      
+      // عرض رسالة الخطأ المناسبة أو رسالة عامة إذا كان الخطأ غير معروف
+      setError(errorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول، الرجاء المحاولة مرة أخرى");
     } finally {
       setLoading(false);
     }
@@ -334,30 +339,59 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error("فشل تسجيل الدخول باستخدام Google:", error);
       
-      if (error.code === 'auth/unauthorized-domain') {
-        setShowGoogleWarning(true);
-      } else if (error.code === 'auth/popup-blocked') {
-        toast({
+      // تحسين معالجة أخطاء تسجيل الدخول بـ Google
+      const googleErrorMessages: Record<string, { title: string, description: string }> = {
+        'auth/unauthorized-domain': {
+          title: "نطاق غير مصرح به",
+          description: "النطاق الحالي غير مصرح به في إعدادات Firebase. سيتم فتح نافذة المساعدة."
+        },
+        'auth/popup-blocked': {
           title: "تم حظر النافذة المنبثقة",
-          description: "يرجى السماح بالنوافذ المنبثقة في متصفحك ثم المحاولة مرة أخرى",
-          variant: "destructive",
-        });
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        toast({
+          description: "يرجى السماح بالنوافذ المنبثقة في متصفحك ثم المحاولة مرة أخرى"
+        },
+        'auth/popup-closed-by-user': {
           title: "تم إغلاق النافذة",
-          description: "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية",
-          variant: "destructive",
-        });
-      } else if (error.code === 'auth/network-request-failed') {
-        toast({
+          description: "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية. حاول مرة أخرى."
+        },
+        'auth/network-request-failed': {
           title: "مشكلة في الاتصال",
-          description: "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى",
-          variant: "destructive",
-        });
+          description: "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى"
+        },
+        'auth/cancelled-popup-request': {
+          title: "تم إلغاء الطلب",
+          description: "تم إلغاء عملية تسجيل الدخول. يرجى المحاولة مرة أخرى."
+        },
+        'auth/account-exists-with-different-credential': {
+          title: "الحساب موجود بطريقة تسجيل دخول مختلفة",
+          description: "يوجد حساب بهذا البريد الإلكتروني مرتبط بطريقة تسجيل دخول أخرى. حاول تسجيل الدخول بالطريقة المناسبة."
+        },
+        'auth/user-disabled': {
+          title: "الحساب معطل",
+          description: "تم تعطيل هذا الحساب. يرجى التواصل مع فريق الدعم للمساعدة."
+        },
+        'auth/operation-not-allowed': {
+          title: "تسجيل الدخول غير مسموح",
+          description: "تسجيل الدخول باستخدام Google غير مفعل حاليًا. يرجى استخدام طريقة أخرى للتسجيل."
+        },
+        'auth/timeout': {
+          title: "انتهت مهلة الاتصال",
+          description: "استغرقت العملية وقتًا طويلاً. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى."
+        }
+      };
+      
+      if (error.code === 'auth/unauthorized-domain') {
+        // في حالة النطاق غير المصرح به، نعرض واجهة المساعدة الخاصة
+        setShowGoogleWarning(true);
       } else {
-        toast({
+        // استخدام قائمة رسائل الخطأ المحسنة
+        const errorInfo = googleErrorMessages[error.code] || {
           title: "خطأ في تسجيل الدخول",
-          description: error.message || "حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google",
+          description: error.message || "حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google"
+        };
+        
+        toast({
+          title: errorInfo.title,
+          description: errorInfo.description,
           variant: "destructive",
         });
       }
@@ -408,8 +442,16 @@ export default function LoginPage() {
           </div>
           
           {error && (
-            <div className="bg-red-500/20 border border-red-500/30 text-red-400 p-3 rounded-md mb-6 text-sm animate-pulse">
-              {error}
+            <div className="bg-red-500/20 border border-red-500/30 text-red-400 p-4 rounded-md mb-6 text-sm relative">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500/10 via-red-500/70 to-red-500/10 animate-pulse"></div>
+              <div className="flex items-start">
+                <svg className="h-5 w-5 text-red-400 flex-shrink-0 mr-2 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <span>{error}</span>
+              </div>
             </div>
           )}
           
