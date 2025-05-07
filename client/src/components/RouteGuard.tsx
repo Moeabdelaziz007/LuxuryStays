@@ -25,17 +25,13 @@ export default function RouteGuard({ children, role }: RouteGuardProps) {
     });
   }, [role, location, user, loading]);
 
-  // تحسين تجربة التحميل مع تأخير بسيط
+  // إلغاء تأخير التحميل لتسريع الوصول
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLoadingAnimation(false);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
+    setShowLoadingAnimation(false);
   }, []);
   
-  // عرض حالة التحميل بأسلوب أكثر جاذبية
-  if (loading || (showLoadingAnimation && loading)) {
+  // عرض حالة التحميل بأسلوب أكثر جاذبية ولكن فقط للمرة الأولى أو عند التحميل الفعلي
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-white">
         <div className="relative h-24 w-24">
