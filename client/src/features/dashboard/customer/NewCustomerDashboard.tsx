@@ -400,7 +400,10 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
             <Button 
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
-              onClick={() => navigate("/customer")}
+              onClick={() => {
+                setActiveTab("dashboard");
+                navigate("/customer/dashboard");
+              }}
             >
               <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "dashboard" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
               <FaTachometerAlt className="mr-2 h-5 w-5" />
@@ -410,7 +413,10 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
             <Button 
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
-              onClick={() => navigate("/customer/bookings")}
+              onClick={() => {
+                setActiveTab("bookings");
+                navigate("/customer/bookings");
+              }}
             >
               <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "bookings" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
               <FaCalendarAlt className="mr-2 h-5 w-5" />
@@ -421,7 +427,10 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
             <Button 
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
-              onClick={() => navigate("/customer/favorites")}
+              onClick={() => {
+                setActiveTab("favorites");
+                navigate("/customer/favorites");
+              }}
             >
               <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "favorites" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
               <FaHeart className="mr-2 h-5 w-5" />
@@ -432,7 +441,10 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
             <Button 
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
-              onClick={() => navigate("/customer/settings")}
+              onClick={() => {
+                setActiveTab("settings");
+                navigate("/customer/settings");
+              }}
             >
               <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "settings" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
               <FaCog className="mr-2 h-5 w-5" />
@@ -479,7 +491,10 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
             onClick={() => {
               if (window.confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) {
                 logout()
-                  .then(() => console.log('تم تسجيل الخروج بنجاح'))
+                  .then(() => {
+                    console.log('تم تسجيل الخروج بنجاح');
+                    navigate('/');
+                  })
                   .catch(err => console.error('خطأ في تسجيل الخروج:', err));
               }
             }}
