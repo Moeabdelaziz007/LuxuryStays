@@ -7,7 +7,6 @@ import { UserRole } from "@shared/schema";
 import SmartHeader from "./components/layout/SmartHeader";
 import Footer from "./components/layout/Footer";
 import { getAuth, getRedirectResult } from "firebase/auth";
-import DatabaseConnectionStatus from "./components/DatabaseConnectionStatus";
 import WelcomeMessage from "./components/WelcomeMessage";
 import GoogleAuthDomainAlert from "./components/GoogleAuthDomainAlert";
 import AppRoutes from "./routes";
@@ -152,7 +151,6 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <RedirectHandler />
-        <DatabaseConnectionStatus />
         <GoogleAuthDomainAlert />
         <WelcomeMessage />
         <TechBackgroundLayout>
