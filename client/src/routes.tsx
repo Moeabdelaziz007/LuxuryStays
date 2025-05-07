@@ -43,6 +43,9 @@ import BookingCheckout from "@/features/booking/BookingCheckout";
 // Admin Components
 import AdminPage from "@/pages/admin-page";
 
+// Testing Tools Components
+import TestingToolsPage from "@/pages/testing-tools";
+
 // Branding Components
 import FuturisticBranding from "@/components/FuturisticBranding";
 
@@ -176,6 +179,11 @@ export default function AppRoutes() {
       {/* ===== صفحة الإدارة المبسطة ===== */}
       <Route path="/admin">
         <AdminPage />
+      </Route>
+      
+      {/* ===== أدوات اختبار واجهة المستخدم ===== */}
+      <Route path="/testing-tools">
+        <TestingToolsPage />
       </Route>
       
       {/* ===== مسارات الدفع ===== */}

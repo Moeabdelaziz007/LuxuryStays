@@ -147,11 +147,15 @@ export default function Footer() {
             {currentYear} © StayX - جميع الحقوق محفوظة
           </p>
           <div className="flex space-x-6 rtl:space-x-reverse">
-            <Link href="/privacy" className="text-gray-500 hover:text-[#39FF14] text-sm transition-colors duration-300">
-              سياسة الخصوصية
+            <Link href="/privacy">
+              <div className="text-gray-500 hover:text-[#39FF14] text-sm transition-colors duration-300">
+                سياسة الخصوصية
+              </div>
             </Link>
-            <Link href="/terms" className="text-gray-500 hover:text-[#39FF14] text-sm transition-colors duration-300">
-              الشروط والأحكام
+            <Link href="/terms">
+              <div className="text-gray-500 hover:text-[#39FF14] text-sm transition-colors duration-300">
+                الشروط والأحكام
+              </div>
             </Link>
           </div>
         </div>
