@@ -3,6 +3,9 @@ import { SpaceButton } from "@/components/ui/space-button";
 import { useLocation } from "wouter";
 import ResponsiveNavigation from "@/components/layout/ResponsiveNavigation";
 import SpaceFooter from "@/components/layout/SpaceFooter";
+import OptimizedParticles from "@/components/OptimizedParticles";
+import PerformanceControls from "@/components/PerformanceControls";
+import { usePerformanceContext } from "@/contexts/performance-context";
 
 /**
  * تخطيط للصفحات العامة - Public Pages Layout
@@ -17,6 +20,7 @@ export default function Layout({
 }) {
   const [location] = useLocation();
   const [showScroll, setShowScroll] = useState(false);
+  const { settings } = usePerformanceContext();
   
   // إظهار زر التمرير للأعلى عند التمرير لأسفل
   useEffect(() => {
@@ -30,13 +34,29 @@ export default function Layout({
   
   // وظيفة التمرير للأعلى
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ 
+      top: 0, 
+      // استخدام سلوك تمرير سلس فقط إذا كان المستخدم لا يفضل تقليل الحركة
+      behavior: settings.useHeavyAnimations ? 'smooth' : 'auto' 
+    });
   };
   
   const isHomePage = location === '/';
 
   return (
     <div className="bg-space-gradient flex flex-col min-h-screen space-tech-pattern">
+      {/* جزيئات الخلفية المحسنة - تظهر فقط عند تفعيل خيار الجزيئات */}
+      {settings.useParticles && isHomePage && (
+        <OptimizedParticles 
+          color="#39FF14"
+          maxParticles={70}
+          glowIntensity={settings.useGlowing ? "medium" : "none"}
+          opacity={0.4} 
+          size={1.5}
+          speed={0.3}
+        />
+      )}
+      
       {/* استخدام شريط التنقل المتجاوب الجديد */}
       <ResponsiveNavigation />
       
@@ -47,6 +67,9 @@ export default function Layout({
       
       {/* تذييل الصفحة - المكون الجديد المنفصل */}
       <SpaceFooter />
+      
+      {/* عنصر تحكم إعدادات الأداء */}
+      <PerformanceControls />
       
       {/* زر التمرير للأعلى */}
       {showScroll && (
