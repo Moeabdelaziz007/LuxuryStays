@@ -13,12 +13,13 @@ import { useAuth } from "@/contexts/auth-context";
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [facebookLoading, setFacebookLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
   const [error, setError] = useState("");
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [location, navigate] = useLocation();
   const { toast } = useToast();
-  const { loginWithGoogle, loading: authLoading } = useAuth();
+  const { loginWithGoogle, loginWithFacebook, loginAnonymously, loading: authLoading } = useAuth();
   const [showGoogleWarning, setShowGoogleWarning] = useState(false);
   
   // Helper function to get a unique ID for toast notifications
@@ -397,6 +398,66 @@ export default function LoginPage() {
       }
     } finally {
       setGoogleLoading(false);
+    }
+  };
+  
+  // تسجيل الدخول باستخدام Facebook
+  const handleFacebookLogin = async () => {
+    setFacebookLoading(true);
+    try {
+      console.log("محاولة تسجيل الدخول باستخدام Facebook...");
+      
+      // استخدام دالة الـ context للتسجيل بواسطة Facebook
+      await loginWithFacebook(redirectPath || undefined);
+      
+      // التعامل مع نجاح تسجيل الدخول
+      toast(getSuccessToast(
+        "تم تسجيل الدخول بنجاح",
+        "مرحباً بك في منصة StayX!"
+      ));
+      
+      // ستتم معالجة التوجيه في سياق المصادقة بعد تسجيل الدخول بنجاح
+      
+    } catch (error: any) {
+      console.error("فشل تسجيل الدخول باستخدام Facebook:", error);
+      
+      // رسائل الخطأ المحتملة لـ Facebook
+      const facebookErrorMessages: Record<string, { title: string, description: string }> = {
+        'auth/popup-blocked': {
+          title: "تم حظر النافذة المنبثقة",
+          description: "يرجى السماح بالنوافذ المنبثقة في متصفحك ثم المحاولة مرة أخرى"
+        },
+        'auth/popup-closed-by-user': {
+          title: "تم إغلاق النافذة",
+          description: "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية. حاول مرة أخرى."
+        },
+        'auth/network-request-failed': {
+          title: "مشكلة في الاتصال",
+          description: "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى"
+        },
+        'auth/account-exists-with-different-credential': {
+          title: "الحساب موجود بطريقة تسجيل دخول مختلفة",
+          description: "يوجد حساب بهذا البريد الإلكتروني مرتبط بطريقة تسجيل دخول أخرى. حاول تسجيل الدخول بالطريقة المناسبة."
+        },
+        'auth/operation-not-allowed': {
+          title: "تسجيل الدخول غير مسموح",
+          description: "تسجيل الدخول باستخدام Facebook غير مفعل حاليًا. يرجى استخدام طريقة أخرى للتسجيل."
+        }
+      };
+      
+      // استخدام قائمة رسائل الخطأ المحسنة
+      const errorInfo = facebookErrorMessages[error.code] || {
+        title: "خطأ في تسجيل الدخول",
+        description: error.message || "حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Facebook"
+      };
+      
+      toast({
+        title: errorInfo.title,
+        description: errorInfo.description,
+        variant: "destructive",
+      });
+    } finally {
+      setFacebookLoading(false);
     }
   };
 
