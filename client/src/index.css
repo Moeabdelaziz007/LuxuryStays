@@ -3,33 +3,45 @@
 @tailwind utilities;
 
 :root {
-  /* Core colors */
+  /* =========== TECH-SPACE THEME - 4 CORE COLORS =========== */
+  /* 1. Deep Black - Space-inspired black background */
+  --space-black: rgb(0, 0, 5);
+  
+  /* 2. Neon Green - The signature brand color */
   --neon-green: #39FF14;
-  --neon-green-glow: 0 0 10px rgba(57, 255, 20, 0.7);
-  --neon-green-intense: 0 0 20px rgba(57, 255, 20, 0.9);
-  --background: rgb(2, 5, 10); /* Darker background for space theme */
-  --foreground: rgb(250, 250, 250);
-  --card: rgba(10, 15, 25, 0.7); /* Semi-transparent for glass effect */
-  --card-foreground: rgb(250, 250, 250);
-  --popover: rgba(10, 15, 25, 0.8);
-  --popover-foreground: rgb(250, 250, 250);
+  --neon-glow: 0 0 10px rgba(57, 255, 20, 0.7);
+  
+  /* 3. Pure White - Clean contrast for text */
+  --pure-white: rgb(255, 255, 255);
+  
+  /* 4. Tech Gray - Modern, sophisticated accent */
+  --tech-gray: rgb(60, 65, 75);
+  --light-gray: rgb(200, 205, 215);
+  
+  /* Theme mapping for tailwind/shadcn */
+  --background: var(--space-black);
+  --foreground: var(--pure-white);
+  --card: rgba(10, 15, 25, 0.7);
+  --card-foreground: var(--pure-white);
+  --popover: rgba(10, 15, 25, 0.85);
+  --popover-foreground: var(--pure-white);
   --primary: var(--neon-green);
-  --primary-foreground: rgb(10, 10, 15);
-  --secondary: rgb(30, 35, 45);
-  --secondary-foreground: rgb(250, 250, 250);
-  --muted: rgb(30, 35, 45);
-  --muted-foreground: rgb(180, 180, 190);
-  --accent: rgba(57, 255, 20, 0.2);
-  --accent-foreground: rgb(250, 250, 250);
-  --destructive: rgb(239, 68, 68);
-  --destructive-foreground: rgb(250, 250, 250);
+  --primary-foreground: var(--space-black);
+  --secondary: var(--tech-gray);
+  --secondary-foreground: var(--light-gray);
+  --muted: rgba(40, 45, 55, 0.8);
+  --muted-foreground: var(--light-gray);
+  --accent: rgba(57, 255, 20, 0.15);
+  --accent-foreground: var(--pure-white);
+  --destructive: rgb(255, 55, 55);
+  --destructive-foreground: var(--pure-white);
   --border: rgba(57, 255, 20, 0.3);
-  --input: rgb(30, 35, 45);
+  --input: var(--tech-gray);
   --ring: var(--neon-green);
   --radius: 0.5rem;
   
   /* Tech-Space specific variables */
-  --space-bg-gradient: linear-gradient(135deg, rgba(2,5,10,1) 0%, rgba(5,10,20,1) 50%, rgba(10,15,30,1) 100%);
+  --space-bg-gradient: linear-gradient(135deg, rgba(0,0,5,1) 0%, rgba(5,5,10,1) 50%, rgba(15,15,20,1) 100%);
   --glass-effect: backdrop-filter: blur(8px);
   --glass-border: 1px solid rgba(57, 255, 20, 0.2);
   --hologram-blue: rgba(80, 170, 255, 0.5);
@@ -54,6 +66,57 @@
   --grid-overlay: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2339FF14' fill-opacity='0.03'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
+/* ========== TECH-SPACE UTILITY CLASSES ========== */
+
+/* Text styles */
+.text-neon {
+  color: var(--neon-green);
+  text-shadow: 0 0 2px rgba(57, 255, 20, 0.7);
+}
+
+.text-white {
+  color: var(--pure-white);
+}
+
+.text-gray {
+  color: var(--light-gray);
+}
+
+/* Background styles */
+.bg-neon {
+  background-color: var(--neon-green);
+}
+
+.bg-space {
+  background-color: var(--space-black);
+}
+
+.bg-space-gradient {
+  background: linear-gradient(135deg, rgb(0, 0, 5) 0%, rgb(10, 15, 25) 100%);
+}
+
+/* Interactive elements with glow effect */
+.glow-effect {
+  transition: all 0.3s ease;
+}
+
+.glow-neon {
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+}
+
+.glow-neon:hover {
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.8);
+}
+
+/* Glass panel effect */
+.glass-panel {
+  background: rgba(10, 15, 25, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(57, 255, 20, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* For backwards compatibility */
 .text-neon-green {
   color: var(--neon-green);
   text-shadow: 0 0 2px rgba(57, 255, 20, 0.7);
@@ -65,7 +128,7 @@
 
 .border-neon-green {
   border-color: var(--neon-green);
-  box-shadow: var(--neon-green-glow);
+  box-shadow: var(--neon-glow);
 }
 
 /* تأثيرات الوميض والنبض للعناصر النيون */
@@ -167,11 +230,11 @@
 
 /* تأثيرات متدرجة للعناصر في الخلفية */
 .bg-gradient-dark {
-  background: linear-gradient(to bottom, rgba(9, 9, 11, 0.8), rgb(9, 9, 11));
+  background: linear-gradient(to bottom, rgba(0, 0, 5, 0.8), rgb(0, 0, 10));
 }
 
 .bg-card-gradient {
-  background: linear-gradient(145deg, rgba(39, 39, 42, 0.6), rgba(24, 24, 27, 0.8));
+  background: linear-gradient(145deg, rgba(20, 20, 25, 0.6), rgba(10, 10, 15, 0.8));
 }
 
 /* توهج النيون للأزرار والإطارات */
