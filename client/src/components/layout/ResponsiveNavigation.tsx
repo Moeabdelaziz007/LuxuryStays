@@ -57,6 +57,7 @@ export default function ResponsiveNavigation() {
               <NavLink href="/services" label="الخدمات" currentPath={currentPath} />
               <NavLink href="/about" label="عن الشركة" currentPath={currentPath} />
               <NavLink href="/contact" label="تواصل معنا" currentPath={currentPath} />
+              <NavLink href="/testing-tools" label="أدوات الاختبار" currentPath={currentPath} />
               
               {/* عناصر خاصة بالمستخدمين المسجلين دخولهم */}
               {isAuthenticated && (
@@ -132,6 +133,7 @@ export default function ResponsiveNavigation() {
             <MobileNavLink href="/services" label="الخدمات" setIsOpen={setIsOpen} />
             <MobileNavLink href="/about" label="عن الشركة" setIsOpen={setIsOpen} />
             <MobileNavLink href="/contact" label="تواصل معنا" setIsOpen={setIsOpen} />
+            <MobileNavLink href="/testing-tools" label="أدوات الاختبار" setIsOpen={setIsOpen} />
             
             {/* القائمة الخاصة بالمستخدمين المسجل دخولهم */}
             {isAuthenticated && (
