@@ -573,12 +573,12 @@ export default function NewCustomerDashboard() {
         </header>
         
         {/* Dashboard Content - Travel Dashboard Style */}
-        <main className="flex-1 overflow-y-auto bg-[#181A20] p-4 md:p-5">
+        <main className="flex-1 overflow-y-auto bg-[#181A20] p-4 md:p-5 pb-20 md:pb-5">
           {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Travel Summary & Welcome Card */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 {/* Welcome Card - Left Column */}
                 <div className="md:col-span-2">
                   <Card className="bg-[#292C35] border-0 rounded-xl shadow-xl overflow-hidden relative">

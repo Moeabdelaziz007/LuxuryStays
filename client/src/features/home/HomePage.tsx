@@ -63,14 +63,14 @@ export default function HomePage() {
           </div>
           
           {/* المحتوى الرئيسي */}
-          <div className="relative h-full flex flex-col justify-center container mx-auto px-4 pt-16 pb-32">
+          <div className="relative h-full flex flex-col justify-center container mx-auto px-4 pt-10 sm:pt-16 pb-20 sm:pb-32">
             {/* الشعار والعنوان مع تأثير النيون */}
-            <div className="text-center mb-8 mt-8 relative">
+            <div className="text-center mb-6 sm:mb-8 mt-4 sm:mt-8 relative">
               {/* نبض دائري خلف الشعار */}
-              <div className="absolute w-32 h-32 bg-[#39FF14] rounded-full blur-[50px] opacity-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
+              <div className="absolute w-24 sm:w-32 h-24 sm:h-32 bg-[#39FF14] rounded-full blur-[50px] opacity-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
               
               {/* الشعار */}
-              <h1 className="inline-block text-5xl xs:text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black relative pb-2
+              <h1 className="inline-block text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black relative pb-2
                               bg-clip-text text-transparent bg-gradient-to-b from-white via-[#39FF14] to-[#21a100]
                               filter drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]">
                 <span className="relative inline-block">
@@ -82,22 +82,22 @@ export default function HomePage() {
               </h1>
               
               {/* جملة وصفية مع تأثير الكتابة */}
-              <div className="max-w-2xl mx-auto mt-4 h-12 sm:h-16 overflow-hidden relative">
-                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "0s", animationFillMode: "forwards"}}>
+              <div className="max-w-2xl mx-auto mt-2 sm:mt-4 h-10 sm:h-12 md:h-16 overflow-hidden relative">
+                <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "0s", animationFillMode: "forwards"}}>
                   مستقبل الإقامة الفاخرة
                 </p>
-                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-neon-green font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "3s", animationFillMode: "forwards"}}>
+                <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-neon-green font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "3s", animationFillMode: "forwards"}}>
                   تجربة إقامة بمفهوم جديد
                 </p>
-                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "6s", animationFillMode: "forwards"}}>
+                <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "6s", animationFillMode: "forwards"}}>
                   منازل ذكية. رفاهية استثنائية.
                 </p>
               </div>
             </div>
             
             {/* عرض ثلاثي الأبعاد للعقارات الذكية */}
-            <div className="relative mx-auto w-full max-w-5xl my-6 sm:my-8 md:my-12 perspective px-2 sm:px-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="relative mx-auto w-full max-w-5xl my-4 sm:my-6 md:my-8 perspective px-2 sm:px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                 {/* الكرت الأول - البيت الذكي */}
                 <div className="group transform transition-all duration-500 hover:scale-105 hover:-rotate-1 perspective-card">
                   <div className="bg-black/50 backdrop-blur-sm border border-[#39FF14]/30 rounded-lg overflow-hidden relative
