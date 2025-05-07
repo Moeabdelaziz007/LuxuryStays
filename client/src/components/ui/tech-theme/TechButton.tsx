@@ -53,7 +53,7 @@ export interface TechButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
-  shimmer?: 'true' | 'circuit' | 'pulse' | 'none';
+  shimmer?: boolean | 'circuit' | 'pulse' | 'none';
   glowIntensity?: 'low' | 'medium' | 'high';
 }
 

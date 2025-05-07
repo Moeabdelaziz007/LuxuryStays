@@ -72,9 +72,9 @@ export function TechCard({
           background: 'rgba(0, 0, 0, 0.7)',
           border: `1px solid rgba(${neonColor === 'green' ? '57, 255, 20' : '0, 150, 255'}, 0.5)`,
           boxShadow: `0 0 20px rgba(${neonColor === 'green' ? '57, 255, 20' : '0, 150, 255'}, 0.3)`,
-          backdropFilter: 'blur(8px)',
-          position: 'relative',
-          overflow: 'hidden',
+          backdropFilter: 'blur(8px)' as any,
+          position: 'relative' as 'relative',
+          overflow: 'hidden' as 'hidden',
         };
       case 'default':
       default:
