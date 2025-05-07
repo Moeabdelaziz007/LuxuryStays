@@ -460,20 +460,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (err: any) {
       console.error("خطأ في تسجيل الدخول:", err);
       
-      // محاولة تسجيل دخول الضيف كحل بديل
+      // محاولة تسجيل دخول مجهول (Anonymous Authentication) كحل بديل
       try {
-        console.log("محاولة تسجيل الدخول كضيف...");
+        console.log("محاولة تسجيل الدخول كضيف باستخدام المصادقة المجهولة...");
         
-        // إنشاء عنوان بريد إلكتروني عشوائي للضيف
-        const guestEmail = `guest_${Math.floor(Math.random() * 10000000)}@staychill.com`;
-        const guestPassword = `Guest${Math.floor(Math.random() * 1000000)}!`;
-        
-        // تسجيل حساب ضيف جديد
-        await createUserWithEmailAndPassword(auth, guestEmail, guestPassword);
-        console.log("تم إنشاء حساب ضيف جديد");
-        
-        // تسجيل الدخول باستخدام الحساب الجديد
-        const guestCred = await signInWithEmailAndPassword(auth, guestEmail, guestPassword);
+        // استخدام المصادقة المجهولة التي توفرها Firebase
+        const guestCred = await signInAnonymously(auth);
+        console.log("تم إنشاء حساب مجهول جديد");
         
         // تحديث اسم المستخدم
         await updateProfile(guestCred.user, {
@@ -484,11 +477,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (db) {
           const guestData = {
             uid: guestCred.user.uid,
-            email: guestEmail,
+            email: null, // المستخدمين المجهولين ليس لديهم بريد إلكتروني
             name: "ضيف StayX",
             role: "CUSTOMER",
             createdAt: new Date().toISOString(),
-            isGuestAccount: true
+            isAnonymous: true
           };
           
           await setDoc(doc(db, "users", guestCred.user.uid), guestData);
