@@ -954,7 +954,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                     
                     {favorites.length > 0 ? (
                       <div className="space-y-2">
-                        {favorites.slice(0, 3).map(favorite => (
+                        {favorites.slice(0, 3).map((favorite: any) => (
                           <div key={favorite.id} className="flex items-center gap-3 p-2 bg-black/60 rounded-lg border border-[#39FF14]/5 hover:border-[#39FF14]/20 transition-all">
                             <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0 bg-black/80 border border-[#39FF14]/10">
                               {favorite.propertyImage ? (
@@ -1119,7 +1119,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                   <CardContent className="p-6">
                     {favorites.length > 0 ? (
                       <div className="space-y-4">
-                        {favorites.slice(0, 3).map((fav) => (
+                        {favorites.slice(0, 3).map((fav: any) => (
                           <div key={fav.id} className="flex items-center gap-4 border-b border-gray-800 pb-4">
                             <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
                               {fav.propertyImage ? (
@@ -1308,7 +1308,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {favorites.map((favorite) => (
+                    {favorites.map((favorite: any) => (
                       <div 
                         key={favorite.id}
                         className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-[#39FF14]/30 transition-colors group"

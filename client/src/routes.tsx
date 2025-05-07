@@ -227,7 +227,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.SUPER_ADMIN}>
             <SuperAdminLayout>
-              <NewSuperAdminDashboard activeTab={params.tab} />
+              <NewSuperAdminDashboard />
             </SuperAdminLayout>
           </RouteGuard>
         )}
@@ -237,7 +237,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.SUPER_ADMIN}>
             <SuperAdminLayout>
-              <NewSuperAdminDashboard activeTab={params.tab} action={params.action} />
+              <NewSuperAdminDashboard />
             </SuperAdminLayout>
           </RouteGuard>
         )}
@@ -247,7 +247,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.SUPER_ADMIN}>
             <SuperAdminLayout>
-              <NewSuperAdminDashboard activeTab="reports" reportType={params.reportType} />
+              <NewSuperAdminDashboard />
             </SuperAdminLayout>
           </RouteGuard>
         )}
