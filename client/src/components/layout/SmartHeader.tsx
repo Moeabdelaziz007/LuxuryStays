@@ -24,6 +24,7 @@ import {
   UserCircle,
   PieChart,
   Facebook,
+  Mail,
   DollarSign as CircleDollarSign
 } from "lucide-react";
 
@@ -434,19 +435,35 @@ export default function SmartHeader({ role }: SmartHeaderProps) {
             ) : (
               isPublicPage && !isMobile && (
                 <div className="hidden md:flex gap-3">
-                  <Link 
-                    to="/login" 
-                    className="relative group overflow-hidden"
-                  >
-                    <TechButton
-                      variant="outline" 
-                      glowIntensity="medium"
-                      className="flex items-center gap-1.5"
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Link 
+                      to="/login" 
+                      className="relative group overflow-hidden"
                     >
-                      <LogOut size={16} className="inline-block transform rotate-180" />
-                      <span>تسجيل الدخول</span>
-                    </TechButton>
-                  </Link>
+                      <TechButton
+                        variant="outline" 
+                        glowIntensity="medium"
+                        className="flex items-center gap-1.5"
+                      >
+                        <LogOut size={16} className="inline-block transform rotate-180" />
+                        <span>تسجيل الدخول</span>
+                      </TechButton>
+                    </Link>
+                    
+                    <Link 
+                      to="/email-login" 
+                      className="relative group overflow-hidden"
+                    >
+                      <TechButton
+                        variant="ghost" 
+                        glowIntensity="low"
+                        className="flex items-center gap-1.5"
+                      >
+                        <Mail size={16} className="inline-block" />
+                        <span>تسجيل الدخول بالبريد</span>
+                      </TechButton>
+                    </Link>
+                  </div>
 
                   <Link 
                     to="/signup" 
