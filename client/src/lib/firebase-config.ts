@@ -51,22 +51,8 @@ export const db = initializeFirestore(app, {
 // تهيئة خدمة التخزين
 export const storage = getStorage(app);
 
-// تمكين التخزين المؤقت لدعم وضع عدم الاتصال (مع معالجة الأخطاء)
-enableIndexedDbPersistence(db)
-  .then(() => {
-    console.log("تم تفعيل وضع عدم الاتصال لـ Firestore بنجاح");
-  })
-  .catch((err) => {
-    if (err.code === 'failed-precondition') {
-      // عدة علامات تبويب مفتوحة - يمكن أن يعمل وضع عدم الاتصال في علامة تبويب واحدة فقط
-      console.warn("فشل تمكين وضع عدم الاتصال: هناك عدة علامات تبويب مفتوحة في نفس الوقت");
-    } else if (err.code === 'unimplemented') {
-      // المتصفح غير مدعوم
-      console.warn("فشل تمكين وضع عدم الاتصال: المتصفح الحالي لا يدعم IndexedDB");
-    } else {
-      console.error("فشل تمكين وضع عدم الاتصال:", err);
-    }
-  });
+// ملاحظة: لا نحتاج لاستدعاء enableIndexedDbPersistence لأن persistentLocalCache يقوم بذلك تلقائيًا
+console.log("تم تكوين Firestore مع دعم وضع عدم الاتصال");
 
 // دالة مساعدة للتعامل مع وثائق Firestore بشكل آمن
 export const safeDoc = (doc: any) => {

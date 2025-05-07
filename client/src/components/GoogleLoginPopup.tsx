@@ -4,7 +4,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { loginWithPopup } from '@/lib/firebase-auth';
+import { loginWithPopup } from '@/lib/firebase-client';
 
 interface GoogleLoginPopupProps {
   redirectPath?: string;

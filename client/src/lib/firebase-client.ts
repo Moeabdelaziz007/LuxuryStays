@@ -4,10 +4,7 @@
  * يحل محل الملفات المتعددة لتجنب تضارب التهيئة
  */
 
-import { initializeApp } from "firebase/app";
 import { 
-  getAuth, 
-  connectAuthEmulator,
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
@@ -17,53 +14,9 @@ import {
   browserLocalPersistence,
   User 
 } from "firebase/auth";
-import {
-  getFirestore,
-  enableIndexedDbPersistence,
-  CACHE_SIZE_UNLIMITED,
-  initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-} from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 
-// التحقق من وجود مفاتيح Firebase
-if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_PROJECT_ID) {
-  console.error("مفاتيح Firebase غير متوفرة. تأكد من وجود VITE_FIREBASE_API_KEY و VITE_FIREBASE_PROJECT_ID في ملف .env");
-}
-
-// تكوين Firebase
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
-
-// تهيئة تطبيق Firebase (مرة واحدة فقط)
-export const app = initializeApp(firebaseConfig);
-
-// تهيئة خدمة المصادقة
-export const auth = getAuth(app);
-
-// إعدادات محسّنة لـ Firestore مع دعم وضع عدم الاتصال ومعالجة أخطاء الاتصال
-export const db = initializeFirestore(app, {
-  // استخدام التخزين المؤقت المحلي لتحسين الأداء ودعم وضع عدم الاتصال
-  localCache: persistentLocalCache({
-    // السماح باستخدام التطبيق في عدة علامات تبويب في نفس المتصفح
-    tabManager: persistentMultipleTabManager(),
-    // زيادة حجم التخزين المؤقت للتطبيقات الكبيرة
-    cacheSizeBytes: CACHE_SIZE_UNLIMITED,
-  }),
-  // زيادة مهلة الانتظار لتحسين الاتصال على الشبكات البطيئة
-  experimentalForceLongPolling: true,
-});
-
-// تهيئة خدمة التخزين
-export const storage = getStorage(app);
-
-// ملاحظة: لا داعي لاستدعاء enableIndexedDbPersistence لأننا نستخدم بالفعل persistentLocalCache
+// استيراد خدمات Firebase المُهيأة من الملف الرئيسي
+import { auth, app, db, storage } from './firebase-config';
 
 // دالة مساعدة للتعامل مع وثائق Firestore بشكل آمن
 export const safeDoc = (doc: any) => {
