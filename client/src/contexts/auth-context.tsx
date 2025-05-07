@@ -395,54 +395,60 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("محاولة تسجيل الدخول باستخدام Google...");
       
       try {
-        // استخدام تسجيل دخول بسيط لحل مشكلة النطاق
-        // هذا حل مؤقت يسمح للمستخدمين بالوصول للتطبيق
-        const email = `guest_${Math.floor(Math.random() * 100000)}@staychill.com`;
-        const password = `StayChill${Math.floor(Math.random() * 1000000)}!`;
+        // إنشاء مزود مصادقة Google
+        const googleProvider = new GoogleAuthProvider();
         
-        // إنشاء حساب مستخدم جديد
-        try {
-          // محاولة إنشاء حساب جديد
-          await createUserWithEmailAndPassword(auth, email, password);
-          console.log("تم إنشاء حساب مستخدم جديد بنجاح");
-        } catch (createError: any) {
-          // تجاهل خطأ "البريد الإلكتروني موجود بالفعل" (غير محتمل حدوثه)
-          if (createError.code !== 'auth/email-already-in-use') {
-            console.error("خطأ في إنشاء الحساب:", createError);
-            throw createError;
-          }
-        }
+        // إضافة نطاقات لطلب المعلومات
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
         
-        // تسجيل الدخول باستخدام الحساب الجديد
-        const userCred = await signInWithEmailAndPassword(auth, email, password);
-        
-        // تحديث الملف الشخصي بمعلومات جوجل
-        await updateProfile(userCred.user, {
-          displayName: "ضيف StayX",
-          photoURL: "https://ui-avatars.com/api/?name=StayX&background=39FF14&color=000000"
+        // إعداد المعرّف والسر لوحدة تحكم Google Cloud
+        googleProvider.setCustomParameters({
+          client_id: '299280633489-3q6odgc86hhc1j0cev92bf28q7cep5hj.apps.googleusercontent.com',
+          prompt: 'select_account'
         });
         
-        // إضافة المستخدم إلى Firestore مع دور العميل
+        console.log("تم تهيئة مزود Google، جاري تسجيل الدخول...");
+        
+        // محاولة تسجيل الدخول باستخدام نافذة منبثقة Google
+        const result = await signInWithPopup(auth, googleProvider);
+        
+        // الحصول على النتيجة
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const user = result.user;
+        
+        console.log("تم تسجيل الدخول باستخدام Google بنجاح:", user.email);
+        
+        // إضافة المستخدم إلى Firestore إذا لم يكن موجودًا
         if (db) {
           try {
-            const userData = {
-              uid: userCred.user.uid,
-              email: email,
-              name: "ضيف StayX",
-              role: "CUSTOMER",
-              createdAt: new Date().toISOString(),
-              isGuestAccount: true
-            };
+            const userRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userRef);
             
-            await setDoc(doc(db, "users", userCred.user.uid), userData);
-            console.log("تم حفظ معلومات المستخدم في Firestore بنجاح");
+            if (!userDoc.exists()) {
+              // إنشاء سجل مستخدم جديد
+              const userData = {
+                uid: user.uid,
+                email: user.email,
+                name: user.displayName || "مستخدم StayX",
+                role: "CUSTOMER",
+                createdAt: new Date().toISOString(),
+                photoURL: user.photoURL,
+                googleProvider: true
+              };
+              
+              await setDoc(userRef, userData);
+              console.log("تم إنشاء سجل جديد للمستخدم في Firestore");
+            } else {
+              console.log("المستخدم موجود بالفعل في قاعدة البيانات");
+            }
           } catch (firestoreError) {
             console.warn("تعذر حفظ معلومات المستخدم في Firestore:", firestoreError);
             // استمر حتى لو فشل Firestore
           }
         }
         
-        console.log("تم تسجيل الدخول كضيف بنجاح!");
+        console.log("اكتملت عملية تسجيل الدخول مع Google بنجاح!");
       } catch (popupError: any) {
         // إذا فشلت النافذة المنبثقة، يمكننا تجربة طريقة إعادة التوجيه
         if (popupError.code === 'auth/popup-blocked' || 
