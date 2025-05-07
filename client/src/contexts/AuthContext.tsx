@@ -14,6 +14,7 @@ interface User {
   createdAt?: string;
   updatedAt?: string;
   isAdmin: boolean;
+  photoURL?: string | null;
 }
 
 interface AuthContextType {
@@ -21,6 +22,7 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   pathname: string;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -28,6 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   isAuthenticated: false,
   pathname: '/',
+  logout: async () => {}, // Empty default implementation
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -59,6 +62,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [pathname] = useLocation();
 
+  // تسجيل الخروج
+  const logout = async () => {
+    try {
+      await auth.signOut();
+      // Clear any cached user data
+      localStorage.removeItem('cached_user');
+      console.log('[DEBUG] تم تسجيل الخروج بنجاح');
+    } catch (error) {
+      console.error('[ERROR] حدث خطأ أثناء تسجيل الخروج:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     console.log("[DEBUG] تحقق من حالة المصادقة");
     
@@ -76,6 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           emailVerified: firebaseUser.emailVerified,
           isAnonymous: firebaseUser.isAnonymous,
           isAdmin: false, // قيمة افتراضية
+          photoURL: firebaseUser.photoURL,
         };
 
         // في تطبيق حقيقي، سنجلب بيانات مستخدم إضافية من Firestore
@@ -111,6 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading,
         isAuthenticated: !!user,
         pathname,
+        logout,
       }}
     >
       {children}
