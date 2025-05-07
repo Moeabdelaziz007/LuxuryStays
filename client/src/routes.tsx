@@ -17,6 +17,8 @@ import CustomerDashboard from "@/features/dashboard/customer/NewCustomerDashboar
 import PublicHome from "@/features/public/Home";
 import ServicesPage from "@/features/public/ServicesPage";
 import PropertiesPage from "@/features/public/PropertiesPage";
+import AboutUs from "@/features/public/AboutUs";
+import ContactPage from "@/features/public/ContactPage";
 import PrivacyPolicy from "@/features/public/PrivacyPolicy";
 import TermsConditions from "@/features/public/TermsConditions";
 import NotFound from "@/pages/not-found";
@@ -63,45 +65,11 @@ export default function AppRoutes() {
       </Route>
       
       <Route path="/about">
-        <Layout>
-          <div className="container mx-auto px-4 py-12">
-            <h1 className="text-4xl font-bold text-neon-green mb-6">عن التطبيق</h1>
-            <div className="bg-gray-800 rounded-xl p-8 text-white">
-              <p className="mb-4">
-                StayX هي منصة حديثة للحجوزات الفاخرة للإيجارات الصيفية والخدمات الرقمية في الساحل الشمالي ورأس الحكمة بمصر.
-              </p>
-              <p className="mb-4">
-                تهدف المنصة إلى توفير تجربة سلسة وفاخرة للمستخدمين الراغبين في قضاء إجازتهم في أفضل الأماكن بالساحل المصري.
-              </p>
-              <p>
-                تم تطوير هذا التطبيق باستخدام أحدث التقنيات وأفضل الممارسات لضمان تجربة مستخدم مميزة وآمنة.
-              </p>
-            </div>
-          </div>
-        </Layout>
+        <AboutUs />
       </Route>
       
       <Route path="/contact">
-        <Layout>
-          <div className="container mx-auto px-4 py-12">
-            <h1 className="text-4xl font-bold text-neon-green mb-6">تواصل معنا</h1>
-            <div className="bg-gray-800 rounded-xl p-8 text-white">
-              <p className="mb-6">
-                لديك استفسار أو اقتراح؟ يمكنك التواصل معنا من خلال:
-              </p>
-              <div className="flex flex-col space-y-4">
-                <div className="flex items-center">
-                  <span className="text-neon-green mr-2">📧</span>
-                  <span>البريد الإلكتروني: contact@stayx.com</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-neon-green mr-2">📱</span>
-                  <span>الهاتف: +20 123 456 7890</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Layout>
+        <ContactPage />
       </Route>
       
       <Route path="/privacy">
