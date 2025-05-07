@@ -760,7 +760,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                               <FaCalendarAlt className="h-5 w-5 text-[#39FF14]" />
                             </div>
                             <div className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">حجوزاتي</div>
-                            <div className="text-xs text-gray-500 mt-1">{bookings.length} حجز</div>
+                            <div className="text-xs text-gray-500 mt-1">{bookings?.length || 0} حجز</div>
                           </div>
                           
                           <div 
@@ -771,7 +771,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                               <FaHeart className="h-5 w-5 text-[#39FF14]" />
                             </div>
                             <div className="text-sm font-medium text-white group-hover:text-[#39FF14] transition-colors">المفضلة</div>
-                            <div className="text-xs text-gray-500 mt-1">{favorites.length} عقار</div>
+                            <div className="text-xs text-gray-500 mt-1">{favorites?.length || 0} عقار</div>
                           </div>
                           
                           <div 
@@ -920,7 +920,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         الحجوزات
                       </h3>
                       <Badge className="bg-[#39FF14]/10 text-[#39FF14] hover:bg-[#39FF14]/20 border-none">
-                        {bookings.length} حجز
+                        {bookings?.length || 0} حجز
                       </Badge>
                     </div>
                     
@@ -1300,7 +1300,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                       <span className="text-gray-400">جاري تحميل العقارات المفضلة...</span>
                     </div>
                   </div>
-                ) : favorites.length === 0 ? (
+                ) : (!favorites || favorites.length === 0) ? (
                   <div className="text-center py-10">
                     <div className="bg-gray-800 p-4 rounded-full inline-block mb-4">
                       <FaHeart className="h-10 w-10 text-[#39FF14]/70" />
@@ -1468,7 +1468,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                           <h4 className="text-sm font-medium text-gray-300">الحجوزات</h4>
                           <FaCalendarAlt className="h-4 w-4 text-[#39FF14]" />
                         </div>
-                        <p className="text-2xl font-bold text-white">{bookings.length}</p>
+                        <p className="text-2xl font-bold text-white">{bookings?.length || 0}</p>
                         <p className="text-xs text-gray-400 mt-1">إجمالي الحجوزات</p>
                       </div>
                       
@@ -1477,7 +1477,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                           <h4 className="text-sm font-medium text-gray-300">العقارات المفضلة</h4>
                           <FaHeart className="h-4 w-4 text-[#39FF14]" />
                         </div>
-                        <p className="text-2xl font-bold text-white">{favorites.length}</p>
+                        <p className="text-2xl font-bold text-white">{favorites?.length || 0}</p>
                         <p className="text-xs text-gray-400 mt-1">إجمالي المفضلات</p>
                       </div>
                       
