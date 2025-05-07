@@ -1,8 +1,12 @@
 import { Router, Request, Response } from 'express';
 import Stripe from 'stripe';
 import { db } from '../db';
-import { doc, collection, getDoc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
-import { BookingStatus } from '@shared/schema';
+import { eq } from 'drizzle-orm';
+import { 
+  BookingStatus, 
+  bookings, 
+  transactions
+} from '@shared/schema';
 
 // التحقق من وجود مفتاح Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -62,41 +66,44 @@ router.post('/confirm-booking', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'يجب توفير معرف الحجز' });
     }
     
-    // الحصول على مرجع الحجز
-    const bookingRef = doc(db, 'bookings', bookingId);
-    const bookingSnap = await getDoc(bookingRef);
+    // الحصول على بيانات الحجز من قاعدة البيانات
+    const bookingData = await db.query.bookings.findFirst({
+      where: eq(bookings.id, parseInt(bookingId))
+    });
     
     // التحقق من وجود الحجز
-    if (!bookingSnap.exists()) {
+    if (!bookingData) {
       return res.status(404).json({ error: 'لم يتم العثور على الحجز' });
     }
     
+    // تاريخ التحديث الحالي
+    const now = new Date();
+    
     // تحديث حالة الحجز إلى "مؤكد"
-    await updateDoc(bookingRef, {
-      status: BookingStatus.CONFIRMED,
-      paymentConfirmedAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
+    await db.update(bookings)
+      .set({
+        status: BookingStatus.CONFIRMED,
+        paymentConfirmedAt: now,
+        updatedAt: now
+      })
+      .where(eq(bookings.id, parseInt(bookingId)));
     
     // إنشاء سجل للمعاملة المالية
-    const bookingData = bookingSnap.data();
     const totalAmount = bookingData.totalPrice || 0;
     
-    const transactionData = {
-      bookingId,
+    // إضافة المعاملة إلى جدول المعاملات
+    await db.insert(transactions).values({
+      bookingId: parseInt(bookingId),
       propertyId: bookingData.propertyId,
-      propertyAdminId: bookingData.propertyAdminId,
+      propertyAdminId: bookingData.propertyId, // استخدام propertyId المناسب من الحجز
       customerId: bookingData.customerId,
       totalAmount,
-      platformFee: totalAmount * 0.1, // 10% عمولة المنصة
-      propertyOwnerAmount: totalAmount * 0.9, // 90% لمشرف العقار
-      timestamp: serverTimestamp(),
+      platformFee: Math.round(totalAmount * 0.1), // 10% عمولة المنصة
+      propertyOwnerAmount: Math.round(totalAmount * 0.9), // 90% لمشرف العقار
+      timestamp: now,
       status: 'completed',
-      paymentMethod: 'card',
-    };
-    
-    // إضافة المعاملة إلى مجموعة المعاملات
-    await addDoc(collection(db, 'transactions'), transactionData);
+      paymentMethod: 'card'
+    });
     
     // إرسال استجابة نجاح
     res.json({ success: true, message: 'تم تأكيد الحجز بنجاح' });

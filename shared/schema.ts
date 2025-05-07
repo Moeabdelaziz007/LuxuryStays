@@ -72,6 +72,29 @@ export const bookings = pgTable("bookings", {
   paymentStatus: text("payment_status").notNull().default("pending"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
+  paymentConfirmedAt: timestamp("payment_confirmed_at"),
+  paymentFailedAt: timestamp("payment_failed_at"),
+  paymentError: text("payment_error"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  updatedAt: timestamp("updated_at"),
+});
+
+// Transactions table
+export const transactions = pgTable("transactions", {
+  id: serial("id").primaryKey(),
+  bookingId: integer("booking_id").references(() => bookings.id),
+  propertyId: integer("property_id").references(() => properties.id),
+  propertyAdminId: integer("property_admin_id").references(() => users.id),
+  customerId: integer("customer_id").references(() => users.id),
+  totalAmount: integer("total_amount").notNull(),
+  platformFee: integer("platform_fee").notNull(),
+  propertyOwnerAmount: integer("property_owner_amount").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+  status: text("status").notNull().default("pending"),
+  paymentMethod: text("payment_method").notNull(),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at"),
 });
 
 // Create insert schemas
@@ -95,6 +118,11 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   createdAt: true
 });
 
+export const insertTransactionSchema = createInsertSchema(transactions).omit({
+  id: true,
+  createdAt: true
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -107,3 +135,6 @@ export type Service = typeof services.$inferSelect;
 
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
+
+export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
+export type Transaction = typeof transactions.$inferSelect;
