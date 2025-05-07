@@ -443,7 +443,7 @@ export default function NewCustomerDashboard() {
             <Button 
               variant="ghost" 
               className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors relative group"
-              onClick={() => setActiveTab("settings")}
+              onClick={() => navigate("/customer/settings")}
             >
               <div className={`absolute inset-y-0 left-0 w-1 transition-all ${activeTab === "settings" ? "bg-[#39FF14]" : "bg-transparent group-hover:bg-[#39FF14]/50"}`}></div>
               <FaCog className="mr-2 h-5 w-5" />
@@ -457,6 +457,7 @@ export default function NewCustomerDashboard() {
               <Button 
                 variant="ghost" 
                 className="w-full justify-start mb-1 text-white hover:text-[#39FF14] hover:bg-[#39FF14]/10 transition-colors"
+                onClick={() => navigate("/")}
               >
                 <FaHome className="mr-2 h-5 w-5" />
                 <span>الصفحة الرئيسية</span>
@@ -644,7 +645,10 @@ export default function NewCustomerDashboard() {
                         
                         {/* Quick Access Links */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                          <div className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group">
+                          <div 
+                            className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group"
+                            onClick={() => navigate("/customer/bookings")}
+                          >
                             <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
                               <FaCalendarAlt className="h-5 w-5 text-[#39FF14]" />
                             </div>
@@ -652,7 +656,10 @@ export default function NewCustomerDashboard() {
                             <div className="text-xs text-gray-500 mt-1">{bookings.length} حجز</div>
                           </div>
                           
-                          <div className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group">
+                          <div 
+                            className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group"
+                            onClick={() => navigate("/customer/favorites")}
+                          >
                             <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
                               <FaHeart className="h-5 w-5 text-[#39FF14]" />
                             </div>
@@ -660,7 +667,10 @@ export default function NewCustomerDashboard() {
                             <div className="text-xs text-gray-500 mt-1">{favorites.length} عقار</div>
                           </div>
                           
-                          <div className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group">
+                          <div 
+                            className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group"
+                            onClick={() => navigate("/customer/payments")}
+                          >
                             <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
                               <FaCreditCard className="h-5 w-5 text-[#39FF14]" />
                             </div>
@@ -668,7 +678,10 @@ export default function NewCustomerDashboard() {
                             <div className="text-xs text-gray-500 mt-1">$0 USD</div>
                           </div>
                           
-                          <div className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group">
+                          <div 
+                            className="bg-[#1F2128] rounded-xl p-4 border border-gray-800 hover:border-[#39FF14]/20 cursor-pointer transition-all hover:shadow-md group"
+                            onClick={() => navigate("/customer/services")}
+                          >
                             <div className="w-10 h-10 rounded-lg bg-[#39FF14]/10 flex items-center justify-center mb-3 group-hover:bg-[#39FF14]/20 transition-colors">
                               <FaRegStar className="h-5 w-5 text-[#39FF14]" />
                             </div>
