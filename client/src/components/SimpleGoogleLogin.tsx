@@ -4,7 +4,8 @@ import { FcGoogle } from 'react-icons/fc';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { loginWithPopup, loginAsGuest } from '@/lib/firebase-auth';
+import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 interface SimpleGoogleLoginProps {
   redirectPath?: string;
@@ -36,8 +37,16 @@ export default function SimpleGoogleLogin({
     try {
       setIsLoading(true);
       
-      // استخدام طريقة النافذة المنبثقة التي تم تحسينها
-      const result = await loginWithPopup();
+      // محاولة تسجيل الدخول باستخدام Google
+      // إعداد مزود مصادقة جديد تلافيًا لمشاكل الإعداد المسبق
+      const provider = new GoogleAuthProvider();
+      provider.addScope('email');
+      provider.addScope('profile');
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      
+      const result = await signInWithPopup(auth, provider);
       console.log("تم تسجيل الدخول بنجاح:", result.user.displayName);
       
       if (onLoginSuccess) {
@@ -62,49 +71,7 @@ export default function SimpleGoogleLogin({
       } else if (err.code === 'auth/popup-closed-by-user') {
         errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
       } else if (err.code === 'auth/unauthorized-domain') {
-        // هذا خطأ معروف في بيئة التطوير - نخبر المستخدم مع تهدئة الرسالة
-        console.warn("نطاق غير مصرح به، هذا أمر طبيعي في بيئة التطوير:", window.location.origin);
-        errorMessage = "جاري محاولة تسجيل الدخول باستخدام طريقة بديلة...";
-        
-        // محاولة مرة أخرى بإعدادات مختلفة
-        try {
-          // استخدام طريقة بديلة لتسجيل الدخول
-          import('firebase/auth').then(async (firebaseAuth) => {
-            import('@/lib/firebase').then(async (firebase) => {
-              const provider = new firebaseAuth.GoogleAuthProvider();
-              provider.setCustomParameters({ prompt: 'select_account' });
-              
-              try {
-                const result = await firebaseAuth.signInWithPopup(firebase.auth, provider);
-                console.log("نجحت المحاولة الثانية!");
-                
-                if (onLoginSuccess) {
-                  onLoginSuccess();
-                } else {
-                  toast({
-                    title: "تم تسجيل الدخول بنجاح",
-                    description: `مرحبًا ${result.user.displayName || "بكم"}!`,
-                  });
-                  
-                  setLocation(redirectPath);
-                }
-              } catch (finalErr) {
-                console.error("فشلت المحاولة النهائية:", finalErr);
-                toast({
-                  title: "تعذر تسجيل الدخول",
-                  description: "يرجى التحقق من إعدادات Firebase في لوحة التحكم.",
-                  variant: "destructive",
-                });
-              }
-            });
-          });
-          
-          // منع ظهور رسالة الخطأ الأصلية
-          return;
-        } catch (innerErr) {
-          console.error("فشلت المحاولة الثانية:", innerErr);
-          errorMessage = "تعذر تسجيل الدخول. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.";
-        }
+        errorMessage = "النطاق غير مصرح به في Firebase. يرجى استخدام خيار الدخول كضيف بدلاً من ذلك.";
       }
       
       toast({
@@ -123,8 +90,9 @@ export default function SimpleGoogleLogin({
     try {
       setIsGuestLoading(true);
       
-      await loginAsGuest();
-      console.log("تم تسجيل الدخول كضيف بنجاح");
+      // تسجيل الدخول كضيف باستخدام Firebase مباشرة
+      const result = await signInAnonymously(auth);
+      console.log("تم تسجيل الدخول كضيف بنجاح", result.user.uid);
       
       if (onLoginSuccess) {
         onLoginSuccess();
