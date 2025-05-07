@@ -722,7 +722,7 @@ export default function NewCustomerDashboard() {
                         <Button 
                           variant="outline" 
                           className="bg-[#1F2128] border-gray-700 text-white hover:bg-[#1F2128]/80 hover:text-[#39FF14] hover:border-[#39FF14]/20 transition-colors py-6 flex flex-col h-auto"
-                          onClick={() => navigate("/booking")}
+                          onClick={() => navigate("/customer/bookings")}
                         >
                           <FaCalendarAlt className="h-5 w-5 mb-2" />
                           <span className="text-xs">حجز</span>
@@ -810,7 +810,7 @@ export default function NewCustomerDashboard() {
                     <div className="flex items-center justify-between px-3 py-2 bg-[#1F2128] rounded-lg mb-2">
                       <div className="text-sm text-white">حجوزات مؤكدة</div>
                       <div className="text-sm font-medium text-white">
-                        {bookings.filter(booking => booking.status === 'confirmed').length}
+                        {bookings.filter((booking: Booking) => booking.status === 'confirmed').length}
                       </div>
                     </div>
                     
