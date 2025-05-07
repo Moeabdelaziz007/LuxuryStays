@@ -12,7 +12,8 @@ import NewSuperAdminDashboard from "@/features/dashboard/super-admin/NewSuperAdm
 import FinancialTransactions from "@/features/dashboard/super-admin/FinancialTransactions";
 import NewPropertyAdminDashboard from "@/features/dashboard/property-admin/NewPropertyAdminDashboard";
 import NewPropertyAdminLayout from "@/features/dashboard/property-admin/NewPropertyAdminLayout";
-import CustomerDashboard from "@/features/dashboard/customer/NewCustomerDashboard";
+import CustomerDashboard from "@/features/dashboard/customer/CustomerDashboard"; // Updated to use new component
+import OldCustomerDashboard from "@/features/dashboard/customer/NewCustomerDashboard";
 
 // Public Components
 import PublicHome from "@/features/public/Home";
