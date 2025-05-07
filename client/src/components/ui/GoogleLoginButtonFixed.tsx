@@ -45,8 +45,12 @@ export default function GoogleLoginButton({
       provider.addScope('profile');
       provider.addScope('email');
       
+      // هام: إزالة أي خيارات مخصصة قد تسبب مشاكل مع نطاقات إعادة التوجيه
+      // وتجنب تحديد client_id مباشرة هنا
+      
       // تسجيل الدخول باستخدام النافذة المنبثقة
       console.log("محاولة تسجيل الدخول عبر Google باستخدام النافذة المنبثقة...");
+      console.log("نطاق الموقع الحالي:", window.location.hostname);
       const result = await signInWithPopup(auth, provider);
       
       // الحصول على بيانات المستخدم من Google

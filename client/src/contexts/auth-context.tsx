@@ -403,11 +403,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         googleProvider.addScope('profile');
         
         // تبسيط إعدادات المزود لمنع مشاكل إعادة التوجيه
-        googleProvider.setCustomParameters({
-          prompt: 'select_account'
-        });
+        // إزالة setCustomParameters لتجنب التعارض مع إعدادات OAuth
         
         console.log("تم تهيئة مزود Google، جاري تسجيل الدخول (باستخدام النافذة المنبثقة)...");
+        console.log("النطاق الحالي:", window.location.hostname);
 
         // استخدام signInWithPopup بدلاً من signInWithRedirect للتجاوز مشكلة إعادة التوجيه
         const result = await signInWithPopup(auth, googleProvider);

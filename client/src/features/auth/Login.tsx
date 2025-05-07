@@ -230,7 +230,7 @@ export default function LoginNew() {
         return;
       }
       
-      await loginWithGoogle();
+      await loginWithGoogle(redirectPath || undefined);
       
       toast(getSuccessToast(
         "تم تسجيل الدخول بنجاح",
