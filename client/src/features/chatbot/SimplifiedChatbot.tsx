@@ -394,13 +394,8 @@ const SimplifiedChatbot: React.FC<SimplifiedChatbotProps> = ({
       let responseText = '';
       
       try {
-        const { connectionStatus, response } = await geminiService.generateResponse(message);
-        
-        if (connectionStatus.status === 'connected') {
-          responseText = response;
-        } else {
-          responseText = 'عذراً، أواجه مشكلة في الاتصال بالخدمة حالياً. يرجى المحاولة مرة أخرى لاحقاً.';
-        }
+        // Usando el método sendMessage que existe en GeminiService
+        responseText = await geminiService.sendMessage(message);
       } catch (error) {
         console.error('خطأ في استجابة المساعد:', error);
         responseText = 'عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.';
@@ -423,7 +418,7 @@ const SimplifiedChatbot: React.FC<SimplifiedChatbotProps> = ({
   // إعادة ضبط المحادثة
   const resetChat = () => {
     setChatKey(Date.now());
-    geminiService.resetConnectionStatus();
+    // No es necesario resetear el estado de conexión, solo generamos una nueva clave de chat
   };
   
   // حفظ تغييرات الإعدادات
