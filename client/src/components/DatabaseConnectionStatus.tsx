@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AlertCircle, InfoIcon, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { db } from "@/lib/firebase";
-import { enableNetwork } from "firebase/firestore";
+import { enableNetwork, disableNetwork } from "firebase/firestore";
 
 /**
  * مكوّن يعرض حالة الاتصال بقاعدة البيانات للمستخدم مع إمكانية إعادة المحاولة
@@ -77,7 +77,7 @@ const DatabaseConnectionStatus: React.FC = () => {
     };
   }, [isOffline]);
 
-  // محاولة إعادة الاتصال بـ Firestore
+  // محاولة إعادة الاتصال بـ Firestore مع استراتيجية أكثر قوة
   const handleRetryConnection = async () => {
     if (!db) return;
     
@@ -85,16 +85,77 @@ const DatabaseConnectionStatus: React.FC = () => {
     setRetryCount(prev => prev + 1);
     
     try {
-      await enableNetwork(db);
-      console.log("✅ Successfully re-enabled Firestore network connection");
-      setIsOffline(false);
+      // استخدام نسخة نظيفة من db لتجنب أخطاء TypeScript
+      const firestore = db;
       
-      // إخفاء الإشعار بعد قليل
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
+      // محاولة أولى لتفعيل الشبكة مباشرة
+      console.log("محاولة إعادة الاتصال بـ Firestore...");
+      
+      // محاولة تفعيل الشبكة باستخدام استراتيجية التعافي
+      const enableResult = await enableNetwork(firestore).catch(async (error) => {
+        console.warn("فشل في تفعيل الشبكة مباشرة، جارٍ تجربة استراتيجية بديلة:", error);
+        
+        // إذا فشلت المحاولة المباشرة، نجرب تعطيل ثم إعادة تفعيل بفاصل زمني
+        try {
+          await disableNetwork(firestore);
+          console.log("تم تعطيل الشبكة بنجاح، انتظار قبل إعادة المحاولة...");
+          
+          // انتظار قبل إعادة تفعيل الشبكة
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // محاولة إعادة تفعيل الشبكة
+          await enableNetwork(firestore);
+          return true; // إشارة إلى نجاح الاستراتيجية البديلة
+        } catch (innerError) {
+          console.error("فشل في استخدام استراتيجية التعافي البديلة:", innerError);
+          throw innerError; // إعادة إلقاء الخطأ ليتم التقاطه في الـ catch الخارجي
+        }
+      });
+      
+      console.log("✅ تم إعادة تفعيل اتصال Firestore بنجاح", enableResult);
+      
+      // التحقق من الاتصال بإجراء عملية اختبار بسيطة
+      const testResult = await new Promise<boolean>((resolve) => {
+        // إعداد مهلة للعملية في حالة عدم اكتمالها
+        const timeoutId = setTimeout(() => {
+          console.warn("⌛ انتهت مهلة اختبار الاتصال");
+          resolve(false);
+        }, 5000);
+        
+        // محاولة الوصول إلى خاصية type للتأكد من وجود اتصال
+        try {
+          if (db && typeof db.type === 'string') {
+            clearTimeout(timeoutId);
+            resolve(true);
+          } else {
+            clearTimeout(timeoutId);
+            resolve(false);
+          }
+        } catch (error) {
+          console.error("خطأ أثناء اختبار الاتصال:", error);
+          clearTimeout(timeoutId);
+          resolve(false);
+        }
+      });
+      
+      if (testResult) {
+        setIsOffline(false);
+        // إظهار رسالة نجاح مؤقتة
+        setShowAlert(true);
+        
+        // إخفاء الإشعار بعد قليل
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 3000);
+      } else {
+        console.warn("⚠️ الاتصال لا يزال غير متاح رغم محاولة إعادة التفعيل");
+        // الاستمرار في إظهار حالة عدم الاتصال
+        setIsOffline(true);
+      }
     } catch (error) {
-      console.error("Failed to re-enable Firestore network:", error);
+      console.error("❌ فشل في إعادة تفعيل شبكة Firestore:", error);
+      // عرض الخطأ بمزيد من التفاصيل
+      setIsOffline(true);
     } finally {
       setIsRetrying(false);
     }

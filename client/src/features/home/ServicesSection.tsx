@@ -1,7 +1,7 @@
 // features/home/ServicesSection.tsx
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/firebase";
+import { db, safeDoc } from "@/lib/firebase";
 import { useState, useEffect } from "react";
 import { HolographicCard } from "@/components/ui/holographic-card";
 
@@ -65,20 +65,33 @@ export default function ServicesSection() {
     queryKey: ["services", "active"],
     queryFn: async () => {
       try {
-        if (!db) {
-          console.log("Firebase DB not available");
-          return []; // لا نعرض بيانات محلية
-        }
-        
-        const activeQuery = query(collection(db, "services"), where("status", "==", "active"));
-        const snapshot = await getDocs(activeQuery);
-        
-        if (snapshot.empty) {
-          console.log("No active services found in Firestore");
-          return []; // لا نعرض بيانات محلية
-        }
-        
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Service[];
+        return await safeDoc(
+          async () => {
+            if (!db) {
+              throw new Error("Firebase DB not available");
+            }
+            
+            console.log("جاري جلب الخدمات النشطة من Firestore...");
+            
+            const activeQuery = query(collection(db, "services"), where("status", "==", "active"));
+            const snapshot = await getDocs(activeQuery);
+            
+            if (snapshot.empty) {
+              console.log("لم يتم العثور على خدمات نشطة في Firestore");
+              return []; // لا نعرض بيانات عشوائية
+            }
+            
+            console.log(`تم العثور على ${snapshot.docs.length} خدمات نشطة في Firestore`);
+            
+            return snapshot.docs.map(doc => ({ 
+              id: doc.id, 
+              ...doc.data() 
+            })) as Service[];
+          },
+          [], // قيمة افتراضية فارغة في حالة الفشل
+          3, // عدد محاولات إعادة المحاولة
+          "services-active" // مفتاح التخزين المؤقت
+        );
       } catch (error: any) {
         console.error("Error fetching services:", error);
         
@@ -88,9 +101,11 @@ export default function ServicesSection() {
           console.warn("Firebase permission denied. Make sure Firestore rules allow read access to the services collection.");
         } else if (error.name === "FirebaseError") {
           setError("خطأ في Firebase: " + error.message);
+        } else {
+          setError("حدث خطأ أثناء جلب البيانات. يرجى المحاولة لاحقًا.");
         }
         
-        return []; // لا نعرض بيانات محلية
+        return []; // لا نعرض بيانات عشوائية
       }
     }
   });
