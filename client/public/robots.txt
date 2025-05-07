@@ -1,0 +1,11 @@
+# StayX - منصة حجز العقارات الفاخرة
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /property-admin
+Disallow: /customer
+Disallow: /super-admin
+Disallow: /api/
+
+# ملف Sitemap
+Sitemap: https://staychill-3ed08.web.app/sitemap.xml

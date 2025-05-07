@@ -4,6 +4,69 @@
 @tailwind components;
 @tailwind utilities;
 
+/* تعريف رسوم متحركة مخصصة */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes neonPulse {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(57, 255, 20, 0.6), 0 0 8px rgba(57, 255, 20, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(57, 255, 20, 0.8), 0 0 16px rgba(57, 255, 20, 0.6), 0 0 24px rgba(57, 255, 20, 0.4);
+  }
+}
+
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* إضافة فئات المحركات */
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-in-out forwards;
+}
+
+.animate-slideUpAndFade {
+  animation: slideUpAndFade 0.6s ease-out forwards;
+}
+
+.animate-neon-pulse {
+  animation: neonPulse 2s infinite;
+}
+
+.animate-float {
+  animation: subtleFloat 3s ease-in-out infinite;
+}
+
+/* إضافة تأثير الزجاج والضبابية */
+.glass-effect {
+  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 5, 0.7);
+  border: 1px solid rgba(57, 255, 20, 0.1);
+}
+
 :root {
   /* =========== TECH-SPACE THEME - 4 CORE COLORS =========== */
   /* 1. Deep Black - Space-inspired black background */

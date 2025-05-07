@@ -52,25 +52,35 @@ export default function SimpleLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
-      {/* الشعار في الأعلى */}
-      <div className="absolute top-6 left-6">
-        <Logo size="md" variant="neon" withText linkToHome />
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* خلفية ديناميكية */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#39FF14]/5 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#39FF14]/5 to-transparent"></div>
+        <div className="absolute top-20 left-10 w-60 h-60 bg-[#39FF14]/5 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-[#39FF14]/5 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
       
-      <div className="w-full max-w-md">
-        <Card className="bg-gray-800/80 backdrop-blur-lg border-gray-700">
+      {/* الشعار في الأعلى مع رسوم متحركة */}
+      <div className="absolute top-6 left-6 z-10 animate-fadeIn">
+        <Logo size="md" variant="neon" withText linkToHome withAnimation />
+      </div>
+      
+      {/* عنصر الكارت مع رسوم متحركة */}
+      <div className="w-full max-w-md z-10 animate-slideUpAndFade">
+        <Card className="bg-gray-800/80 backdrop-blur-lg border-gray-700 shadow-xl shadow-[#39FF14]/5">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-white">تسجيل الدخول</CardTitle>
-            <CardDescription className="text-gray-400">الرجاء تسجيل الدخول للوصول إلى حسابك</CardDescription>
+            <CardTitle className="text-2xl text-white animate-fadeIn" style={{ animationDelay: '200ms' }}>تسجيل الدخول</CardTitle>
+            <CardDescription className="text-gray-400 animate-fadeIn" style={{ animationDelay: '400ms' }}>الرجاء تسجيل الدخول للوصول إلى حسابك</CardDescription>
           </CardHeader>
           
           <CardContent className="space-y-6">
-            {/* زر تسجيل الدخول مع Google */}
+            {/* زر تسجيل الدخول مع Google مع تأثيرات محسّنة */}
             <Button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full h-12 bg-white text-black hover:bg-gray-100 border border-gray-300 flex items-center justify-center gap-2 transition-colors duration-300"
+              className="w-full h-12 bg-white text-black hover:bg-gray-100 hover:scale-[1.02] border border-gray-300 flex items-center justify-center gap-2 transition-all duration-300 shadow-md animate-fadeIn"
+              style={{ animationDelay: '600ms' }}
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin text-gray-500" />
@@ -83,13 +93,20 @@ export default function SimpleLogin() {
             </Button>
             
             {/* رابط للعودة إلى الصفحة الرئيسية */}
-            <div className="text-center mt-4">
+            <div className="text-center mt-4 animate-fadeIn" style={{ animationDelay: '800ms' }}>
               <a href="/" className="text-sm text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
                 العودة إلى الصفحة الرئيسية
               </a>
             </div>
           </CardContent>
         </Card>
+      </div>
+      
+      {/* معلومات SEO (غير مرئية للمستخدم) */}
+      <div className="sr-only">
+        <h1>StayX - تسجيل الدخول | منصة حجز العقارات الفاخرة</h1>
+        <p>قم بتسجيل الدخول إلى StayX، المنصة الرائدة لحجز العقارات الفاخرة في الصيف. استمتع بتجربة حجز سلسة وخدمة عملاء متميزة.</p>
+        <p>حجز العقارات الفاخرة، إيجارات الصيف الفاخرة، شاليهات فاخرة، فلل سياحية، استجمام فاخر</p>
       </div>
     </div>
   );
