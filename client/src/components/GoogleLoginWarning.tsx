@@ -1,7 +1,14 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, Copy, ExternalLink } from "lucide-react";
+import { 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+  CardFooter 
+} from '@/components/ui/card';
+import { AlertCircle, Copy, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function GoogleLoginWarning() {
   // استخدام النطاق المخزن في localStorage إذا كان موجودًا، وإلا استخدام النطاق الحالي
@@ -29,17 +36,17 @@ export default function GoogleLoginWarning() {
           النطاق الحالي غير مصرح به في إعدادات مصادقة Firebase. هذه مشكلة شائعة في بيئات التطوير مثل Replit حيث تتغير النطاقات بين الجلسات.
         </p>
         <p className="font-bold mb-2 text-white">يجب إضافة النطاق الحالي:</p>
-        <div className="bg-gray-800 p-3 rounded-md mb-4 font-mono text-xs text-green-400 break-all">
+        <div className="bg-gray-800 p-3 rounded font-mono text-xs text-green-400 break-all">
           {currentDomain}
         </div>
-        <h3 className="text-white font-semibold mb-2">How to fix this:</h3>
+        <h3 className="text-white font-semibold mt-4 mb-2">كيفية إصلاح المشكلة:</h3>
         <ol className="list-decimal pl-5 space-y-2 text-gray-300">
-          <li>Copy the domain above</li>
-          <li>Go to the <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Firebase Console</a></li>
-          <li>Select your project: <span className="text-amber-400">stay-chill-e3743</span></li>
-          <li>Navigate to: Authentication → Settings → Authorized domains</li>
-          <li>Click "Add domain" and paste the copied domain</li>
-          <li>Save and refresh this page</li>
+          <li>انسخ النطاق أعلاه</li>
+          <li>انتقل إلى <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">لوحة تحكم Firebase</a></li>
+          <li>اختر المشروع: <span className="text-amber-400">stay-chill-e3743</span></li>
+          <li>انتقل إلى: Authentication → Settings → Authorized domains</li>
+          <li>انقر على "Add domain" والصق النطاق المنسوخ</li>
+          <li>احفظ وقم بتحديث هذه الصفحة</li>
         </ol>
       </CardContent>
       <CardFooter className="flex justify-between border-t border-gray-800 pt-4">
@@ -49,14 +56,14 @@ export default function GoogleLoginWarning() {
           onClick={handleCopyDomain}
         >
           <Copy className="h-4 w-4 mr-2" />
-          Copy Domain
+          نسخ النطاق
         </Button>
         <Button 
           className="bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={() => window.open('https://console.firebase.google.com/', '_blank')}
+          onClick={() => window.open('https://console.firebase.google.com/project/_/authentication/providers', '_blank')}
         >
           <ExternalLink className="h-4 w-4 mr-2" />
-          Open Firebase Console
+          فتح إعدادات Firebase
         </Button>
       </CardFooter>
     </Card>

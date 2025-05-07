@@ -1,3 +1,4 @@
+import * as admin from 'firebase-admin';
 import { initializeApp, cert, type App, type ServiceAccount } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
