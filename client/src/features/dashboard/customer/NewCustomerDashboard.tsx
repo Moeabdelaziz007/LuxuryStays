@@ -226,18 +226,28 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
     queryFn: async () => {
       if (!user?.uid || !db) return [];
       
-      // استخدام sessionStorage كطبقة تخزين مؤقت إضافية لتحسين الأداء
-      const cachedData = sessionStorage.getItem(`favorites_${user.uid}`);
-      const cacheTimestamp = sessionStorage.getItem(`favorites_${user.uid}_timestamp`);
-      
-      // تحقق من وجود بيانات مخزنة مؤقتاً صالحة (أقل من 2 دقائق)
+      // استخدام متغيرات مؤقتة للتخزين المؤقت لتجنب أخطاء الشاشة السوداء
+      let cachedData = null;
+      let cacheTimestamp = null;
       const now = Date.now();
-      const cacheAge = cacheTimestamp ? now - parseInt(cacheTimestamp) : Infinity;
+      let cacheAge = Infinity;
       const maxCacheAge = 2 * 60 * 1000; // 2 دقائق
+      
+      try {
+        // استخدام sessionStorage كطبقة تخزين مؤقت إضافية لتحسين الأداء
+        cachedData = sessionStorage.getItem(`favorites_${user.uid}`);
+        cacheTimestamp = sessionStorage.getItem(`favorites_${user.uid}_timestamp`);
+        
+        // تحقق من وجود بيانات مخزنة مؤقتاً صالحة (أقل من 2 دقائق)
+        cacheAge = cacheTimestamp ? now - parseInt(cacheTimestamp) : Infinity;
 
-      if (cachedData && cacheAge < maxCacheAge) {
-        console.log("استخدام البيانات المخزنة مؤقتاً للمفضلات");
-        return JSON.parse(cachedData);
+        if (cachedData && cacheAge < maxCacheAge) {
+          console.log("استخدام البيانات المخزنة مؤقتاً للمفضلات");
+          return JSON.parse(cachedData);
+        }
+      } catch (e) {
+        console.error("خطأ في قراءة التخزين المؤقت للمفضلات:", e);
+        // استمر في تنفيذ الاستعلام
       }
       
       try {
@@ -324,6 +334,15 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
         }
         
         console.log(`تم استرجاع ${favoritesWithDetails.length} عقار مفضل بنجاح`);
+        
+        // تخزين البيانات مؤقتاً لتحسين الأداء في المرات القادمة
+        try {
+          sessionStorage.setItem(`favorites_${user.uid}`, JSON.stringify(favoritesWithDetails));
+          sessionStorage.setItem(`favorites_${user.uid}_timestamp`, now.toString());
+        } catch (cacheError) {
+          console.warn("تعذر تخزين بيانات المفضلات مؤقتاً:", cacheError);
+        }
+        
         return favoritesWithDetails;
       } catch (error) {
         console.error("خطأ في استرجاع المفضلة:", error);
