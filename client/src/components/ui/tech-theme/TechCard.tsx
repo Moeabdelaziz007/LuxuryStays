@@ -3,11 +3,13 @@ import React from 'react';
 interface TechCardProps {
   children: React.ReactNode;
   className?: string;
-  variant?: 'default' | 'dark' | 'light' | 'neon' | 'raised';
+  variant?: 'default' | 'dark' | 'light' | 'neon' | 'raised' | 'gradient' | 'holographic';
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   withShadow?: boolean;
   withBorder?: boolean;
   withHoverEffect?: boolean;
+  withGlow?: boolean;
+  withShimmer?: boolean;
   onClick?: () => void;
 }
 
@@ -19,6 +21,8 @@ export default function TechCard({
   withShadow = true,
   withBorder = true,
   withHoverEffect = true,
+  withGlow = false,
+  withShimmer = false,
   onClick,
   ...props
 }: TechCardProps) {
