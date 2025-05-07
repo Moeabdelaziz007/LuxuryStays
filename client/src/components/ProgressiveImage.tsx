@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, CSSProperties } from 'react';
+import { cn } from '@/lib/utils';
 
 interface ProgressiveImageProps {
   src: string;
@@ -23,118 +23,104 @@ export default function ProgressiveImage({
   src,
   lowResSrc,
   alt,
-  className = "",
-  containerClassName = "",
+  className = '',
+  containerClassName = '',
   style,
   width,
   height,
   loadingComponent,
-  placeholderClassName = "",
+  placeholderClassName = '',
 }: ProgressiveImageProps) {
-  const [imgSrc, setImgSrc] = useState(lowResSrc || src);
-  const [loading, setLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLowResLoaded, setIsLowResLoaded] = useState(false);
   const [error, setError] = useState(false);
 
+  // عندما يتغير مصدر الصورة، نعيد ضبط الحالة
   useEffect(() => {
-    // إعادة تعيين الحالة عند تغيير المصدر
-    setLoading(true);
+    setIsLoaded(false);
     setError(false);
-    
-    // إذا لم يكن هناك مصدر منخفض الدقة، استخدم المصدر الأصلي مباشرة
-    if (!lowResSrc) {
-      setImgSrc(src);
-    }
+  }, [src]);
 
-    // تحميل الصورة عالية الدقة
-    const img = new Image();
-    img.src = src;
+  // تجهيز أنماط المكوّن
+  const containerStyle: CSSProperties = {
+    position: 'relative',
+    overflow: 'hidden',
+    width: width || '100%',
+    height: height || 'auto',
+    background: 'rgba(10, 10, 20, 0.2)',
+    ...style,
+  };
 
-    img.onload = () => {
-      setImgSrc(src);
-      setLoading(false);
-    };
-
-    img.onerror = () => {
-      setError(true);
-      setLoading(false);
-    };
-
-    return () => {
-      // تنظيف المستمعين عند إلغاء تحميل المكوّن
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [src, lowResSrc]);
-
-  const isLoading = loading && lowResSrc;
-  const hasLowResSrc = Boolean(lowResSrc);
+  // مكوّن التحميل الافتراضي
+  const defaultLoader = (
+    <div className={cn(
+      "absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm",
+      placeholderClassName
+    )}>
+      <div className="w-8 h-8 border-2 border-t-transparent border-[#39FF14]/70 rounded-full animate-spin"></div>
+    </div>
+  );
 
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden bg-gray-900/50",
-        containerClassName
-      )}
-      style={{
-        width: width,
-        height: height,
-      }}
+    <div 
+      className={cn("relative overflow-hidden", containerClassName)} 
+      style={containerStyle}
     >
-      {/* عنصر التحميل المخصص إذا كان متوفراً */}
-      {isLoading && loadingComponent && (
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          {loadingComponent}
-        </div>
-      )}
-
-      {/* خلفية أو صورة منخفضة الدقة */}
-      {hasLowResSrc && (
-        <div
+      {/* الصورة منخفضة الدقة - تظهر فورًا كـ placeholder */}
+      {lowResSrc && !isLoaded && (
+        <img
+          src={lowResSrc}
+          alt=""
           className={cn(
-            "absolute inset-0 z-0",
-            isLoading ? "opacity-100" : "opacity-0",
-            "transition-opacity duration-500",
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-300",
+            isLowResLoaded ? "opacity-100" : "opacity-0",
+            "blur-sm scale-105",
             placeholderClassName
           )}
-        >
-          <img
-            src={lowResSrc}
-            alt={alt}
-            className={cn(
-              "w-full h-full object-cover filter blur-sm scale-105",
-              className
-            )}
-            style={style}
-          />
-        </div>
+          onLoad={() => setIsLowResLoaded(true)}
+        />
       )}
 
       {/* الصورة الرئيسية عالية الدقة */}
-      <div
+      <img
+        src={src}
+        alt={alt}
         className={cn(
-          "absolute inset-0 z-1",
-          loading ? "opacity-0" : "opacity-100",
-          "transition-opacity duration-500"
+          "transition-all duration-500 w-full h-full",
+          isLoaded ? "opacity-100 blur-0" : "opacity-0 blur-sm",
+          className
         )}
-      >
-        {!error ? (
-          <img
-            src={imgSrc}
-            alt={alt}
-            className={cn("w-full h-full object-cover", className)}
-            style={style}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-900/30 text-gray-400">
-            <span>فشل تحميل الصورة</span>
-          </div>
-        )}
-      </div>
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setError(true)}
+        style={{
+          objectPosition: 'center',
+          objectFit: 'cover',
+        }}
+      />
 
-      {/* مؤشر التحميل الافتراضي إذا لم يكن هناك عنصر تحميل مخصص */}
-      {isLoading && !loadingComponent && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/30">
-          <div className="w-8 h-8 border-2 border-t-transparent border-[#39FF14]/70 rounded-full animate-spin"></div>
+      {/* عرض مكوّن التحميل أثناء تحميل الصورة */}
+      {!isLoaded && !error && (
+        loadingComponent || defaultLoader
+      )}
+
+      {/* عرض رسالة خطأ إذا فشل تحميل الصورة */}
+      {error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80 text-white p-4 text-center">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-8 w-8 text-red-500 mb-2" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+            />
+          </svg>
+          <span className="text-sm">فشل تحميل الصورة</span>
         </div>
       )}
     </div>

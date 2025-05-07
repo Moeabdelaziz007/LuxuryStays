@@ -363,7 +363,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
   }, [bookingsError, favoritesError]);
 
   return (
-    <div className="min-h-screen bg-[#181A20] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#000005] text-white overflow-x-hidden">
       {/* إشعار عدم الاتصال */}
       {isOffline && (
         <div className="fixed top-0 left-0 right-0 bg-red-500 text-white px-4 py-2 text-center z-50 shadow-md">
@@ -592,7 +592,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
         </header>
         
         {/* Dashboard Content - Travel Dashboard Style */}
-        <main className="flex-1 overflow-y-auto bg-[#181A20] p-4 md:p-5 pb-20 md:pb-5">
+        <main className="flex-1 overflow-y-auto bg-[#000005] p-4 md:p-5 pb-20 md:pb-5">
           {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
             <div className="space-y-4 sm:space-y-6">

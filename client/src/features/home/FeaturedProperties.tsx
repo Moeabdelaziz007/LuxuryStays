@@ -34,8 +34,7 @@ export default function FeaturedProperties() {
     queryFn: async () => {
       try {
         // تنفيذ عملية الاسترداد مع safeDoc المُحسّنة مع ميزة التخزين المؤقت
-        return await safeDoc(
-          async () => {
+        return await safeDoc(async () => {
             if (!db) {
               throw new Error("Firestore is not initialized");
             }
@@ -104,10 +103,7 @@ export default function FeaturedProperties() {
             });
             
             return properties;
-          }, 
-          [], // القيمة الافتراضية للعودة في حالة فشل العملية هي مصفوفة فارغة
-          5, // عدد محاولات إعادة المحاولة
-          "featured-properties" // مفتاح التخزين المؤقت
+          }
         );
       } catch (error: any) {
         console.error("❌ حدث خطأ أثناء جلب العقارات المميزة:", error);
