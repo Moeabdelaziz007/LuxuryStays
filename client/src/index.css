@@ -393,69 +393,34 @@
          drop-shadow(0 0 30px rgba(57, 255, 20, 0.2));
 }
 
+/* Glass effects */
 .glass-effect {
   backdrop-filter: blur(10px);
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(57, 255, 20, 0.1);
 }
 
-/* تأثيرات الإضاءة للشريط الجانبي */
+/* Sidebar Active Item */
 .sidebar-active-item {
   position: relative;
   overflow: hidden;
+  background: rgba(10, 15, 25, 0.6);
+  border-left: 3px solid var(--neon-green);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
 }
 
-.sidebar-active-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, rgba(57, 255, 20, 0.15), rgba(57, 255, 20, 0));
-  z-index: -1;
-  border-radius: 8px;
-}
-
-.sidebar-active-item::after {
-  content: '';
-  position: absolute;
-  width: 6px;
-  top: 8px;
-  bottom: 8px;
-  left: 0;
-  background-color: #39FF14;
-  border-radius: 0 3px 3px 0;
-  box-shadow: 
-    0 0 8px rgba(57, 255, 20, 0.6),
-    0 0 16px rgba(57, 255, 20, 0.4);
-}
-
-/* تأثير التحويم على عناصر الشريط الجانبي */
-.sidebar-icon-hover {
+/* Sidebar Hover Effects */
+.sidebar-item {
   transition: all 0.3s ease;
 }
 
-.sidebar-icon-hover:hover {
+.sidebar-item:hover {
   transform: translateY(-2px);
-  color: #39FF14;
+  color: var(--neon-green);
   filter: drop-shadow(0 0 4px rgba(57, 255, 20, 0.6));
 }
 
-@keyframes pulse-subtle {
-  0%, 100% {
-    opacity: 1;
-    filter: drop-shadow(0 0 3px rgba(57, 255, 20, 0.8));
-  }
-  50% {
-    opacity: 0.8;
-    filter: drop-shadow(0 0 6px rgba(57, 255, 20, 0.6));
-  }
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s ease-in-out infinite;
-}
+/* Removed duplicate pulse-subtle animation */
 
 @keyframes slideUp {
   0% {
@@ -572,7 +537,7 @@
   }
   
   .hero-gradient {
-    background: linear-gradient(to bottom, rgba(18, 18, 18, 0.3), rgba(18, 18, 18, 0.95) 90%);
+    background: linear-gradient(to bottom, rgba(0, 0, 5, 0.3), rgba(0, 0, 10, 0.95) 90%);
   }
   
   .coming-soon-badge {
@@ -627,12 +592,26 @@
     }
   }
   
+  /* Float animation for subtle movement */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
   .animate-neon-pulse {
     animation: neonPulse 3s ease-in-out infinite;
   }
   
   .animate-pulse-slow {
     animation: pulseSlow 6s ease-in-out infinite;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
   }
   
   /* Shimmer effect animation */
