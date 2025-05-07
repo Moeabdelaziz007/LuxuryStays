@@ -95,157 +95,98 @@ export default function HomePage() {
               </div>
             </div>
             
-            {/* عرض ثلاثي الأبعاد للعقارات الذكية */}
-            <div className="relative mx-auto w-full max-w-5xl my-4 sm:my-6 md:my-8 perspective px-2 sm:px-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-                {/* الكرت الأول - البيت الذكي */}
-                <div className="group transform transition-all duration-500 hover:scale-105 hover:-rotate-1 perspective-card">
-                  <div className="bg-black/50 backdrop-blur-sm border border-[#39FF14]/30 rounded-lg overflow-hidden relative
-                              shadow-[0_0_15px_rgba(57,255,20,0.2)] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)]
-                              transition-all duration-500">
-                    {/* الصورة الخلفية مع تأثير الهولوغرام */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=2070" 
-                        alt="منزل ذكي بالكامل"
-                        className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
-                      />
-                      {/* طبقة الهولوغرام */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/90"></div>
-                      <div className="absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity"
-                           style={{background: "repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(57,255,20,0.1) 2px, rgba(57,255,20,0.1) 4px)"}}>
-                      </div>
-                      
-                      {/* مؤشرات بيانات ذكية */}
-                      <div className="absolute top-2 right-2 text-xs bg-black/50 text-[#39FF14] px-2 py-1 rounded-full border border-[#39FF14]/30 backdrop-blur-sm">
-                        <span className="animate-blink inline-block w-2 h-2 bg-[#39FF14] rounded-full mr-1"></span> متصل
-                      </div>
-                      <div className="absolute bottom-2 left-2 text-xs bg-black/50 text-white px-2 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-                        <span className="text-[#39FF14]">24°C</span> درجة الحرارة
-                      </div>
-                    </div>
-                    
-                    <div className="p-4">
-                      <h3 className="text-[#39FF14] text-xl font-bold mb-1">البيت الذكي بالكامل</h3>
-                      <p className="text-gray-400 text-sm mb-3">تحكم بخصائص العقار كامل عن بُعد من التكييف وحتى الإضاءة</p>
-                      <div className="flex space-x-2 rtl:space-x-reverse mb-3">
-                        {/* أيقونات الميزات */}
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
-                        </span>
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </span>
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        </span>
-                      </div>
-                      <button className="w-full py-2 bg-[#000] text-[#39FF14] border border-[#39FF14]/50 rounded 
-                                        hover:bg-[#39FF14]/10 transition-colors group-hover:border-[#39FF14] text-sm font-medium">
-                        عرض العقارات <span className="mr-1 rtl:ml-1">→</span>
-                      </button>
-                    </div>
+            {/* عبارة حماسية في منتصف القسم */}
+            <div className="relative mx-auto w-full max-w-5xl my-8 sm:my-10 md:my-12 px-3 sm:px-6">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#39FF14] mb-4 
+                            shadow-[0_0_10px_rgba(57,255,20,0.4)] inline-block
+                            animate-pulse">
+                  لسنا الوحيدون ولكننا الأفضل
+                </h2>
+                <p className="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto">
+                  تمتع بتجربة إقامة استثنائية مع أكثر من 120 عقار فاخر في أفضل المواقع
+                </p>
+              </div>
+              
+              {/* شريط البحث المتقدم */}
+              <div className="bg-black/50 backdrop-blur-xl p-4 sm:p-6 rounded-xl border border-[#39FF14]/30
+                           shadow-[0_0_25px_rgba(57,255,20,0.3)] relative overflow-hidden
+                           transform transition-all hover:shadow-[0_0_35px_rgba(57,255,20,0.4)]">
+                {/* إضافة تأثير الخلفية */}
+                <div className="absolute inset-0 overflow-hidden opacity-5">
+                  <div className="animate-matrix-text text-[10px] leading-tight text-[#39FF14]" style={{fontFamily: "monospace"}}>
+                    {Array.from({length: 15}).map((_, i) => (
+                      <div key={i}>01 STAYX 010 STAYX 101 STAYX 1010 STAYX 01 STAYX 10 STAYX 101</div>
+                    ))}
                   </div>
                 </div>
                 
-                {/* الكرت الثاني - الجلسات الخارجية */}
-                <div className="group transform transition-all duration-500 hover:scale-105 hover:rotate-1 perspective-card">
-                  <div className="bg-black/50 backdrop-blur-sm border border-[#39FF14]/30 rounded-lg overflow-hidden relative
-                              shadow-[0_0_15px_rgba(57,255,20,0.2)] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)]
-                              transition-all duration-500">
-                    {/* الصورة الخلفية مع تأثير الهولوغرام */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img 
-                        src="https://images.unsplash.com/photo-1564013434775-f71db0030976?q=80&w=2070" 
-                        alt="شاليهات فاخرة"
-                        className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
-                      />
-                      {/* طبقة الهولوغرام */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/90"></div>
-                      <div className="absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity"
-                           style={{background: "repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(57,255,20,0.1) 2px, rgba(57,255,20,0.1) 4px)"}}>
-                      </div>
-                      
-                      {/* مؤشرات بيانات ذكية */}
-                      <div className="absolute top-2 right-2 text-xs bg-black/50 text-[#39FF14] px-2 py-1 rounded-full border border-[#39FF14]/30 backdrop-blur-sm">
-                        <span className="inline-block">✓</span> متاح
-                      </div>
-                      <div className="absolute bottom-2 left-2 text-xs bg-black/50 text-white px-2 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-                        <span className="text-[#39FF14]">+12</span> عقار
-                      </div>
-                    </div>
-                    
-                    <div className="p-4">
-                      <h3 className="text-[#39FF14] text-xl font-bold mb-1">شاليهات فاخرة</h3>
-                      <p className="text-gray-400 text-sm mb-3">شاليهات وفيلات على البحر مباشرة مع جلسات خارجية خاصة</p>
-                      <div className="flex space-x-2 rtl:space-x-reverse mb-3">
-                        {/* أيقونات الميزات */}
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                        </span>
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                        </span>
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-black/70 border border-[#39FF14]/20 rounded-full">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                      </div>
-                      <button className="w-full py-2 bg-[#000] text-[#39FF14] border border-[#39FF14]/50 rounded 
-                                        hover:bg-[#39FF14]/10 transition-colors group-hover:border-[#39FF14] text-sm font-medium">
-                        حجز الآن <span className="mr-1 rtl:ml-1">→</span>
-                      </button>
-                    </div>
-                  </div>
+                {/* عنوان شريط البحث */}
+                <div className="text-center mb-5">
+                  <h3 className="text-[#39FF14] text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    ابحث عن وجهتك المثالية
+                  </h3>
                 </div>
                 
-                {/* الكرت الثالث - الحجز الآن */}
-                <div className="group transform transition-all duration-500 hover:scale-105 hover:-rotate-1 perspective-card">
-                  <div className="bg-[#39FF14]/10 backdrop-blur-sm border border-[#39FF14]/50 rounded-lg overflow-hidden relative
-                              shadow-[0_0_20px_rgba(57,255,20,0.3)] hover:shadow-[0_0_30px_rgba(57,255,20,0.5)]
-                              transition-all duration-500">
-                    {/* نص الخلفية المتحرك */}
-                    <div className="absolute inset-0 overflow-hidden opacity-5">
-                      <div className="animate-matrix-text text-[10px] leading-tight text-[#39FF14]" style={{fontFamily: "monospace"}}>
-                        {Array.from({length: 15}).map((_, i) => (
-                          <div key={i}>01 STAYX 010 STAYX 101 STAYX 1010 STAYX 01 STAYX 10 STAYX 101</div>
-                        ))}
-                      </div>
+                {/* نموذج البحث */}
+                <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* حقل الموقع */}
+                  <div className="relative">
+                    <label className="block text-[#39FF14] text-sm mb-1 font-medium">الموقع</label>
+                    <select className="w-full bg-black border border-[#39FF14]/30 rounded-md p-3 text-white focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] transition-colors appearance-none">
+                      <option value="">جميع المواقع</option>
+                      <option value="north-coast">الساحل الشمالي</option>
+                      <option value="ras-elhekma">رأس الحكمة</option>
+                      <option value="marina">مارينا</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-3 flex items-center pt-5 pointer-events-none text-[#39FF14]">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
                     </div>
-                    
-                    <div className="p-8 text-center relative">
-                      {/* أيقونة مميزة */}
-                      <div className="mx-auto w-16 h-16 bg-black/70 rounded-full flex items-center justify-center mb-4 
-                                    border-2 border-[#39FF14] shadow-[0_0_15px_rgba(57,255,20,0.5)]">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </div>
+                  
+                  {/* التاريخ */}
+                  <div>
+                    <label className="block text-[#39FF14] text-sm mb-1 font-medium">تاريخ الوصول</label>
+                    <input type="date" className="w-full bg-black border border-[#39FF14]/30 rounded-md p-3 text-white focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] transition-colors" />
+                  </div>
+                  
+                  {/* الأشخاص */}
+                  <div>
+                    <label className="block text-[#39FF14] text-sm mb-1 font-medium">عدد الأشخاص</label>
+                    <input type="number" min="1" max="20" defaultValue="2" className="w-full bg-black border border-[#39FF14]/30 rounded-md p-3 text-white focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] transition-colors" />
+                  </div>
+                  
+                  {/* زر البحث */}
+                  <div className="flex items-end">
+                    <button type="submit" className="w-full bg-[#39FF14] text-black font-bold p-3 rounded-md hover:bg-[#39FF14]/90 transition-colors relative group">
+                      <span className="relative z-10 flex items-center justify-center">
+                        ابحث الآن
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 rtl:ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                      </div>
-                      
-                      <h3 className="text-[#39FF14] text-2xl font-bold mb-2">احجز الآن</h3>
-                      <p className="text-white text-sm mb-6">أسعار خاصة للحجوزات المبكرة مع خصم ٢٠٪ للأعضاء</p>
-                      
-                      {/* عداد الوقت المتبقي */}
-                      <div className="flex justify-center space-x-2 rtl:space-x-reverse mb-6">
-                        <div className="w-14 h-14 bg-black/70 rounded flex flex-col items-center justify-center border border-[#39FF14]/30">
-                          <span className="text-[#39FF14] text-xl font-bold">٣</span>
-                          <span className="text-gray-400 text-xs">أيام</span>
-                        </div>
-                        <div className="w-14 h-14 bg-black/70 rounded flex flex-col items-center justify-center border border-[#39FF14]/30">
-                          <span className="text-[#39FF14] text-xl font-bold">١٢</span>
-                          <span className="text-gray-400 text-xs">ساعة</span>
-                        </div>
-                        <div className="w-14 h-14 bg-black/70 rounded flex flex-col items-center justify-center border border-[#39FF14]/30">
-                          <span className="text-[#39FF14] text-xl font-bold">٤٥</span>
-                          <span className="text-gray-400 text-xs">دقيقة</span>
-                        </div>
-                      </div>
-                      
-                      <button className="w-full py-3 bg-[#39FF14] text-black rounded 
-                                        hover:bg-[#39FF14]/90 transition-colors font-bold relative group-hover:shadow-[0_0_10px_rgba(57,255,20,0.7)]">
-                        <span className="relative z-10">سجل الآن</span>
-                        <span className="absolute inset-0 bg-[#39FF14] filter blur-md opacity-50 group-hover:opacity-80 transition-opacity"></span>
-                      </button>
-                    </div>
+                      </span>
+                      {/* تأثير التوهج عند التحويم */}
+                      <span className="absolute inset-0 bg-[#39FF14] filter blur-md opacity-0 group-hover:opacity-50 transition-opacity"></span>
+                    </button>
+                  </div>
+                </form>
+                
+                {/* الإحصائيات السريعة */}
+                <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-6 text-center text-sm text-white/70">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[#39FF14]">120+</span> عقار متاح
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[#39FF14]">95%</span> تقييمات ممتازة
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[#39FF14]">2,500+</span> حجز شهريًا
                   </div>
                 </div>
               </div>
