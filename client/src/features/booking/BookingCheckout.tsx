@@ -8,13 +8,37 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useQuery } from '@tanstack/react-query';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Loader2, Calendar, Home, User, CreditCard, CheckCircle, Lock, X } from 'lucide-react';
+import { 
+  Loader2, Calendar, Home, User, CreditCard, CheckCircle, Lock, X, 
+  DollarSign, Phone, Building, Info, AlertCircle, CreditCard as CreditCardIcon
+} from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { apiRequest } from '@/lib/queryClient';
 import axios from 'axios';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import {
+  RadioGroup,
+  RadioGroupItem
+} from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { BookingStatus } from '@shared/schema';
 
 // إنشاء كائن Stripe باستخدام مفتاح Stripe العام
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
@@ -404,27 +428,273 @@ const BookingCheckout = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                {clientSecret ? (
-                  <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'night' }, locale: 'ar' }}>
-                    <CheckoutForm booking={booking} onSuccess={handlePaymentSuccess} />
-                  </Elements>
-                ) : (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="flex flex-col items-center gap-4">
-                      <Loader2 className="h-10 w-10 text-[#39FF14] animate-spin" />
-                      <p className="text-gray-400">جاري إعداد معلومات الدفع...</p>
+                <Tabs defaultValue="stripe" className="w-full">
+                  <TabsList className="grid grid-cols-3 mb-6">
+                    <TabsTrigger value="stripe" className="data-[state=active]:bg-[#39FF14]/10 data-[state=active]:text-[#39FF14] text-gray-400 hover:text-white">
+                      <div className="flex items-center gap-2">
+                        <CreditCardIcon className="h-4 w-4" />
+                        <span>بطاقة ائتمان</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger value="vodafone" className="data-[state=active]:bg-[#39FF14]/10 data-[state=active]:text-[#39FF14] text-gray-400 hover:text-white">
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        <span>فودافون كاش</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger value="cash" className="data-[state=active]:bg-[#39FF14]/10 data-[state=active]:text-[#39FF14] text-gray-400 hover:text-white">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4" />
+                        <span>كاش عند الوصول</span>
+                      </div>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  {/* خيار الدفع ببطاقة الائتمان (Stripe) */}
+                  <TabsContent value="stripe">
+                    {clientSecret ? (
+                      <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'night' }, locale: 'ar' }}>
+                        <CheckoutForm booking={booking} onSuccess={handlePaymentSuccess} />
+                      </Elements>
+                    ) : (
+                      <div className="flex items-center justify-center py-12">
+                        <div className="flex flex-col items-center gap-4">
+                          <Loader2 className="h-10 w-10 text-[#39FF14] animate-spin" />
+                          <p className="text-gray-400">جاري إعداد معلومات الدفع...</p>
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  {/* خيار الدفع عن طريق فودافون كاش */}
+                  <TabsContent value="vodafone" className="space-y-6">
+                    <div className="bg-gray-900/50 p-4 rounded-lg border border-[#39FF14]/20 flex items-start gap-3 mb-4">
+                      <Info className="h-5 w-5 text-[#39FF14] mt-0.5 flex-shrink-0" />
+                      <div className="text-sm">
+                        <p className="mb-1 text-gray-200">
+                          للدفع عن طريق فودافون كاش، قم بإرسال المبلغ ({booking.totalPrice} دولار) إلى الرقم التالي:
+                        </p>
+                        <div className="font-mono text-lg text-[#39FF14] bg-black/40 p-2 rounded-md border border-[#39FF14]/30 text-center mb-2">
+                          01234567890
+                        </div>
+                        <p className="text-gray-400">
+                          بعد إرسال المبلغ، قم بتعبئة النموذج أدناه لتأكيد الدفع.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                    
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      // معالجة نموذج فودافون كاش
+                      const formData = new FormData(e.currentTarget);
+                      const transactionId = formData.get('transactionId');
+                      const phoneNumber = formData.get('phoneNumber');
+                      
+                      if (bookingId && db) {
+                        const bookingRef = doc(db, 'bookings', bookingId);
+                        
+                        // تحديث حالة الحجز
+                        updateDoc(bookingRef, {
+                          status: BookingStatus.CONFIRMED,
+                          paymentMethod: 'vodafone_cash',
+                          vodafoneTransactionId: transactionId,
+                          vodafonePhoneNumber: phoneNumber,
+                          paymentConfirmedAt: serverTimestamp(),
+                          updatedAt: serverTimestamp()
+                        }).then(() => {
+                          toast({
+                            title: "تم تسجيل الدفع بنجاح",
+                            description: "سيتم التحقق من معلومات الدفع وتأكيد حجزك قريبًا",
+                            variant: "default",
+                          });
+                          handlePaymentSuccess();
+                        }).catch(error => {
+                          console.error("Error updating booking:", error);
+                          toast({
+                            title: "خطأ في تسجيل معلومات الدفع",
+                            description: "حدث خطأ أثناء محاولة تسجيل معلومات الدفع. يرجى المحاولة مرة أخرى.",
+                            variant: "destructive",
+                          });
+                        });
+                      }
+                    }} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="transactionId" className="text-gray-300">رقم العملية</Label>
+                        <Input 
+                          id="transactionId" 
+                          name="transactionId" 
+                          placeholder="أدخل رقم العملية الخاص بتحويل فودافون كاش" 
+                          className="bg-black/60 border-gray-800 focus:border-[#39FF14]/50 text-white" 
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="phoneNumber" className="text-gray-300">رقم الهاتف المرسل منه</Label>
+                        <Input 
+                          id="phoneNumber" 
+                          name="phoneNumber" 
+                          placeholder="أدخل رقم الهاتف الذي قمت بإرسال المبلغ منه" 
+                          className="bg-black/60 border-gray-800 focus:border-[#39FF14]/50 text-white" 
+                          type="tel"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-center gap-2 p-3 bg-[#39FF14]/5 border border-[#39FF14]/20 rounded-lg text-sm text-[#39FF14] mt-6">
+                        <AlertCircle className="h-4 w-4" />
+                        <span>سيتم التحقق من المعلومات ومراجعتها من قبل فريق خدمة العملاء</span>
+                      </div>
+                      
+                      <Button 
+                        type="submit" 
+                        className="w-full h-14 bg-[#39FF14] hover:bg-[#50FF30] text-black font-bold text-lg"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-5 w-5" />
+                          <span>تأكيد الدفع بفودافون كاش</span>
+                        </div>
+                      </Button>
+                    </form>
+                  </TabsContent>
+                  
+                  {/* خيار الدفع كاش عند الوصول */}
+                  <TabsContent value="cash" className="space-y-6">
+                    <div className="bg-gray-900/50 p-4 rounded-lg border border-orange-500/20 flex items-start gap-3 mb-4">
+                      <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm">
+                        <p className="mb-1 text-gray-200">
+                          عند اختيار الدفع كاش عند الوصول، يرجى العلم بما يلي:
+                        </p>
+                        <ul className="list-disc list-inside text-gray-400 space-y-1">
+                          <li>يجب الوصول في الموعد المحدد</li>
+                          <li>قد يتطلب دفع تأمين مسترد عند الوصول</li>
+                          <li>المبلغ المطلوب دفعه هو {booking.totalPrice} دولار</li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      // معالجة نموذج الدفع كاش عند الوصول
+                      const formData = new FormData(e.currentTarget);
+                      const confirmationMessage = formData.get('confirmationMessage');
+                      const arrivalTime = formData.get('arrivalTime');
+                      
+                      if (bookingId && db) {
+                        const bookingRef = doc(db, 'bookings', bookingId);
+                        
+                        // تحديث حالة الحجز
+                        updateDoc(bookingRef, {
+                          status: BookingStatus.PENDING, // حالة معلقة حتى يتم الدفع عند الوصول
+                          paymentMethod: 'cash_on_arrival',
+                          cashOnArrivalNotes: confirmationMessage,
+                          estimatedArrivalTime: arrivalTime,
+                          updatedAt: serverTimestamp()
+                        }).then(() => {
+                          toast({
+                            title: "تم تأكيد الحجز بنجاح",
+                            description: "سيتم الدفع كاش عند الوصول. تم إرسال تفاصيل الحجز إلى بريدك الإلكتروني.",
+                            variant: "default",
+                          });
+                          handlePaymentSuccess();
+                        }).catch(error => {
+                          console.error("Error updating booking:", error);
+                          toast({
+                            title: "خطأ في تأكيد الحجز",
+                            description: "حدث خطأ أثناء محاولة تأكيد الحجز. يرجى المحاولة مرة أخرى.",
+                            variant: "destructive",
+                          });
+                        });
+                      }
+                    }} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="arrivalTime" className="text-gray-300">وقت الوصول المتوقع</Label>
+                        <Select name="arrivalTime" required>
+                          <SelectTrigger className="bg-black/60 border-gray-800 focus:border-[#39FF14]/50 text-white">
+                            <SelectValue placeholder="اختر وقت الوصول المتوقع" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-gray-800 text-white">
+                            <SelectItem value="morning">صباحًا (8 - 12)</SelectItem>
+                            <SelectItem value="afternoon">ظهرًا (12 - 4)</SelectItem>
+                            <SelectItem value="evening">مساءً (4 - 8)</SelectItem>
+                            <SelectItem value="night">ليلًا (8 - 12)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmationMessage" className="text-gray-300">ملاحظات إضافية (اختياري)</Label>
+                        <Textarea 
+                          id="confirmationMessage" 
+                          name="confirmationMessage" 
+                          placeholder="أي ملاحظات أو طلبات خاصة عند الوصول" 
+                          className="min-h-24 bg-black/60 border-gray-800 focus:border-[#39FF14]/50 text-white" 
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-center gap-2 p-3 bg-[#39FF14]/5 border border-[#39FF14]/20 rounded-lg text-sm text-[#39FF14] mt-6">
+                        <Building className="h-4 w-4" />
+                        <span>سيكون المالك في انتظارك في الموعد المحدد</span>
+                      </div>
+                      
+                      <Button 
+                        type="submit" 
+                        className="w-full h-14 bg-[#39FF14] hover:bg-[#50FF30] text-black font-bold text-lg"
+                      >
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="h-5 w-5" />
+                          <span>تأكيد الدفع عند الوصول</span>
+                        </div>
+                      </Button>
+                    </form>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
               <CardFooter className="flex flex-col space-y-4 border-t border-[#39FF14]/10 pt-6">
-                <div className="text-xs text-gray-400">
-                  بالنقر على "إتمام الدفع"، فإنك توافق على <a href="/terms" className="text-[#39FF14] hover:underline">شروط الخدمة</a> و <a href="/privacy" className="text-[#39FF14] hover:underline">سياسة الخصوصية</a> الخاصة بنا.
+                <div className="flex flex-col gap-3">
+                  <div className="text-sm">
+                    <div className="mb-1 text-gray-300 flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-[#39FF14]" />
+                      <span>طرق الدفع الآمنة</span>
+                    </div>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <div className="bg-white p-1.5 rounded-md w-12 h-8 flex items-center justify-center">
+                        <img src="https://cdn.worldvectorlogo.com/logos/visa-2.svg" alt="Visa" className="w-full h-full object-contain" />
+                      </div>
+                      <div className="bg-white p-1.5 rounded-md w-12 h-8 flex items-center justify-center">
+                        <img src="https://cdn.worldvectorlogo.com/logos/mastercard-2.svg" alt="Mastercard" className="w-full h-full object-contain" />
+                      </div>
+                      <div className="bg-white p-1.5 rounded-md w-12 h-8 flex items-center justify-center">
+                        <img src="https://1000logos.net/wp-content/uploads/2021/04/Vodafone-logo.png" alt="Vodafone" className="w-full h-full object-contain" />
+                      </div>
+                      <div className="bg-white p-1.5 rounded-md w-12 h-8 flex items-center justify-center">
+                        <DollarSign className="text-green-600 w-6 h-6" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-gray-400">
+                    بالنقر على زر الدفع أو التأكيد، فإنك توافق على <a href="/terms" className="text-[#39FF14] hover:underline">شروط الخدمة</a> و <a href="/privacy" className="text-[#39FF14] hover:underline">سياسة الخصوصية</a> الخاصة بنا.
+                  </div>
                 </div>
                 
-                <Button variant="outline" onClick={() => navigate('/customer')} className="w-full border-gray-800 text-gray-400 hover:text-white hover:bg-gray-900">
-                  العودة إلى لوحة التحكم
-                </Button>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button variant="outline" onClick={() => navigate('/customer')} className="border-gray-800 text-gray-400 hover:text-white hover:bg-gray-900">
+                    <div className="flex items-center gap-2">
+                      <X className="h-4 w-4" />
+                      <span>إلغاء</span>
+                    </div>
+                  </Button>
+                  <Button variant="outline" onClick={() => window.print()} className="border-[#39FF14]/30 text-[#39FF14] hover:bg-[#39FF14]/10 hover:border-[#39FF14]/50">
+                    <div className="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                      </svg>
+                      <span>طباعة التفاصيل</span>
+                    </div>
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           </div>

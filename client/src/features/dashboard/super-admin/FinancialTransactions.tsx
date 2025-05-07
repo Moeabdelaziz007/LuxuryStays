@@ -1,582 +1,762 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, query, orderBy, limit, where, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { collection, query, where, orderBy, getDocs, Timestamp } from 'firebase/firestore';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Table, 
+  TableBody, 
+  TableCaption, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { format, subDays } from 'date-fns';
+import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { Download, Calendar, Filter, CreditCard, RefreshCw } from 'lucide-react';
+import { 
+  Download, 
+  Filter, 
+  Search, 
+  ArrowUpDown, 
+  DollarSign, 
+  CreditCard, 
+  Phone, 
+  Wallet, 
+  Calendar 
+} from 'lucide-react';
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 
+// نوع بيانات المعاملة المالية
 interface Transaction {
   id: string;
   bookingId: string;
   propertyId: string;
-  propertyAdminId: string;
-  customerId: string;
-  totalAmount: number;
-  platformFee: number; // 10% المنصة
-  propertyOwnerAmount: number; // 90% لمشرف العقار
-  timestamp: Timestamp;
-  status: string;
-  paymentMethod: string;
-  stripePaymentIntentId?: string;
-  propertyName?: string;
-  customerName?: string;
+  propertyName: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  amount: number;
+  platformFee: number; // عمولة المنصة (10%)
+  ownerAmount: number; // مبلغ المالك (90%)
+  paymentMethod: 'stripe' | 'vodafone_cash' | 'cash_on_arrival';
+  status: 'completed' | 'pending' | 'failed' | 'refunded';
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
-interface Stats {
-  totalRevenue: number;
-  platformRevenue: number;
-  propertyOwnersRevenue: number;
-  transactionCount: number;
-  pendingPayouts: number;
-}
+// دالة مساعدة لتنسيق المبالغ
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('ar-EG', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
 
-export default function FinancialTransactions() {
-  const [period, setPeriod] = useState<'today' | 'week' | 'month' | 'all'>('week');
-  const [transactionType, setTransactionType] = useState<'all' | 'platform' | 'payout'>('all');
+// دالة مساعدة لتحويل حالة الدفع إلى اللغة العربية
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'completed':
+      return 'مكتمل';
+    case 'pending':
+      return 'قيد الانتظار';
+    case 'failed':
+      return 'فشل';
+    case 'refunded':
+      return 'تم الاسترداد';
+    default:
+      return status;
+  }
+};
+
+// دالة مساعدة لتحويل طريقة الدفع إلى اللغة العربية
+const getPaymentMethodText = (method: string) => {
+  switch (method) {
+    case 'stripe':
+      return 'بطاقة ائتمان';
+    case 'vodafone_cash':
+      return 'فودافون كاش';
+    case 'cash_on_arrival':
+      return 'كاش عند الوصول';
+    default:
+      return method;
+  }
+};
+
+// دالة مساعدة لاختيار أيقونة لطريقة الدفع
+const getPaymentMethodIcon = (method: string) => {
+  switch (method) {
+    case 'stripe':
+      return <CreditCard className="h-4 w-4 text-blue-500" />;
+    case 'vodafone_cash':
+      return <Phone className="h-4 w-4 text-red-500" />;
+    case 'cash_on_arrival':
+      return <Wallet className="h-4 w-4 text-green-500" />;
+    default:
+      return <DollarSign className="h-4 w-4" />;
+  }
+};
+
+// الألوان المستخدمة في الرسوم البيانية
+const CHART_COLORS = ['#39FF14', '#FF3968', '#3980FF', '#FFBD39'];
+
+// مكون الرسوم البيانية للإيرادات
+const RevenueCharts = ({ transactions }: { transactions: Transaction[] }) => {
+  // تحضير بيانات الإيرادات الشهرية
+  const monthlyRevenue = transactions.reduce((acc, transaction) => {
+    const date = transaction.createdAt.toDate();
+    const monthYear = format(date, 'MMM yyyy', { locale: ar });
+    
+    if (!acc[monthYear]) {
+      acc[monthYear] = {
+        month: monthYear,
+        totalRevenue: 0,
+        platformFee: 0,
+        ownerAmount: 0,
+        count: 0
+      };
+    }
+    
+    acc[monthYear].totalRevenue += transaction.amount;
+    acc[monthYear].platformFee += transaction.platformFee;
+    acc[monthYear].ownerAmount += transaction.ownerAmount;
+    acc[monthYear].count += 1;
+    
+    return acc;
+  }, {} as Record<string, any>);
+  
+  const monthlyData = Object.values(monthlyRevenue);
+  
+  // تحضير بيانات توزيع طرق الدفع
+  const paymentMethodStats = transactions.reduce((acc, transaction) => {
+    const method = transaction.paymentMethod;
+    
+    if (!acc[method]) {
+      acc[method] = {
+        name: getPaymentMethodText(method),
+        value: 0,
+        count: 0
+      };
+    }
+    
+    acc[method].value += transaction.amount;
+    acc[method].count += 1;
+    
+    return acc;
+  }, {} as Record<string, any>);
+  
+  const paymentMethodData = Object.values(paymentMethodStats);
+  
+  return (
+    <div className="space-y-8">
+      <Card className="bg-black/60 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-white">الإيرادات الشهرية</CardTitle>
+          <CardDescription className="text-gray-400">تحليل الإيرادات على مدار الأشهر</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={monthlyData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="month" stroke="#999" tick={{ fill: '#999' }} />
+                <YAxis stroke="#999" tick={{ fill: '#999' }} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#111', border: '1px solid #333' }} 
+                  labelStyle={{ color: '#fff' }}
+                  formatter={(value) => [formatCurrency(value as number), '']}
+                />
+                <Legend wrapperStyle={{ color: '#fff' }} />
+                <Bar dataKey="platformFee" name="عمولة المنصة" fill="#39FF14" />
+                <Bar dataKey="ownerAmount" name="مبلغ المالك" fill="#3980FF" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="bg-black/60 border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-white">توزيع طرق الدفع</CardTitle>
+            <CardDescription className="text-gray-400">نسبة استخدام كل طريقة دفع</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={paymentMethodData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    nameKey="name"
+                    label={(entry) => entry.name}
+                    labelLine={false}
+                  >
+                    {paymentMethodData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#111', border: '1px solid #333' }} 
+                    labelStyle={{ color: '#fff' }}
+                    formatter={(value) => [formatCurrency(value as number), '']}
+                  />
+                  <Legend wrapperStyle={{ color: '#fff' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-black/60 border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-white">الإحصائيات المالية</CardTitle>
+            <CardDescription className="text-gray-400">ملخص للأرقام المالية</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-black/40 p-4 rounded-lg border border-[#39FF14]/20">
+                  <div className="text-gray-400 text-sm mb-1">إجمالي الإيرادات</div>
+                  <div className="text-xl font-bold text-white flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-[#39FF14]" />
+                    {formatCurrency(transactions.reduce((sum, t) => sum + t.amount, 0))}
+                  </div>
+                </div>
+                <div className="bg-black/40 p-4 rounded-lg border border-[#39FF14]/20">
+                  <div className="text-gray-400 text-sm mb-1">عمولة المنصة</div>
+                  <div className="text-xl font-bold text-white flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-[#39FF14]" />
+                    {formatCurrency(transactions.reduce((sum, t) => sum + t.platformFee, 0))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-black/40 p-4 rounded-lg border border-gray-800">
+                  <div className="text-gray-400 text-sm mb-1">عدد المعاملات</div>
+                  <div className="text-lg font-bold text-white">
+                    {transactions.length}
+                  </div>
+                </div>
+                <div className="bg-black/40 p-4 rounded-lg border border-gray-800">
+                  <div className="text-gray-400 text-sm mb-1">معاملات مكتملة</div>
+                  <div className="text-lg font-bold text-[#39FF14]">
+                    {transactions.filter(t => t.status === 'completed').length}
+                  </div>
+                </div>
+                <div className="bg-black/40 p-4 rounded-lg border border-gray-800">
+                  <div className="text-gray-400 text-sm mb-1">قيد الانتظار</div>
+                  <div className="text-lg font-bold text-yellow-500">
+                    {transactions.filter(t => t.status === 'pending').length}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+// مكون عرض تفاصيل معاملة مالية
+const TransactionDetails = ({ transaction }: { transaction: Transaction }) => {
+  return (
+    <Card className="bg-black/60 border-gray-800">
+      <CardHeader>
+        <CardTitle className="text-white">
+          تفاصيل المعاملة #{transaction.id.substring(0, 8)}
+        </CardTitle>
+        <CardDescription className="text-gray-400">
+          {format(transaction.createdAt.toDate(), 'dd MMMM yyyy - h:mm a', { locale: ar })}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm text-gray-400 mb-1">معلومات الحجز</h3>
+              <div className="bg-black/40 p-4 rounded-lg border border-gray-800 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">رقم الحجز:</span>
+                  <span className="text-white font-mono">{transaction.bookingId.substring(0, 10)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">اسم العقار:</span>
+                  <span className="text-white">{transaction.propertyName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">اسم العميل:</span>
+                  <span className="text-white">{transaction.userName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">البريد الإلكتروني:</span>
+                  <span className="text-white">{transaction.userEmail}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm text-gray-400 mb-1">حالة المعاملة</h3>
+              <div className="bg-black/40 p-4 rounded-lg border border-gray-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">الحالة:</span>
+                  <Badge className={
+                    transaction.status === 'completed' ? 'bg-green-600' : 
+                    transaction.status === 'pending' ? 'bg-yellow-600' : 
+                    transaction.status === 'refunded' ? 'bg-blue-600' : 'bg-red-600'
+                  }>
+                    {getStatusText(transaction.status)}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">طريقة الدفع:</span>
+                  <div className="flex items-center gap-2">
+                    {getPaymentMethodIcon(transaction.paymentMethod)}
+                    <span className="text-white">{getPaymentMethodText(transaction.paymentMethod)}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">تاريخ المعاملة:</span>
+                  <span className="text-white">
+                    {format(transaction.createdAt.toDate(), 'dd MMMM yyyy', { locale: ar })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm text-gray-400 mb-1">التفاصيل المالية</h3>
+              <div className="bg-black/40 p-4 rounded-lg border border-gray-800 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">المبلغ الكلي:</span>
+                  <span className="text-xl font-bold text-white">{formatCurrency(transaction.amount)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">عمولة المنصة (10%):</span>
+                  <span className="text-white font-semibold text-[#39FF14]">{formatCurrency(transaction.platformFee)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">مبلغ المالك (90%):</span>
+                  <span className="text-white font-semibold">{formatCurrency(transaction.ownerAmount)}</span>
+                </div>
+                
+                <div className="h-1 bg-gray-800 my-2"></div>
+                
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  <Button variant="outline" className="border-[#39FF14]/30 text-[#39FF14] hover:bg-[#39FF14]/10 hover:border-[#39FF14]/50">
+                    <Download className="h-4 w-4 mr-2" />
+                    <span>تصدير الفاتورة</span>
+                  </Button>
+                  <Button variant="outline" className="border-gray-800 text-gray-400 hover:text-white hover:bg-gray-900">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <span>معاملات مشابهة</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm text-gray-400 mb-1">الملاحظات</h3>
+              <div className="bg-black/40 p-4 rounded-lg border border-gray-800 min-h-32">
+                <p className="text-gray-400 text-sm">
+                  {transaction.status === 'completed' ? (
+                    "تمت المعاملة بنجاح وتم توزيع المبالغ حسب النسب المتفق عليها. عمولة المنصة 10% ومبلغ المالك 90%."
+                  ) : transaction.status === 'pending' ? (
+                    "المعاملة قيد الانتظار للتأكيد. سيتم التحقق من المعلومات ومعالجة الدفع قريبًا."
+                  ) : transaction.status === 'refunded' ? (
+                    "تم استرداد المبلغ للعميل بالكامل وإلغاء المعاملة."
+                  ) : (
+                    "فشلت المعاملة. لم يتم اكتمال عملية الدفع بنجاح."
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="border-t border-gray-800 pt-4">
+        <div className="flex justify-end w-full gap-3">
+          <Button variant="outline" className="border-gray-800 text-gray-400 hover:text-white hover:bg-gray-900">
+            الرجوع للقائمة
+          </Button>
+          {transaction.status === 'pending' && (
+            <Button className="bg-[#39FF14] hover:bg-[#50FF30] text-black">
+              تأكيد المعاملة
+            </Button>
+          )}
+        </div>
+      </CardFooter>
+    </Card>
+  );
+};
+
+// مكون الصفحة الرئيسية للمعاملات المالية
+const FinancialTransactions = () => {
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   
   // استعلام لجلب المعاملات المالية
-  const { data: transactions = [], isLoading, refetch } = useQuery({
-    queryKey: ['financial-transactions', period, transactionType],
+  const { data: transactions, isLoading } = useQuery({
+    queryKey: ['transactions'],
     queryFn: async () => {
       if (!db) return [];
       
       try {
-        let q = query(
-          collection(db, 'transactions'),
-          orderBy('timestamp', 'desc')
+        const transactionsCollection = collection(db, 'transactions');
+        const q = query(
+          transactionsCollection,
+          orderBy('createdAt', 'desc')
         );
         
-        // إضافة فلتر بناءً على الفترة المحددة
-        if (period !== 'all') {
-          let startDate: Date;
-          const now = new Date();
-          
-          switch (period) {
-            case 'today':
-              startDate = new Date(now.setHours(0, 0, 0, 0));
-              break;
-            case 'week':
-              startDate = subDays(now, 7);
-              break;
-            case 'month':
-              startDate = subDays(now, 30);
-              break;
-            default:
-              startDate = subDays(now, 7);
-          }
-          
-          q = query(q, where('timestamp', '>=', Timestamp.fromDate(startDate)));
-        }
-        
-        // إضافة فلتر بناءً على نوع المعاملة
-        if (transactionType === 'platform') {
-          // معاملات خاصة بالمنصة فقط (العمولات)
-          // في هذه الحالة نحضر كل المعاملات لأن كل معاملة تتضمن عمولة المنصة
-        } else if (transactionType === 'payout') {
-          // معاملات خاصة بالمدفوعات للملاك
-          // في هذه الحالة نحضر المعاملات المدفوعة للملاك
-          q = query(q, where('payoutStatus', '==', 'completed'));
-        }
-        
-        const querySnapshot = await getDocs(q);
-        
-        const transactionsData: Transaction[] = [];
-        querySnapshot.forEach(doc => {
-          transactionsData.push({
-            id: doc.id,
-            ...doc.data()
-          } as Transaction);
-        });
-        
-        return transactionsData;
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data() 
+        })) as Transaction[];
       } catch (error) {
-        console.error('Error fetching financial transactions:', error);
+        console.error('Error fetching transactions:', error);
         throw error;
       }
     }
   });
   
-  // حساب الإحصائيات
-  const stats: Stats = transactions.reduce((acc, transaction) => {
-    return {
-      totalRevenue: acc.totalRevenue + transaction.totalAmount,
-      platformRevenue: acc.platformRevenue + transaction.platformFee,
-      propertyOwnersRevenue: acc.propertyOwnersRevenue + transaction.propertyOwnerAmount,
-      transactionCount: acc.transactionCount + 1,
-      pendingPayouts: acc.pendingPayouts + (transaction.status === 'pending' ? 1 : 0)
-    };
-  }, {
-    totalRevenue: 0,
-    platformRevenue: 0,
-    propertyOwnersRevenue: 0,
-    transactionCount: 0,
-    pendingPayouts: 0
-  });
-  
-  // استخراج فقط المعاملات الخاصة بالمنصة (عمولات المنصة)
-  const platformTransactions = transactions.map(t => ({
-    id: t.id,
-    bookingId: t.bookingId,
-    propertyName: t.propertyName || 'عقار غير معروف',
-    customerName: t.customerName || 'عميل غير معروف',
-    amount: t.platformFee,
-    percentage: '10%',
-    date: t.timestamp instanceof Timestamp ? t.timestamp.toDate() : new Date(t.timestamp),
-    status: t.status
-  }));
-  
-  // استخراج فقط المعاملات الخاصة بملاك العقارات
-  const ownerTransactions = transactions.map(t => ({
-    id: t.id,
-    bookingId: t.bookingId,
-    propertyId: t.propertyId,
-    propertyAdminId: t.propertyAdminId,
-    propertyName: t.propertyName || 'عقار غير معروف',
-    amount: t.propertyOwnerAmount,
-    percentage: '90%',
-    date: t.timestamp instanceof Timestamp ? t.timestamp.toDate() : new Date(t.timestamp),
-    status: t.status
-  }));
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ar-SA', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-  
-  const formatDate = (date: Date) => {
-    return format(date, 'dd MMMM yyyy', { locale: ar });
-  };
-  
-  const handlePeriodChange = (value: string) => {
-    setPeriod(value as 'today' | 'week' | 'month' | 'all');
-  };
-  
-  const handleTransactionTypeChange = (value: string) => {
-    setTransactionType(value as 'all' | 'platform' | 'payout');
-  };
-  
-  const handleRefresh = () => {
-    refetch();
-  };
-  
-  const handleExportCSV = () => {
-    // تحويل البيانات إلى تنسيق CSV
-    const headers = ['رقم المعاملة', 'رقم الحجز', 'العقار', 'العميل', 'المبلغ الإجمالي', 'عمولة المنصة (10%)', 'مبلغ المالك (90%)', 'التاريخ', 'الحالة'];
+  // تصفية المعاملات حسب الحالة
+  const getFilteredTransactions = () => {
+    if (!transactions) return [];
     
-    const csvData = transactions.map(t => [
-      t.id,
-      t.bookingId,
-      t.propertyName || 'عقار غير معروف',
-      t.customerName || 'عميل غير معروف',
-      t.totalAmount,
-      t.platformFee,
-      t.propertyOwnerAmount,
-      t.timestamp instanceof Timestamp ? formatDate(t.timestamp.toDate()) : formatDate(new Date(t.timestamp)),
-      t.status
-    ]);
+    let filtered = [...transactions];
     
-    // إنشاء محتوى CSV
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map(row => row.join(','))
-    ].join('\n');
+    // تصفية حسب علامة التبويب النشطة
+    if (activeTab !== 'all') {
+      filtered = filtered.filter(transaction => transaction.status === activeTab);
+    }
     
-    // إنشاء ملف CSV وتنزيله
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `المعاملات_المالية_${formatDate(new Date())}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // تصفية حسب البحث
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(transaction => 
+        transaction.id.toLowerCase().includes(query) ||
+        transaction.bookingId.toLowerCase().includes(query) ||
+        transaction.propertyName.toLowerCase().includes(query) ||
+        transaction.userName.toLowerCase().includes(query) ||
+        transaction.userEmail.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
   };
+  
+  const filteredTransactions = getFilteredTransactions();
+  
+  // حساب إجمالي المبالغ
+  const totalAmount = filteredTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+  const totalPlatformFee = filteredTransactions.reduce((sum, transaction) => sum + transaction.platformFee, 0);
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-full border-4 border-[#39FF14]/20 border-t-[#39FF14] animate-spin"></div>
+          <h2 className="text-white text-xl font-medium">جاري تحميل بيانات المعاملات المالية...</h2>
+        </div>
+      </div>
+    );
+  }
+  
+  // إذا تم تحديد معاملة، عرض تفاصيلها
+  if (selectedTransaction) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Button 
+          variant="outline" 
+          className="mb-6 border-gray-800 text-gray-400 hover:text-white hover:bg-gray-900"
+          onClick={() => setSelectedTransaction(null)}
+        >
+          العودة إلى قائمة المعاملات
+        </Button>
+        
+        <TransactionDetails transaction={selectedTransaction} />
+      </div>
+    );
+  }
   
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-white">المعاملات المالية</h2>
-          <p className="text-gray-400 mt-1">عرض ومراقبة جميع المعاملات المالية في النظام</p>
+          <h1 className="text-3xl font-bold text-white mb-2">المعاملات المالية</h1>
+          <p className="text-gray-400">إدارة ومراقبة جميع المعاملات المالية في النظام</p>
         </div>
         
-        <div className="flex gap-2">
-          <Button variant="outline" className="h-10 gap-2 text-[#39FF14] border-[#39FF14]/20 hover:border-[#39FF14]/40 hover:bg-[#39FF14]/5" onClick={handleRefresh}>
-            <RefreshCw className="h-4 w-4" />
-            <span>تحديث</span>
-          </Button>
-          
-          <Button className="h-10 gap-2 bg-[#39FF14] text-black hover:bg-[#39FF14]/90" onClick={handleExportCSV}>
-            <Download className="h-4 w-4" />
-            <span>تصدير CSV</span>
+        <div className="flex gap-3">
+          <Button className="bg-[#39FF14] hover:bg-[#50FF30] text-black">
+            <Download className="h-4 w-4 mr-2" />
+            <span>تصدير التقرير</span>
           </Button>
         </div>
       </div>
       
-      {/* بطاقات الإحصائيات */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-black/60 border-[#39FF14]/20 hover:border-[#39FF14]/40 transition-colors text-white shadow-lg hover:shadow-[#39FF14]/5">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-gray-400">الإيرادات الإجمالية</p>
-                <h3 className="text-3xl font-bold text-white mt-1">{formatCurrency(stats.totalRevenue)}</h3>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-[#39FF14]" />
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-gray-400">
-              من إجمالي {stats.transactionCount} معاملة
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-black/60 border-[#39FF14]/20 hover:border-[#39FF14]/40 transition-colors text-white shadow-lg hover:shadow-[#39FF14]/5">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-gray-400">إيرادات المنصة (10%)</p>
-                <h3 className="text-3xl font-bold text-[#39FF14] mt-1">{formatCurrency(stats.platformRevenue)}</h3>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#39FF14]" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M8.433 7.174l.975-.982-.982-.975-2.232.192L6 3.592l-1.826.14L4.042 0 0 4.043l3.731-.129L5.169 6l-1.193.194.975.982-.982.975 2.232-.192L6 10.408l1.826-.14.132 3.731L12 10.957l-3.731.129-1.438-2.085 1.193-.194z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-gray-400">
-              بنسبة 10% من الإيرادات الإجمالية
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-black/60 border-[#39FF14]/20 hover:border-[#39FF14]/40 transition-colors text-white shadow-lg hover:shadow-[#39FF14]/5">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-gray-400">إيرادات الملاك (90%)</p>
-                <h3 className="text-3xl font-bold text-white mt-1">{formatCurrency(stats.propertyOwnersRevenue)}</h3>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#39FF14]" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-gray-400">
-              بنسبة 90% من الإيرادات الإجمالية
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-black/60 border-[#39FF14]/20 hover:border-[#39FF14]/40 transition-colors text-white shadow-lg hover:shadow-[#39FF14]/5">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm text-gray-400">المدفوعات المعلقة</p>
-                <h3 className="text-3xl font-bold text-white mt-1">{stats.pendingPayouts}</h3>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-[#39FF14]/10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#39FF14]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-14a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V5z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-gray-400">
-              بانتظار التحويل للملاك
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* فلاتر */}
-      <div className="flex flex-wrap gap-4 items-center bg-black/40 p-4 rounded-lg border border-gray-800">
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-[#39FF14]" />
-          <span className="text-sm text-gray-400">فلترة حسب:</span>
-        </div>
-        
-        <div className="flex gap-2 flex-wrap">
-          <Select defaultValue={period} onValueChange={handlePeriodChange}>
-            <SelectTrigger className="h-9 w-[180px] bg-black border-gray-800 text-white focus:ring-[#39FF14]/20">
-              <Calendar className="h-4 w-4 text-[#39FF14] mr-2" />
-              <SelectValue placeholder="الفترة" />
-            </SelectTrigger>
-            <SelectContent className="bg-black border-gray-800 text-white">
-              <SelectItem value="today">اليوم</SelectItem>
-              <SelectItem value="week">آخر 7 أيام</SelectItem>
-              <SelectItem value="month">آخر 30 يوم</SelectItem>
-              <SelectItem value="all">جميع الفترات</SelectItem>
-            </SelectContent>
-          </Select>
+      {transactions && transactions.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="bg-black/60 border-gray-800">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-[#39FF14]/10 rounded-full flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-[#39FF14]" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">إجمالي المعاملات</p>
+                    <h3 className="text-white text-2xl font-bold">{transactions.length}</h3>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-black/60 border-gray-800">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-[#39FF14]/10 rounded-full flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-[#39FF14]" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">إجمالي المبالغ</p>
+                    <h3 className="text-white text-2xl font-bold">
+                      {formatCurrency(totalAmount)}
+                    </h3>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-black/60 border-gray-800">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-[#39FF14]/10 rounded-full flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-[#39FF14]" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">عمولة المنصة</p>
+                    <h3 className="text-white text-2xl font-bold">
+                      {formatCurrency(totalPlatformFee)}
+                    </h3>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-black/60 border-gray-800">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-[#39FF14]/10 rounded-full flex items-center justify-center">
+                    <Calendar className="h-6 w-6 text-[#39FF14]" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">الشهر الحالي</p>
+                    <h3 className="text-white text-2xl font-bold">
+                      {transactions.filter(
+                        t => t.createdAt.toDate().getMonth() === new Date().getMonth() &&
+                             t.createdAt.toDate().getFullYear() === new Date().getFullYear()
+                      ).length} معاملة
+                    </h3>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           
-          <Select defaultValue={transactionType} onValueChange={handleTransactionTypeChange}>
-            <SelectTrigger className="h-9 w-[180px] bg-black border-gray-800 text-white focus:ring-[#39FF14]/20">
-              <CreditCard className="h-4 w-4 text-[#39FF14] mr-2" />
-              <SelectValue placeholder="نوع المعاملة" />
-            </SelectTrigger>
-            <SelectContent className="bg-black border-gray-800 text-white">
-              <SelectItem value="all">جميع المعاملات</SelectItem>
-              <SelectItem value="platform">عمولات المنصة</SelectItem>
-              <SelectItem value="payout">مدفوعات الملاك</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      
-      {/* علامات التبويب للمعاملات */}
-      <Tabs defaultValue="all" className="space-y-4">
-        <TabsList className="bg-black/40 border border-gray-800 p-1">
-          <TabsTrigger value="all" className="data-[state=active]:bg-[#39FF14]/10 data-[state=active]:text-[#39FF14] text-gray-400 hover:text-white">
-            جميع المعاملات
-          </TabsTrigger>
-          <TabsTrigger value="platform" className="data-[state=active]:bg-[#39FF14]/10 data-[state=active]:text-[#39FF14] text-gray-400 hover:text-white">
-            عمولات المنصة (10%)
-          </TabsTrigger>
-          <TabsTrigger value="owners" className="data-[state=active]:bg-[#39FF14]/10 data-[state=active]:text-[#39FF14] text-gray-400 hover:text-white">
-            مدفوعات الملاك (90%)
-          </TabsTrigger>
-        </TabsList>
-        
-        {/* جميع المعاملات */}
-        <TabsContent value="all">
-          <Card className="bg-black border-[#39FF14]/20 text-white">
-            <CardHeader className="border-b border-gray-800 pb-4">
-              <CardTitle>جميع المعاملات المالية</CardTitle>
-              <CardDescription className="text-gray-400">
-                عرض تفاصيل جميع المعاملات المالية في النظام
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-gray-900">
-                    <TableRow>
-                      <TableHead className="text-[#39FF14]">رقم المعاملة</TableHead>
-                      <TableHead className="text-[#39FF14]">العقار</TableHead>
-                      <TableHead className="text-[#39FF14]">العميل</TableHead>
-                      <TableHead className="text-[#39FF14]">المبلغ الإجمالي</TableHead>
-                      <TableHead className="text-[#39FF14]">عمولة المنصة (10%)</TableHead>
-                      <TableHead className="text-[#39FF14]">مبلغ المالك (90%)</TableHead>
-                      <TableHead className="text-[#39FF14]">التاريخ</TableHead>
-                      <TableHead className="text-[#39FF14]">الحالة</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8">
-                          <div className="flex justify-center">
-                            <div className="w-8 h-8 rounded-full border-4 border-[#39FF14]/20 border-t-[#39FF14] animate-spin"></div>
+          <Tabs defaultValue="table" className="mb-8">
+            <TabsList className="grid grid-cols-2 w-64 mb-6 bg-black/60 border border-gray-800 rounded-lg">
+              <TabsTrigger 
+                value="table" 
+                className="data-[state=active]:bg-[#39FF14]/10 data-[state=active]:text-[#39FF14] text-gray-400"
+              >
+                جدول المعاملات
+              </TabsTrigger>
+              <TabsTrigger 
+                value="charts" 
+                className="data-[state=active]:bg-[#39FF14]/10 data-[state=active]:text-[#39FF14] text-gray-400"
+              >
+                رسوم بيانية
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="table">
+              <div className="mb-6 flex flex-col md:flex-row gap-4 justify-between">
+                <div className="flex gap-2 w-full md:w-96">
+                  <div className="relative w-full">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="بحث في المعاملات..."
+                      className="pl-10 bg-black/60 border-gray-800 text-white"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  <Select value={activeTab} onValueChange={setActiveTab}>
+                    <SelectTrigger className="w-40 bg-black/60 border-gray-800 text-white">
+                      <SelectValue placeholder="جميع المعاملات" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800 text-white">
+                      <SelectItem value="all">جميع المعاملات</SelectItem>
+                      <SelectItem value="completed">مكتملة</SelectItem>
+                      <SelectItem value="pending">قيد الانتظار</SelectItem>
+                      <SelectItem value="failed">فاشلة</SelectItem>
+                      <SelectItem value="refunded">مستردة</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <Card className="bg-black/60 border-gray-800 overflow-hidden">
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader className="bg-black/70">
+                      <TableRow className="hover:bg-gray-900/50 border-gray-800">
+                        <TableHead className="text-gray-400 font-medium">رقم المعاملة</TableHead>
+                        <TableHead className="text-gray-400 font-medium">العميل</TableHead>
+                        <TableHead className="text-gray-400 font-medium">
+                          <div className="flex items-center gap-1">
+                            <span>المبلغ</span>
+                            <ArrowUpDown className="h-3 w-3" />
                           </div>
-                          <div className="mt-2 text-gray-400">جاري تحميل البيانات...</div>
-                        </TableCell>
+                        </TableHead>
+                        <TableHead className="text-gray-400 font-medium">
+                          <div className="flex items-center gap-1">
+                            <span>التاريخ</span>
+                            <ArrowUpDown className="h-3 w-3" />
+                          </div>
+                        </TableHead>
+                        <TableHead className="text-gray-400 font-medium">طريقة الدفع</TableHead>
+                        <TableHead className="text-gray-400 font-medium">الحالة</TableHead>
                       </TableRow>
-                    ) : transactions.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8">
-                          <div className="text-gray-400">لا توجد معاملات مالية للعرض</div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      transactions.map((transaction) => (
-                        <TableRow key={transaction.id} className="border-b border-gray-800 hover:bg-gray-900/50">
-                          <TableCell className="font-mono text-xs">{transaction.id.substring(0, 8)}...</TableCell>
-                          <TableCell>{transaction.propertyName || 'عقار غير معروف'}</TableCell>
-                          <TableCell>{transaction.customerName || 'عميل غير معروف'}</TableCell>
-                          <TableCell className="font-bold">{formatCurrency(transaction.totalAmount)}</TableCell>
-                          <TableCell className="text-[#39FF14]">{formatCurrency(transaction.platformFee)}</TableCell>
-                          <TableCell>{formatCurrency(transaction.propertyOwnerAmount)}</TableCell>
-                          <TableCell>
-                            {transaction.timestamp instanceof Timestamp
-                              ? formatDate(transaction.timestamp.toDate())
-                              : formatDate(new Date(transaction.timestamp))}
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={
-                              transaction.status === 'completed' 
-                                ? 'bg-green-500/20 text-green-500 hover:bg-green-500/30' 
-                                : transaction.status === 'pending' 
-                                ? 'bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30'
-                                : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'
-                            }>
-                              {transaction.status === 'completed' ? 'مكتمل' : 
-                               transaction.status === 'pending' ? 'معلق' : 'ملغي'}
-                            </Badge>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredTransactions.length > 0 ? (
+                        filteredTransactions.map((transaction) => (
+                          <TableRow 
+                            key={transaction.id} 
+                            className="hover:bg-[#39FF14]/5 cursor-pointer border-gray-800"
+                            onClick={() => setSelectedTransaction(transaction)}
+                          >
+                            <TableCell className="font-mono text-gray-300">
+                              #{transaction.id.substring(0, 8)}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col">
+                                <span className="text-white">{transaction.userName}</span>
+                                <span className="text-gray-500 text-xs">{transaction.userEmail}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-semibold text-white">
+                              {formatCurrency(transaction.amount)}
+                            </TableCell>
+                            <TableCell className="text-gray-400">
+                              {format(transaction.createdAt.toDate(), 'dd MMM yyyy', { locale: ar })}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {getPaymentMethodIcon(transaction.paymentMethod)}
+                                <span className="text-gray-300">
+                                  {getPaymentMethodText(transaction.paymentMethod)}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={
+                                transaction.status === 'completed' ? 'bg-green-600' : 
+                                transaction.status === 'pending' ? 'bg-yellow-600' : 
+                                transaction.status === 'refunded' ? 'bg-blue-600' : 'bg-red-600'
+                              }>
+                                {getStatusText(transaction.status)}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-gray-400">
+                            لا توجد معاملات مطابقة للبحث
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* عمولات المنصة */}
-        <TabsContent value="platform">
-          <Card className="bg-black border-[#39FF14]/20 text-white">
-            <CardHeader className="border-b border-gray-800 pb-4">
-              <CardTitle>عمولات المنصة (10%)</CardTitle>
-              <CardDescription className="text-gray-400">
-                عرض تفاصيل إيرادات المنصة من عمولات الحجوزات
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-gray-900">
-                    <TableRow>
-                      <TableHead className="text-[#39FF14]">رقم المعاملة</TableHead>
-                      <TableHead className="text-[#39FF14]">العقار</TableHead>
-                      <TableHead className="text-[#39FF14]">العميل</TableHead>
-                      <TableHead className="text-[#39FF14]">عمولة المنصة</TableHead>
-                      <TableHead className="text-[#39FF14]">النسبة</TableHead>
-                      <TableHead className="text-[#39FF14]">التاريخ</TableHead>
-                      <TableHead className="text-[#39FF14]">الحالة</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8">
-                          <div className="flex justify-center">
-                            <div className="w-8 h-8 rounded-full border-4 border-[#39FF14]/20 border-t-[#39FF14] animate-spin"></div>
-                          </div>
-                          <div className="mt-2 text-gray-400">جاري تحميل البيانات...</div>
-                        </TableCell>
-                      </TableRow>
-                    ) : platformTransactions.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8">
-                          <div className="text-gray-400">لا توجد معاملات للعرض</div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      platformTransactions.map((transaction) => (
-                        <TableRow key={transaction.id} className="border-b border-gray-800 hover:bg-gray-900/50">
-                          <TableCell className="font-mono text-xs">{transaction.id.substring(0, 8)}...</TableCell>
-                          <TableCell>{transaction.propertyName}</TableCell>
-                          <TableCell>{transaction.customerName}</TableCell>
-                          <TableCell className="font-bold text-[#39FF14]">{formatCurrency(transaction.amount)}</TableCell>
-                          <TableCell>{transaction.percentage}</TableCell>
-                          <TableCell>{formatDate(transaction.date)}</TableCell>
-                          <TableCell>
-                            <Badge className={
-                              transaction.status === 'completed' 
-                                ? 'bg-green-500/20 text-green-500 hover:bg-green-500/30' 
-                                : transaction.status === 'pending' 
-                                ? 'bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30'
-                                : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'
-                            }>
-                              {transaction.status === 'completed' ? 'مكتمل' : 
-                               transaction.status === 'pending' ? 'معلق' : 'ملغي'}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* مدفوعات الملاك */}
-        <TabsContent value="owners">
-          <Card className="bg-black border-[#39FF14]/20 text-white">
-            <CardHeader className="border-b border-gray-800 pb-4">
-              <CardTitle>مدفوعات ملاك العقارات (90%)</CardTitle>
-              <CardDescription className="text-gray-400">
-                عرض تفاصيل المدفوعات المستحقة لملاك العقارات
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-gray-900">
-                    <TableRow>
-                      <TableHead className="text-[#39FF14]">رقم المعاملة</TableHead>
-                      <TableHead className="text-[#39FF14]">معرف المالك</TableHead>
-                      <TableHead className="text-[#39FF14]">العقار</TableHead>
-                      <TableHead className="text-[#39FF14]">المبلغ المستحق</TableHead>
-                      <TableHead className="text-[#39FF14]">النسبة</TableHead>
-                      <TableHead className="text-[#39FF14]">التاريخ</TableHead>
-                      <TableHead className="text-[#39FF14]">الحالة</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8">
-                          <div className="flex justify-center">
-                            <div className="w-8 h-8 rounded-full border-4 border-[#39FF14]/20 border-t-[#39FF14] animate-spin"></div>
-                          </div>
-                          <div className="mt-2 text-gray-400">جاري تحميل البيانات...</div>
-                        </TableCell>
-                      </TableRow>
-                    ) : ownerTransactions.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8">
-                          <div className="text-gray-400">لا توجد معاملات للعرض</div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      ownerTransactions.map((transaction) => (
-                        <TableRow key={transaction.id} className="border-b border-gray-800 hover:bg-gray-900/50">
-                          <TableCell className="font-mono text-xs">{transaction.id.substring(0, 8)}...</TableCell>
-                          <TableCell className="font-mono text-xs">{transaction.propertyAdminId.substring(0, 8)}...</TableCell>
-                          <TableCell>{transaction.propertyName}</TableCell>
-                          <TableCell className="font-bold">{formatCurrency(transaction.amount)}</TableCell>
-                          <TableCell>{transaction.percentage}</TableCell>
-                          <TableCell>{formatDate(transaction.date)}</TableCell>
-                          <TableCell>
-                            <Badge className={
-                              transaction.status === 'completed' 
-                                ? 'bg-green-500/20 text-green-500 hover:bg-green-500/30' 
-                                : transaction.status === 'pending' 
-                                ? 'bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30'
-                                : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'
-                            }>
-                              {transaction.status === 'completed' ? 'مكتمل' : 
-                               transaction.status === 'pending' ? 'معلق' : 'ملغي'}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+                <CardFooter className="border-t border-gray-800 p-4 flex justify-between items-center">
+                  <div className="text-sm text-gray-400">
+                    عرض {filteredTransactions.length} من أصل {transactions.length} معاملة
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" className="h-8 w-8 p-0 border-gray-800">
+                      <span>&laquo;</span>
+                    </Button>
+                    <Button variant="outline" size="sm" className="border-gray-800 bg-[#39FF14]/10 text-[#39FF14]">1</Button>
+                    <Button variant="outline" size="sm" className="border-gray-800 text-gray-400 hover:text-white">2</Button>
+                    <Button variant="outline" size="sm" className="border-gray-800 text-gray-400 hover:text-white">3</Button>
+                    <Button variant="outline" className="h-8 w-8 p-0 border-gray-800">
+                      <span>&raquo;</span>
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="charts">
+              <RevenueCharts transactions={transactions} />
+            </TabsContent>
+          </Tabs>
+        </>
+      ) : (
+        <Card className="bg-black/60 border-gray-800">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <div className="h-20 w-20 bg-[#39FF14]/5 rounded-full flex items-center justify-center mb-4">
+              <DollarSign className="h-10 w-10 text-[#39FF14]/70" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">لا توجد معاملات مالية</h3>
+            <p className="text-gray-400 text-center max-w-md mb-6">
+              لم يتم تسجيل أي معاملات مالية في النظام بعد. ستظهر المعاملات هنا بمجرد إتمام عمليات الحجز والدفع.
+            </p>
+            <Button className="bg-[#39FF14] hover:bg-[#50FF30] text-black">
+              تحديث الصفحة
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
-}
+};
+
+export default FinancialTransactions;
