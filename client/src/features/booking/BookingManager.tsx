@@ -415,7 +415,16 @@ export const BookingManager: React.FC<BookingManagerProps> = ({
                     id="date-picker"
                     mode="range"
                     selected={dateRange}
-                    onSelect={(range) => setDateRange(range || { from: undefined, to: undefined })}
+                    onSelect={(range) => {
+                      if (!range) {
+                        setDateRange({ from: undefined, to: undefined });
+                      } else {
+                        setDateRange({
+                          from: range.from,
+                          to: range.to || undefined
+                        });
+                      }
+                    }}
                     numberOfMonths={2}
                   />
                 </div>

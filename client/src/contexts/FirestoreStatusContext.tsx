@@ -44,6 +44,7 @@ export const FirestoreStatusProvider: React.FC<FirestoreStatusProviderProps> = (
   const [connectionError, setConnectionError] = useState<Error | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | undefined>(undefined);
+  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
 
   // مراقبة حالة الاتصال بالإنترنت
@@ -160,6 +161,18 @@ export const FirestoreStatusProvider: React.FC<FirestoreStatusProviderProps> = (
     }
   };
 
+  // تحديث lastUpdated عند استعادة الاتصال
+  useEffect(() => {
+    if (isConnected) {
+      setLastUpdated(Date.now());
+    }
+  }, [isConnected]);
+
+  // تحديث error من connectionError 
+  useEffect(() => {
+    setError(connectionError);
+  }, [connectionError]);
+
   return (
     <FirestoreStatusContext.Provider
       value={{
@@ -170,6 +183,8 @@ export const FirestoreStatusProvider: React.FC<FirestoreStatusProviderProps> = (
         enableOfflineMode,
         retryConnection,
         isRetrying,
+        error,
+        lastUpdated,
       }}
     >
       {children}

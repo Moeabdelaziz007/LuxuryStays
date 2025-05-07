@@ -161,7 +161,9 @@ function App() {
             <TechBackgroundLayout>
               {showHeaderFooter && <SmartHeader />}
               <div className="container mx-auto pt-2">
-                <FirestoreErrorHandler />
+                <FirestoreErrorHandler>
+                  <div></div>
+                </FirestoreErrorHandler>
               </div>
               <AppRoutes />
               {showHeaderFooter && <Footer />}
