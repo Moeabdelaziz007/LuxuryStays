@@ -927,21 +927,21 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                     <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-lg mb-2 border border-[#39FF14]/5">
                       <div className="text-sm text-white">حجوزات مؤكدة</div>
                       <div className="text-sm font-medium text-[#39FF14]">
-                        {bookings.filter((booking: Booking) => booking.status === 'confirmed').length}
+                        {bookings && Array.isArray(bookings) ? bookings.filter((booking: Booking) => booking.status === 'confirmed').length : 0}
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-lg mb-2 border border-[#39FF14]/5">
                       <div className="text-sm text-white">حجوزات قيد الانتظار</div>
                       <div className="text-sm font-medium text-[#39FF14]">
-                        {bookings.filter((booking: Booking) => booking.status === 'pending').length}
+                        {bookings && Array.isArray(bookings) ? bookings.filter((booking: Booking) => booking.status === 'pending').length : 0}
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-lg border border-[#39FF14]/5">
                       <div className="text-sm text-white">حجوزات ملغاة</div>
                       <div className="text-sm font-medium text-[#39FF14]">
-                        {bookings.filter((booking: Booking) => booking.status === 'cancelled').length}
+                        {bookings && Array.isArray(bookings) ? bookings.filter((booking: Booking) => booking.status === 'cancelled').length : 0}
                       </div>
                     </div>
                   </div>
@@ -1058,7 +1058,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
-                    {(bookings && bookings.length > 0) ? (
+                    {(bookings && Array.isArray(bookings) && bookings.length > 0) ? (
                       <div className="space-y-4">
                         {bookings.slice(0, 3).map((booking: Booking) => (
                           <div key={booking.id} className="flex items-center gap-4 border-b border-gray-800 pb-4">
@@ -1093,7 +1093,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                           </div>
                         ))}
                         
-                        {bookings.length > 3 && (
+                        {bookings && Array.isArray(bookings) && bookings.length > 3 && (
                           <Button 
                             variant="outline" 
                             className="w-full text-[#39FF14] border-[#39FF14]/20 hover:bg-[#39FF14]/10"
