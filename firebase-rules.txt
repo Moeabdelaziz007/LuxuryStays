@@ -1,161 +1,159 @@
-// تحسين قواعد Firestore - النسخة المحدثة 2025-05-06
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // دالة مساعدة للتحقق من صلاحيات المستخدم
-    function isSignedIn() {
+    // ======= HELPER FUNCTIONS =======
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
       return request.auth != null;
     }
     
-    // دالة مساعدة للتحقق من نوع المستخدم (بدون الحاجة لعمليات get() متكررة)
-    function userRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    // Check if user is the owner of the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
     }
     
-    // دالة مساعدة للتحقق ما إذا كان المستخدم مشرفًا
+    // Check if user has SUPER_ADMIN role
     function isSuperAdmin() {
-      return isSignedIn() && userRole() == "SUPER_ADMIN";
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN";
     }
     
-    // دالة مساعدة للتحقق ما إذا كان المستخدم مدير عقارات
+    // Check if user has PROPERTY_ADMIN role
     function isPropertyAdmin() {
-      return isSignedIn() && (userRole() == "PROPERTY_ADMIN" || userRole() == "SUPER_ADMIN");
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "PROPERTY_ADMIN";
     }
     
-    // دالة للتحقق من صحة بنية بيانات المستخدم
-    function isValidUserData(userData) {
-      return userData.size() <= 10 && // الحد الأقصى لحقول المستخدم
-             userData.uid is string &&
-             userData.name is string && 
-             userData.role is string &&
-             userData.role in ["CUSTOMER", "PROPERTY_ADMIN", "SUPER_ADMIN"] &&
-             (!('email' in userData) || userData.email is string); // البريد الإلكتروني اختياري للحسابات المجهولة
+    // Check if user has CUSTOMER role
+    function isCustomer() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "CUSTOMER";
     }
     
-    // دالة للتحقق من صحة بيانات العقار
-    function isValidPropertyData(propertyData) {
-      return propertyData.title is string &&
-             propertyData.price is number &&
-             propertyData.price > 0;
+    // Validate user document
+    function isValidUser(userData) {
+      return userData.size() <= 10 && 
+        userData.uid is string &&
+        (userData.email == null || userData.email is string) &&
+        userData.name is string &&
+        ['SUPER_ADMIN', 'PROPERTY_ADMIN', 'CUSTOMER'].hasAny([userData.role]) &&
+        userData.createdAt is string;
     }
-
-    // قاعدة عامة تقيد القراءة والكتابة العشوائية
-    match /{document=**} {
-      allow read, write: if false; // منع العمليات العشوائية للأمان
+    
+    // Validate property document
+    function isValidProperty(propertyData) {
+      return propertyData.size() <= 20 && 
+        propertyData.name is string &&
+        propertyData.description is string &&
+        propertyData.location is string &&
+        propertyData.price is number &&
+        propertyData.price > 0 &&
+        propertyData.ownerId is string &&
+        (propertyData.images == null || propertyData.images is list) &&
+        propertyData.featured is bool;
     }
-
-    // قواعد المستخدمين
+    
+    // Validate booking document
+    function isValidBooking(bookingData) {
+      return bookingData.size() <= 15 && 
+        bookingData.userId is string &&
+        bookingData.propertyId is string &&
+        bookingData.startDate is string &&
+        bookingData.endDate is string &&
+        bookingData.totalPrice is number &&
+        bookingData.totalPrice > 0 &&
+        ['pending', 'confirmed', 'cancelled'].hasAny([bookingData.status]);
+    }
+    
+    // ======= COLLECTION RULES =======
+    
+    // Users collection
     match /users/{userId} {
-      // السماح للمستخدم بقراءة/تحديث ملفه الشخصي فقط
-      allow read: if isSignedIn() && (request.auth.uid == userId || isSuperAdmin());
-      
-      // السماح للمستخدم بإنشاء ملف شخصي جديد (مع التحقق من صحة البيانات)
-      allow create: if isSignedIn() && 
-                     request.auth.uid == userId && 
-                     isValidUserData(request.resource.data);
-      
-      // السماح للمستخدم بتحديث ملفه الشخصي فقط (مع منع تغيير الدور)
-      allow update: if isSignedIn() && 
-                     (request.auth.uid == userId && 
-                      resource.data.role == request.resource.data.role) || // منع المستخدم من تغيير دوره
-                     isSuperAdmin(); // يمكن للمشرف تغيير أي شيء
-      
-      // السماح فقط للمشرفين بحذف المستخدمين
+      allow get: if isAuthenticated() && (isOwner(userId) || isSuperAdmin() || isPropertyAdmin());
+      allow list: if isSuperAdmin() || isPropertyAdmin();
+      allow create: if isAuthenticated() && request.auth.uid == userId && isValidUser(request.resource.data);
+      allow update: if (isOwner(userId) || isSuperAdmin()) && isValidUser(request.resource.data);
       allow delete: if isSuperAdmin();
     }
-
-    // قواعد العقارات
+    
+    // Properties collection
     match /properties/{propertyId} {
-      // يمكن للجميع قراءة العقارات المتاحة
-      allow read: if true;
-      
-      // يمكن لمديري العقارات والمشرفين فقط إنشاء/تحديث/حذف العقارات
-      allow create: if isPropertyAdmin() && isValidPropertyData(request.resource.data);
-      allow update: if isPropertyAdmin() && isValidPropertyData(request.resource.data);
-      allow delete: if isPropertyAdmin();
+      allow get, list: if true; // Anyone can view properties
+      allow create: if (isSuperAdmin() || isPropertyAdmin()) && isValidProperty(request.resource.data);
+      allow update: if (isSuperAdmin() || 
+                      (isPropertyAdmin() && resource.data.ownerId == request.auth.uid)) && 
+                      isValidProperty(request.resource.data);
+      allow delete: if isSuperAdmin() || 
+                     (isPropertyAdmin() && resource.data.ownerId == request.auth.uid);
     }
-
-    // قواعد الخدمات
+    
+    // Bookings collection
+    match /bookings/{bookingId} {
+      allow get: if isAuthenticated() && 
+                 (isSuperAdmin() || 
+                  resource.data.userId == request.auth.uid || 
+                  (isPropertyAdmin() && exists(/databases/$(database)/documents/properties/$(resource.data.propertyId)) && 
+                   get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.ownerId == request.auth.uid));
+                   
+      allow list: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                    request.resource.data.userId == request.auth.uid && 
+                    isValidBooking(request.resource.data);
+                    
+      allow update: if isAuthenticated() && 
+                   (isSuperAdmin() || 
+                    request.auth.uid == resource.data.userId || 
+                    (isPropertyAdmin() && exists(/databases/$(database)/documents/properties/$(resource.data.propertyId)) && 
+                     get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.ownerId == request.auth.uid)) && 
+                     isValidBooking(request.resource.data);
+                     
+      allow delete: if isAuthenticated() && 
+                   (isSuperAdmin() || 
+                    (isCustomer() && resource.data.userId == request.auth.uid && resource.data.status == "pending") || 
+                    (isPropertyAdmin() && exists(/databases/$(database)/documents/properties/$(resource.data.propertyId)) && 
+                     get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.ownerId == request.auth.uid));
+    }
+    
+    // Services collection
     match /services/{serviceId} {
-      // يمكن للجميع قراءة الخدمات المتاحة
-      allow read: if true;
-      
-      // يمكن للمشرفين فقط إنشاء/تحديث/حذف الخدمات
+      allow get, list: if true; // Anyone can view services
       allow create, update, delete: if isSuperAdmin();
     }
-
-    // قواعد الحجوزات
-    match /bookings/{bookingId} {
-      // دالة للتحقق من صحة بيانات الحجز
-      function isValidBookingData(bookingData) {
-        return bookingData.userId is string &&
-               bookingData.propertyId is string &&
-               bookingData.startDate is string &&
-               bookingData.endDate is string &&
-               bookingData.status in ["pending", "confirmed", "cancelled"];
-      }
-      
-      // يستطيع المستخدم قراءة حجوزاته فقط
-      allow read: if isSignedIn() && 
-                   (request.auth.uid == resource.data.userId || 
-                    request.auth.uid == resource.data.propertyOwnerId || 
-                    isPropertyAdmin());
-      
-      // يمكن للمستخدمين إنشاء حجوزات جديدة مع التحقق من صحة البيانات
-      allow create: if isSignedIn() && 
-                     request.resource.data.userId == request.auth.uid &&
-                     isValidBookingData(request.resource.data);
-      
-      // يمكن للمستخدمين تحديث حجوزاتهم فقط
-      allow update: if isSignedIn() && 
-                     (request.auth.uid == resource.data.userId || 
-                      request.auth.uid == resource.data.propertyOwnerId || 
-                      isPropertyAdmin());
-      
-      // منع حذف الحجوزات (نحتفظ بها كسجل)
-      allow delete: if false;
-    }
-  }
-}
-
-// قواعد Firebase Storage
-service firebase.storage {
-  match /b/{bucket}/o {
-    // دالة للتحقق من حجم الملف
-    function isValidFileSize() {
-      return request.resource.size < 5 * 1024 * 1024; // الحد الأقصى 5 ميجابايت
+    
+    // Reviews collection
+    match /reviews/{reviewId} {
+      allow get, list: if true; // Anyone can view reviews
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && 
+                           (isSuperAdmin() || resource.data.userId == request.auth.uid);
     }
     
-    // دالة للتحقق من نوع الملف
-    function isValidContentType() {
-      return request.resource.contentType.matches('image/.*') ||
-             request.resource.contentType.matches('application/pdf');
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow get, list: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && 
+                   (isSuperAdmin() || isPropertyAdmin() || request.resource.data.userId == request.auth.uid);
+      allow update: if isAuthenticated() && 
+                   (isSuperAdmin() || resource.data.userId == request.auth.uid);
+      allow delete: if isAuthenticated() && 
+                   (isSuperAdmin() || resource.data.userId == request.auth.uid);
     }
     
-    // ملفات الصور العامة
-    match /images/public/{imageId} {
-      allow read: if true; // يمكن للجميع قراءة الصور العامة
-      allow write: if request.auth != null && 
-                    isValidFileSize() && 
-                    isValidContentType();
+    // Payments collection with extra security
+    match /payments/{paymentId} {
+      allow get: if isAuthenticated() && 
+                (isSuperAdmin() || resource.data.userId == request.auth.uid);
+      allow list: if isAuthenticated() && 
+                 (isSuperAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
     }
     
-    // ملفات المستخدمين الخاصة
-    match /users/{userId}/{fileName} {
-      allow read: if request.auth != null && (request.auth.uid == userId || 
-                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "SUPER_ADMIN");
-      allow write: if request.auth != null && request.auth.uid == userId && 
-                    isValidFileSize() && 
-                    isValidContentType();
-    }
-    
-    // ملفات العقارات
-    match /properties/{propertyId}/{fileName} {
-      allow read: if true; // يمكن للجميع قراءة صور العقارات
-      allow write: if request.auth != null && 
-                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["PROPERTY_ADMIN", "SUPER_ADMIN"] &&
-                    isValidFileSize() && 
-                    isValidContentType();
+    // Default deny all other operations
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
