@@ -59,7 +59,7 @@
     "firebase": "^11.6.1",
     "firebase-admin": "^13.3.0",
     "firebase-tools": "^14.2.2",
-    "framer-motion": "^11.13.1",
+    "framer-motion": "^11.18.2",
     "i18next": "^25.0.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.453.0",
