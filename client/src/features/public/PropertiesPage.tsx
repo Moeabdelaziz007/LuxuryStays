@@ -4,6 +4,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/firebase";
 import Layout from '@/components/layout/Layout';
+import { useAuth } from '@/contexts/AuthContext';
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -16,8 +17,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon, Search, Map, FilterX, BuildingIcon, BedDouble, Bath, Users } from "lucide-react";
+import { Calendar as CalendarIcon, Search, Map, FilterX, BuildingIcon, BedDouble, Bath, Users, Save, BookMarked } from "lucide-react";
 import { format } from "date-fns";
+import { SavedSearch, personalizationService } from '@/services/PersonalizationService';
+import SavedSearches from '@/features/search/SavedSearches';
+import PersonalizedRecommendations from '@/features/properties/PersonalizedRecommendations';
 
 interface Property {
   id: string;
