@@ -13,6 +13,7 @@ import AppRoutes from "./routes";
 import { useToast } from "@/hooks/use-toast";
 import TechBackgroundLayout from "./components/layout/TechBackgroundLayout";
 import { PerformanceProvider } from "./contexts/performance-context";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 function RedirectHandler() {
   const { user, loading, updateUserInfo } = useAuth();
@@ -147,19 +148,21 @@ function App() {
                            !location.includes('/splash');
 
   return (
-    <PerformanceProvider>
-      <TooltipProvider>
-        <Toaster />
-        <RedirectHandler />
-        <GoogleAuthDomainAlert />
-        <WelcomeMessage />
-        <TechBackgroundLayout>
-          {showHeaderFooter && <SmartHeader />}
-          <AppRoutes />
-          {showHeaderFooter && <Footer />}
-        </TechBackgroundLayout>
-      </TooltipProvider>
-    </PerformanceProvider>
+    <LanguageProvider>
+      <PerformanceProvider>
+        <TooltipProvider>
+          <Toaster />
+          <RedirectHandler />
+          <GoogleAuthDomainAlert />
+          <WelcomeMessage />
+          <TechBackgroundLayout>
+            {showHeaderFooter && <SmartHeader />}
+            <AppRoutes />
+            {showHeaderFooter && <Footer />}
+          </TechBackgroundLayout>
+        </TooltipProvider>
+      </PerformanceProvider>
+    </LanguageProvider>
   );
 }
 

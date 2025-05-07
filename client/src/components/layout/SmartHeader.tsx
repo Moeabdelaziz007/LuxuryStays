@@ -34,8 +34,11 @@ import {
   Rocket,
   Users,
   FileText,
-  X
+  X,
+  Globe
 } from "lucide-react";
+import LanguageSwitcher from "../LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SmartHeaderProps {
   role?: "CUSTOMER" | "PROPERTY_ADMIN" | "SUPER_ADMIN" | "PUBLIC";
