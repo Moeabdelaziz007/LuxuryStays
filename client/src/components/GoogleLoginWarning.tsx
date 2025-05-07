@@ -8,7 +8,7 @@ export default function GoogleLoginWarning() {
   
   const handleCopyDomain = () => {
     navigator.clipboard.writeText(currentDomain);
-    alert('Domain copied to clipboard!');
+    alert('تم نسخ النطاق إلى الحافظة!');
   };
   
   return (
@@ -16,16 +16,17 @@ export default function GoogleLoginWarning() {
       <CardHeader className="bg-red-900/40 border-b border-red-800/20">
         <CardTitle className="flex items-center gap-2 text-red-300">
           <AlertCircle className="h-5 w-5" />
-          Google Login Unavailable
+          تسجيل الدخول بواسطة Google غير متاح
         </CardTitle>
         <CardDescription className="text-gray-300">
-          Firebase authentication domain issue detected
+          تم اكتشاف مشكلة في نطاق مصادقة Firebase
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-4 text-sm text-gray-200">
         <p className="mb-4">
-          The current domain is not authorized in Firebase Authentication settings. This is a common issue in development environments like Replit where domains change between sessions.
+          النطاق الحالي غير مصرح به في إعدادات مصادقة Firebase. هذه مشكلة شائعة في بيئات التطوير مثل Replit حيث تتغير النطاقات بين الجلسات.
         </p>
+        <p className="font-bold mb-2 text-white">يجب إضافة النطاق الحالي:</p>
         <div className="bg-gray-800 p-3 rounded-md mb-4 font-mono text-xs text-green-400 break-all">
           {currentDomain}
         </div>
