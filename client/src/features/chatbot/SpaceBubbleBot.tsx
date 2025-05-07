@@ -55,10 +55,10 @@ const spaceTheme = {
 };
 
 // تنسيق حاوية الشات
-const ChatbotContainer = styled.div<{ isOpen: boolean; position: string }>`
+const ChatbotContainer = styled.div<{ $isOpen: boolean; $position: string }>`
   position: fixed;
-  bottom: ${props => props.isOpen ? '0' : '-600px'};
-  ${props => props.position === 'bottom-right' ? 'right: 20px;' : 'left: 20px;'}
+  bottom: ${props => props.$isOpen ? '0' : '-600px'};
+  ${props => props.$position === 'bottom-right' ? 'right: 20px;' : 'left: 20px;'}
   width: 350px;
   max-width: 90vw;
   z-index: 1000;
@@ -70,10 +70,10 @@ const ChatbotContainer = styled.div<{ isOpen: boolean; position: string }>`
 `;
 
 // زر فتح الشات
-const ChatButton = styled(motion.button)<{ position: string }>`
+const ChatButton = styled(motion.button)<{ $position: string }>`
   position: fixed;
   bottom: 20px;
-  ${props => props.position === 'bottom-right' ? 'right: 20px;' : 'left: 20px;'}
+  ${props => props.$position === 'bottom-right' ? 'right: 20px;' : 'left: 20px;'}
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -427,7 +427,7 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
     <>
       {/* زر فتح الشات */}
       <ChatButton
-        position={position}
+        $position={position}
         onClick={toggleChat}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -447,7 +447,7 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
       </ChatButton>
       
       {/* حاوية الشات */}
-      <ChatbotContainer isOpen={isOpen} position={position}>
+      <ChatbotContainer $isOpen={isOpen} $position={position}>
         {/* رأس مخصص */}
         <CustomHeader>
           <HeaderTitle>
