@@ -1639,9 +1639,9 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#1F2128] border-t border-[#39FF14]/20 shadow-lg z-50">
         <div className="flex justify-around items-center h-16">
           <button 
-            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "dashboard" ? "text-[#39FF14]" : "text-gray-400"}`}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${selectedTab === "dashboard" ? "text-[#39FF14]" : "text-gray-400"}`}
             onClick={() => {
-              setActiveTab("dashboard");
+              setSelectedTab("dashboard");
               navigate("/customer");
             }}
           >
@@ -1650,9 +1650,9 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
           </button>
           
           <button 
-            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "bookings" ? "text-[#39FF14]" : "text-gray-400"}`}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${selectedTab === "bookings" ? "text-[#39FF14]" : "text-gray-400"}`}
             onClick={() => {
-              setActiveTab("bookings");
+              setSelectedTab("bookings");
               navigate("/customer/bookings");
             }}
           >
@@ -1661,9 +1661,9 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
           </button>
           
           <button 
-            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "favorites" ? "text-[#39FF14]" : "text-gray-400"}`}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${selectedTab === "favorites" ? "text-[#39FF14]" : "text-gray-400"}`}
             onClick={() => {
-              setActiveTab("favorites");
+              setSelectedTab("favorites");
               navigate("/customer/favorites");
             }}
           >
@@ -1672,9 +1672,9 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
           </button>
           
           <button 
-            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "profile" ? "text-[#39FF14]" : "text-gray-400"}`}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${selectedTab === "profile" ? "text-[#39FF14]" : "text-gray-400"}`}
             onClick={() => {
-              setActiveTab("profile");
+              setSelectedTab("profile");
               navigate("/customer/profile");
             }}
           >
@@ -1683,9 +1683,9 @@ export default function NewCustomerDashboard({ activeTab = "dashboard" }: Custom
           </button>
           
           <button 
-            className={`flex flex-col items-center justify-center w-1/5 h-full ${activeTab === "settings" ? "text-[#39FF14]" : "text-gray-400"}`}
+            className={`flex flex-col items-center justify-center w-1/5 h-full ${selectedTab === "settings" ? "text-[#39FF14]" : "text-gray-400"}`}
             onClick={() => {
-              setActiveTab("settings");
+              setSelectedTab("settings");
               navigate("/customer/settings");
             }}
           >
