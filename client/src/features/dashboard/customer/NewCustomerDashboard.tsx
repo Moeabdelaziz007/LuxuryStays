@@ -956,11 +956,11 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                         المفضلة
                       </h3>
                       <Badge className="bg-[#39FF14]/10 text-[#39FF14] hover:bg-[#39FF14]/20 border-none">
-                        {favorites.length} عقار
+                        {favorites?.length || 0} عقار
                       </Badge>
                     </div>
                     
-                    {favorites.length > 0 ? (
+                    {(favorites && favorites.length > 0) ? (
                       <div className="space-y-2">
                         {favorites.slice(0, 3).map((favorite: any) => (
                           <div key={favorite.id} className="flex items-center gap-3 p-2 bg-black/60 rounded-lg border border-[#39FF14]/5 hover:border-[#39FF14]/20 transition-all">
@@ -1058,7 +1058,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
-                    {bookings.length > 0 ? (
+                    {(bookings && bookings.length > 0) ? (
                       <div className="space-y-4">
                         {bookings.slice(0, 3).map((booking: Booking) => (
                           <div key={booking.id} className="flex items-center gap-4 border-b border-gray-800 pb-4">
@@ -1125,7 +1125,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
-                    {favorites.length > 0 ? (
+                    {(favorites && favorites.length > 0) ? (
                       <div className="space-y-4">
                         {favorites.slice(0, 3).map((fav: any) => (
                           <div key={fav.id} className="flex items-center gap-4 border-b border-gray-800 pb-4">
@@ -1163,7 +1163,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                           </div>
                         ))}
                         
-                        {favorites.length > 3 && (
+                        {(favorites && favorites.length > 3) && (
                           <Button 
                             variant="outline" 
                             className="w-full text-[#39FF14] border-[#39FF14]/20 hover:bg-[#39FF14]/10"
@@ -1209,7 +1209,7 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
                       <span className="text-gray-400">جاري تحميل الحجوزات...</span>
                     </div>
                   </div>
-                ) : bookings.length === 0 ? (
+                ) : (!bookings || bookings.length === 0) ? (
                   <div className="text-center py-10">
                     <div className="bg-gray-800 p-4 rounded-full inline-block mb-4">
                       <FaCalendarAlt className="h-10 w-10 text-[#39FF14]/70" />
