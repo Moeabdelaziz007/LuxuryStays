@@ -9,6 +9,8 @@ interface TechButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   iconPosition?: 'left' | 'right';
   fullWidth?: boolean;
   withSweepingGlow?: boolean;
+  glowIntensity?: 'low' | 'medium' | 'high';
+  shimmer?: boolean;
 }
 
 const TechButton = React.forwardRef<HTMLButtonElement, TechButtonProps>(
@@ -22,6 +24,8 @@ const TechButton = React.forwardRef<HTMLButtonElement, TechButtonProps>(
     iconPosition = 'left',
     fullWidth = false,
     withSweepingGlow = true,
+    glowIntensity = 'medium',
+    shimmer = false,
     ...props
   }, ref) => {
     // تحديد الأحجام
@@ -66,14 +70,32 @@ const TechButton = React.forwardRef<HTMLButtonElement, TechButtonProps>(
     
     // تأثير التوهج المتحرك
     const sweepingGlowClass = withSweepingGlow ? 'overflow-hidden' : '';
+    
+    // تحديد كثافة التوهج
+    const getGlowIntensityStyles = () => {
+      switch (glowIntensity) {
+        case 'low':
+          return 'rgba(57,255,20,0.05)';
+        case 'high':
+          return 'rgba(57,255,20,0.2)';
+        default: // medium
+          return 'rgba(57,255,20,0.1)';
+      }
+    };
+    
     const sweepingGlowEffect = withSweepingGlow ? (
-      <div className="absolute inset-0 bg-[linear-gradient(40deg,transparent_25%,rgba(57,255,20,0.1)_50%,transparent_75%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 transform translate-x-[-100%] group-hover:translate-x-[100%]"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(40deg,transparent_25%,rgba(57,255,20,0.1)_50%,transparent_75%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 transform translate-x-[-100%] group-hover:translate-x-[100%]" style={{ 
+        backgroundImage: `linear-gradient(40deg, transparent 25%, ${getGlowIntensityStyles()} 50%, transparent 75%)` 
+      }}></div>
     ) : null;
+    
+    // تأثير التلالؤ (الوميض)
+    const shimmerClass = shimmer ? 'shimmer-effect' : '';
     
     return (
       <button
         ref={ref}
-        className={`relative group font-medium rounded-lg transition-all flex items-center justify-center ${sweepingGlowClass} ${getSizeClasses()} ${getVariantClasses()} ${widthClass} ${loading ? 'opacity-80 cursor-not-allowed' : 'active:scale-[0.98]'} ${className}`}
+        className={`relative group font-medium rounded-lg transition-all flex items-center justify-center ${sweepingGlowClass} ${shimmerClass} ${getSizeClasses()} ${getVariantClasses()} ${widthClass} ${loading ? 'opacity-80 cursor-not-allowed' : 'active:scale-[0.98]'} ${className}`}
         disabled={loading || props.disabled}
         {...props}
       >
