@@ -108,15 +108,20 @@ export default function HomePage() {
               
               {/* جملة وصفية بتأثير الكتابة محسن */}
               <div className="max-w-2xl mx-auto mt-4 sm:mt-8 h-12 sm:h-16 md:h-18 overflow-hidden relative">
-                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-200 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "0s", animationFillMode: "forwards"}}>
-                  مستقبل الإقامة الفاخرة
-                </p>
-                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-[#39FF14] font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "3s", animationFillMode: "forwards", textShadow: "0 0 5px rgba(57, 255, 20, 0.5)"}}>
-                  تجربة إقامة بمفهوم جديد
-                </p>
-                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-200 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "6s", animationFillMode: "forwards"}}>
-                  منازل ذكية. رفاهية استثنائية.
-                </p>
+                <div className="w-full h-full relative">
+                  <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-200 font-light absolute inset-0 animate-typewriter opacity-0" 
+                    style={{animationDelay: "0s", animationFillMode: "forwards"}}>
+                    مستقبل الإقامة الفاخرة
+                  </p>
+                  <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-[#39FF14] font-light absolute inset-0 animate-typewriter opacity-0" 
+                    style={{animationDelay: "3s", animationFillMode: "forwards", textShadow: "0 0 5px rgba(57, 255, 20, 0.5)"}}>
+                    تجربة إقامة بمفهوم جديد
+                  </p>
+                  <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-200 font-light absolute inset-0 animate-typewriter opacity-0" 
+                    style={{animationDelay: "6s", animationFillMode: "forwards"}}>
+                    منازل ذكية. رفاهية استثنائية.
+                  </p>
+                </div>
               </div>
             </div>
             
@@ -533,101 +538,255 @@ export default function HomePage() {
         `}</style>
       </section>
 
-      {/* 🏠 قسم العقارات */}
-      <section className="py-8 sm:py-12 md:py-20 px-3 sm:px-4 md:px-6 relative">
+      {/* 🏠 قسم العقارات - محسّن مع تأثيرات تقنية متطورة */}
+      <section className="py-10 sm:py-14 md:py-24 px-3 sm:px-4 md:px-6 relative">
         <TechBackground 
-          variant="circuits" 
+          variant="cyber" 
           intensity="low" 
           animated={true}
-          withGradient={false}
+          withGradient={true}
+          withGlow={true}
+          withScanlines={true}
+          withFloatingParticles={true}
+          gradientDirection="radial"
+          className="rounded-xl overflow-hidden"
         >
-          <div className="absolute top-10 right-10 hidden md:block">
-            <div className="bg-[#39FF14] text-black rounded-full px-4 py-1 text-sm font-bold animate-pulse">
-              يتم التحديث يومياً
+          {/* شارة التحديث اليومي */}
+          <div className="absolute top-6 sm:top-10 right-6 sm:right-10 z-10">
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39FF14]/0 to-[#39FF14]/30 rounded-full blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
+              <div className="relative bg-black/80 border border-[#39FF14]/40 text-[#39FF14] rounded-full px-3 sm:px-4 py-1 text-xs sm:text-sm font-bold flex items-center gap-2 group-hover:border-[#39FF14]/70 transition-colors">
+                <span className="animate-blink w-2 h-2 bg-[#39FF14] rounded-full"></span>
+                يتم التحديث يومياً
+              </div>
             </div>
           </div>
           
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4 text-neon-green">عقارات مميزة</h2>
-            <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
-              عقارات فاخرة تم اختيارها بعناية في أفضل المناطق في الساحل الشمالي وراس الحكمة.
+          {/* العنوان والوصف المحسن */}
+          <div className="relative text-center mb-14 sm:mb-20">
+            <div className="relative inline-block">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 relative z-10">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#39FF14]/90 via-white to-[#39FF14]/90 animate-gradient-x">
+                  عقارات مميزة
+                </span>
+              </h2>
+              <div className="absolute -inset-1 bg-[#39FF14]/10 blur-lg rounded-lg z-0"></div>
+              {/* خط زخرفي تحت العنوان */}
+              <div className="h-px w-full bg-gradient-to-r from-transparent via-[#39FF14] to-transparent mt-2"></div>
+            </div>
+            <p className="text-gray-300 text-sm sm:text-base md:text-lg max-w-2xl mx-auto mt-5 leading-relaxed">
+              عقارات فاخرة تم اختيارها بعناية في أفضل المناطق في 
+              <span className="text-[#39FF14] font-semibold mx-1">الساحل الشمالي</span> 
+              و
+              <span className="text-[#39FF14] font-semibold mx-1">راس الحكمة</span>.
+              <br />
               يتم إضافة عقارات جديدة بواسطة مديرين العقارات المعتمدين لدينا.
             </p>
           </div>
           
-          {/* تصفية العقارات - قابلة للتمرير على الموبايل */}
-          <div className="flex justify-start sm:justify-center mb-8 sm:mb-10 overflow-x-auto pb-2 sm:pb-0 -mx-4 sm:mx-0 px-4 sm:px-0">
-            <div className="inline-flex bg-gray-800 rounded-full p-1">
-              <TechButton variant="default" size="sm" className="whitespace-nowrap rounded-full">
+          {/* تصفية العقارات محسنة - قابلة للتمرير على الموبايل */}
+          <div className="relative flex justify-start sm:justify-center mb-10 sm:mb-14 overflow-x-auto pb-2 sm:pb-0 -mx-4 sm:mx-0 px-4 sm:px-0">
+            <div className="inline-flex bg-space-black/60 border border-[#39FF14]/20 rounded-full p-1 backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+              <TechButton variant="default" size="sm" className="whitespace-nowrap rounded-full px-5 py-1.5">
                 الكل
               </TechButton>
-              <TechButton variant="ghost" size="sm" className="whitespace-nowrap rounded-full">
+              <TechButton variant="ghost" size="sm" className="whitespace-nowrap rounded-full px-5 py-1.5 hover:text-[#39FF14] hover:bg-black/40">
                 الساحل الشمالي
               </TechButton>
-              <TechButton variant="ghost" size="sm" className="whitespace-nowrap rounded-full">
+              <TechButton variant="ghost" size="sm" className="whitespace-nowrap rounded-full px-5 py-1.5 hover:text-[#39FF14] hover:bg-black/40">
                 راس الحكمة
               </TechButton>
-            </div>
-          </div>
-          
-          <FeaturedProperties />
-          
-          <div className="mt-12 text-center">
-            <TechButton
-              variant="outline"
-              size="lg"
-              glowIntensity="medium"
-              className="inline-flex items-center justify-center gap-2"
-              onClick={() => window.location.href = '/properties'}
-            >
-              عرض جميع العقارات
-              <span className="text-xl">←</span>
-            </TechButton>
-          </div>
-          
-          <TechCard 
-            variant="gradient"
-            withGlow={true}
-            className="mt-16 p-8 max-w-4xl mx-auto"
-          >
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="mb-6 md:mb-0">
-                <h3 className="text-2xl font-bold text-white mb-2">هل تملك عقارات في الساحل؟</h3>
-                <p className="text-gray-400">سجّل كمدير عقارات وأضف عقاراتك في دقائق</p>
-              </div>
-              <TechButton
-                variant="default"
-                size="lg"
-                shimmer={true}
-                onClick={() => window.location.href = '/register/property-admin'}
-              >
-                سجّل كمدير عقارات
+              <TechButton variant="ghost" size="sm" className="whitespace-nowrap rounded-full px-5 py-1.5 hover:text-[#39FF14] hover:bg-black/40">
+                مارينا
               </TechButton>
             </div>
-          </TechCard>
+            
+            {/* خط زخرفي أسفل فلاتر التصفية */}
+            <div className="absolute -bottom-2 left-0 right-0 mx-auto w-40 h-px bg-gradient-to-r from-transparent via-[#39FF14]/40 to-transparent"></div>
+          </div>
+          
+          {/* قائمة العقارات المميزة */}
+          <div className="relative">
+            {/* عنصر زخرفي علوي */}
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-40 h-8 opacity-30">
+              <div className="relative w-full h-full overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#39FF14]/20 to-transparent"></div>
+              </div>
+            </div>
+            
+            <FeaturedProperties />
+            
+            {/* عنصر زخرفي سفلي */}
+            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-40 h-8 opacity-30 rotate-180">
+              <div className="relative w-full h-full overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#39FF14]/20 to-transparent"></div>
+              </div>
+            </div>
+          </div>
+          
+          {/* زر عرض جميع العقارات المحسن */}
+          <div className="mt-14 sm:mt-16 text-center">
+            <div className="relative inline-block group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
+              <TechButton
+                variant="outline"
+                size="lg"
+                glowIntensity="medium"
+                className="relative inline-flex items-center justify-center gap-2 px-6 py-3 border-[#39FF14]/60 group-hover:border-[#39FF14] transition-colors"
+                onClick={() => window.location.href = '/properties'}
+              >
+                <span>عرض جميع العقارات</span>
+                <span className="text-xl rtl:rotate-180">←</span>
+                
+                {/* تأثير السطر المتحرك عند المرور */}
+                <span className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#39FF14] to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
+              </TechButton>
+            </div>
+          </div>
+          
+          {/* كارت تسجيل مدير العقارات المحسن */}
+          <div className="mt-20 max-w-4xl mx-auto relative">
+            {/* تأثير الهالة الخارجية */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/20 to-[#39FF14]/0 rounded-xl blur opacity-70"></div>
+            
+            <TechCard 
+              variant="gradient"
+              withGlow={true}
+              className="relative p-8 sm:p-10 border border-[#39FF14]/20 backdrop-blur-lg overflow-hidden"
+            >
+              {/* تأثير الخطوط المتحركة في الخلفية */}
+              <div className="absolute inset-0 overflow-hidden opacity-10">
+                <div className="w-full h-full" style={{
+                  backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(57, 255, 20, 0.1) 10px, rgba(57, 255, 20, 0.1) 20px)',
+                  backgroundSize: '30px 30px',
+                  animation: 'float 20s linear infinite',
+                }}></div>
+              </div>
+              
+              <div className="flex flex-col md:flex-row items-center justify-between relative z-10">
+                <div className="mb-8 md:mb-0 text-center md:text-right">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+                    <span className="text-[#39FF14] ml-2">+</span>
+                    هل تملك عقارات في الساحل؟
+                  </h3>
+                  <p className="text-gray-300 max-w-md text-sm sm:text-base">
+                    سجّل الآن كمدير عقارات وأضف عقاراتك في دقائق واستفد من منصتنا لتسويق وإدارة عقاراتك بكفاءة عالية
+                  </p>
+                </div>
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/70 to-[#39FF14]/0 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-300 group-hover:duration-200 animate-pulse-slow"></div>
+                  <TechButton
+                    variant="default"
+                    size="lg"
+                    className="relative min-w-[220px] py-4 font-bold"
+                    glowIntensity="strong"
+                    shimmer={true}
+                    animation="pulse"
+                    onClick={() => window.location.href = '/register/property-admin'}
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      <span>سجّل كمدير عقارات</span>
+                    </span>
+                  </TechButton>
+                </div>
+              </div>
+            </TechCard>
+          </div>
         </TechBackground>
       </section>
 
-      {/* 🛎️ قسم الخدمات */}
-      <section className="py-10 sm:py-16 md:py-20 px-3 sm:px-4 md:px-6 relative">
+      {/* 🛎️ قسم الخدمات - محسّن */}
+      <section className="py-16 sm:py-20 md:py-24 px-3 sm:px-4 md:px-6 relative">
         <TechBackground
-          variant="dots"
-          intensity="medium"
+          variant="matrix"
+          intensity="low"
           animated={true}
           withGradient={true}
+          withGlow={true}
+          withScanlines={true}
+          gradientDirection="diagonal"
+          className="rounded-xl overflow-hidden"
         >
-          {/* Scanlines effect */}
-          <div className={`absolute inset-x-0 top-1/3 h-12 opacity-30 ${TECH_EFFECTS.pulse}`}>
-            <div className="w-full h-full bg-[#39FF14]/10 relative overflow-hidden">
-              {Array.from({length: 10}).map((_, i) => (
-                <div key={i} className="h-px bg-[#39FF14]/30 w-full" 
-                     style={{position: 'absolute', top: `${i * 10}%`}}></div>
-              ))}
+          {/* العنوان المحسن */}
+          <div className="relative text-center mb-16">
+            <div className="relative inline-block perspective">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 relative z-10">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-[#39FF14] to-white">
+                  الخدمات المتوفرة
+                </span>
+              </h2>
+              
+              {/* تأثير توهج تحت العنوان */}
+              <div className="absolute -inset-1 bg-[#39FF14]/10 blur-lg rounded-lg z-0"></div>
+              
+              {/* خط زخرفي تحت العنوان */}
+              <div className="h-px w-full bg-gradient-to-r from-transparent via-[#39FF14]/80 to-transparent mt-3"></div>
             </div>
+            
+            {/* وصف مضاف تحت العنوان */}
+            <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto mt-4 leading-relaxed">
+              خدمات مميزة لضمان تجربة إقامة استثنائية في عقارات 
+              <span className="text-[#39FF14] font-medium mx-1">StayX</span>
+              الفاخرة
+            </p>
           </div>
           
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-10 text-center text-neon-green">الخدمات المتوفرة</h2>
-          <ServicesSection />
+          {/* عناصر زخرفية */}
+          <div className="absolute top-10 left-10 w-20 h-20 opacity-20 animate-pulse-slow">
+            <div className="w-full h-full" style={{
+              backgroundImage: 'radial-gradient(circle at center, rgba(57, 255, 20, 0.4) 0%, transparent 70%)',
+            }}></div>
+          </div>
+          
+          <div className="absolute bottom-10 right-10 w-32 h-32 opacity-10 animate-pulse-slow" style={{animationDelay: "1s"}}>
+            <div className="w-full h-full" style={{
+              backgroundImage: 'radial-gradient(circle at center, rgba(57, 255, 20, 0.3) 0%, transparent 70%)',
+            }}></div>
+          </div>
+          
+          {/* خط أفقي علوي */}
+          <div className="absolute top-0 left-0 w-full h-px opacity-30">
+            <div className="h-full bg-gradient-to-r from-transparent via-[#39FF14] to-transparent"></div>
+          </div>
+          
+          {/* خط أفقي سفلي */}
+          <div className="absolute bottom-0 left-0 w-full h-px opacity-30">
+            <div className="h-full bg-gradient-to-r from-transparent via-[#39FF14] to-transparent"></div>
+          </div>
+          
+          {/* أيقونة زخرفية */}
+          <div className="absolute top-5 right-5 opacity-40 hidden md:block">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          
+          {/* مكون الخدمات */}
+          <div className="relative z-10">
+            <ServicesSection />
+          </div>
+          
+          {/* زر مشاهدة المزيد */}
+          <div className="mt-16 text-center">
+            <div className="relative inline-block group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0 rounded-lg blur opacity-0 group-hover:opacity-70 transition duration-500"></div>
+              <TechButton
+                variant="outline"
+                size="lg"
+                glowIntensity="medium"
+                className="relative inline-flex items-center justify-center gap-2 px-6 py-3 border-[#39FF14]/40 group-hover:border-[#39FF14]/80 transition-colors"
+                onClick={() => window.location.href = '/services'}
+              >
+                <span>مشاهدة جميع الخدمات</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:transform rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </TechButton>
+            </div>
+          </div>
         </TechBackground>
       </section>
 

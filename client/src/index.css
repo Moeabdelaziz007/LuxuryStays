@@ -594,11 +594,40 @@
   
   /* Float animation for subtle movement */
   @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
+    0% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(5px, 10px);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translate(10px, 0);
+    }
+    75% {
+      transform: translate(5px, -10px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  /* Matrix text animation */
+  @keyframes matrix-text {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  /* Radial gradient animation */
+  @keyframes radial-pulse {
+    0%, 100% {
+      background-size: 100% 100%;
+    }
+    50% {
+      background-size: 120% 120%;
     }
   }
   
@@ -612,6 +641,14 @@
   
   .animate-float {
     animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-matrix-text {
+    animation: matrix-text 20s linear infinite;
+  }
+  
+  .animate-radial-pulse {
+    animation: radial-pulse 8s ease-in-out infinite;
   }
   
   /* Shimmer effect animation */
@@ -721,4 +758,43 @@
 .rtl-text {
   direction: rtl;
   text-align: center;
+}
+
+/* Scanlines effect for tech background */
+.tech-scanlines {
+  position: relative;
+}
+
+.tech-scanlines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(57, 255, 20, 0.05) 2px,
+    rgba(57, 255, 20, 0.05) 4px
+  );
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.15;
+  mix-blend-mode: overlay;
+}
+
+/* Tech grid background */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(57, 255, 20, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Radial gradient background */
+.bg-radial-gradient {
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 5, 0.9) 70%);
+  animation: radial-pulse 8s ease-in-out infinite;
 }
