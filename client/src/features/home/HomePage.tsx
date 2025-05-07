@@ -70,7 +70,7 @@ export default function HomePage() {
               <div className="absolute w-32 h-32 bg-[#39FF14] rounded-full blur-[50px] opacity-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
               
               {/* الشعار */}
-              <h1 className="inline-block text-7xl sm:text-8xl md:text-9xl font-black relative pb-2
+              <h1 className="inline-block text-5xl xs:text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black relative pb-2
                               bg-clip-text text-transparent bg-gradient-to-b from-white via-[#39FF14] to-[#21a100]
                               filter drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]">
                 <span className="relative inline-block">
@@ -82,22 +82,22 @@ export default function HomePage() {
               </h1>
               
               {/* جملة وصفية مع تأثير الكتابة */}
-              <div className="max-w-2xl mx-auto mt-4 h-16 overflow-hidden relative">
-                <p className="text-xl md:text-3xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "0s", animationFillMode: "forwards"}}>
+              <div className="max-w-2xl mx-auto mt-4 h-12 sm:h-16 overflow-hidden relative">
+                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "0s", animationFillMode: "forwards"}}>
                   مستقبل الإقامة الفاخرة
                 </p>
-                <p className="text-xl md:text-3xl text-neon-green font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "3s", animationFillMode: "forwards"}}>
+                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-neon-green font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "3s", animationFillMode: "forwards"}}>
                   تجربة إقامة بمفهوم جديد
                 </p>
-                <p className="text-xl md:text-3xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "6s", animationFillMode: "forwards"}}>
+                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "6s", animationFillMode: "forwards"}}>
                   منازل ذكية. رفاهية استثنائية.
                 </p>
               </div>
             </div>
             
             {/* عرض ثلاثي الأبعاد للعقارات الذكية */}
-            <div className="relative mx-auto w-full max-w-5xl my-12 perspective">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4">
+            <div className="relative mx-auto w-full max-w-5xl my-6 sm:my-8 md:my-12 perspective px-2 sm:px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 {/* الكرت الأول - البيت الذكي */}
                 <div className="group transform transition-all duration-500 hover:scale-105 hover:-rotate-1 perspective-card">
                   <div className="bg-black/50 backdrop-blur-sm border border-[#39FF14]/30 rounded-lg overflow-hidden relative
@@ -149,7 +149,7 @@ export default function HomePage() {
                 </div>
                 
                 {/* الكرت الثاني - الجلسات الخارجية */}
-                <div className="group transform transition-all duration-500 hover:scale-105 hover:rotate-1 perspective-card mt-4 md:mt-0">
+                <div className="group transform transition-all duration-500 hover:scale-105 hover:rotate-1 perspective-card">
                   <div className="bg-black/50 backdrop-blur-sm border border-[#39FF14]/30 rounded-lg overflow-hidden relative
                               shadow-[0_0_15px_rgba(57,255,20,0.2)] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)]
                               transition-all duration-500">
@@ -199,7 +199,7 @@ export default function HomePage() {
                 </div>
                 
                 {/* الكرت الثالث - الحجز الآن */}
-                <div className="group transform transition-all duration-500 hover:scale-105 hover:-rotate-1 perspective-card mt-4 md:mt-0">
+                <div className="group transform transition-all duration-500 hover:scale-105 hover:-rotate-1 perspective-card">
                   <div className="bg-[#39FF14]/10 backdrop-blur-sm border border-[#39FF14]/50 rounded-lg overflow-hidden relative
                               shadow-[0_0_20px_rgba(57,255,20,0.3)] hover:shadow-[0_0_30px_rgba(57,255,20,0.5)]
                               transition-all duration-500">
@@ -252,12 +252,13 @@ export default function HomePage() {
             </div>
             
             {/* الأزرار الرئيسية */}
-            <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-8">
-              <button className="group relative px-6 py-3 text-lg font-semibold text-black bg-[#39FF14] rounded-md
-                              shadow-[0_0_15px_rgba(57,255,20,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.5)] overflow-hidden">
-                <span className="relative z-10 flex items-center">
+            <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-6 sm:mt-8">
+              <button className="group relative px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg font-semibold text-black bg-[#39FF14] rounded-md
+                              shadow-[0_0_15px_rgba(57,255,20,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.5)] overflow-hidden
+                              min-w-[120px] md:min-w-[160px] touch-action-manipulation">
+                <span className="relative z-10 flex items-center justify-center">
                   تصفح العقارات
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 rtl:ml-2 rtl:transform rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 rtl:ml-1 sm:rtl:ml-2 rtl:transform rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                   </svg>
                 </span>
@@ -266,9 +267,10 @@ export default function HomePage() {
                                 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
               </button>
               
-              <button className="px-6 py-3 text-lg font-semibold text-[#39FF14] bg-transparent border-2 border-[#39FF14]/50 
+              <button className="px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg font-semibold text-[#39FF14] bg-transparent border-2 border-[#39FF14]/50 
                               rounded-md hover:bg-[#39FF14]/10 hover:border-[#39FF14] transition-colors
-                              shadow-[0_0_10px_rgba(57,255,20,0.1)] hover:shadow-[0_0_15px_rgba(57,255,20,0.3)]">
+                              shadow-[0_0_10px_rgba(57,255,20,0.1)] hover:shadow-[0_0_15px_rgba(57,255,20,0.3)]
+                              min-w-[120px] md:min-w-[160px] touch-action-manipulation">
                 تسجيل الدخول
               </button>
             </div>

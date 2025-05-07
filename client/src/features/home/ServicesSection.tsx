@@ -150,13 +150,13 @@ export default function ServicesSection() {
 
   return (
     <div>
-      <div className="max-w-4xl mx-auto text-center mb-12">
-        <p className="text-gray-400 mb-8">
+      <div className="max-w-4xl mx-auto text-center mb-6 sm:mb-8 md:mb-12">
+        <p className="text-gray-400 mb-4 sm:mb-8 text-sm sm:text-base px-2 sm:px-0">
           استمتع بخدماتنا الحصرية التي تجعل إقامتك تجربة لا تُنسى. نتعاون مع أفضل المطاعم والنوادي الليلية في الساحل الشمالي وراس الحكمة.
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         {servicesList.map((service) => (
           <HolographicCard
             key={service.id}

@@ -171,7 +171,7 @@ export default function FeaturedProperties() {
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
       {data?.map((property: Property) => (
         <HolographicCard
           key={property.id}
@@ -186,7 +186,7 @@ export default function FeaturedProperties() {
           <div className="relative">
             {/* Property Badge - Top Right */}
             <div className="absolute top-0 right-0 z-20">
-              <div className="bg-[#39FF14] text-black font-bold m-4 py-1 px-3 rounded-full shadow-lg flex items-center space-x-1 rtl:space-x-reverse transform hover:scale-105 transition-transform backdrop-blur-sm border border-[#39FF14]/20">
+              <div className="bg-[#39FF14] text-black font-bold m-3 sm:m-4 py-1 px-2 sm:px-3 rounded-full shadow-lg flex items-center space-x-1 rtl:space-x-reverse transform hover:scale-105 transition-transform backdrop-blur-sm border border-[#39FF14]/20 text-sm sm:text-base">
                 <span>${property.pricePerNight}</span>
                 <span className="text-xs opacity-70">/ ليلة</span>
               </div>
@@ -194,19 +194,20 @@ export default function FeaturedProperties() {
             
             {/* Save Button - Top Left */}
             <div className="absolute top-0 left-0 z-20">
-              <button className="m-4 bg-black/40 hover:bg-black/60 p-2 rounded-full backdrop-blur-sm transition-colors group-hover:opacity-100 opacity-0 border border-white/10">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white hover:text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <button className="m-3 sm:m-4 bg-black/40 hover:bg-black/60 p-2 rounded-full backdrop-blur-sm transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100 border border-white/10">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-white hover:text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </button>
             </div>
             
             {/* Main Image */}
-            <div className="h-56 overflow-hidden">
+            <div className="h-48 sm:h-56 overflow-hidden">
               <img 
                 src={property.imageUrl} 
                 alt={property.name} 
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" 
+                loading="lazy"
               />
               
               {/* Image Overlay Gradient */}
@@ -224,34 +225,34 @@ export default function FeaturedProperties() {
             </div>
             
             {/* Property Verification - Bottom of Image */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 z-10">
               <div className="flex items-center space-x-2 rtl:space-x-reverse transition-opacity duration-300">
-                <div className="w-7 h-7 rounded-full bg-[#39FF14]/80 flex items-center justify-center border border-[#39FF14] shadow-[0_0_10px_rgba(57,255,20,0.5)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-black" viewBox="0 0 20 20" fill="currentColor">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#39FF14]/80 flex items-center justify-center border border-[#39FF14] shadow-[0_0_10px_rgba(57,255,20,0.5)]">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 text-black" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">تم التحقق بواسطة <span className="text-[#39FF14]">StayX</span></p>
+                  <p className="text-xs sm:text-sm font-medium text-white">تم التحقق بواسطة <span className="text-[#39FF14]">StayX</span></p>
                 </div>
               </div>
             </div>
           </div>
           
           {/* Content Container */}
-          <div className="p-5">
+          <div className="p-4 sm:p-5">
             {/* Property Title & Rating */}
             <div className="flex justify-between items-start mb-2">
-              <h3 className="text-xl font-bold text-white group-hover:text-[#39FF14] transition-colors">{property.name}</h3>
-              <div className="flex items-center bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm">
+              <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-[#39FF14] transition-colors leading-tight">{property.name}</h3>
+              <div className="flex items-center bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm text-sm">
                 <span className="text-yellow-400">★</span>
                 <span className="text-white mx-1">4.9</span>
               </div>
             </div>
             
             {/* Location */}
-            <div className="flex items-center text-sm text-gray-400 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-[#39FF14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -259,25 +260,25 @@ export default function FeaturedProperties() {
             </div>
             
             {/* Description */}
-            <div className="bg-black/30 p-3 rounded-lg mb-4 backdrop-blur-sm border border-[#39FF14]/10">
-              <p className="text-gray-300 text-sm line-clamp-2">{property.description}</p>
+            <div className="bg-black/30 p-2 sm:p-3 rounded-lg mb-3 sm:mb-4 backdrop-blur-sm border border-[#39FF14]/10">
+              <p className="text-gray-300 text-xs sm:text-sm line-clamp-2">{property.description}</p>
             </div>
             
             {/* Divider Line - futuristic divider */}
-            <div className="relative h-px my-4">
+            <div className="relative h-px my-3 sm:my-4">
               <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/40 to-transparent"></div>
-              <div className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full bg-[#39FF14] transform -translate-x-1/2 -translate-y-1/2 animate-pulse-subtle"></div>
+              <div className="absolute left-1/2 top-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#39FF14] transform -translate-x-1/2 -translate-y-1/2 animate-pulse-subtle"></div>
             </div>
             
             {/* Bottom Action Section */}
             <div className="flex justify-between items-center">
-              <span className="text-[#39FF14] font-medium text-sm">
+              <span className="text-[#39FF14] font-medium text-xs sm:text-sm">
                 {/* Property Owner */}
                 <span className="text-gray-400">بواسطة: </span>مدير معتمد
               </span>
               <a 
                 href={`/properties/${property.id}`} 
-                className="relative overflow-hidden bg-[#39FF14] hover:bg-[#45ff25] text-black font-medium py-2 px-4 rounded-lg text-sm transition-colors shadow-md hover:shadow-[0_0_15px_rgba(57,255,20,0.5)] group"
+                className="relative overflow-hidden bg-[#39FF14] hover:bg-[#45ff25] text-black font-medium py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm transition-colors shadow-md hover:shadow-[0_0_15px_rgba(57,255,20,0.5)] group"
               >
                 <span className="relative z-10">عرض التفاصيل</span>
                 <span className="absolute inset-0 w-full h-full bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
