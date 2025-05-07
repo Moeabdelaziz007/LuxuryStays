@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "wouter";
 import FeaturedProperties from "@/features/home/FeaturedProperties";
 import ServicesSection from "@/features/home/ServicesSection";
+import Logo from "@/components/Logo";
 
 // استيراد المكونات الجديدة ذات طابع الفضاء-التقنية
 import { 
@@ -790,96 +791,239 @@ export default function HomePage() {
         </TechBackground>
       </section>
 
-      {/* 🚀 قسم قريباً - مبسط */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 text-center relative">
+      {/* 🚀 قسم قريباً - محسّن بتأثيرات تقنية */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 text-center relative">
         <TechBackground
-          variant="hexagons"
+          variant="stars"
           intensity="low"
           animated={true}
           withGradient={true}
+          withGlow={true}
+          withScanlines={true}
+          withFloatingParticles={true}
+          gradientDirection="radial"
+          className="rounded-xl overflow-hidden"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-neon-green">ترقبوا قريباً 🔥</h2>
+          {/* العنوان المحسن مع تأثير توهج */}
+          <div className="relative mb-16">
+            <div className="absolute inset-0 bg-[#39FF14]/5 rounded-full blur-3xl opacity-30 animate-pulse-slow"></div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 relative">
+              <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-[#39FF14] to-white animate-pulse-slow">
+                ترقبوا قريباً 
+                <span className="inline-block ml-2 animate-bounce">🔥</span>
+              </span>
+            </h2>
+            
+            {/* وصف إضافي تحت العنوان */}
+            <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
+              تجارب جديدة ومميزات حصرية قادمة قريباً لتعزيز تجربتك مع 
+              <span className="text-[#39FF14] font-semibold mx-1">StayX</span>
+            </p>
+            
+            {/* خط زخرفي */}
+            <div className="mt-8 mb-6 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent"></div>
+          </div>
           
-          <div className="max-w-3xl mx-auto mb-8 sm:mb-10">
-            {/* ChillRoom - مكون واحد فقط */}
-            <TechCard 
-              variant="gradient"
-              withGlow={true}
-              withShimmer={true}
-              className="p-6 sm:p-8 transform transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
-            >
-              <div className="relative z-10">
-                <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-[#39FF14]">ChillRoom 🧊</h3>
-                <p className="text-lg mb-4 text-white">
-                  مساحة ترفيه ذكية داخل StayX لمشاركة اللحظات، الموسيقى، والفيديوهات
-                </p>
-                
-                <div className="flex flex-wrap justify-center gap-6 mb-6">
-                  <TechCard variant="bordered" className="p-3 text-center w-full sm:w-auto">
-                    <span className="text-[#39FF14] text-xl block mb-1">🌊</span>
-                    <span className="text-white font-medium">دردشة مباشرة</span>
-                  </TechCard>
-                  <TechCard variant="bordered" className="p-3 text-center w-full sm:w-auto">
-                    <span className="text-[#39FF14] text-xl block mb-1">🥂</span>
-                    <span className="text-white font-medium">حفلات خاصة</span>
-                  </TechCard>
+          {/* بطاقة المنتج محسنة */}
+          <div className="max-w-4xl mx-auto mb-16 perspective">
+            <div className="relative transform transition-all duration-700 hover:scale-[1.02] group perspective-card">
+              {/* تأثير الهالة الخارجية */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/40 to-[#39FF14]/0 rounded-xl blur opacity-70 group-hover:opacity-100 transition-opacity"></div>
+              
+              <TechCard 
+                variant="gradient"
+                withGlow={true}
+                withShimmer={true}
+                className="relative p-8 sm:p-10 border border-[#39FF14]/30 backdrop-blur-md overflow-hidden"
+              >
+                {/* تأثير الخلفية المتحركة */}
+                <div className="absolute inset-0 overflow-hidden opacity-5 group-hover:opacity-10 transition-opacity">
+                  <div className="w-full h-full" style={{
+                    backgroundImage: 'repeating-linear-gradient(135deg, rgba(57, 255, 20, 0.1) 0px, rgba(57, 255, 20, 0.1) 2px, transparent 2px, transparent 4px)',
+                    backgroundSize: '8px 8px',
+                    animation: 'matrix-text 40s linear infinite',
+                  }}></div>
                 </div>
                 
-                <div className="flex justify-center">
+                <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
+                  {/* محتوى النص */}
+                  <div className="flex-1 text-center md:text-right">
+                    {/* العنوان مع أيقونة وتأثير توهج */}
+                    <div className="inline-block relative mb-6">
+                      <h3 className="text-3xl sm:text-4xl font-bold mb-2 inline-flex items-center gap-3">
+                        <span className="text-[#39FF14]">ChillRoom</span>
+                        <span className="text-2xl sm:text-3xl">🧊</span>
+                      </h3>
+                      <div className="h-px w-full bg-gradient-to-r from-transparent via-[#39FF14]/60 to-transparent"></div>
+                    </div>
+                    
+                    <p className="text-lg sm:text-xl mb-6 text-white max-w-xl">
+                      مساحة ترفيه ذكية داخل StayX لمشاركة اللحظات، الموسيقى، والفيديوهات مع ضيوف العقار أثناء إقامتك
+                    </p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                      {/* ميزة 1 */}
+                      <div className="bg-black/40 backdrop-blur-sm border border-[#39FF14]/20 rounded-lg p-4 hover:border-[#39FF14]/40 transition-colors">
+                        <div className="text-[#39FF14] text-2xl mb-2">🌊</div>
+                        <h4 className="text-white font-semibold mb-1">دردشة مباشرة</h4>
+                        <p className="text-gray-400 text-sm">تواصل مع ضيوف العقار في غرف دردشة خاصة</p>
+                      </div>
+                      
+                      {/* ميزة 2 */}
+                      <div className="bg-black/40 backdrop-blur-sm border border-[#39FF14]/20 rounded-lg p-4 hover:border-[#39FF14]/40 transition-colors">
+                        <div className="text-[#39FF14] text-2xl mb-2">🎵</div>
+                        <h4 className="text-white font-semibold mb-1">موسيقى مشتركة</h4>
+                        <p className="text-gray-400 text-sm">تحكم في الموسيقى الجماعية لأجواء مثالية</p>
+                      </div>
+                      
+                      {/* ميزة 3 */}
+                      <div className="bg-black/40 backdrop-blur-sm border border-[#39FF14]/20 rounded-lg p-4 hover:border-[#39FF14]/40 transition-colors">
+                        <div className="text-[#39FF14] text-2xl mb-2">🥂</div>
+                        <h4 className="text-white font-semibold mb-1">حفلات خاصة</h4>
+                        <p className="text-gray-400 text-sm">نظم حفلات افتراضية مع الأصدقاء والعائلة أثناء إقامتك</p>
+                      </div>
+                    </div>
+                    
+                    {/* زر التسجيل محسن */}
+                    <div className="flex justify-center md:justify-start">
+                      <div className="relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/60 to-[#39FF14]/0 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-300 group-hover:duration-200 animate-pulse-slow"></div>
+                        <TechButton
+                          variant="default"
+                          size="lg"
+                          className="relative py-3 px-6 text-base font-bold"
+                          glowIntensity="strong"
+                          shimmer={true}
+                          animation="pulse"
+                          onClick={() => window.location.href = '/signup'}
+                        >
+                          <span className="flex items-center justify-center gap-2">
+                            <span>سجل اهتمامك الآن</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                          </span>
+                        </TechButton>
+                      </div>
+                    </div>
+                    
+                    {/* شارة قريباً - محسنة */}
+                    <div className="mt-6">
+                      <div className="inline-flex items-center gap-3 bg-black/50 border border-[#39FF14]/30 rounded-full px-4 py-2">
+                        <span className="animate-blink size-2 bg-[#39FF14] rounded-full"></span>
+                        <span className="text-[#39FF14] text-sm font-bold tracking-widest">
+                          قريباً - صيف 2025
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* الصورة مع تأثير */}
+                  <div className="w-full md:w-2/5 lg:w-1/3 aspect-square md:aspect-auto relative overflow-hidden rounded-lg border border-[#39FF14]/30">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                    <img
+                      src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1112"
+                      alt="ChillRoom"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                    />
+                    {/* تأثير السطر المسح المتحرك فوق الصورة */}
+                    <div className="absolute inset-0 opacity-30 overflow-hidden pointer-events-none z-20">
+                      <div className="absolute w-full h-[1px] bg-[#39FF14]/70 top-0 left-0 animate-scan"></div>
+                    </div>
+                  </div>
+                </div>
+              </TechCard>
+            </div>
+          </div>
+          
+          {/* نموذج النشرة البريدية محسن */}
+          <div className="max-w-2xl mx-auto px-2 sm:px-0 relative">
+            {/* تأثير توهج خلفي */}
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-[#39FF14]/10 filter blur-3xl opacity-30"></div>
+            
+            <div className="relative z-10 backdrop-blur-sm bg-black/30 border border-[#39FF14]/20 rounded-xl p-6 sm:p-8">
+              <h3 className="text-2xl font-bold text-white mb-4">ابق على اطلاع دائم</h3>
+              <p className="text-gray-300 mb-6 max-w-xl mx-auto">
+                سجّل الآن للحصول على تحديثات حصرية وكن من أوائل من يجرب ميزاتنا الجديدة
+              </p>
+              
+              <form className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                <div className="relative flex-1 group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0 rounded-lg blur opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition duration-500"></div>
+                  <div className="relative">
+                    <TechInput 
+                      type="email" 
+                      placeholder="بريدك الإلكتروني" 
+                      variant="bordered"
+                      withGlow={true}
+                      className="w-full border-[#39FF14]/40 group-hover:border-[#39FF14]/60 focus:border-[#39FF14] transition-colors"
+                    />
+                  </div>
+                </div>
+                
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/50 to-[#39FF14]/0 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-300"></div>
                   <TechButton
                     variant="default"
                     size="default"
+                    className="relative w-full sm:w-auto whitespace-nowrap px-6"
+                    glowIntensity="medium"
                     shimmer={true}
-                    onClick={() => window.location.href = '/signup'}
                   >
-                    سجل اهتمامك الآن
+                    اشترك بالنشرة البريدية
                   </TechButton>
                 </div>
-                
-                <div className="text-center mt-4">
-                  <span className="bg-[#39FF14]/20 text-[#39FF14] px-3 py-1 rounded-full text-xs font-bold tracking-widest inline-block">
-                    قريباً - صيف 2025
-                  </span>
-                </div>
-              </div>
-              <img
-                src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1112"
-                alt="ChillRoom"
-                className="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-15 transition-opacity -z-20"
-              />
-            </TechCard>
+              </form>
+              
+              {/* ملاحظة سياسة الخصوصية */}
+              <p className="text-gray-500 text-xs mt-4">
+                بالاشتراك، أنت توافق على <a href="/privacy" className="text-[#39FF14] hover:underline">سياسة الخصوصية</a> الخاصة بنا
+              </p>
+            </div>
           </div>
           
-          <div className="max-w-xl mx-auto px-2 sm:px-0">
-            <p className="text-base text-gray-400 mb-5">
-              سجّل الآن لتكون من أول المستخدمين وللحصول على إشعارات حصرية!
-            </p>
-            <form className="flex flex-col sm:flex-row gap-3 justify-center">
-              <TechInput 
-                type="email" 
-                placeholder="بريدك الإلكتروني" 
-                variant="bordered"
-                withGlow={true}
-                className="w-full"
-              />
-              <TechButton
-                variant="default"
-                size="default"
-                shimmer={true}
-              >
-                اشترك بالنشرة البريدية
-              </TechButton>
-            </form>
+          {/* خط نيون أفقي قبل الـ Footer - محسن */}
+          <div className="relative mt-20 mb-4">
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent"></div>
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-[#39FF14]/10 rounded-full blur-xl"></div>
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-[#39FF14] rounded-full animate-pulse"></div>
           </div>
-          
-          {/* خط نيون أفقي قبل الـ Footer */}
-          <div className="mt-16 mb-2 mx-auto max-w-4xl h-px bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent"></div>
         </TechBackground>
       </section>
 
-      {/* ✅ Footer بسيط */}
-      <footer className="py-6 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} StayX — All rights reserved.
+      {/* ✅ Footer محسن */}
+      <footer className="py-10 text-center relative overflow-hidden bg-space-black">
+        {/* خط علوي مضيء */}
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#39FF14]/40 to-transparent"></div>
+        
+        {/* خلفية النقاط المتحركة */}
+        <div className="absolute inset-0 pointer-events-none opacity-10">
+          <div className="w-full h-full" style={{
+            backgroundImage: 'radial-gradient(circle, rgba(57, 255, 20, 0.2) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+          }}></div>
+        </div>
+        
+        {/* شعار الموقع */}
+        <div className="mb-6">
+          <div className="inline-block">
+            <div className="text-4xl font-bold text-[#39FF14]">
+              <span className="text-white">Stay</span>X
+            </div>
+          </div>
+        </div>
+        
+        {/* حقوق النشر */}
+        <div className="text-gray-500 text-sm flex flex-col items-center justify-center gap-2">
+          <p>© {new Date().getFullYear()} StayX — جميع الحقوق محفوظة</p>
+          <div className="flex items-center justify-center gap-4 text-xs mt-2">
+            <a href="/terms" className="text-gray-400 hover:text-[#39FF14] transition-colors">شروط الاستخدام</a>
+            <span className="text-gray-700">•</span>
+            <a href="/privacy" className="text-gray-400 hover:text-[#39FF14] transition-colors">سياسة الخصوصية</a>
+            <span className="text-gray-700">•</span>
+            <a href="/contact" className="text-gray-400 hover:text-[#39FF14] transition-colors">اتصل بنا</a>
+          </div>
+        </div>
       </footer>
     </div>
   );

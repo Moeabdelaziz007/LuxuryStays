@@ -631,6 +631,39 @@
     }
   }
   
+  /* Scan line animation */
+  @keyframes scan {
+    0% {
+      top: 0%;
+    }
+    75% {
+      top: 100%;
+    }
+    100% {
+      top: 100%;
+    }
+  }
+
+  /* Blink animation */
+  @keyframes blink {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.2;
+    }
+  }
+  
+  /* Gradient text animation */
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  
   .animate-neon-pulse {
     animation: neonPulse 3s ease-in-out infinite;
   }
@@ -649,6 +682,19 @@
   
   .animate-radial-pulse {
     animation: radial-pulse 8s ease-in-out infinite;
+  }
+  
+  .animate-scan {
+    animation: scan 2s cubic-bezier(0.3, 0, 0.2, 1) infinite;
+  }
+  
+  .animate-blink {
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  
+  .animate-gradient-x {
+    background-size: 200% 100%;
+    animation: gradient-x 8s ease infinite;
   }
   
   /* Shimmer effect animation */
