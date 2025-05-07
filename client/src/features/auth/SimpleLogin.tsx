@@ -5,19 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, signInAnonymously } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 
 /**
- * صفحة تسجيل دخول بسيطة تحتوي فقط على زر تسجيل الدخول باستخدام Google
+ * صفحة تسجيل دخول بسيطة تحتوي على زر تسجيل الدخول باستخدام Google وزر الدخول كضيف
  */
 export default function SimpleLogin() {
   const { user } = useAuth();
   const [_, navigate] = useLocation();
   const { toast } = useToast();
-  const [loading, setLoading] = React.useState(false);
+  const [googleLoading, setGoogleLoading] = React.useState(false);
+  const [guestLoading, setGuestLoading] = React.useState(false);
 
   // إذا كان المستخدم مسجل الدخول بالفعل، قم بتوجيهه إلى الصفحة المناسبة
   if (user) {
@@ -26,8 +27,9 @@ export default function SimpleLogin() {
     return null;
   }
 
+  // تسجيل الدخول باستخدام Google
   const handleGoogleLogin = async () => {
-    setLoading(true);
+    setGoogleLoading(true);
     
     try {
       const provider = new GoogleAuthProvider();
@@ -38,8 +40,6 @@ export default function SimpleLogin() {
       // قم بالتنقل إلى الصفحة الرئيسية أو لوحة التحكم بعد تسجيل الدخول بنجاح
       navigate('/');
     } catch (error: any) {
-      console.error('خطأ في تسجيل الدخول مع Google:', error);
-      
       // عرض رسالة خطأ
       toast({
         title: "فشل تسجيل الدخول",
@@ -47,7 +47,30 @@ export default function SimpleLogin() {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
+    }
+  };
+  
+  // تسجيل الدخول كضيف
+  const handleGuestLogin = async () => {
+    setGuestLoading(true);
+    
+    try {
+      // تسجيل الدخول بشكل مجهول
+      await signInAnonymously(auth);
+      // تتم إدارة حالة المستخدم تلقائيًا من خلال مزود السياق auth-context
+      
+      // قم بالتنقل إلى الصفحة الرئيسية أو لوحة التحكم بعد تسجيل الدخول بنجاح
+      navigate('/');
+    } catch (error: any) {
+      // عرض رسالة خطأ
+      toast({
+        title: "فشل تسجيل الدخول",
+        description: error.message || "حدث خطأ أثناء تسجيل الدخول كضيف",
+        variant: "destructive",
+      });
+    } finally {
+      setGuestLoading(false);
     }
   };
 
@@ -68,7 +91,10 @@ export default function SimpleLogin() {
       
       {/* عنصر الكارت مع رسوم متحركة */}
       <div className="w-full max-w-md z-10 animate-slideUpAndFade">
-        <Card className="bg-gray-800/80 backdrop-blur-lg border-gray-700 shadow-xl shadow-[#39FF14]/5">
+        <Card className="bg-gray-800/80 backdrop-blur-lg border-gray-700 shadow-xl shadow-[#39FF14]/5 relative overflow-hidden">
+          {/* تأثير توهج جانبي */}
+          <div className="absolute -left-10 top-[50%] w-20 h-40 bg-[#39FF14]/20 rotate-[30deg] blur-xl transform -translate-y-1/2 animate-pulse-very-slow"></div>
+        
           <CardHeader className="text-center">
             <CardTitle className="text-2xl text-white animate-fadeIn" style={{ animationDelay: '200ms' }}>تسجيل الدخول</CardTitle>
             <CardDescription className="text-gray-400 animate-fadeIn" style={{ animationDelay: '400ms' }}>الرجاء تسجيل الدخول للوصول إلى حسابك</CardDescription>
@@ -78,17 +104,35 @@ export default function SimpleLogin() {
             {/* زر تسجيل الدخول مع Google مع تأثيرات محسّنة */}
             <Button
               onClick={handleGoogleLogin}
-              disabled={loading}
+              disabled={googleLoading}
               variant="neon"
               className="w-full h-12 flex items-center justify-center gap-2 animate-fadeIn"
               style={{ animationDelay: '600ms' }}
             >
-              {loading ? (
+              {googleLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin text-[#39FF14]" />
               ) : (
                 <>
                   <FcGoogle className="h-5 w-5" />
                   <span>تسجيل الدخول باستخدام Google</span>
+                </>
+              )}
+            </Button>
+            
+            {/* زر تسجيل الدخول كضيف */}
+            <Button
+              onClick={handleGuestLogin}
+              disabled={guestLoading}
+              variant="outline"
+              className="w-full h-12 flex items-center justify-center gap-2 border-gray-700 text-gray-300 hover:text-white hover:border-[#39FF14]/50 animate-fadeIn"
+              style={{ animationDelay: '700ms' }}
+            >
+              {guestLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin text-[#39FF14]" />
+              ) : (
+                <>
+                  <User className="h-5 w-5" />
+                  <span>الدخول كضيف</span>
                 </>
               )}
             </Button>
