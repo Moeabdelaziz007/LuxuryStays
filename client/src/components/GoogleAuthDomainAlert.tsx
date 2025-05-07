@@ -1,66 +1,85 @@
-import React, { useState, useEffect } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { getGoogleLoginInstructions } from "@/lib/DynamicFirebaseDomainHandler";
-import { AlertCircle, Copy, Check } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, X } from 'lucide-react';
+import { getGoogleLoginInstructions, isCurrentDomainAuthorized } from '@/lib/DynamicFirebaseDomainHandler';
 
 /**
  * مكوّن لعرض رسالة تحذير عندما يكون النطاق الحالي غير معتمد في Firebase
  * يوفر تعليمات للمستخدم لإضافة النطاق إلى إعدادات Firebase
  */
 export default function GoogleAuthDomainAlert() {
-  const [copied, setCopied] = useState(false);
-  const currentDomain = window.location.hostname;
+  const [isVisible, setIsVisible] = useState(false);
+  const [isDomainAuthorized, setIsDomainAuthorized] = useState(true);
+  const [wasChecked, setWasChecked] = useState(false);
 
-  // نسخ النطاق الحالي إلى الحافظة
-  const copyDomain = () => {
-    navigator.clipboard.writeText(currentDomain);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  // إعادة تعيين حالة النسخ عند تغير النطاق
   useEffect(() => {
-    setCopied(false);
-  }, [currentDomain]);
-
+    // جلب قائمة النطاقات المعتمدة من localStorage إذا كانت متوفرة
+    const storedDomains = localStorage.getItem('firebase_authorized_domains');
+    
+    if (storedDomains) {
+      try {
+        const domains = JSON.parse(storedDomains);
+        const isAuthorized = isCurrentDomainAuthorized(domains);
+        setIsDomainAuthorized(isAuthorized);
+        setWasChecked(true);
+        
+        if (!isAuthorized) {
+          // التحقق إذا تم إغلاق التنبيه في هذه الجلسة
+          const isDismissed = sessionStorage.getItem('google_auth_domain_alert_dismissed') === 'true';
+          setIsVisible(!isDismissed);
+        }
+      } catch (e) {
+        console.error('Error parsing stored domains:', e);
+      }
+    }
+  }, []);
+  
+  const dismissAlert = () => {
+    setIsVisible(false);
+    // حفظ حالة الإغلاق في هذه الجلسة فقط
+    sessionStorage.setItem('google_auth_domain_alert_dismissed', 'true');
+  };
+  
+  // لا نعرض التنبيه إذا كان النطاق معتمداً أو لم يتم التحقق منه بعد أو تم إغلاقه
+  if (isDomainAuthorized || !wasChecked || !isVisible) {
+    return null;
+  }
+  
   return (
-    <Alert className="bg-yellow-900/20 border-yellow-600/50 backdrop-blur-sm my-4">
-      <AlertCircle className="h-5 w-5 text-yellow-400" />
-      <AlertTitle className="text-yellow-400 font-bold text-lg">
-        تنبيه: النطاق غير معتمد لتسجيل الدخول باستخدام Google
-      </AlertTitle>
-      <AlertDescription className="mt-2">
-        <p className="text-white mb-4">
-          النطاق الحالي <span className="font-mono bg-black/30 px-2 py-1 rounded border border-yellow-600/30">{currentDomain}</span> غير مسجل في إعدادات المصادقة في Firebase.
-        </p>
-        
-        <div className="bg-black/40 rounded-lg p-4 border border-yellow-600/30 my-4">
-          <h4 className="font-semibold text-white mb-2">يرجى إضافة النطاق في لوحة تحكم Firebase:</h4>
-          <ol className="list-decimal list-inside space-y-1 text-gray-300 mb-4">
-            <li>انتقل إلى <a href="https://console.firebase.google.com/" className="text-yellow-400 hover:underline" target="_blank" rel="noopener noreferrer">لوحة تحكم Firebase</a></li>
-            <li>اختر المشروع <span className="font-mono bg-black/30 px-1 rounded">stay-chill-e3743</span></li>
-            <li>انتقل إلى المصادقة Authentication</li>
-            <li>اختر تبويب "إعدادات"</li>
-            <li>في قسم "المجالات المسموح بها"، أضف النطاق المذكور أعلاه</li>
-            <li>انقر على "إضافة"</li>
-          </ol>
-          
-          <div className="flex">
-            <Button
-              className="bg-yellow-600 hover:bg-yellow-500 text-black font-semibold flex items-center gap-2"
-              onClick={copyDomain}
-            >
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-              {copied ? "تم النسخ!" : "نسخ النطاق"}
+    <Alert className="fixed bottom-4 left-4 right-4 max-w-xl mx-auto z-50 bg-orange-900/90 border-orange-600 text-white shadow-lg backdrop-blur-sm">
+      <div className="flex items-start gap-4">
+        <div className="flex-1">
+          <AlertTitle className="flex items-center">
+            تسجيل الدخول بـ Google غير متاح في هذا النطاق
+            <Button variant="ghost" size="icon" onClick={dismissAlert} className="ml-auto text-orange-300 hover:text-white hover:bg-orange-800">
+              <X className="h-4 w-4" />
             </Button>
-          </div>
+          </AlertTitle>
+          
+          <AlertDescription className="mt-2 text-orange-200">
+            <p className="mb-2">النطاق الحالي غير معتمد في إعدادات Firebase. يمكنك استخدام طرق تسجيل الدخول الأخرى أو إضافة هذا النطاق يدويًا.</p>
+            
+            <div className="p-2 bg-orange-950/50 border border-orange-700/30 rounded-md mt-3 text-xs leading-relaxed">
+              {getGoogleLoginInstructions().split('\n').map((line, i) => (
+                <p key={i} className="mb-1">{line}</p>
+              ))}
+            </div>
+            
+            <div className="mt-3">
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="bg-orange-700 hover:bg-orange-600 text-white"
+                onClick={() => window.open('https://console.firebase.google.com/project/_/authentication/providers', '_blank')}
+              >
+                <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                فتح إعدادات Firebase
+              </Button>
+            </div>
+          </AlertDescription>
         </div>
-        
-        <p className="text-gray-300 text-sm">
-          بعد الإضافة، قم بإعادة تحميل الصفحة ومحاولة تسجيل الدخول باستخدام Google مجددًا.
-        </p>
-      </AlertDescription>
+      </div>
     </Alert>
   );
 }

@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 
 /**
  * مكون لعرض رسالة ترحيبية مخصصة بناءً على دور المستخدم بعد تسجيل الدخول
@@ -17,7 +17,7 @@ import { useNavigate } from 'wouter';
 export default function WelcomeMessage() {
   const { user } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
-  const [navigateTo, navigate] = useNavigate();
+  const [_, navigate] = useLocation();
   const [showNewUser, setShowNewUser] = useState(false);
   
   // التحقق من وجود علامة تشير إلى أن المستخدم قد سجل دخوله للتو
