@@ -217,7 +217,7 @@ export default function Login() {
       }
       
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('خطأ في تسجيل الدخول باستخدام Google:', error);
       throw error;
     }
@@ -251,7 +251,7 @@ export default function Login() {
       }
       
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('خطأ في تسجيل الدخول كزائر:', error);
       throw error;
     }
