@@ -1,0 +1,53 @@
+Authenticate with Firebase in JavaScript Using a Custom Authentication System 
+
+bookmark_border
+You can integrate Firebase Authentication with a custom authentication system by modifying your authentication server to produce custom signed tokens when a user successfully signs in. Your app receives this token and uses it to authenticate with Firebase.
+
+Before you begin
+Add Firebase to your JavaScript project.
+Get your project's server keys:
+Go to the Service Accounts page in your project's settings.
+Click Generate New Private Key at the bottom of the Firebase Admin SDK section of the Service Accounts page.
+The new service account's public/private key pair is automatically saved on your computer. Copy this file to your authentication server.
+Authenticate with Firebase
+When users sign in to your app, send their sign-in credentials (for example, their username and password) to your authentication server. Your server checks the credentials and returns a custom token if they are valid.
+After you receive the custom token from your authentication server, pass it to signInWithCustomToken to sign in the user:
+Web
+Web
+
+import { getAuth, signInWithCustomToken } from "firebase/auth";
+
+const auth = getAuth();
+signInWithCustomToken(auth, token)
+  .then((userCredential) => {
+    // Signed in
+    const user = userCredential.user;
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // ...
+  });
+Next steps
+After a user signs in for the first time, a new user account is created and linked to the credentials—that is, the user name and password, phone number, or auth provider information—the user signed in with. This new account is stored as part of your Firebase project, and can be used to identify a user across every app in your project, regardless of how the user signs in.
+
+In your apps, the recommended way to know the auth status of your user is to set an observer on the Auth object. You can then get the user's basic profile information from the User object. See Manage Users.
+
+In your Firebase Realtime Database and Cloud Storage Security Rules, you can get the signed-in user's unique user ID from the auth variable, and use it to control what data a user can access.
+
+You can allow users to sign in to your app using multiple authentication providers by linking auth provider credentials to an existing user account.
+
+To sign out a user, call signOut:
+
+Web
+Web
+
+import { getAuth, signOut } from "firebase/auth";
+
+const auth = getAuth();
+signOut(auth).then(() => {
+  // Sign-out successful.
+}).catch((error) => {
+  // An error happened.
+});
