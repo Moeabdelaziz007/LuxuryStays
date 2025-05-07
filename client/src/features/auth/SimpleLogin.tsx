@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { auth, db } from "@/lib/firebase";
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, GoogleAuthProvider } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -77,49 +77,48 @@ export default function SimpleLogin() {
     }
   };
 
-  // تسجيل الدخول باستخدام Google
+  // تسجيل الدخول باستخدام Google - مع إعدادات محددة لعنوان إعادة التوجيه
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError("");
 
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
       
-      // إضافة المستخدم إلى Firestore إذا لم يكن موجودًا
-      if (result.user && db) {
-        const userRef = doc(db, "users", result.user.uid);
-        const userDoc = await getDoc(userRef);
-        
-        if (!userDoc.exists()) {
-          await setDoc(userRef, {
-            uid: result.user.uid,
-            email: result.user.email,
-            name: result.user.displayName || "مستخدم Google",
-            role: "CUSTOMER",
-            createdAt: new Date().toISOString(),
-            photoURL: result.user.photoURL
-          });
-        }
-      }
+      // إضافة نطاقات الوصول المطلوبة
+      provider.addScope('email');
+      provider.addScope('profile');
       
-      // إظهار رسالة نجاح
-      toast({
-        title: "تم تسجيل الدخول بنجاح",
-        description: "مرحبًا بك في تطبيق StayX",
-        variant: "default",
+      // تعيين إعدادات خاصة للمزود لضمان عمل إعادة التوجيه بشكل صحيح
+      // استخدام نفس عنوان Firebase المعتمد
+      provider.setCustomParameters({
+        'login_hint': 'الرجاء اختيار حساب Google الخاص بك',
+        'prompt': 'select_account'
       });
-
-      // توجيه المستخدم إلى الصفحة الرئيسية
-      navigate("/dashboard/customer");
+      
+      console.log("محاولة تسجيل الدخول باستخدام Google...");
+      
+      // استخدام طريقة signInWithRedirect بدلاً من signInWithPopup لتجنب مشاكل النافذة المنبثقة
+      // تذكر: هذا سيقوم بإعادة تحميل الصفحة، لذلك لن يتم تنفيذ أي كود بعده
+      await signInWithRedirect(auth, provider);
+      
+      // ملاحظة: هذا الكود لن يتم تنفيذه بسبب إعادة التوجيه
+      // سيتم معالجة نتيجة تسجيل الدخول في مكون RedirectHandler في App.tsx
+      
     } catch (err: any) {
-      // معالجة الأخطاء
       console.error("خطأ في تسجيل الدخول باستخدام Google:", err);
       
+      // عرض رسالة خطأ مناسبة للمستخدم
       if (err.code === 'auth/popup-closed-by-user') {
         setError("تم إغلاق نافذة تسجيل الدخول");
       } else if (err.code === 'auth/unauthorized-domain') {
-        setError("هذا النطاق غير مصرح به للمصادقة. يرجى المحاولة بطريقة أخرى.");
+        setError("نطاق التطبيق غير مصرح به. يرجى المحاولة بطريقة أخرى.");
+      } else if (err.code === 'auth/redirect-cancelled-by-user') {
+        setError("تم إلغاء عملية تسجيل الدخول من قبل المستخدم");
+      } else if (err.code === 'auth/redirect-operation-pending') {
+        setError("هناك عملية تسجيل دخول جارية بالفعل");
+      } else if (err.code === 'auth/network-request-failed') {
+        setError("فشل في الاتصال بالشبكة. تحقق من اتصالك بالإنترنت.");
       } else {
         setError(err.message || "حدث خطأ أثناء تسجيل الدخول باستخدام Google");
       }

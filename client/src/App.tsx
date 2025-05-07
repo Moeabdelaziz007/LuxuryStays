@@ -2,9 +2,8 @@ import { useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "./contexts/auth-context";
-import { useEffect, useState } from "react";
-import { UserRole } from "./features/auth/types";
-import Header from "./components/layout/Header";
+import { useEffect } from "react";
+import { UserRole } from "@shared/schema";
 import SmartHeader from "./components/layout/SmartHeader";
 import Footer from "./components/layout/Footer";
 import { getAuth, getRedirectResult } from "firebase/auth";
@@ -12,119 +11,101 @@ import DatabaseConnectionStatus from "./components/DatabaseConnectionStatus";
 import WelcomeMessage from "./components/WelcomeMessage";
 import GoogleAuthDomainAlert from "./components/GoogleAuthDomainAlert";
 import AppRoutes from "./routes";
+import { useToast } from "@/hooks/use-toast";
 
 function RedirectHandler() {
   const { user, loading, updateUserInfo } = useAuth();
   const [location, setLocation] = useLocation();
   const auth = getAuth();
+  const { toast } = useToast();
   
-  // Handle redirect result from Google sign-in
+  // معالجة نتيجة تسجيل الدخول بواسطة Google
   useEffect(() => {
     const handleRedirectResult = async () => {
-      // التحقق من وجود معلمات طلب Google Oauth في المسار الحالي
-      const currentUrl = new URL(window.location.href);
-      const hasOauthParams = currentUrl.search.includes('oauth') || 
-                            currentUrl.search.includes('google') || 
-                            currentUrl.search.includes('firebaseui');
-      
-      // التحقق من وجود مؤشر لعملية مصادقة معلقة
-      const pendingAuth = localStorage.getItem('pendingGoogleAuth') === 'true';
-      
       try {
-        console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location });
-        console.log("Checking for redirect result from Google sign-in...");
+        console.log("[DEBUG] تحقق من نتيجة تسجيل الدخول مع Google");
         
-        // إعداد متغيرات للتعامل مع نتيجة إعادة التوجيه
-        let authResult = null;
+        // محاولة الحصول على نتيجة إعادة التوجيه من Firebase
+        const result = await getRedirectResult(auth);
         
-        // تنفيذ التحقق من نتيجة إعادة التوجيه
-        try {
-          // استخدام authDomain من Firebase Hosting
-          const customAuthConfig = {
-            // استخدام نطاق Firebase المعتمد بصرف النظر عن النطاق الحالي
-            authDomain: 'staychill-3ed08.firebaseapp.com'
-          };
+        // إذا كان هناك نتيجة، فهذا يعني أن عملية تسجيل الدخول نجحت
+        if (result) {
+          console.log("✅ تم تسجيل الدخول مع Google بنجاح!");
+          console.log("البريد الإلكتروني:", result.user.email);
+          console.log("الاسم:", result.user.displayName);
           
-          // محاولة الحصول على نتيجة إعادة التوجيه
-          authResult = await getRedirectResult(auth);
-        } catch (redirectError) {
-          console.error("Error getting redirect result:", redirectError);
-          
-          if (redirectError.code === 'auth/unauthorized-domain') {
-            console.error(`Firebase domain error: "${window.location.host}" not in authorized domains!`);
-            console.error("Using alternative Firebase hosting domain for authentication");
-            
-            // قم بعرض تنبيه للمستخدم ليعرف لماذا سيتم نقله إلى نطاق آخر
-            if (pendingAuth || hasOauthParams) {
-              console.log("Detected pending auth or OAuth parameters - preparing for Firebase domain auth");
-            }
+          // إضافة المستخدم إلى Firestore إذا لم يكن موجودًا
+          if (result.user && updateUserInfo) {
+            updateUserInfo({
+              uid: result.user.uid,
+              email: result.user.email || '',
+              name: result.user.displayName || 'مستخدم Google',
+              role: 'CUSTOMER',
+              createdAt: new Date().toISOString(),
+              photoURL: result.user.photoURL || ''
+            });
           }
           
-          // لا حاجة للتوقف هنا - سنعود إلى النطاق المعتمد
-          authResult = null;
-        }
-        
-        // التعامل مع نتيجة إعادة التوجيه الناجحة
-        if (authResult) {
-          console.log("✅ Google redirect sign-in successful!");
-          console.log("User signed in:", authResult.user.email);
-          console.log("Display name:", authResult.user.displayName);
-          console.log("User ID:", authResult.user.uid);
+          // إظهار رسالة نجاح للمستخدم
+          toast({
+            title: "تم تسجيل الدخول بنجاح",
+            description: "مرحبًا بك في تطبيق StayX!",
+            variant: "default",
+          });
           
-          // استرجاع مسار إعادة التوجيه المحفوظ
-          let savedRedirectPath = localStorage.getItem('googleAuthRedirectPath');
-          
-          // مسح متغير عملية المصادقة المعلقة
-          localStorage.removeItem('pendingGoogleAuth');
-          
-          if (savedRedirectPath) {
-            console.log("Redirecting to saved path after Google login:", savedRedirectPath);
-            localStorage.removeItem('googleAuthRedirectPath'); // Clear it after use
-            setLocation(savedRedirectPath);
-          } else {
-            // Redirect based on role if available in the token
-            const idTokenResult = await authResult.user.getIdTokenResult();
-            const role = idTokenResult.claims.role;
-            
-            if (role) {
-              console.log("User role from token:", role);
-              if (role === UserRole.SUPER_ADMIN) {
-                setLocation('/super-admin');
-              } else if (role === UserRole.PROPERTY_ADMIN) {
-                setLocation('/property-admin');
-              } else {
+          // توجيه المستخدم إلى لوحة التحكم المناسبة
+          if (user && user.role) {
+            switch (user.role) {
+              case UserRole.CUSTOMER:
                 setLocation('/customer');
-              }
-            } else {
-              // Default to homepage if no specific role or redirect
-              setLocation('/');
+                break;
+              case UserRole.PROPERTY_ADMIN:
+                setLocation('/property-admin');
+                break;
+              case UserRole.SUPER_ADMIN:
+                setLocation('/super-admin');
+                break;
+              default:
+                setLocation('/');
+                break;
             }
+          } else {
+            // افتراضيًا نوجه إلى لوحة تحكم العميل
+            setLocation('/customer');
           }
         } else {
-          console.log("No redirect result found");
+          console.log("لا توجد نتيجة إعادة توجيه من Google");
         }
       } catch (error: any) {
-        console.error("❌ Error handling Google redirect result:", error);
-        console.error("Error code:", error.code);
-        console.error("Error message:", error.message);
+        console.error("❌ خطأ في معالجة نتيجة إعادة التوجيه:", error);
         
+        // عرض رسالة خطأ للمستخدم
         if (error.code === 'auth/unauthorized-domain') {
-          console.error("Unauthorized domain. Please add current domain to Firebase Auth settings");
+          console.error("النطاق غير مصرح به في إعدادات Firebase");
+          toast({
+            title: "خطأ في تسجيل الدخول",
+            description: "هذا النطاق غير مصرح به في إعدادات Firebase. يرجى إضافته في لوحة تحكم Firebase.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "خطأ في تسجيل الدخول",
+            description: "حدث خطأ أثناء تسجيل الدخول مع Google. يرجى المحاولة مرة أخرى.",
+            variant: "destructive",
+          });
         }
       }
     };
     
-    // Always check for redirect results since the page could have loaded from a redirect
+    // تنفيذ معالجة نتيجة إعادة التوجيه عند كل تحميل للصفحة
     handleRedirectResult();
-  }, [auth, user, loading, setLocation, location]);
+  }, [auth, user, loading, setLocation, toast, updateUserInfo]);
   
-  // Regular auth state redirect handling
+  // توجيه المستخدم المصادق إلى لوحة التحكم المناسبة إذا حاول الوصول إلى صفحات تسجيل الدخول
   useEffect(() => {
-    console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location });
-    
     // سنقوم فقط بتوجيه المستخدم المسجل إذا كان في صفحة تسجيل الدخول أو التسجيل
     if (!loading && user) {
-      const authPages = ['/login', '/signup'];
+      const authPages = ['/login', '/signup', '/auth'];
       
       // قم بالتوجيه فقط إذا كان المستخدم على صفحة مصادقة ولديه صلاحيات
       if (authPages.includes(location) && user.role) {
@@ -132,20 +113,20 @@ function RedirectHandler() {
         
         switch (user.role) {
           case UserRole.CUSTOMER:
-            dashboardPath = '/dashboard/customer';
+            dashboardPath = '/customer';
             break;
           case UserRole.PROPERTY_ADMIN:
-            dashboardPath = '/dashboard/property-admin';
+            dashboardPath = '/property-admin';
             break;
           case UserRole.SUPER_ADMIN:
-            dashboardPath = '/dashboard/super-admin';
+            dashboardPath = '/super-admin';
             break;
           default:
             dashboardPath = '/';
             break;
         }
         
-        console.log(`[DEBUG] Redirecting authenticated user to dashboard: ${dashboardPath}`);
+        console.log(`[DEBUG] توجيه المستخدم المصادق إلى لوحة التحكم: ${dashboardPath}`);
         setLocation(dashboardPath);
       }
     }
@@ -155,7 +136,7 @@ function RedirectHandler() {
 }
 
 function App() {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const { loading } = useAuth();
   
   // نعرض Header و Footer فقط في الصفحات العامة
@@ -163,21 +144,6 @@ function App() {
                            !location.includes('/property-admin') && 
                            !location.includes('/customer') &&
                            !location.includes('/splash');
-  const auth = getAuth();
-  
-  // عند تحميل التطبيق لأول مرة، قم بالانتقال إلى صفحة البداية
-  useEffect(() => {
-    const hasVisited = sessionStorage.getItem('visited');
-    
-    // تأكد من عدم الانتقال إلى صفحة البداية إذا كان المستخدم قد قام بتنقل يدوي بالفعل
-    if (location === '/' && !loading && !hasVisited) {
-      sessionStorage.setItem('visited', 'true');
-      setLocation('/splash');
-    }
-  }, [location, loading, setLocation]);
-  
-  // نستخدم RedirectHandler للتعامل مع جميع عمليات إعادة التوجيه من مزودي المصادقة
-  // تم إزالة معالجة إعادة التوجيه الإضافية هنا لتجنب التداخل والتكرار
 
   return (
     <TooltipProvider>
