@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -8,8 +9,8 @@ import GoogleLoginWarning from "@/components/GoogleLoginWarning";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/auth-context";
 
-// صفحة تسجيل الدخول
-export default function LoginNew() {
+// صفحة تسجيل الدخول البسيطة
+export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
@@ -17,10 +18,11 @@ export default function LoginNew() {
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [location, navigate] = useLocation();
   const { toast } = useToast();
-  const { loginWithGoogle, loginAnonymously } = useAuth();
+  const { loginWithGoogle, loginAnonymously, loading: authLoading } = useAuth();
   const [showGoogleWarning, setShowGoogleWarning] = useState(false);
   
-  // Helper function for toast styling
+  // Helper function to get a unique ID for toast notifications
+  // Helper function for toast styling - we don't actually need random IDs
   const getSuccessToast = (title: string, description: string) => ({
     title,
     description,
@@ -56,12 +58,15 @@ export default function LoginNew() {
     
     if (redirect) {
       setRedirectPath(redirect);
+      
+      // عرض رسالة للمستخدم
       toast(getWarningToast(
         "تحتاج إلى تسجيل الدخول ⚠️",
         "يرجى تسجيل الدخول للوصول إلى الصفحة المطلوبة"
       ));
     }
     
+    // التحقق من وجود معلمة reset=success (بعد عودة المستخدم من إعادة تعيين كلمة المرور)
     if (reset === 'success') {
       toast(getSuccessToast(
         "تم تغيير كلمة المرور بنجاح ✅",
@@ -70,12 +75,13 @@ export default function LoginNew() {
     }
   }, [toast]);
   
-  // عرض رسالة إعادة التوجيه
+  // عرض رسالة ترحيبية مع معلومات حول إعادة التوجيه
   const renderRedirectMessage = () => {
     if (!redirectPath) return null;
     
     let pageName = "الصفحة المطلوبة";
     
+    // تحديد نوع الصفحة بناءً على مسار إعادة التوجيه
     if (redirectPath.includes('booking')) {
       pageName = "صفحة الحجز";
     } else if (redirectPath.includes('property')) {
@@ -95,53 +101,70 @@ export default function LoginNew() {
     );
   };
 
-  // تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور
   const handleLogin = async (e: React.FormEvent, email: string, password: string) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     
     try {
+      console.log("جاري تسجيل الدخول باستخدام البريد الإلكتروني:", email);
+      
+      // التحقق من توفر Firebase
       if (!auth) {
         throw new Error("خدمة المصادقة غير متوفرة حالياً، الرجاء المحاولة لاحقاً");
       }
       
+      // تنبيه (لكن لا تمنع) إذا كانت Firestore غير متاحة
+      if (!db) {
+        console.warn("خدمة Firestore غير متاحة - ستعمل المصادقة بدون تخزين بيانات المستخدم الكاملة");
+      }
+      
+      // استخدام Firebase للمصادقة
       const userCred = await signInWithEmailAndPassword(auth, email, password);
       
+      // التحقق من وجود المستخدم في Firestore
       if (db) {
         try {
           const userRef = doc(db, "users", userCred.user.uid);
           const userSnap = await getDoc(userRef);
           
           if (!userSnap.exists()) {
+            // إنشاء مستخدم جديد في Firestore إذا لم يكن موجودًا
             const userProfile = {
               uid: userCred.user.uid,
               email: userCred.user.email,
               name: userCred.user.displayName || email.split('@')[0] || 'مستخدم جديد',
-              role: "CUSTOMER",
+              role: "CUSTOMER", // دور افتراضي
               createdAt: new Date().toISOString(),
               photoURL: userCred.user.photoURL || null,
             };
             
+            console.log("إنشاء مستخدم جديد في Firestore:", userProfile.email);
+            
+            // محاولة حفظ البيانات في Firestore
             try {
               await setDoc(userRef, userProfile);
+              console.log("تم حفظ بيانات المستخدم بنجاح في Firestore");
               toast(getSuccessToast(
                 "تم تسجيل الدخول بنجاح",
                 "مرحباً بك في منصة StayX!"
               ));
             } catch (firestoreError) {
+              console.error("فشل حفظ بيانات المستخدم في Firestore:", firestoreError);
               toast(getWarningToast(
                 "تم تسجيل الدخول لكن مع تحذير",
-                "تم تسجيل دخولك بنجاح ولكن قد تكون هناك مشكلة في حفظ بياناتك."
+                "تم تسجيل دخولك بنجاح ولكن قد تكون هناك مشكلة في حفظ بياناتك. ستظل قادراً على استخدام الموقع."
               ));
             }
           } else {
+            // تسجيل دخول مستخدم موجود
             toast(getSuccessToast(
               "تم تسجيل الدخول بنجاح",
               `مرحباً بعودتك!`
             ));
           }
         } catch (firestoreError) {
+          console.error("خطأ في التفاعل مع Firestore:", firestoreError);
           toast(getWarningToast(
             "تم تسجيل الدخول مع تحذير",
             "تم تسجيل دخولك ولكن قد تكون هناك مشكلة في الوصول إلى بياناتك."
@@ -149,6 +172,7 @@ export default function LoginNew() {
         }
       }
       
+      // التوجيه بعد تسجيل الدخول
       setTimeout(() => {
         if (redirectPath) {
           navigate(redirectPath);
@@ -158,6 +182,9 @@ export default function LoginNew() {
       }, 1000);
       
     } catch (err: any) {
+      console.error("خطأ في تسجيل الدخول:", err);
+      
+      // رسائل خطأ مخصصة أكثر وضوحاً للمستخدم مع نصائح للمساعدة
       const errorMessages: Record<string, string> = {
         'auth/invalid-credential': "البريد الإلكتروني أو كلمة المرور غير صحيحة. الرجاء التحقق وإعادة المحاولة.",
         'auth/invalid-email': "يرجى إدخال بريد إلكتروني صالح.",
@@ -165,28 +192,42 @@ export default function LoginNew() {
         'auth/wrong-password': "كلمة المرور غير صحيحة. الرجاء التحقق منها والمحاولة مرة أخرى.",
         'auth/too-many-requests': "تم إجراء عدة محاولات خاطئة. الرجاء المحاولة بعد قليل أو استخدام خيار 'نسيت كلمة المرور'.",
         'auth/network-request-failed': "يبدو أن هناك مشكلة في الاتصال بالإنترنت. الرجاء التحقق من اتصالك والمحاولة مرة أخرى.",
+        'auth/email-already-in-use': "هذا البريد الإلكتروني مستخدم بالفعل. الرجاء تسجيل الدخول أو استخدام بريد إلكتروني آخر.",
+        'auth/weak-password': "كلمة المرور ضعيفة جدًا. الرجاء استخدام كلمة مرور أقوى تحتوي على 8 أحرف على الأقل.",
+        'auth/operation-not-allowed': "تسجيل الدخول بهذه الطريقة غير مسموح به حاليًا. الرجاء التواصل مع الدعم الفني.",
+        'auth/account-exists-with-different-credential': "يوجد حساب بهذا البريد الإلكتروني ولكن باستخدام طريقة تسجيل دخول مختلفة. حاول تسجيل الدخول بطريقة أخرى.",
+        'auth/popup-closed-by-user': "تم إغلاق نافذة تسجيل الدخول قبل اكتمال العملية. الرجاء المحاولة مرة أخرى."
       };
       
+      // عرض رسالة الخطأ المناسبة أو رسالة عامة إذا كان الخطأ غير معروف
       setError(errorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول، الرجاء المحاولة مرة أخرى");
     } finally {
       setLoading(false);
     }
   };
 
-  // تسجيل الدخول كزائر
   const handleGuestLogin = async () => {
     setError("");
     setGuestLoading(true);
     
     try {
+      console.log("بدء تسجيل الدخول كزائر...");
+      
+      // استخدام دالة loginAnonymously من سياق المصادقة
       await loginAnonymously(redirectPath || undefined);
       
+      // عرض رسالة نجاح
       toast(getSuccessToast(
         "تم تسجيل الدخول كزائر",
         "مرحباً بك في منصة StayX! يمكنك تصفح المنصة بدون إنشاء حساب."
       ));
       
+      // التوجيه سيتم تلقائيًا بواسطة سياق المصادقة
+      
     } catch (err: any) {
+      console.error("خطأ في تسجيل الدخول كزائر:", err);
+      
+      // رسائل الخطأ المحتملة
       const anonymousErrorMessages: Record<string, string> = {
         'auth/operation-not-allowed': "تسجيل الدخول كزائر غير مُفعل في هذا التطبيق.",
         'auth/admin-restricted-operation': "تسجيل الدخول كزائر غير متاح حاليًا. الرجاء استخدام طريقة أخرى.",
@@ -197,7 +238,7 @@ export default function LoginNew() {
       
       toast({
         title: "فشل تسجيل الدخول",
-        description: anonymousErrorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول كزائر",
+        description: anonymousErrorMessages[err.code] || err.message || "حدث خطأ أثناء تسجيل الدخول كزائر، الرجاء المحاولة لاحقًا",
         variant: "destructive",
       });
     } finally {
@@ -205,43 +246,104 @@ export default function LoginNew() {
     }
   };
 
-  // تسجيل الدخول باستخدام Google
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
+      // Check if the current domain is in the list of authorized domains we know are configured
+      // الحصول على النطاق الحالي باستخدام window.location.host
       const currentDomain = window.location.host;
       
+      // قائمة النطاقات المصرح بها مسبقًا
       const knownAuthorizedDomains = [
         'localhost',
         'staychill-3ed08.firebaseapp.com',
         'staychill-3ed08.web.app',
         'f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev',
         'luxury-stays-mohamedabdela18.replit.app',
+        // إضافة النطاق الحالي تلقائيًا إذا كان مختلفًا
         currentDomain
       ];
       
       const isDomainAuthorized = knownAuthorizedDomains.includes(currentDomain);
       
       if (!isDomainAuthorized) {
+        // If domain is not in our known list, show the warning dialog
         setShowGoogleWarning(true);
         setGoogleLoading(false);
         return;
       }
       
+      // If domain is authorized, try to sign in with Google
+      console.log("محاولة تسجيل الدخول باستخدام Google...");
+      
+      // Use auth context login method instead of direct Firebase call
+      // The auth context will handle the redirect path automatically
       await loginWithGoogle();
       
+      // Handle successful login
       toast(getSuccessToast(
         "تم تسجيل الدخول بنجاح",
         "مرحباً بك في منصة StayX!"
       ));
       
+      // Navigation will be handled in the auth context after successful login
+      
     } catch (error: any) {
+      console.error("فشل تسجيل الدخول باستخدام Google:", error);
+      
+      // تحسين معالجة أخطاء تسجيل الدخول بـ Google
+      const googleErrorMessages: Record<string, { title: string, description: string }> = {
+        'auth/unauthorized-domain': {
+          title: "نطاق غير مصرح به",
+          description: "النطاق الحالي غير مصرح به في إعدادات Firebase. سيتم فتح نافذة المساعدة."
+        },
+        'auth/popup-blocked': {
+          title: "تم حظر النافذة المنبثقة",
+          description: "يرجى السماح بالنوافذ المنبثقة في متصفحك ثم المحاولة مرة أخرى"
+        },
+        'auth/popup-closed-by-user': {
+          title: "تم إغلاق النافذة",
+          description: "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية. حاول مرة أخرى."
+        },
+        'auth/network-request-failed': {
+          title: "مشكلة في الاتصال",
+          description: "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى"
+        },
+        'auth/cancelled-popup-request': {
+          title: "تم إلغاء الطلب",
+          description: "تم إلغاء عملية تسجيل الدخول. يرجى المحاولة مرة أخرى."
+        },
+        'auth/account-exists-with-different-credential': {
+          title: "الحساب موجود بطريقة تسجيل دخول مختلفة",
+          description: "يوجد حساب بهذا البريد الإلكتروني مرتبط بطريقة تسجيل دخول أخرى. حاول تسجيل الدخول بالطريقة المناسبة."
+        },
+        'auth/user-disabled': {
+          title: "الحساب معطل",
+          description: "تم تعطيل هذا الحساب. يرجى التواصل مع فريق الدعم للمساعدة."
+        },
+        'auth/operation-not-allowed': {
+          title: "تسجيل الدخول غير مسموح",
+          description: "تسجيل الدخول باستخدام Google غير مفعل حاليًا. يرجى استخدام طريقة أخرى للتسجيل."
+        },
+        'auth/timeout': {
+          title: "انتهت مهلة الاتصال",
+          description: "استغرقت العملية وقتًا طويلاً. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى."
+        }
+      };
+      
       if (error.code === 'auth/unauthorized-domain') {
+        // في حالة النطاق غير المصرح به، نعرض واجهة المساعدة الخاصة
         setShowGoogleWarning(true);
       } else {
-        toast({
+        // استخدام قائمة رسائل الخطأ المحسنة
+        const errorInfo = googleErrorMessages[error.code] || {
           title: "خطأ في تسجيل الدخول",
-          description: error.message || "حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google",
+          description: error.message || "حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google"
+        };
+        
+        toast({
+          title: errorInfo.title,
+          description: errorInfo.description,
           variant: "destructive",
         });
       }
@@ -249,6 +351,8 @@ export default function LoginNew() {
       setGoogleLoading(false);
     }
   };
+  
+  // تم إزالة وظيفة تسجيل الدخول باستخدام Facebook حتى نقوم بتكوينها بشكل صحيح في المستقبل
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white relative overflow-hidden">
@@ -264,6 +368,7 @@ export default function LoginNew() {
           <div className="absolute h-1 w-1 rounded-full bg-[#39FF14] top-[35%] left-[80%] animate-ping" style={{animationDelay: '1.2s'}}></div>
           <div className="absolute h-1 w-1 rounded-full bg-[#39FF14] top-[80%] left-[15%] animate-ping" style={{animationDelay: '0.8s'}}></div>
           <div className="absolute h-1 w-1 rounded-full bg-[#39FF14] top-[10%] left-[50%] animate-ping" style={{animationDelay: '1.5s'}}></div>
+          <div className="absolute h-1 w-1 rounded-full bg-[#39FF14] top-[45%] left-[20%] animate-ping" style={{animationDelay: '0.3s'}}></div>
         </div>
         
         {/* Neon glow effects */}
@@ -277,19 +382,50 @@ export default function LoginNew() {
         {/* Form Container */}
         <div className="relative w-full md:w-1/2 px-4 sm:px-6 lg:px-8 z-10">
           <div className="backdrop-blur-lg bg-black/40 p-5 sm:p-8 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.3)] 
-            border border-[#39FF14]/20 relative overflow-hidden">
+            border border-[#39FF14]/20 relative overflow-hidden
+            transform transition-all duration-500 hover:shadow-[0_0_40px_rgba(57,255,20,0.15)]">
             
             {/* Background glow effect */}
             <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 w-40 h-40 bg-[#39FF14]/10 rounded-full blur-[80px] opacity-70"></div>
+            
+            {/* Circuitry decorations */}
+            <div className="absolute top-0 right-0 w-[140px] h-[140px] opacity-20 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#39FF14" strokeWidth="0.5">
+                <circle cx="90" cy="10" r="2" fill="#39FF14" stroke="none"/>
+                <path d="M90 10 H 60 V 30 H 40 V 60 H 20 V 80" />
+                <circle cx="20" cy="80" r="2" fill="#39FF14" stroke="none"/>
+                <path d="M60 30 H 80 V 50" />
+                <circle cx="80" cy="50" r="2" fill="#39FF14" stroke="none"/>
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-0 left-0 w-[140px] h-[140px] opacity-20 pointer-events-none transform rotate-180">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#39FF14" strokeWidth="0.5">
+                <circle cx="90" cy="10" r="2" fill="#39FF14" stroke="none"/>
+                <path d="M90 10 H 60 V 30 H 40 V 60 H 20 V 80" />
+                <circle cx="20" cy="80" r="2" fill="#39FF14" stroke="none"/>
+                <path d="M60 30 H 80 V 50" />
+                <circle cx="80" cy="50" r="2" fill="#39FF14" stroke="none"/>
+              </svg>
+            </div>
             
             {/* Logo */}
             <div className="text-center mb-8 relative">
               <h1 className="inline-block text-[42px] font-black relative mb-2">
                 <span className="text-[#39FF14] animate-neon-pulse" 
-                      style={{ textShadow: "0 0 5px rgba(57, 255, 20, 0.7), 0 0 10px rgba(57, 255, 20, 0.5)" }}>
+                      style={{ textShadow: "0 0 5px rgba(57, 255, 20, 0.7), 0 0 10px rgba(57, 255, 20, 0.5), 0 0 15px rgba(57, 255, 20, 0.3)" }}>
                   Stay
                 </span>
                 <span className="text-white">X</span>
+                
+                {/* Decorative neon circuit element */}
+                <div className="absolute -top-4 -right-4 w-6 h-6">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="3" stroke="#39FF14" strokeWidth="1" fill="none" className="animate-pulse"/>
+                    <path d="M12 6 V 3" stroke="#39FF14" strokeWidth="1"/>
+                    <path d="M16 8 L 18 6" stroke="#39FF14" strokeWidth="1"/>
+                  </svg>
+                </div>
               </h1>
               <p className="text-lg text-gray-300 flex items-center justify-center gap-2">
                 <span className="h-1 w-10 bg-gradient-to-r from-[#39FF14]/10 via-[#39FF14] to-[#39FF14]/10"></span>
@@ -312,6 +448,7 @@ export default function LoginNew() {
               </div>
             )}
             
+            {/* عرض رسالة إعادة التوجيه إذا كانت موجودة */}
             {renderRedirectMessage()}
             
             <form onSubmit={(e) => {
@@ -337,6 +474,14 @@ export default function LoginNew() {
                   />
                   <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
                       style={{ boxShadow: "0 0 15px rgba(57, 255, 20, 0.3)" }}></div>
+                  
+                  {/* Tech decorative elements */}
+                  <div className="absolute top-1/2 right-3 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#39FF14] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                      <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                  </div>
                 </div>
               </div>
 
@@ -356,6 +501,14 @@ export default function LoginNew() {
                   />
                   <div className="absolute inset-0 rounded-lg transition-opacity opacity-0 group-focus-within:opacity-100 pointer-events-none" 
                       style={{ boxShadow: "0 0 15px rgba(57, 255, 20, 0.3)" }}></div>
+                  
+                  {/* Tech decorative elements */}
+                  <div className="absolute top-1/2 right-3 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#39FF14] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
                 </div>
               </div>
               
@@ -432,7 +585,7 @@ export default function LoginNew() {
             <button 
               type="button"
               onClick={handleGuestLogin} 
-              className="relative group flex items-center justify-center gap-2 bg-transparent border border-[#39FF14]/30 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-lg w-full hover:bg-[#39FF14]/10 transition-all active:scale-[0.98] mt-3"
+              className="relative group flex items-center justify-center gap-2 bg-transparent border border-[#39FF14]/30 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-lg w-full hover:bg-[#39FF14]/10 transition-all active:scale-[0.98]"
               disabled={guestLoading}
             >
               {guestLoading ? (
@@ -479,6 +632,7 @@ export default function LoginNew() {
                       return;
                     }
                     
+                    // Ensure auth is not null before calling sendPasswordResetEmail
                     if (auth) {
                       sendPasswordResetEmail(auth, email)
                         .then(() => {
@@ -502,6 +656,13 @@ export default function LoginNew() {
                           });
                         }
                       });
+                    } else {
+                      // Handle case where auth is null
+                      toast({
+                        title: "خدمة المصادقة غير متوفرة",
+                        description: "لا يمكن إعادة تعيين كلمة المرور حاليًا، الرجاء المحاولة لاحقًا",
+                        variant: "destructive",
+                      });
                     }
                   }}
                 >
@@ -509,71 +670,7 @@ export default function LoginNew() {
                 </button>
               </p>
             </div>
-          </div>
-        </div>
-        
-        {/* Hero Section - Only visible on desktop */}
-        <div className="w-full md:w-1/2 hidden md:flex md:items-center md:justify-center">
-          <div className="space-y-8 p-8">
-            <div className="text-center md:text-right">
-              <h2 className="text-4xl font-bold mb-4">
-                <span className="text-white">منصة حجز العقارات </span>
-                <span className="text-[#39FF14]">الفاخرة</span>
-              </h2>
-              <p className="text-gray-400 text-lg">استمتع بتجربة حجز فريدة من نوعها مع أفضل العقارات الفاخرة في الساحل الشمالي</p>
-            </div>
-            
-            {/* Features Cards */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-black/50 backdrop-blur-sm border border-white/10 p-4 rounded-lg hover:border-[#39FF14]/20 transition-all">
-                <div className="flex items-center mb-2">
-                  <div className="w-8 h-8 bg-[#39FF14]/10 rounded-full flex items-center justify-center mr-3">
-                    <svg className="w-4 h-4 text-[#39FF14]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <h3 className="font-medium">حجز سريع وسهل</h3>
-                </div>
-                <p className="text-sm text-gray-500">احجز عقارك المفضل بخطوات بسيطة وسريعة</p>
-              </div>
-              
-              <div className="bg-black/50 backdrop-blur-sm border border-white/10 p-4 rounded-lg hover:border-[#39FF14]/20 transition-all">
-                <div className="flex items-center mb-2">
-                  <div className="w-8 h-8 bg-[#39FF14]/10 rounded-full flex items-center justify-center mr-3">
-                    <svg className="w-4 h-4 text-[#39FF14]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                    </svg>
-                  </div>
-                  <h3 className="font-medium">خدمات متميزة</h3>
-                </div>
-                <p className="text-sm text-gray-500">خدمات حصرية ومتنوعة تلبي جميع احتياجاتك</p>
-              </div>
-              
-              <div className="bg-black/50 backdrop-blur-sm border border-white/10 p-4 rounded-lg hover:border-[#39FF14]/20 transition-all">
-                <div className="flex items-center mb-2">
-                  <div className="w-8 h-8 bg-[#39FF14]/10 rounded-full flex items-center justify-center mr-3">
-                    <svg className="w-4 h-4 text-[#39FF14]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                  </div>
-                  <h3 className="font-medium">إدارة ذكية</h3>
-                </div>
-                <p className="text-sm text-gray-500">إدارة متكاملة لجميع حجوزاتك وخدماتك الحالية والسابقة</p>
-              </div>
-              
-              <div className="bg-black/50 backdrop-blur-sm border border-white/10 p-4 rounded-lg hover:border-[#39FF14]/20 transition-all">
-                <div className="flex items-center mb-2">
-                  <div className="w-8 h-8 bg-[#39FF14]/10 rounded-full flex items-center justify-center mr-3">
-                    <svg className="w-4 h-4 text-[#39FF14]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                    </svg>
-                  </div>
-                  <h3 className="font-medium">أمان وخصوصية</h3>
-                </div>
-                <p className="text-sm text-gray-500">حماية كاملة لبياناتك وخصوصيتك أثناء الاستخدام</p>
-              </div>
-            </div>
-          </div>
+          </form>
         </div>
       </div>
 

@@ -22,7 +22,7 @@ import RoutingDebugPage from "@/features/public/RoutingDebugPage";
 import SplashScreen from "@/pages/SplashScreen";
 
 // Auth Components
-import LoginPage from "@/features/auth/Login";
+import LoginPage from "@/features/auth/Login"; // Using the fixed login component
 import SignupPage from "@/features/auth/Signup";
 import UnauthorizedPage from "@/features/auth/Unauthorized";
 
