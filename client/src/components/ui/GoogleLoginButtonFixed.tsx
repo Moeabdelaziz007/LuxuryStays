@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import { signInWithPopup, GoogleAuthProvider, signInAnonymously, updateProfile } from 'firebase/auth';
+import { 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signInAnonymously, 
+  updateProfile, 
+  Auth 
+} from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { auth as firebaseAuth, db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 interface GoogleLoginButtonProps {
@@ -20,6 +26,7 @@ export default function GoogleLoginButton({
 }: GoogleLoginButtonProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const auth = firebaseAuth;
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -40,8 +47,7 @@ export default function GoogleLoginButton({
       
       // تسجيل الدخول باستخدام النافذة المنبثقة
       console.log("محاولة تسجيل الدخول عبر Google باستخدام النافذة المنبثقة...");
-      // We use the non-null assertion operator here because we already checked above
-      const result = await signInWithPopup(auth!, provider);
+      const result = await signInWithPopup(auth, provider);
       
       // الحصول على بيانات المستخدم من Google
       const user = result.user;
@@ -106,7 +112,9 @@ export default function GoogleLoginButton({
         
         // محاولة تسجيل الدخول كضيف بدلاً من ذلك
         try {
-          const guestCred = await signInAnonymously(auth!);
+          if (!auth) return;
+          
+          const guestCred = await signInAnonymously(auth);
           
           // تحديث الملف الشخصي للضيف
           await updateProfile(guestCred.user, {

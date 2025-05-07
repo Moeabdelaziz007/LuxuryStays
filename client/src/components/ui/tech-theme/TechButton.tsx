@@ -1,93 +1,106 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { Loader2 } from 'lucide-react';
 
-const buttonVariants = cva(
-  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-[#39FF14] text-black hover:bg-[#39FF14]/90 active:scale-[0.98]",
-        outline: "border border-[#39FF14] text-[#39FF14] bg-transparent hover:bg-[#39FF14]/10 active:scale-[0.98]",
-        ghost: "text-[#39FF14] hover:bg-[#39FF14]/10 hover:text-[#39FF14] active:scale-[0.98]",
-        glowing: "border border-[#39FF14] text-[#39FF14] bg-transparent hover:shadow-[0_0_20px_rgba(57,255,20,0.5)] hover:border-[#39FF14] active:scale-[0.98]",
-        neon: "bg-black text-[#39FF14] border border-[#39FF14] shadow-[0_0_10px_rgba(57,255,20,0.3)] hover:shadow-[0_0_20px_rgba(57,255,20,0.5)] active:scale-[0.98]",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:scale-[0.98]",
-        blue: "bg-[#0088ff] text-white hover:bg-[#0088ff]/90 active:scale-[0.98]",
-        purple: "bg-[#8a2be2] text-white hover:bg-[#8a2be2]/90 active:scale-[0.98]",
-        cyan: "bg-[#00ffff] text-black hover:bg-[#00ffff]/90 active:scale-[0.98]",
-        link: "text-[#39FF14] underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-);
-
-const shimmerVariants = cva(
-  "absolute inset-0 overflow-hidden rounded-md pointer-events-none",
-  {
-    variants: {
-      shimmer: {
-        true: "before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
-        circuit: "after:absolute after:inset-0 after:bg-circuit-pattern after:opacity-10",
-        pulse: "animate-pulse-subtle",
-        none: "",
-      },
-    },
-    defaultVariants: {
-      shimmer: "none",
-    },
-  }
-);
-
-export interface TechButtonProps 
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-  shimmer?: boolean | 'circuit' | 'pulse' | 'none';
-  glowIntensity?: 'low' | 'medium' | 'high';
+interface TechButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success' | 'warning' | 'neon';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  loading?: boolean;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
+  fullWidth?: boolean;
+  withSweepingGlow?: boolean;
 }
 
 const TechButton = React.forwardRef<HTMLButtonElement, TechButtonProps>(
-  ({ className, variant, size, shimmer = 'none', glowIntensity = 'medium', asChild = false, ...props }, ref) => {
-    
-    const getGlowStyle = () => {
-      if (variant !== 'glowing' && variant !== 'neon') return {};
-      
-      switch (glowIntensity) {
-        case 'low':
-          return { boxShadow: '0 0 10px rgba(57, 255, 20, 0.3)' };
-        case 'high':
-          return { boxShadow: '0 0 30px rgba(57, 255, 20, 0.7)' };
-        case 'medium':
-        default:
-          return { boxShadow: '0 0 20px rgba(57, 255, 20, 0.5)' };
+  ({
+    children,
+    className = '',
+    variant = 'default',
+    size = 'md',
+    loading = false,
+    icon,
+    iconPosition = 'left',
+    fullWidth = false,
+    withSweepingGlow = true,
+    ...props
+  }, ref) => {
+    // تحديد الأحجام
+    const getSizeClasses = () => {
+      switch (size) {
+        case 'sm':
+          return 'py-1.5 px-3 text-sm';
+        case 'lg':
+          return 'py-3 px-6 text-lg';
+        case 'xl':
+          return 'py-4 px-8 text-xl';
+        default: // medium
+          return 'py-2.5 px-5';
       }
     };
     
+    // تحديد أنماط الأزرار
+    const getVariantClasses = () => {
+      switch (variant) {
+        case 'primary':
+          return 'bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white border border-blue-700 hover:border-blue-600';
+        case 'secondary':
+          return 'bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white border border-gray-600 hover:border-gray-500';
+        case 'outline':
+          return 'bg-transparent hover:bg-gray-900/30 text-gray-300 border border-gray-700 hover:border-gray-600';
+        case 'ghost':
+          return 'bg-transparent hover:bg-white/5 text-gray-300 border-0';
+        case 'danger':
+          return 'bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white border border-red-700 hover:border-red-600';
+        case 'success':
+          return 'bg-gradient-to-r from-green-900 to-green-800 hover:from-green-800 hover:to-green-700 text-white border border-green-700 hover:border-green-600';
+        case 'warning':
+          return 'bg-gradient-to-r from-yellow-900 to-yellow-800 hover:from-yellow-800 hover:to-yellow-700 text-white border border-yellow-700 hover:border-yellow-600';
+        case 'neon':
+          return 'bg-black hover:bg-black/80 text-[#39FF14] border border-[#39FF14]/50 hover:border-[#39FF14] hover:shadow-[0_0_10px_rgba(57,255,20,0.5)]';
+        default: // default tech theme
+          return 'bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white border border-gray-700 hover:border-[#39FF14]/50 hover:shadow-[0_0_10px_rgba(57,255,20,0.2)]';
+      }
+    };
+    
+    const widthClass = fullWidth ? 'w-full' : '';
+    
+    // تأثير التوهج المتحرك
+    const sweepingGlowClass = withSweepingGlow ? 'overflow-hidden' : '';
+    const sweepingGlowEffect = withSweepingGlow ? (
+      <div className="absolute inset-0 bg-[linear-gradient(40deg,transparent_25%,rgba(57,255,20,0.1)_50%,transparent_75%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 transform translate-x-[-100%] group-hover:translate-x-[100%]"></div>
+    ) : null;
+    
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        style={getGlowStyle()}
+        className={`relative group font-medium rounded-lg transition-all flex items-center justify-center ${sweepingGlowClass} ${getSizeClasses()} ${getVariantClasses()} ${widthClass} ${loading ? 'opacity-80 cursor-not-allowed' : 'active:scale-[0.98]'} ${className}`}
+        disabled={loading || props.disabled}
         {...props}
       >
-        {props.children}
-        <div className={cn(shimmerVariants({ shimmer }))}></div>
+        {sweepingGlowEffect}
+        
+        <span className="flex items-center justify-center gap-2">
+          {loading ? (
+            <Loader2 className={`animate-spin ${size === 'sm' ? 'h-3 w-3' : size === 'lg' ? 'h-5 w-5' : size === 'xl' ? 'h-6 w-6' : 'h-4 w-4'}`} />
+          ) : (
+            iconPosition === 'left' && icon && <span className="mr-1">{icon}</span>
+          )}
+          
+          {children}
+          
+          {!loading && iconPosition === 'right' && icon && (
+            <span className="ml-1">{icon}</span>
+          )}
+        </span>
+        
+        {variant === 'neon' && (
+          <div className="absolute inset-0 rounded-lg border border-[#39FF14]/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        )}
       </button>
     );
   }
 );
 
-TechButton.displayName = "TechButton";
+TechButton.displayName = 'TechButton';
 
-export { TechButton, buttonVariants };
+export default TechButton;

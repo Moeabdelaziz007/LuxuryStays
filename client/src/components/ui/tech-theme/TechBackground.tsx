@@ -1,149 +1,107 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
 
-export interface TechBackgroundProps {
-  variant?: 'default' | 'grid' | 'stars' | 'circuits' | 'dots' | 'hexagons';
-  intensity?: 'low' | 'medium' | 'high';
-  animated?: boolean;
-  withGradient?: boolean;
-  withParticles?: boolean;
-  children?: React.ReactNode;
+interface TechBackgroundProps {
+  children: React.ReactNode;
   className?: string;
+  variant?: 'default' | 'dark' | 'light' | 'neon';
+  particleDensity?: 'low' | 'medium' | 'high';
+  gridVisible?: boolean;
+  glowEffects?: boolean;
 }
 
-/**
- * TechBackground component - Used for creating tech/space themed backgrounds
- * Can be used as a wrapper around page content
- */
-export function TechBackground({
-  variant = 'default',
-  intensity = 'medium',
-  animated = true,
-  withGradient = true,
-  withParticles = false,
+export default function TechBackground({
   children,
-  className
+  className = '',
+  variant = 'default',
+  particleDensity = 'medium',
+  gridVisible = true,
+  glowEffects = true
 }: TechBackgroundProps) {
-  // Base gradient styles
-  const getGradientStyle = () => {
-    if (!withGradient) return {};
-    
-    return {
-      backgroundImage: 'var(--space-bg-gradient)',
-    };
-  };
-  
-  // Opacity based on intensity
-  const getIntensityValue = () => {
-    switch (intensity) {
-      case 'low': return 0.07;
-      case 'high': return 0.15;
-      case 'medium':
-      default: return 0.1;
-    }
-  };
-  
-  // Different background patterns
-  const getPatternStyle = () => {
-    const opacity = getIntensityValue();
-    
+  // تحديد ألوان الخلفية بناءً على المتغير
+  const getBgClass = () => {
     switch (variant) {
-      case 'grid':
-        return {
-          backgroundImage: 'var(--grid-overlay)',
-          backgroundSize: '50px 50px',
-          backgroundPosition: 'center',
-          opacity,
-        };
-      case 'stars':
-        return {
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%2339FF14' stroke-width='1'%3E%3Ccircle cx='400' cy='400' r='2'/%3E%3Ccircle cx='100' cy='100' r='1'/%3E%3Ccircle cx='700' cy='100' r='1'/%3E%3Ccircle cx='100' cy='700' r='1'/%3E%3Ccircle cx='700' cy='700' r='1'/%3E%3Ccircle cx='200' cy='200' r='1'/%3E%3Ccircle cx='600' cy='200' r='1'/%3E%3Ccircle cx='200' cy='600' r='1'/%3E%3Ccircle cx='600' cy='600' r='1'/%3E%3Ccircle cx='300' cy='300' r='1'/%3E%3Ccircle cx='500' cy='300' r='1'/%3E%3Ccircle cx='300' cy='500' r='1'/%3E%3Ccircle cx='500' cy='500' r='1'/%3E%3C/g%3E%3C/svg%3E\")",
-          backgroundSize: '150px 150px',
-          backgroundPosition: 'center',
-          opacity,
-        };
-      case 'circuits':
-        return {
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 10 L40 10 L40 30 L60 30 L60 50 L80 50 L80 70' stroke='%2339FF14' stroke-opacity='0.15' fill='none' stroke-width='1'/%3E%3Ccircle cx='20' cy='10' r='2' fill='%2339FF14' fill-opacity='0.2'/%3E%3Ccircle cx='40' cy='10' r='2' fill='%2339FF14' fill-opacity='0.2'/%3E%3Ccircle cx='40' cy='30' r='2' fill='%2339FF14' fill-opacity='0.2'/%3E%3Ccircle cx='60' cy='30' r='2' fill='%2339FF14' fill-opacity='0.2'/%3E%3Ccircle cx='60' cy='50' r='2' fill='%2339FF14' fill-opacity='0.2'/%3E%3Ccircle cx='80' cy='50' r='2' fill='%2339FF14' fill-opacity='0.2'/%3E%3Ccircle cx='80' cy='70' r='2' fill='%2339FF14' fill-opacity='0.2'/%3E%3C/svg%3E\")",
-          backgroundSize: '300px 300px',
-          backgroundPosition: 'center',
-          opacity: opacity * 1.5,
-        };
-      case 'dots':
-        return {
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2339FF14' fill-opacity='0.15'%3E%3Ccircle cx='10' cy='10' r='1'/%3E%3C/g%3E%3C/svg%3E\")",
-          backgroundSize: '20px 20px',
-          opacity,
-        };
-      case 'hexagons':
-        return {
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%2339FF14' fill-opacity='0.1'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM15 4.5L28 12v24L15 43.5 2 36v-24L15 4.5z'/%3E%3C/g%3E%3C/svg%3E\")",
-          backgroundSize: '56px 98px',
-          opacity,
-        };
-      case 'default':
+      case 'dark':
+        return 'bg-black';
+      case 'light':
+        return 'bg-gray-900';
+      case 'neon':
+        return 'bg-black';
       default:
-        return {
-          backgroundImage: 'radial-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px)',
-          backgroundSize: '30px 30px',
-          opacity: opacity * 0.7,
-        };
-    }
-  };
-  
-  // Animation properties for the pattern
-  const getAnimationStyle = () => {
-    if (!animated) return {};
-    
-    switch (variant) {
-      case 'grid':
-        return { animation: 'moveGrid 120s linear infinite' };
-      case 'stars':
-        return { animation: 'twinkleStars 15s ease-in-out infinite' };
-      case 'circuits':
-        return { animation: 'pulseCircuits 20s ease-in-out infinite' };
-      case 'dots':
-        return { animation: 'moveDots 180s linear infinite' };
-      case 'hexagons':
-        return { animation: 'moveHexagons 240s linear infinite' };
-      case 'default':
-      default:
-        return { animation: 'pulse 20s ease-in-out infinite' };
+        return 'bg-black';
     }
   };
 
-  return (
-    <div className={cn("relative min-h-screen w-full overflow-hidden bg-black", className)}>
-      {/* Base background with gradient */}
+  // تحديد عدد الجزيئات بناءً على الكثافة
+  const getParticleCount = () => {
+    switch (particleDensity) {
+      case 'low':
+        return 3;
+      case 'high':
+        return 8;
+      default: // medium
+        return 5;
+    }
+  };
+
+  // إنشاء مصفوفة من العناصر المتحركة
+  const particles = Array.from({ length: getParticleCount() }).map((_, index) => {
+    // موقع عشوائي
+    const top = Math.floor(Math.random() * 100);
+    const left = Math.floor(Math.random() * 100);
+    // حجم عشوائي
+    const size = Math.floor(Math.random() * 3) + 1;
+    // تأخير عشوائي للرسوم المتحركة
+    const delay = (Math.random() * 2).toFixed(1);
+    
+    return (
       <div 
-        className="absolute inset-0 z-0" 
-        style={getGradientStyle()} 
-      />
-      
-      {/* Pattern overlay */}
-      <div 
-        className="absolute inset-0 z-0" 
+        key={index} 
+        className="absolute rounded-full bg-[#39FF14] animate-ping" 
         style={{
-          ...getPatternStyle(),
-          ...getAnimationStyle(),
-        }} 
+          top: `${top}%`,
+          left: `${left}%`,
+          height: `${size}px`,
+          width: `${size}px`,
+          animationDelay: `${delay}s`,
+          animationDuration: `${4 + Math.random() * 6}s`
+        }}
       />
-      
-      {/* Optional particle effect */}
-      {withParticles && (
-        <>
-          <div className="stars absolute inset-0 z-0"></div>
-          <div className="stars2 absolute inset-0 z-0"></div>
-          {intensity === 'high' && <div className="stars3 absolute inset-0 z-0"></div>}
-        </>
+    );
+  });
+
+  // إنشاء تأثيرات التوهج
+  const glowSpots = glowEffects ? (
+    <>
+      <div className="absolute h-32 w-32 rounded-full bg-[#39FF14] blur-[80px] opacity-5 top-[30%] left-[60%]"></div>
+      <div className="absolute h-20 w-20 rounded-full bg-[#39FF14] blur-[50px] opacity-5 bottom-[20%] right-[30%]"></div>
+      <div className="absolute h-40 w-40 rounded-full bg-[#39FF14] blur-[100px] opacity-5 top-[10%] right-[10%]"></div>
+    </>
+  ) : null;
+
+  return (
+    <div className={`relative ${getBgClass()} text-white overflow-hidden ${className}`}>
+      {/* شبكة الخلفية */}
+      {gridVisible && (
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KICA8cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgIDxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxMTExMTEiIHN0cm9rZS13aWR0aD0iMC41Ii8+CiAgPC9wYXR0ZXJuPgo8L2RlZnM+CjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiIC8+Cjwvc3ZnPg==')] opacity-20"></div>
       )}
       
-      {/* Content */}
+      {/* تأثيرات الجزيئات */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20">
+        {particles}
+      </div>
+      
+      {/* تأثيرات التوهج */}
+      {glowSpots}
+      
+      {/* المحتوى الرئيسي */}
       <div className="relative z-10">
         {children}
       </div>
+      
+      {/* تأثير التوهج النيون للنمط 'neon' */}
+      {variant === 'neon' && (
+        <div className="absolute inset-0 border border-[#39FF14]/20 shadow-[0_0_20px_rgba(57,255,20,0.3)] rounded-lg pointer-events-none"></div>
+      )}
     </div>
   );
 }
-
-export default TechBackground;

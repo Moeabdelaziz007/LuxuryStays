@@ -8,7 +8,7 @@ import { UserRole } from "@shared/schema";
 import MobileMenu from "./MobileMenu";
 import { Menu, X, Globe } from "lucide-react";
 import Logo from "@/components/Logo";
-import TechButton from "@/components/ui/tech-button";
+import { TechButton } from "@/components/ui/tech-theme";
 import { cn } from "@/lib/utils";
 
 export default function Header() {

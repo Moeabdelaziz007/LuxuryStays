@@ -1,113 +1,105 @@
-import * as React from 'react';
-import { cn } from '@/lib/utils';
+import React, { forwardRef, useState } from 'react';
 
-export interface TechInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  variant?: 'default' | 'outlined' | 'glowing' | 'minimal';
-  neonColor?: 'green' | 'blue' | 'purple' | 'cyan';
-  withIcon?: React.ReactNode;
-  error?: boolean;
-  errorMessage?: string;
+interface TechInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  animate?: boolean;
+  error?: string;
+  icon?: React.ReactNode;
+  variant?: 'default' | 'dark' | 'light' | 'neon';
+  fullWidth?: boolean;
+  withGlow?: boolean;
 }
 
-const TechInput = React.forwardRef<HTMLInputElement, TechInputProps>(
+const TechInput = forwardRef<HTMLInputElement, TechInputProps>(
   ({ 
-    className, 
+    label, 
+    error, 
+    icon, 
     variant = 'default', 
-    neonColor = 'green',
-    withIcon,
-    error = false,
-    errorMessage,
-    label,
-    animate = true,
-    type,
+    fullWidth = true, 
+    withGlow = true,
+    className = '', 
     ...props 
   }, ref) => {
-    const getNeonColorValue = () => {
-      switch (neonColor) {
-        case 'blue': return 'var(--neon-blue)';
-        case 'purple': return 'var(--neon-purple)';
-        case 'cyan': return 'var(--neon-cyan)';
-        case 'green':
-        default: return 'var(--neon-green)';
+    const [isFocused, setIsFocused] = useState(false);
+    
+    // تحديد الألوان بناءً على المتغير
+    const getInputClasses = () => {
+      const baseClasses = 'bg-black/40 border text-white py-3 px-4 rounded-lg backdrop-blur-sm placeholder:text-gray-500 focus:outline-none focus:ring-0';
+      const widthClass = fullWidth ? 'w-full' : '';
+      
+      switch (variant) {
+        case 'dark':
+          return `${baseClasses} border-gray-800 ${isFocused ? 'border-gray-600' : 'hover:border-gray-700'} ${widthClass}`;
+        case 'light':
+          return `${baseClasses} border-gray-700 ${isFocused ? 'border-gray-500' : 'hover:border-gray-600'} ${widthClass}`;
+        case 'neon':
+          return `${baseClasses} border-[#39FF14]/30 ${isFocused ? 'border-[#39FF14]/60' : 'hover:border-[#39FF14]/40'} ${widthClass}`;
+        default:
+          return `${baseClasses} border-gray-800 ${isFocused ? 'border-[#39FF14]/50' : 'hover:border-gray-700'} ${widthClass}`;
       }
     };
     
-    const colorValue = getNeonColorValue();
+    const getContainerClass = () => {
+      return `relative transition-all ${fullWidth ? 'w-full' : 'inline-block'} ${error ? 'mb-6' : 'mb-4'}`;
+    };
     
-    const getVariantClasses = () => {
-      const baseClasses = "flex w-full rounded-md bg-black/50 text-sm ring-offset-background placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50";
+    const getGlowEffect = () => {
+      if (!withGlow) return null;
       
-      switch (variant) {
-        case 'outlined':
-          return cn(baseClasses, `border-2 border-${neonColor === 'green' ? '[#39FF14]' : '[#0088ff]'}/30 focus:border-${neonColor === 'green' ? '[#39FF14]' : '[#0088ff]'}`);
-        case 'glowing':
-          return cn(baseClasses, `border border-${neonColor === 'green' ? '[#39FF14]' : '[#0088ff]'}/50 shadow-[0_0_10px_rgba(${neonColor === 'green' ? '57,255,20' : '0,150,255'},0.2)] focus:shadow-[0_0_15px_rgba(${neonColor === 'green' ? '57,255,20' : '0,150,255'},0.5)]`);
-        case 'minimal':
-          return cn(baseClasses, "border-b-2 rounded-none border-gray-700 hover:border-gray-500 focus:border-[#39FF14]");
-        case 'default':
-        default:
-          return cn(baseClasses, "border border-gray-800 bg-background focus:border-[#39FF14]");
-      }
+      return (
+        <div className={`absolute inset-0 rounded-lg bg-transparent transition-opacity duration-300 pointer-events-none ${isFocused ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="absolute inset-0 rounded-lg bg-[#39FF14]/5 blur-[2px]"></div>
+          {variant === 'neon' && isFocused && (
+            <div className="absolute inset-0 rounded-lg shadow-[0_0_8px_rgba(57,255,20,0.3)]"></div>
+          )}
+        </div>
+      );
     };
 
     return (
-      <div className="w-full">
+      <div className={getContainerClass()}>
         {label && (
-          <label className="block text-sm font-medium mb-1.5 text-gray-300">
+          <label className="block text-sm font-medium text-gray-400 mb-1 mr-1">
             {label}
           </label>
         )}
         
-        <div className={cn("relative group", animate && "transition-all duration-300")}>
-          {withIcon && (
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-gray-100">
-              {withIcon}
+        <div className="relative">
+          {getGlowEffect()}
+          
+          <div className="relative">
+            {icon && (
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
+                {icon}
+              </div>
+            )}
+            
+            <input
+              ref={ref}
+              className={`${getInputClasses()} ${icon ? 'pl-10' : ''} ${className}`}
+              onFocus={(e) => {
+                setIsFocused(true);
+                props.onFocus?.(e);
+              }}
+              onBlur={(e) => {
+                setIsFocused(false);
+                props.onBlur?.(e);
+              }}
+              {...props}
+            />
+          </div>
+          
+          {error && (
+            <div className="absolute -bottom-6 left-0 text-xs text-red-500 mt-1">
+              {error}
             </div>
           )}
-          
-          <input
-            type={type}
-            className={cn(
-              getVariantClasses(),
-              withIcon && "pl-10",
-              error ? "border-red-500 focus:border-red-500" : "",
-              "h-9 p-3 transition-all",
-              animate && "focus:scale-[1.01]",
-              className
-            )}
-            ref={ref}
-            style={{
-              borderColor: error ? 'rgb(239, 68, 68)' : '',
-              boxShadow: variant === 'glowing' && error ? '0 0 15px rgba(239, 68, 68, 0.4)' : ''
-            }}
-            {...props}
-          />
-          
-          {variant === 'glowing' && !error && (
-            <div 
-              className={cn(
-                "absolute inset-0 rounded-md opacity-0 pointer-events-none transition-opacity",
-                "group-focus-within:opacity-100"
-              )}
-              style={{
-                boxShadow: `0 0 15px ${colorValue}50`,
-              }}
-            />
-          )}
         </div>
-        
-        {error && errorMessage && (
-          <div className="text-red-500 text-xs mt-1">
-            {errorMessage}
-          </div>
-        )}
       </div>
     );
   }
 );
 
-TechInput.displayName = "TechInput";
+TechInput.displayName = 'TechInput';
 
-export { TechInput };
+export default TechInput;

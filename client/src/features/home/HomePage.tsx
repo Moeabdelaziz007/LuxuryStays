@@ -4,11 +4,13 @@ import FeaturedProperties from "@/features/home/FeaturedProperties";
 import ServicesSection from "@/features/home/ServicesSection";
 
 // استيراد المكونات الجديدة ذات طابع الفضاء-التقنية
-import { TechBackground } from "@/components/ui/tech-theme/TechBackground";
-import { TechCard } from "@/components/ui/tech-theme/TechCard";
-import { TechButton } from "@/components/ui/tech-theme/TechButton";
-import { TechInput } from "@/components/ui/tech-theme/TechInput";
-import { TechEffects } from "@/components/ui/tech-theme/TechEffects";
+import { 
+  TechBackground, 
+  TechCard, 
+  TechButton, 
+  TechInput, 
+  TechEffects 
+} from "@/components/ui/tech-theme";
 
 export default function HomePage() {
   
@@ -17,31 +19,33 @@ export default function HomePage() {
       {/* ✨ قسم البداية بتأثيرات فضائية-تقنية */}
       <section>
         <TechBackground
-          variant="stars"
-          intensity="high"
-          animated={true}
-          withGradient={true}
-          withParticles={true}
+          variant="default"
+          particleDensity="high"
+          gridVisible={true}
+          glowEffects={true}
           className="min-h-[90vh] md:h-screen flex items-center relative"
         >
           {/* عناصر النيون الطافية - ظاهرة على جميع الشاشات ولكن أصغر على الموبايل */}
-          <TechEffects.NeonGlow 
-            color="green" 
+          <TechEffects 
+            type="glow" 
             intensity="medium" 
-            size="md" 
+            color="#39FF14" 
             className="absolute top-[15%] right-[10%]"
+            withAnimation={true}
           />
-          <TechEffects.NeonGlow 
-            color="blue" 
+          <TechEffects 
+            type="glow" 
             intensity="low" 
-            size="lg" 
+            color="#3498db" 
             className="absolute bottom-[20%] left-[15%] opacity-30"
+            withAnimation={true}
           />
-          <TechEffects.NeonGlow 
-            color="green" 
+          <TechEffects 
+            type="glow" 
             intensity="low" 
-            size="sm" 
+            color="#39FF14" 
             className="absolute top-[40%] left-[5%]"
+            withAnimation={true}
           />
           
           {/* المحتوى الرئيسي */}
@@ -50,11 +54,12 @@ export default function HomePage() {
             <div className="w-full md:w-1/2 text-center md:text-right mb-8 md:mb-0">
               <div className="relative">
                 {/* إبراز متحرك */}
-                <TechEffects.NeonGlow
-                  color="green"
+                <TechEffects
+                  type="glow"
                   intensity="low"
-                  size="sm"
+                  color="#39FF14"
                   className="absolute -top-10 right-1/2 md:-right-10 transform translate-x-1/2 md:translate-x-0"
+                  withAnimation={true}
                 />
                 
                 {/* اسم العلامة التجارية */}
@@ -248,11 +253,12 @@ export default function HomePage() {
           animated={true}
           withGradient={true}
         >
-          <TechEffects.ScannerEffect 
-            color="green" 
-            orientation="horizontal" 
-            duration="slow"
+          <TechEffects 
+            type="scanlines" 
+            intensity="medium" 
+            color="#39FF14" 
             className="absolute inset-x-0 top-1/3 h-12 opacity-30"
+            withAnimation={true}
           />
           
           <h2 className="text-4xl font-bold mb-10 text-center text-neon-green">الخدمات المتوفرة</h2>
@@ -342,13 +348,7 @@ export default function HomePage() {
           </div>
           
           {/* خط نيون أفقي قبل الـ Footer */}
-          <TechEffects.NeonLine 
-            orientation="horizontal"
-            length="100%"
-            thickness="thin"
-            glowing={true}
-            className="mt-16 mb-2 mx-auto max-w-4xl"
-          />
+          <div className="mt-16 mb-2 mx-auto max-w-4xl h-px bg-gradient-to-r from-transparent via-[#39FF14]/70 to-transparent"></div>
         </TechBackground>
       </section>
 
