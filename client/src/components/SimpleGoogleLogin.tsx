@@ -4,8 +4,9 @@ import { FcGoogle } from 'react-icons/fc';
 import { Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { login, loginAsGuest, handleRedirect, auth } from '@/lib/firebase-auth';
 import { onAuthStateChanged } from 'firebase/auth';
+// استخدام الإعدادات الجديدة الموحدة
+import { auth, login, loginAsGuest, handleRedirect } from '@/lib/firebase-client';
 
 interface SimpleGoogleLoginProps {
   redirectPath?: string;

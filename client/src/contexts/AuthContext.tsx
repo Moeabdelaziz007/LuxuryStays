@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { auth, cacheCurrentUser, getUserData, getUserIdToken } from '@/lib/firebase-auth';
 import { useLocation } from 'wouter';
+// استخدام الإعدادات الجديدة الموحدة لـ Firebase
+import { auth } from '@/lib/firebase-client';
 
 interface User {
   uid: string;

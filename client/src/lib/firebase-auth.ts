@@ -10,8 +10,8 @@ import {
   User
 } from "firebase/auth";
 
-// Use the already initialized Firebase app and auth from firebase.ts
-import { auth } from "./firebase";
+// استخدام البنية التحتية المُحسّنة لـ Firebase
+import { auth } from "./firebase-config";
 
 // Importar funciones de caché
 import { 
