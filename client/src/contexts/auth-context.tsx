@@ -39,7 +39,7 @@ interface RegisterCredentials {
   password: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: UserData | null;
   loading: boolean;
   isAuthenticated: boolean;
@@ -746,9 +746,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const contextValue = {
     user,
     loading,
+    isAuthenticated: !!user,
     login,
     register,
     logout,
+    resetPassword,
     loginWithGoogle,
     loginWithFacebook,
     loginAnonymously,

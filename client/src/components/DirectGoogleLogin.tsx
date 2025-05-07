@@ -130,7 +130,7 @@ export default function DirectGoogleLogin({
     
     try {
       // التحقق من تحميل مكتبة Google Sign-In
-      if (window.google && window.google.accounts) {
+      if (typeof window !== 'undefined' && window.google && window.google.accounts) {
         // تهيئة Google Sign-In
         window.google.accounts.id.initialize({
           client_id: googleOAuthConfig.client_id,
@@ -145,7 +145,8 @@ export default function DirectGoogleLogin({
             console.log("سبب عدم عرض واجهة Google:", notification.getNotDisplayedReason() || notification.getSkippedReason());
             
             // إظهار نافذة منبثقة بدلاً من ذلك
-            window.google.accounts.id.renderButton(
+            // TypeScript non-null assertion operator because we already checked if window.google exists
+            window.google!.accounts.id.renderButton(
               document.getElementById('google-signin-button-container') || document.createElement('div'),
               { theme: 'outline', size: 'large', width: 250 }
             );
