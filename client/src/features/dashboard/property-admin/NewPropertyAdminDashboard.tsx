@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Card, 
   CardContent, 
@@ -34,7 +34,7 @@ import {
 } from 'react-icons/fa';
 import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db } from '@/lib/firebase-client';
 import PropertyManagement from '@/features/properties/PropertyManagement';
 import BookingCalendar from './BookingCalendar';
 import PropertyAnalytics from './PropertyAnalytics';

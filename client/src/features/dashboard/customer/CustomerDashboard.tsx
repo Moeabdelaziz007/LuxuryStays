@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Card, 
   CardContent, 
@@ -41,7 +41,7 @@ import {
 } from 'react-icons/fa';
 import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from 'firebase/firestore';
-import { db, safeDoc } from '@/lib/firebase';
+import { db, safeDoc } from '@/lib/firebase-client';
 
 // تعريف الأنواع
 interface Booking {
