@@ -12,6 +12,7 @@ import {
   updateProfile,
   linkWithPopup,
   signInAnonymously,
+  sendPasswordResetEmail,
   Auth
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp, Firestore } from "firebase/firestore";
@@ -41,9 +42,11 @@ interface RegisterCredentials {
 interface AuthContextType {
   user: UserData | null;
   loading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<void>;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   loginWithGoogle: (redirectPath?: string) => Promise<any>;
   loginWithFacebook: (redirectPath?: string) => Promise<any>;
   loginAnonymously: (redirectPath?: string) => Promise<any>;
@@ -53,9 +56,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  isAuthenticated: false,
   login: async () => {},
   register: async () => {},
   logout: async () => {},
+  resetPassword: async () => {},
   loginWithGoogle: async () => {},
   loginWithFacebook: async () => {},
   loginAnonymously: async () => {},
@@ -311,12 +316,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور (Firebase فقط)
-  const login = async (credentials: LoginCredentials) => {
+  // إعادة تعيين كلمة المرور باستخدام البريد الإلكتروني
+  const resetPassword = async (email: string) => {
     setLoading(true);
     setError(null);
     try {
-      const { email, password } = credentials;
+      if (!auth) {
+        throw new Error("خدمة المصادقة Firebase غير متوفرة");
+      }
+      
+      console.log("إرسال رابط إعادة تعيين كلمة المرور إلى:", email);
+      await sendPasswordResetEmail(auth, email);
+      console.log("تم إرسال بريد إعادة تعيين كلمة المرور بنجاح");
+    } catch (err: any) {
+      console.error("خطأ في إعادة تعيين كلمة المرور:", err);
+      
+      if (err.code === 'auth/user-not-found') {
+        setError("لا يوجد حساب بهذا البريد الإلكتروني");
+      } else if (err.code === 'auth/invalid-email') {
+        setError("البريد الإلكتروني غير صالح");
+      } else {
+        setError("حدث خطأ أثناء معالجة طلبك");
+      }
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور (Firebase فقط)
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
+    try {
       
       console.log("محاولة تسجيل الدخول باستخدام Firebase:", email);
       
@@ -367,11 +399,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // تسجيل مستخدم جديد (Firebase فقط)
-  const register = async (credentials: RegisterCredentials) => {
+  const register = async (email: string, password: string, name: string = "") => {
     setLoading(true);
     setError(null);
     try {
-      const { name, email, password } = credentials;
       
       if (!auth || !db) {
         throw new Error("خدمات Firebase غير متوفرة");
