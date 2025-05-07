@@ -103,10 +103,10 @@ export default function ResponsiveNavigation() {
               )}
             </div>
 
-            {/* زر القائمة للأجهزة المحمولة - يظهر فقط على الشاشات الصغيرة */}
+            {/* زر القائمة للأجهزة المحمولة - يظهر فقط على الشاشات الصغيرة - تحسين حجم هدف اللمس */}
             <button 
               aria-label="فتح القائمة"
-              className="md:hidden relative w-10 h-10 flex justify-center items-center rounded-md border border-gray-700 hover:border-[#39FF14]/50 focus:outline-none focus:ring-1 focus:ring-[#39FF14]/30 transition-colors space-circuit-pattern"
+              className="md:hidden relative min-w-[48px] min-h-[48px] flex justify-center items-center rounded-md border border-gray-700 hover:border-[#39FF14]/50 focus:outline-none focus:ring-1 focus:ring-[#39FF14]/30 transition-colors space-circuit-pattern mobile-touch-target touch-feedback"
               onClick={() => setIsOpen(!isOpen)}
             >
               <span className={`hamburger-icon ${isOpen ? 'active' : ''}`}>
@@ -150,7 +150,7 @@ export default function ResponsiveNavigation() {
                       logout();
                       setIsOpen(false);
                     }}
-                    className="py-2 px-4 text-white bg-gray-800 hover:bg-red-700/30 rounded-md transition"
+                    className="py-3 px-5 text-white bg-gray-800 hover:bg-red-700/30 rounded-md transition min-h-[48px] min-w-[48px] flex items-center justify-center mobile-touch-target touch-feedback"
                   >
                     تسجيل الخروج
                   </button>
@@ -194,14 +194,14 @@ export default function ResponsiveNavigation() {
   );
 }
 
-// مكون لعناصر التنقل على الشاشات الكبيرة
+// مكون لعناصر التنقل على الشاشات الكبيرة - تحسين حجم هدف اللمس
 const NavLink = ({ href, label, currentPath }: { href: string; label: string; currentPath: string }) => {
   const isActive = currentPath === href || 
                    (href !== "/" && currentPath.startsWith(href));
   
   return (
     <Link href={href}>
-      <a className={`relative px-3 py-2 rounded-md text-sm transition-colors ${
+      <a className={`relative px-4 py-3 rounded-md text-sm transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center touch-target ${
         isActive 
           ? "text-[#39FF14] bg-[#39FF14]/10" 
           : "text-gray-300 hover:text-white hover:bg-gray-800/50"
@@ -215,7 +215,7 @@ const NavLink = ({ href, label, currentPath }: { href: string; label: string; cu
   );
 };
 
-// مكون لعناصر التنقل على الأجهزة المحمولة
+// مكون لعناصر التنقل على الأجهزة المحمولة - تحسين حجم هدف اللمس
 const MobileNavLink = ({ 
   href, 
   label, 
@@ -228,7 +228,7 @@ const MobileNavLink = ({
   return (
     <Link href={href}>
       <a 
-        className="block w-full text-xl py-3 text-white hover:text-[#39FF14] transition-colors"
+        className="block w-full text-xl py-3 text-white hover:text-[#39FF14] transition-colors min-h-[48px] flex items-center justify-center mobile-touch-target touch-feedback"
         onClick={() => setIsOpen(false)}
       >
         {label}

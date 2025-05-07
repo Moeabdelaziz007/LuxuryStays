@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 // تعريف المتغيرات المتنوعة للأزرار الفضائية
 const spaceButtonVariants = cva(
-  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#39FF14] disabled:pointer-events-none overflow-hidden group",
+  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#39FF14] disabled:pointer-events-none overflow-hidden group touch-target touch-feedback",
   {
     variants: {
       variant: {
@@ -37,12 +37,12 @@ const spaceButtonVariants = cva(
           "bg-gray-950 text-gray-100 hover:text-[#39FF14] border border-gray-800 hover:border-[#39FF14]/20",
       },
       size: {
-        xs: "h-7 rounded-md px-2 text-xs",
-        sm: "h-8 rounded-md px-3 text-xs",
-        default: "h-10 px-4 py-2",
-        lg: "h-12 rounded-md px-5 text-base",
-        xl: "h-14 rounded-md px-6 text-lg",
-        icon: "h-9 w-9"
+        xs: "min-h-[40px] h-10 rounded-md px-3 text-xs",
+        sm: "min-h-[44px] h-11 rounded-md px-4 text-xs",
+        default: "min-h-[48px] h-12 px-5 py-3",
+        lg: "min-h-[52px] h-13 rounded-md px-6 text-base",
+        xl: "min-h-[56px] h-14 rounded-md px-7 text-lg",
+        icon: "min-h-[48px] min-w-[48px] h-12 w-12"
       },
     },
     defaultVariants: {
