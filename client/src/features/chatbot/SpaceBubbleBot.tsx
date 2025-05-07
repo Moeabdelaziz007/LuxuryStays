@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import geminiService from './GeminiService';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
-import { MessageSquare, X, Settings, Zap } from 'lucide-react';
+import { MessageSquare, X, Settings, Zap, Rocket, Bot, Sparkles, User, RefreshCw } from 'lucide-react';
 
 // تعريف نوع الخصائص التي يستقبلها المكون
 interface SpaceBubbleBotProps {
@@ -48,7 +48,7 @@ const ChatButton = styled(motion.button)<{ position: string }>`
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: black;
+  background: rgba(0, 0, 0, 0.8);
   border: 2px solid #39FF14;
   color: #39FF14;
   cursor: pointer;
@@ -58,16 +58,37 @@ const ChatButton = styled(motion.button)<{ position: string }>`
   z-index: 1001;
   box-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
   transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  overflow: hidden;
 
   &:hover {
     box-shadow: 0 0 20px rgba(57, 255, 20, 0.8);
     transform: scale(1.05);
   }
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(57, 255, 20, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+    opacity: 0;
+    animation: pulse 3s linear infinite;
+    pointer-events: none;
+  }
+  
+  @keyframes pulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { opacity: 0.3; }
+    100% { transform: scale(1.2); opacity: 0; }
+  }
 `;
 
 // رأس مخصص للشات
 const CustomHeader = styled.div`
-  background-color: #111827;
+  background: linear-gradient(90deg, #111827 0%, #1a2035 100%);
   color: #39FF14;
   padding: 15px;
   font-size: 16px;
@@ -76,12 +97,42 @@ const CustomHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(57, 255, 20, 0.3);
+  position: relative;
+  overflow: hidden;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.8), transparent);
+    animation: scanline 3s linear infinite;
+  }
+  
+  @keyframes scanline {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
 `;
 
 const HeaderTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  
+  & > svg {
+    filter: drop-shadow(0 0 3px rgba(57, 255, 20, 0.7));
+    animation: pulse-icon 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulse-icon {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+  }
 `;
 
 const HeaderControls = styled.div`
@@ -90,14 +141,27 @@ const HeaderControls = styled.div`
 `;
 
 const ControlButton = styled.button`
-  background: none;
-  border: none;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(57, 255, 20, 0.2);
+  border-radius: 4px;
   color: #39FF14;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.2s;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   &:hover {
     transform: scale(1.1);
+    background: rgba(57, 255, 20, 0.15);
+    border-color: rgba(57, 255, 20, 0.5);
+    box-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
@@ -121,6 +185,50 @@ const SettingsPanel = styled(motion.div)`
   background: rgba(0, 0, 0, 0.95);
   padding: 15px;
   border-top: 1px solid rgba(57, 255, 20, 0.3);
+  position: relative;
+  overflow: hidden;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.5), transparent);
+  }
+`;
+
+const SettingsTitle = styled.div`
+  color: #39FF14;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const ThinkingDots = styled.div`
+  display: inline-flex;
+  align-items: center;
+  
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #39FF14;
+    margin: 0 2px;
+    animation: thinking 1.4s infinite ease-in-out both;
+  }
+  
+  .dot:nth-child(1) { animation-delay: -0.32s; }
+  .dot:nth-child(2) { animation-delay: -0.16s; }
+  
+  @keyframes thinking {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
 `;
 
 const CircuitBackground = styled.div`
@@ -146,6 +254,19 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
   const [chatKey, setChatKey] = useState(Date.now());
   const chatbotRef = useRef<any>(null);
   
+  // مكون لعرض رسالة التفكير مع النقاط المتحركة
+  const ThinkingIndicator = () => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <Bot size={18} color="#39FF14" />
+      <span style={{ color: '#e0e0e0' }}>جاري التفكير</span>
+      <ThinkingDots>
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+      </ThinkingDots>
+    </div>
+  );
+  
   // تهيئة خطوات المحادثة
   useEffect(() => {
     const initialSteps = [
@@ -161,7 +282,7 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
       },
       {
         id: 'botResponse',
-        component: <div>جاري التفكير...</div>,
+        component: <ThinkingIndicator />,
         asMessage: true,
         waitAction: true,
         trigger: 'userInput',
@@ -265,22 +386,29 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
         {/* رأس مخصص */}
         <CustomHeader>
           <HeaderTitle>
-            <Zap size={20} />
-            <span>{botName}</span>
+            <Bot size={20} className="text-[#39FF14]" />
+            <span className="text-glow">{botName}</span>
+            <motion.div 
+              className="absolute -right-1 -top-1 w-2 h-2 rounded-full bg-green-500" 
+              animate={{ 
+                boxShadow: ['0 0 2px #39FF14', '0 0 6px #39FF14', '0 0 2px #39FF14'],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </HeaderTitle>
           <HeaderControls>
             <ControlButton onClick={resetChat} title="إعادة ضبط المحادثة">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0z" />
-                <path d="M9 9L15 15" />
-                <path d="M15 9L9 15" />
-              </svg>
+              <RefreshCw size={14} />
             </ControlButton>
-            <ControlButton onClick={toggleSettings} title="الإعدادات">
-              <Settings size={16} />
+            <ControlButton 
+              onClick={toggleSettings} 
+              title="الإعدادات"
+              className={isSettingsOpen ? 'bg-[#39FF14]/20 border-[#39FF14]/40' : ''}
+            >
+              <Settings size={14} />
             </ControlButton>
             <ControlButton onClick={toggleChat} title="إغلاق">
-              <X size={16} />
+              <X size={14} />
             </ControlButton>
           </HeaderControls>
         </CustomHeader>
@@ -294,17 +422,39 @@ const SpaceBubbleBot: React.FC<SpaceBubbleBotProps> = ({
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div>
-                <label htmlFor="botName" style={{ color: '#39FF14', display: 'block', marginBottom: '5px' }}>
+              <SettingsTitle>
+                <Settings size={16} />
+                <span>إعدادات المساعد الرقمي</span>
+              </SettingsTitle>
+              
+              <div className="bg-black/40 p-3 rounded-md border border-[#39FF14]/20 mb-3">
+                <label htmlFor="botName" style={{ color: '#39FF14', display: 'block', marginBottom: '5px', fontSize: '13px' }}>
                   اسم المساعد:
                 </label>
-                <BotNameInput
-                  id="botName"
-                  type="text"
-                  value={botName}
-                  onChange={(e) => setBotName(e.target.value)}
-                  placeholder="أدخل اسم المساعد"
-                />
+                <div className="flex items-center gap-2">
+                  <Bot size={16} className="text-[#39FF14]" />
+                  <BotNameInput
+                    id="botName"
+                    type="text"
+                    value={botName}
+                    onChange={(e) => setBotName(e.target.value)}
+                    placeholder="أدخل اسم المساعد"
+                  />
+                </div>
+                <small className="text-gray-400 mt-2 inline-block text-[11px]">
+                  <Sparkles size={12} className="inline mr-1 text-yellow-400" />
+                  اختر اسماً مناسباً للمساعد الرقمي الخاص بك
+                </small>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <small className="text-gray-400 text-[11px]">Powered by Google Gemini AI</small>
+                <button
+                  onClick={resetChat}
+                  className="flex items-center gap-1 text-xs bg-[#39FF14]/10 text-[#39FF14] px-3 py-1 rounded-md border border-[#39FF14]/30 hover:bg-[#39FF14]/20 transition-colors"
+                >
+                  <RefreshCw size={12} /> إعادة تعيين المحادثة
+                </button>
               </div>
             </SettingsPanel>
           )}
