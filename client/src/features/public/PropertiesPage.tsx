@@ -7,6 +7,7 @@ import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import RoleBadge from '@/components/badges/RoleBadge';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -29,7 +30,7 @@ interface Property {
   imageUrl: string;
   description: string;
   location: string;
-  pricePerNight: number;
+  pricePerNight: number; // Price in USD
   featured: boolean;
   amenities: string[];
   bedrooms: number;
@@ -50,7 +51,7 @@ const localProperties: Property[] = [
     imageUrl: "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=2070&auto=format&fit=crop",
     description: "فيلا فاخرة في قلب راس الحكمة مع إطلالة بانورامية على البحر المتوسط. تتميز بحمام سباحة خاص، وشرفة واسعة، وتصميم داخلي أنيق.",
     location: "ماونتن فيو، راس الحكمة",
-    pricePerNight: 15000,
+    pricePerNight: 485,
     featured: true,
     amenities: ["حمام سباحة خاص", "شاطئ خاص", "واي فاي", "موقف سيارات", "مكيف هواء", "مطبخ مجهز", "خدمة تنظيف يومية", "حديقة", "شواية"],
     bedrooms: 4,
@@ -68,7 +69,7 @@ const localProperties: Property[] = [
     imageUrl: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?q=80&w=2070&auto=format&fit=crop",
     description: "شاليه عصري وأنيق في مارينا الساحل الشمالي بإطلالة مباشرة على البحر. يوفر الشاليه مساحة معيشة مفتوحة مع تصميم عصري وديكور فاخر.",
     location: "مارينا، الساحل الشمالي",
-    pricePerNight: 8000,
+    pricePerNight: 259,
     featured: true,
     amenities: ["حمام سباحة مشترك", "شاطئ قريب", "واي فاي", "موقف سيارات", "مكيف هواء", "مطبخ", "تراس"],
     bedrooms: 2,
@@ -86,7 +87,7 @@ const localProperties: Property[] = [
     imageUrl: "https://images.unsplash.com/photo-1527030280862-64139fba04ca?q=80&w=2070&auto=format&fit=crop",
     description: "فيلا راقية وهادئة في قلب هاسيندا باي، تطل على بحيرة صناعية خلابة. تتميز بمسبح خاص وحديقة واسعة وتشطيبات فاخرة.",
     location: "هاسيندا باي، الساحل الشمالي",
-    pricePerNight: 12000,
+    pricePerNight: 388,
     featured: true,
     amenities: ["حمام سباحة خاص", "إطلالة على البحيرة", "واي فاي", "موقف سيارات", "مكيف هواء", "مطبخ مجهز", "خدمة تنظيف", "حديقة", "تراس"],
     bedrooms: 3,
@@ -104,7 +105,7 @@ const localProperties: Property[] = [
     imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
     description: "شاليه أنيق في قرية سيزارز جاردنز على بعد دقائق من الشاطئ. يتميز بتصميم معاصر ومساحات معيشة مريحة.",
     location: "سيدي عبد الرحمن، الساحل الشمالي",
-    pricePerNight: 6000,
+    pricePerNight: 195,
     featured: true,
     amenities: ["حمام سباحة مشترك", "شاطئ قريب", "واي فاي", "موقف سيارات", "مكيف هواء", "مطبخ"],
     bedrooms: 2,
@@ -256,16 +257,127 @@ export default function PropertiesPage() {
   // Get all amenities for filtering
   const allAmenities = getAllAmenities();
 
+  // State for offline mode
+  const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false);
+  const [offlineProperties, setOfflineProperties] = useState<Property[]>([]);
+  
+  // Toggle offline mode
+  const toggleOfflineMode = (checked: boolean) => {
+    setIsOfflineMode(checked);
+    if (checked) {
+      toast({
+        title: "وضع عدم الاتصال مفعل",
+        description: "يمكنك الآن تصفح العقارات دون الحاجة للإنترنت",
+      });
+    } else {
+      toast({
+        title: "تم إيقاف وضع عدم الاتصال",
+        description: "أنت متصل الآن بالخادم مرة أخرى",
+      });
+      
+      // Refresh data from server when going back online
+      if (navigator.onLine) {
+        // Here we would refresh data from server in real implementation
+        console.log("Refreshing data from server");
+      }
+    }
+  };
+  
+  // Function to store properties data locally
+  const storePropertiesLocally = (properties: Property[]) => {
+    try {
+      localStorage.setItem('cachedProperties', JSON.stringify(properties));
+      localStorage.setItem('propertiesCacheTimestamp', Date.now().toString());
+      setOfflineProperties(properties);
+    } catch (error) {
+      console.error("Error storing properties locally:", error);
+    }
+  };
+  
+  // Function to load locally stored properties
+  const loadLocalProperties = (): Property[] => {
+    try {
+      const cachedData = localStorage.getItem('cachedProperties');
+      if (cachedData) {
+        return JSON.parse(cachedData);
+      }
+    } catch (error) {
+      console.error("Error loading local properties:", error);
+    }
+    return [];
+  };
+  
+  // Check connection status
+  useEffect(() => {
+    const handleOffline = () => {
+      setIsOfflineMode(true);
+      toast({
+        title: "أنت في وضع عدم الاتصال",
+        description: "تم التبديل إلى وضع عدم الاتصال. يمكنك الاستمرار في تصفح العقارات المخزنة مسبقًا.",
+        variant: "default",
+        className: "bg-amber-900/80 border-amber-600"
+      });
+    };
+    
+    const handleOnline = () => {
+      setIsOfflineMode(false);
+      toast({
+        title: "تم استعادة الاتصال",
+        description: "تم التبديل إلى وضع الاتصال. يتم الآن تحديث البيانات.",
+        variant: "default",
+        className: "bg-green-900/80 border-green-600"
+      });
+    };
+    
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+    
+    // Check initial state
+    if (!navigator.onLine) {
+      setIsOfflineMode(true);
+    }
+    
+    // Load offline data initially
+    const localData = loadLocalProperties();
+    if (localData.length > 0) {
+      setOfflineProperties(localData);
+    }
+    
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+  
+  // This toggleOfflineMode function is already declared above, so removed duplicate
+
   const { data: properties, isLoading } = useQuery({
     queryKey: ['properties'],
     queryFn: async () => {
       try {
+        // If manually in offline mode or network is unavailable, use cached data
+        if (isOfflineMode || !navigator.onLine) {
+          console.log("Using offline data");
+          const cachedProperties = loadLocalProperties();
+          if (cachedProperties.length > 0) {
+            return cachedProperties;
+          }
+          // Fallback to local data if no cached data
+          const filteredLocalProperties = localProperties.filter(property => 
+            property.ownerRole === "PROPERTY_ADMIN" || property.ownerRole === "SUPER_ADMIN"
+          );
+          return filteredLocalProperties.length > 0 ? filteredLocalProperties : [localProperties[0]];
+        }
+        
         if (!db) {
           console.log("Firebase DB not available, using local properties data");
           // تصفية البيانات المحلية بحيث تعرض فقط العقارات المملوكة من قبل مديري العقارات
           const filteredLocalProperties = localProperties.filter(property => 
             property.ownerRole === "PROPERTY_ADMIN" || property.ownerRole === "SUPER_ADMIN"
           );
+          
+          // Cache for offline use
+          storePropertiesLocally(filteredLocalProperties);
           
           // إذا لم تكن هناك بيانات بعد التصفية، نعرض العقار الأول الذي أضفنا له ownerRole
           return filteredLocalProperties.length > 0 
@@ -288,15 +400,29 @@ export default function PropertiesPage() {
             property.ownerRole === "PROPERTY_ADMIN" || property.ownerRole === "SUPER_ADMIN"
           );
           
+          // Cache for offline use
+          storePropertiesLocally(filteredLocalProperties);
+          
           return filteredLocalProperties.length > 0 
             ? filteredLocalProperties 
             : [localProperties[0]];
         }
         
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Property[];
+        const fetchedProperties = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Property[];
+        
+        // Cache for offline use
+        storePropertiesLocally(fetchedProperties);
+        
+        return fetchedProperties;
       } catch (error: any) {
         console.error("Error fetching properties:", error);
         setError("حدث خطأ أثناء جلب بيانات العقارات. يرجى المحاولة مرة أخرى لاحقًا.");
+        
+        // Check for cached properties first
+        const cachedProperties = loadLocalProperties();
+        if (cachedProperties.length > 0) {
+          return cachedProperties;
+        }
         
         // تصفية البيانات المحلية
         const filteredLocalProperties = localProperties.filter(property => 
@@ -307,7 +433,11 @@ export default function PropertiesPage() {
           ? filteredLocalProperties 
           : [localProperties[0]];
       }
-    }
+    },
+    staleTime: isOfflineMode ? Infinity : 60000, // Set stale time to infinity in offline mode
+    refetchOnWindowFocus: !isOfflineMode,
+    refetchOnMount: !isOfflineMode,
+    refetchOnReconnect: !isOfflineMode
   });
 
   // Update the advanced filter states based on basic filters
@@ -452,8 +582,8 @@ export default function PropertiesPage() {
         {/* بحث متقدم مع عرضين (قائمة / خريطة) */}
         <div className="mb-12">
           <Tabs defaultValue="list" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex justify-between items-center mb-4">
-              <TabsList className="bg-gray-800 p-1">
+            <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 mb-4">
+              <TabsList className="bg-gray-800 p-1 w-full sm:w-auto">
                 <TabsTrigger 
                   value="list" 
                   className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-black text-gray-300"
@@ -469,6 +599,23 @@ export default function PropertiesPage() {
                   عرض الخريطة
                 </TabsTrigger>
               </TabsList>
+              
+              {/* Offline Mode Toggle */}
+              <div className="flex items-center space-x-2 rtl:space-x-reverse bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-700">
+                <Switch 
+                  id="offline-mode" 
+                  checked={isOfflineMode}
+                  onCheckedChange={toggleOfflineMode}
+                  className="data-[state=checked]:bg-[#39FF14]"
+                />
+                <Label 
+                  htmlFor="offline-mode" 
+                  className={`text-sm ${isOfflineMode ? 'text-[#39FF14]' : 'text-gray-300'}`}
+                >
+                  {isOfflineMode ? "وضع عدم الاتصال مفعل" : "وضع عدم الاتصال"}
+                </Label>
+                <div className={`w-2 h-2 rounded-full ${isOfflineMode ? 'bg-[#39FF14]' : navigator.onLine ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+              </div>
               
               <div className="flex items-center gap-3">
                 <Button
@@ -805,7 +952,12 @@ export default function PropertiesPage() {
                           className="w-24 h-24 object-cover rounded-md border border-[#39FF14]/20" 
                         />
                         <div className="flex-1">
-                          <h3 className="text-white font-medium mb-1">{selectedProperty.name}</h3>
+                          <div className="flex items-center justify-between mb-1">
+                            <h3 className="text-white font-medium">{selectedProperty.name}</h3>
+                            {selectedProperty.ownerRole && selectedProperty.ownerRole !== 'CUSTOMER' && (
+                              <RoleBadge role={selectedProperty.ownerRole as 'PROPERTY_ADMIN' | 'SUPER_ADMIN'} size="sm" />
+                            )}
+                          </div>
                           <div className="flex items-center gap-3 text-sm text-gray-400">
                             <span className="flex items-center">
                               <BedDouble className="h-4 w-4 mr-1 text-[#39FF14]" />
@@ -821,7 +973,7 @@ export default function PropertiesPage() {
                             </span>
                           </div>
                           <div className="mt-2 flex items-center justify-between">
-                            <span className="text-[#39FF14] font-bold">{selectedProperty.pricePerNight} ج.م / ليلة</span>
+                            <span className="text-[#39FF14] font-bold">${selectedProperty.pricePerNight.toLocaleString()} / night</span>
                             <Button 
                               size="sm" 
                               className="bg-[#39FF14] text-black hover:bg-[#39FF14]/90 transition-colors"
@@ -976,9 +1128,9 @@ function PropertyCard({ property }: { property: Property }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
         
-        {/* السعر */}
+        {/* السعر - تم تحويل الأسعار من الجنيه المصري إلى الدولار */}
         <div className="absolute bottom-4 right-4 bg-[#39FF14] text-black font-bold px-3 py-1 rounded-full">
-          {property.pricePerNight.toLocaleString()} ج.م/ليلة
+          ${property.pricePerNight.toLocaleString()}/night
         </div>
         
         {/* التقييم */}
@@ -997,6 +1149,27 @@ function PropertyCard({ property }: { property: Property }) {
           <div className="absolute top-4 right-4 bg-[#39FF14]/90 text-black font-bold px-3 py-1 rounded-full text-xs">
             مميز
           </div>
+        )}
+        
+        {/* شارة دور المالك */}
+        {property.ownerRole && property.ownerRole !== 'CUSTOMER' && (
+          <div className="absolute top-4 left-20">
+            <RoleBadge role={property.ownerRole as 'PROPERTY_ADMIN' | 'SUPER_ADMIN'} size="sm" />
+          </div>
+        )}
+        
+        {/* علامة التحقق */}
+        {property.verified && (
+          <motion.div 
+            className="absolute bottom-12 right-4 bg-black/40 backdrop-blur-sm border border-[#39FF14]/30 rounded-full p-1"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <svg className="h-4 w-4 text-[#39FF14]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </motion.div>
         )}
       </div>
       
