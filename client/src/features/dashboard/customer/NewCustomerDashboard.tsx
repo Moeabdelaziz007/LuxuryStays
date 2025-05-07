@@ -250,109 +250,117 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
         // استمر في تنفيذ الاستعلام
       }
       
+      // بيانات المفضلات الافتراضية (لتجنب أخطاء إذا فشل الاستعلام)
+      const mockFavorites: FavoriteProperty[] = [
+        // لا توجد بيانات حتى يتم جلبها من Firestore
+      ];
+      
       try {
         console.log("جلب بيانات المفضلات من Firestore...");
         
-        // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
-        const favoritesCollectionRef = collection(db, "favorites");
-        if (!favoritesCollectionRef) {
-          console.error("مجموعة المفضلة غير متوفرة في Firestore");
-          return [];
-        }
-        
-        // إعداد الاستعلام لجلب مفضلات المستخدم
-        const q = query(
-          favoritesCollectionRef, 
-          where("userId", "==", user.uid)
-        );
-        
-        // تنفيذ الاستعلام واستخراج المستندات
-        const snapshot = await getDocs(q);
-        
-        // استخراج البيانات والمعلومات التفصيلية
-        const favoritesWithDetails: FavoriteProperty[] = [];
-        const propertyCache: Record<string, { name: string, imageUrl: string, price: number, location: string }> = {};
-        
-        // معالجة كل مستند مفضلة
-        for (const docSnap of snapshot.docs) {
-          if (!docSnap.exists()) continue; // تخطي المستندات غير الموجودة
+        // محاولة جلب بيانات المفضلة - في حالة وجود خطأ في الصلاحيات، سنعيد المصفوفة الفارغة
+        try {
+          // قم بتجربة الاستعلام أولاً للتحقق من توفر المجموعة
+          const favoritesCollectionRef = collection(db, "favorites");
           
-          const favoriteData = docSnap.data();
+          // إعداد الاستعلام لجلب مفضلات المستخدم
+          const q = query(
+            favoritesCollectionRef, 
+            where("userId", "==", user.uid)
+          );
           
-          // استرجاع معلومات العقار إذا كان معرف العقار موجود
-          if (favoriteData.propertyId) {
-            try {
-              // التحقق من الكاش أولاً للحد من طلبات Firestore
-              if (propertyCache[favoriteData.propertyId]) {
-                const cachedData = propertyCache[favoriteData.propertyId];
-                favoritesWithDetails.push({
-                  id: docSnap.id,
-                  propertyId: favoriteData.propertyId,
-                  propertyName: cachedData.name,
-                  propertyImage: cachedData.imageUrl,
-                  price: cachedData.price,
-                  location: cachedData.location,
-                  addedAt: favoriteData.createdAt || new Date()
-                });
-              } else {
-                // استرجاع بيانات العقار من Firestore
-                const propertyDocRef = doc(db, "properties", favoriteData.propertyId);
-                const propertyDocSnap = await getDoc(propertyDocRef);
-                
-                if (propertyDocSnap.exists()) {
-                  const propertyData = propertyDocSnap.data();
-                  const propertyName = propertyData.name || 'عقار غير معروف';
-                  const propertyImage = propertyData.imageUrl || '';
-                  const price = propertyData.price || 0;
-                  const location = propertyData.location || '';
-                  
-                  // إضافة العقار إلى المفضلة
+          // تنفيذ الاستعلام واستخراج المستندات
+          const snapshot = await getDocs(q);
+          
+          // استخراج البيانات والمعلومات التفصيلية
+          const favoritesWithDetails: FavoriteProperty[] = [];
+          const propertyCache: Record<string, { name: string, imageUrl: string, price: number, location: string }> = {};
+          
+          // معالجة كل مستند مفضلة
+          for (const docSnap of snapshot.docs) {
+            if (!docSnap.exists()) continue; // تخطي المستندات غير الموجودة
+            
+            const favoriteData = docSnap.data();
+            
+            // استرجاع معلومات العقار إذا كان معرف العقار موجود
+            if (favoriteData.propertyId) {
+              try {
+                // التحقق من الكاش أولاً للحد من طلبات Firestore
+                if (propertyCache[favoriteData.propertyId]) {
+                  const cachedData = propertyCache[favoriteData.propertyId];
                   favoritesWithDetails.push({
                     id: docSnap.id,
                     propertyId: favoriteData.propertyId,
-                    propertyName,
-                    propertyImage,
-                    price,
-                    location,
+                    propertyName: cachedData.name,
+                    propertyImage: cachedData.imageUrl,
+                    price: cachedData.price,
+                    location: cachedData.location,
                     addedAt: favoriteData.createdAt || new Date()
                   });
+                } else {
+                  // استرجاع بيانات العقار من Firestore
+                  const propertyDocRef = doc(db, "properties", favoriteData.propertyId);
+                  const propertyDocSnap = await getDoc(propertyDocRef);
                   
-                  // تخزين البيانات في الكاش للاستخدام اللاحق
-                  propertyCache[favoriteData.propertyId] = {
-                    name: propertyName,
-                    imageUrl: propertyImage,
-                    price,
-                    location
-                  };
+                  if (propertyDocSnap.exists()) {
+                    const propertyData = propertyDocSnap.data();
+                    const propertyName = propertyData.name || 'عقار غير معروف';
+                    const propertyImage = propertyData.imageUrl || '';
+                    const price = propertyData.price || 0;
+                    const location = propertyData.location || '';
+                    
+                    // إضافة العقار إلى المفضلة
+                    favoritesWithDetails.push({
+                      id: docSnap.id,
+                      propertyId: favoriteData.propertyId,
+                      propertyName,
+                      propertyImage,
+                      price,
+                      location,
+                      addedAt: favoriteData.createdAt || new Date()
+                    });
+                    
+                    // تخزين البيانات في الكاش للاستخدام اللاحق
+                    propertyCache[favoriteData.propertyId] = {
+                      name: propertyName,
+                      imageUrl: propertyImage,
+                      price,
+                      location
+                    };
+                  }
                 }
+              } catch (error) {
+                console.error("خطأ في استرجاع تفاصيل العقار للمفضلة:", error);
+                // نستمر بدون أي تأثير على تجربة المستخدم
               }
-            } catch (error) {
-              console.error("خطأ في استرجاع تفاصيل العقار للمفضلة:", error);
-              // نستمر بدون أي تأثير على تجربة المستخدم
             }
           }
+          
+          console.log(`تم استرجاع ${favoritesWithDetails.length} عقار مفضل بنجاح`);
+          
+          // تخزين البيانات مؤقتاً لتحسين الأداء في المرات القادمة
+          try {
+            sessionStorage.setItem(`favorites_${user.uid}`, JSON.stringify(favoritesWithDetails));
+            sessionStorage.setItem(`favorites_${user.uid}_timestamp`, now.toString());
+          } catch (cacheError) {
+            console.warn("تعذر تخزين بيانات المفضلات مؤقتاً:", cacheError);
+          }
+          
+          return favoritesWithDetails;
+        } catch (firestoreError) {
+          console.error("خطأ في الوصول إلى مجموعة المفضلات (مشكلة صلاحيات):", firestoreError);
+          // إرجاع مصفوفة فارغة في حالة خطأ الصلاحيات
+          return mockFavorites;
         }
-        
-        console.log(`تم استرجاع ${favoritesWithDetails.length} عقار مفضل بنجاح`);
-        
-        // تخزين البيانات مؤقتاً لتحسين الأداء في المرات القادمة
-        try {
-          sessionStorage.setItem(`favorites_${user.uid}`, JSON.stringify(favoritesWithDetails));
-          sessionStorage.setItem(`favorites_${user.uid}_timestamp`, now.toString());
-        } catch (cacheError) {
-          console.warn("تعذر تخزين بيانات المفضلات مؤقتاً:", cacheError);
-        }
-        
-        return favoritesWithDetails;
       } catch (error) {
         console.error("خطأ في استرجاع المفضلة:", error);
         // إرجاع مصفوفة فارغة لتجنب انهيار التطبيق
-        return [];
+        return mockFavorites;
       }
     },
     enabled: Boolean(user?.uid) && Boolean(db),
     staleTime: 5 * 60 * 1000, // تخزين البيانات لمدة 5 دقائق قبل إعادة الاستعلام
-    retry: 2, // محاولة إعادة الاستعلام مرتين في حالة الفشل
+    retry: 1, // محاولة إعادة الاستعلام مرة واحدة فقط في حالة الفشل
     refetchOnWindowFocus: false
   });
   
