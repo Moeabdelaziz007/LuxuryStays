@@ -9,11 +9,13 @@ import Footer from "./components/layout/Footer";
 import { getAuth, getRedirectResult } from "firebase/auth";
 import WelcomeMessage from "./components/WelcomeMessage";
 import GoogleAuthDomainAlert from "./components/GoogleAuthDomainAlert";
+import FirestoreErrorHandler from "./components/FirestoreErrorHandler";
 import AppRoutes from "./routes";
 import { useToast } from "@/hooks/use-toast";
 import TechBackgroundLayout from "./components/layout/TechBackgroundLayout";
 import { PerformanceProvider } from "./contexts/performance-context";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { FirestoreStatusProvider } from "./contexts/FirestoreStatusContext";
 
 function RedirectHandler() {
   const { user, loading, updateUserInfo } = useAuth();
@@ -150,17 +152,22 @@ function App() {
   return (
     <LanguageProvider>
       <PerformanceProvider>
-        <TooltipProvider>
-          <Toaster />
-          <RedirectHandler />
-          <GoogleAuthDomainAlert />
-          <WelcomeMessage />
-          <TechBackgroundLayout>
-            {showHeaderFooter && <SmartHeader />}
-            <AppRoutes />
-            {showHeaderFooter && <Footer />}
-          </TechBackgroundLayout>
-        </TooltipProvider>
+        <FirestoreStatusProvider>
+          <TooltipProvider>
+            <Toaster />
+            <RedirectHandler />
+            <GoogleAuthDomainAlert />
+            <WelcomeMessage />
+            <TechBackgroundLayout>
+              {showHeaderFooter && <SmartHeader />}
+              <div className="container mx-auto pt-2">
+                <FirestoreErrorHandler />
+              </div>
+              <AppRoutes />
+              {showHeaderFooter && <Footer />}
+            </TechBackgroundLayout>
+          </TooltipProvider>
+        </FirestoreStatusProvider>
       </PerformanceProvider>
     </LanguageProvider>
   );

@@ -45,10 +45,8 @@ export const db = initializeFirestore(app, {
     cacheSizeBytes: CACHE_SIZE_UNLIMITED,
   }),
   // تحسينات الشبكة للاتصالات غير المستقرة والشبكات البطيئة
-  experimentalForceLongPolling: true,
+  // استخدم experimentalAutoDetectLongPolling فقط، لا يمكن استخدامه مع experimentalForceLongPolling
   experimentalAutoDetectLongPolling: true,
-  // زيادة مهلة الانتظار (30 ثانية)
-  maxOperationRetryTime: 30000,
 });
 
 // تهيئة خدمة التخزين
