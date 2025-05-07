@@ -32,6 +32,7 @@ import LoginPage from "@/features/auth/Login"; // Original login component
 import SimpleLoginPage from "@/features/auth/SimpleLogin"; // Simple login component
 import SignupPage from "@/features/auth/Signup";
 import EmailPasswordLogin from "@/features/auth/EmailPasswordLogin";
+import BasicLoginPage from "@/pages/BasicLoginPage"; // Simple Google-only login page
 import UnauthorizedPage from "@/features/auth/Unauthorized";
 
 // Debugging Components
@@ -58,11 +59,7 @@ export default function AppRoutes() {
       </Route>
       
       <Route path="/login">
-        <SimpleLoginPage />
-      </Route>
-      
-      <Route path="/email-login">
-        <EmailPasswordLogin />
+        <BasicLoginPage />
       </Route>
       
       <Route path="/old-login">
