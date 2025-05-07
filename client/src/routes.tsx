@@ -7,12 +7,20 @@ import { UserRole } from "@shared/schema";
 import Layout from "@/components/layout/Layout";
 import { CustomerLayout, PropertyAdminLayout, SuperAdminLayout } from "@/components/layout/RoleLayouts";
 
-// Dashboard Components
-import NewSuperAdminDashboard from "@/features/dashboard/super-admin/NewSuperAdminDashboard";
+// Lazy Loaded Dashboard Components 
+import { 
+  LazyCustomerDashboard, 
+  LazyPropertyAdminDashboard, 
+  LazySuperAdminDashboard,
+  LazyBookingCalendar,
+  LazyPropertyAnalytics,
+  LazyBookingCheckout,
+  LazyBookingConfirmation
+} from "@/components/LazyComponents";
+
+// Regular Imported Components
 import FinancialTransactions from "@/features/dashboard/super-admin/FinancialTransactions";
-import NewPropertyAdminDashboard from "@/features/dashboard/property-admin/NewPropertyAdminDashboard";
 import NewPropertyAdminLayout from "@/features/dashboard/property-admin/NewPropertyAdminLayout";
-import CustomerDashboard from "@/features/dashboard/customer/CustomerDashboard"; // Updated to use new component
 import OldCustomerDashboard from "@/features/dashboard/customer/NewCustomerDashboard";
 
 // Public Components
@@ -39,10 +47,6 @@ import UnauthorizedPage from "@/features/auth/Unauthorized";
 import FirebaseAuthTroubleshoot from "@/pages/FirebaseAuthTroubleshoot";
 import AuthTest from "@/pages/AuthTest";
 import SimpleAuthTest from "@/pages/SimpleAuthTest";
-
-// Booking Components
-import BookingConfirmation from "@/features/booking/BookingConfirmation";
-import BookingCheckout from "@/features/booking/BookingCheckout";
 
 // Admin Components
 import AdminPage from "@/pages/admin-page";
@@ -230,7 +234,7 @@ export default function AppRoutes() {
       {/* ===== مسارات الحجز والدفع ===== */}
       <Route path="/booking/checkout/:id">
         {(params) => (
-          <BookingCheckout />
+          <LazyBookingCheckout />
         )}
       </Route>
       
@@ -239,7 +243,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.CUSTOMER}>
             <CustomerLayout>
-              <BookingConfirmation bookingId={params.bookingId} />
+              <LazyBookingConfirmation bookingId={params.bookingId} />
             </CustomerLayout>
           </RouteGuard>
         )}
@@ -248,7 +252,7 @@ export default function AppRoutes() {
       <Route path="/customer">
         <RouteGuard role={UserRole.CUSTOMER}>
           <CustomerLayout>
-            <CustomerDashboard activeTab="dashboard" />
+            <LazyCustomerDashboard activeTab="dashboard" />
           </CustomerLayout>
         </RouteGuard>
       </Route>
@@ -257,7 +261,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.CUSTOMER}>
             <CustomerLayout>
-              <CustomerDashboard activeTab={params.tab} />
+              <LazyCustomerDashboard activeTab={params.tab} />
             </CustomerLayout>
           </RouteGuard>
         )}
@@ -267,7 +271,7 @@ export default function AppRoutes() {
       <Route path="/property-admin">
         <RouteGuard role={UserRole.PROPERTY_ADMIN}>
           <NewPropertyAdminLayout activeTab="dashboard">
-            <NewPropertyAdminDashboard activeTab="dashboard" />
+            <LazyPropertyAdminDashboard activeTab="dashboard" />
           </NewPropertyAdminLayout>
         </RouteGuard>
       </Route>
@@ -276,7 +280,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.PROPERTY_ADMIN}>
             <NewPropertyAdminLayout activeTab={params.tab}>
-              <NewPropertyAdminDashboard activeTab={params.tab} />
+              <LazyPropertyAdminDashboard activeTab={params.tab} />
             </NewPropertyAdminLayout>
           </RouteGuard>
         )}
@@ -286,7 +290,7 @@ export default function AppRoutes() {
       <Route path="/super-admin">
         <RouteGuard role={UserRole.SUPER_ADMIN}>
           <SuperAdminLayout>
-            <NewSuperAdminDashboard />
+            <LazySuperAdminDashboard />
           </SuperAdminLayout>
         </RouteGuard>
       </Route>
@@ -295,7 +299,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.SUPER_ADMIN}>
             <SuperAdminLayout>
-              <NewSuperAdminDashboard />
+              <LazySuperAdminDashboard />
             </SuperAdminLayout>
           </RouteGuard>
         )}
@@ -305,7 +309,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.SUPER_ADMIN}>
             <SuperAdminLayout>
-              <NewSuperAdminDashboard />
+              <LazySuperAdminDashboard />
             </SuperAdminLayout>
           </RouteGuard>
         )}
@@ -315,7 +319,7 @@ export default function AppRoutes() {
         {(params) => (
           <RouteGuard role={UserRole.SUPER_ADMIN}>
             <SuperAdminLayout>
-              <NewSuperAdminDashboard />
+              <LazySuperAdminDashboard />
             </SuperAdminLayout>
           </RouteGuard>
         )}
