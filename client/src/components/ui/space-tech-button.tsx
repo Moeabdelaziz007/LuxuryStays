@@ -299,6 +299,7 @@ export interface SpaceTechButtonProps
   textColor?: string;
   withHoverScale?: boolean;
   withGlowEffect?: boolean;
+  intensity?: 'low' | 'medium' | 'high' | 'ultra';
 }
 
 // مكون الزر التقني الفضائي

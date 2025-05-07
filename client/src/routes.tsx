@@ -46,6 +46,7 @@ import AdminPage from "@/pages/admin-page";
 // Testing Tools Components
 import TestingToolsPage from "@/pages/testing-tools";
 import AutomatedTestingPage from "@/pages/automated-testing";
+import TechShowcasePage from "@/pages/tech-showcase";
 
 // Branding Components
 import FuturisticBranding from "@/components/FuturisticBranding";
@@ -189,6 +190,11 @@ export default function AppRoutes() {
       
       <Route path="/automated-testing">
         <AutomatedTestingPage />
+      </Route>
+      
+      {/* ===== صفحة عرض تأثيرات التصميم الفضائي/التقني ===== */}
+      <Route path="/tech-showcase">
+        <TechShowcasePage />
       </Route>
       
       {/* ===== مسارات الدفع ===== */}

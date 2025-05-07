@@ -1,532 +1,274 @@
-/* تأثيرات الهولوجرام المتقدمة لواجهة StayX */
+/* CSS للتأثيرات الهولوجرامية */
 
-/* تعريفات الألوان الأساسية للهولوجرام */
-:root {
-  --hologram-primary: rgba(57, 255, 20, 0.8);
-  --hologram-secondary: rgba(0, 200, 255, 0.6);
-  --hologram-accent: rgba(180, 70, 255, 0.5);
-  --hologram-glow-primary: 0 0 20px rgba(57, 255, 20, 0.6), 0 0 40px rgba(57, 255, 20, 0.3);
-  --hologram-glow-secondary: 0 0 15px rgba(0, 200, 255, 0.4), 0 0 30px rgba(0, 200, 255, 0.2);
-  --hologram-scan-color: rgba(57, 255, 20, 0.7);
-  --hologram-flicker: rgba(255, 255, 255, 0.8);
+/* التفاف زاوي للهولوجرام */
+.hologram-corner-accents {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* تأثيرات الرسوم المتحركة للهولوجرام */
+.hologram-corner-accents::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  animation: hologram-border-pulse 2s infinite alternate;
+  z-index: -1;
+}
+
+.hologram-corner-accents span {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: #39FF14;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.hologram-corner-accents span:nth-child(1) {
+  top: -5px;
+  left: -5px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.hologram-corner-accents span:nth-child(2) {
+  top: -5px;
+  right: -5px;
+  border-top: 2px solid;
+  border-right: 2px solid;
+}
+
+.hologram-corner-accents span:nth-child(3) {
+  bottom: -5px;
+  left: -5px;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+}
+
+.hologram-corner-accents span:nth-child(4) {
+  bottom: -5px;
+  right: -5px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+/* تأثير خط المسح الهولوجرامي */
+.hologram-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(to bottom, 
+    rgba(57, 255, 20, 0.5), 
+    rgba(57, 255, 20, 0.2) 50%, 
+    rgba(57, 255, 20, 0)
+  );
+  transform: translateY(-50px);
+  animation: hologram-scan 3s ease-in-out infinite;
+  opacity: calc(0.5 * var(--effect-intensity, 0.5));
+  pointer-events: none;
+  z-index: 1;
+}
+
 @keyframes hologram-scan {
-  0%, 100% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  10%, 90% {
-    opacity: 0.8;
+  0% {
+    transform: translateY(-50px);
+    opacity: calc(0.5 * var(--effect-intensity, 0.5));
   }
   50% {
-    transform: translateY(100%);
-    opacity: 0.8;
-  }
-}
-
-@keyframes hologram-flicker {
-  0%, 100% {
-    opacity: 1;
-  }
-  8%, 10% {
-    opacity: 0.4;
-  }
-  9%, 11%, 40%, 80% {
-    opacity: 0.8;
-  }
-  12%, 20%, 25% {
-    opacity: 0.7;
-  }
-  15% {
-    opacity: 0.5;
-  }
-}
-
-@keyframes hologram-rotation {
-  0% {
-    transform: rotateY(0deg);
+    opacity: calc(0.8 * var(--effect-intensity, 0.5));
   }
   100% {
-    transform: rotateY(360deg);
+    transform: translateY(300px);
+    opacity: calc(0.5 * var(--effect-intensity, 0.5));
   }
 }
 
-@keyframes hologram-glitch {
-  0%, 100% {
-    clip-path: inset(0 0 0 0);
-  }
-  5%, 15%, 25% {
-    clip-path: inset(10% 0 20% 0);
-    transform: translateX(-2px);
-  }
-  10%, 20% {
-    clip-path: inset(30% 0 40% 0);
-    transform: translateX(2px);
-  }
-  15% {
-    clip-path: inset(50% 0 60% 0);
-    transform: translateX(-4px);
-  }
-  20% {
-    clip-path: inset(70% 0 80% 0);
-    transform: translateX(4px);
-  }
+/* تأثير النص الهولوجرامي */
+.hologram-text {
+  color: #39FF14;
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.8);
+  letter-spacing: 0.1em;
+  font-weight: bold;
 }
 
-@keyframes hologram-data-flow {
+.hologram-text.animated {
+  animation: hologram-text-flicker 4s infinite;
+}
+
+@keyframes hologram-text-flicker {
+  0%, 100% { text-shadow: 0 0 8px rgba(57, 255, 20, 0.8); }
+  25% { text-shadow: 0 0 12px rgba(57, 255, 20, 1); }
+  30% { text-shadow: 0 0 5px rgba(57, 255, 20, 0.6); }
+  35% { text-shadow: 0 0 12px rgba(57, 255, 20, 1); }
+  36% { text-shadow: 0 0 5px rgba(57, 255, 20, 0.6); }
+  37% { text-shadow: 0 0 12px rgba(57, 255, 20, 1); }
+  45% { text-shadow: 0 0 8px rgba(57, 255, 20, 0.8); }
+  75% { text-shadow: 0 0 10px rgba(57, 255, 20, 0.9); }
+}
+
+/* تأثير الوميض الهولوجرامي */
+.hologram-element {
+  position: absolute;
+  animation: hologram-float 3s infinite ease-in-out;
+}
+
+@keyframes hologram-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* تأثير حدود نبض الهولوجرام */
+@keyframes hologram-border-pulse {
+  0% { box-shadow: 0 0 5px rgba(57, 255, 20, 0.2); }
+  100% { box-shadow: 0 0 10px rgba(57, 255, 20, 0.5), 0 0 15px rgba(57, 255, 20, 0.3) inset; }
+}
+
+/* تأثيرات الهولوجرام في البطاقات */
+.holographic-animation {
+  position: relative;
+}
+
+.holographic-animation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(57, 255, 20, 0) 65%,
+    rgba(57, 255, 20, 0.1) 68%,
+    rgba(57, 255, 20, 0.2) 70%,
+    rgba(57, 255, 20, 0.3) 73%,
+    rgba(57, 255, 20, 0.2) 76%,
+    rgba(57, 255, 20, 0.1) 78%,
+    rgba(57, 255, 20, 0) 80%
+  );
+  opacity: calc(0.7 * var(--effect-intensity, 0.5));
+  background-size: 200% 200%;
+  background-position: 0 0;
+  animation: holographic-sweep 3s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes holographic-sweep {
   0% {
-    background-position: 0% 0%;
+    background-position: -100% -100%;
   }
   100% {
     background-position: 200% 200%;
   }
 }
 
-/* عناصر الهولوجرام القابلة لإعادة الاستخدام */
-.hologram-container {
-  position: relative;
-  overflow: hidden;
-  transform-style: preserve-3d;
-  perspective: 1000px;
+/* تأثير الوميض الخفيف (جلتش) */
+.glitch-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  opacity: calc(0.3 * var(--effect-intensity, 0.5));
+  animation: glitch 5s infinite;
+  z-index: 1;
+  pointer-events: none;
 }
 
-.hologram-element {
-  position: relative;
-  overflow: hidden;
-  transform-style: preserve-3d;
-  color: var(--neon-green);
-  text-shadow: 0 0 5px rgba(57, 255, 20, 0.8);
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  1% { transform: translate(-2px, 2px); }
+  2% { transform: translate(2px, -2px); }
+  3% { transform: translate(-2px, -2px); }
+  4% { transform: translate(2px, 2px); }
+  5% { transform: translate(0); }
+  41% { transform: translate(0); }
+  42% { transform: translate(-2px, 2px); }
+  43% { transform: translate(2px, -2px); }
+  44% { transform: translate(-2px, -2px); }
+  45% { transform: translate(2px, 2px); }
+  46% { transform: translate(0); }
+  81% { transform: translate(0); }
+  82% { transform: translate(-2px, 2px); }
+  83% { transform: translate(2px, -2px); }
+  84% { transform: translate(-2px, -2px); }
+  85% { transform: translate(2px, 2px); }
+  86% { transform: translate(0); }
 }
 
-.hologram-element::before {
+/* تأثير العائم */
+.float-animation {
+  animation: float-card 6s ease-in-out infinite;
+}
+
+@keyframes float-card {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* تأثير النبض */
+.pulse-animation {
+  animation: pulse-card 4s ease-in-out infinite;
+}
+
+@keyframes pulse-card {
+  0%, 100% { box-shadow: 0 0 0 rgba(57, 255, 20, 0.1); }
+  50% { box-shadow: 0 0 20px rgba(57, 255, 20, calc(0.2 * var(--effect-intensity, 0.5))); }
+}
+
+/* تأثير المسح للبطاقات */
+.scan-animation {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-animation::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
     to bottom,
     transparent,
-    transparent 2px,
-    rgba(57, 255, 20, 0.05) 3px,
-    transparent 4px
-  );
-  pointer-events: none;
-  opacity: 0.3;
-}
-
-/* خط المسح المتحرك */
-.hologram-scan-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--hologram-scan-color),
+    rgba(57, 255, 20, 0.1),
     transparent
   );
-  opacity: 0;
-  animation: hologram-scan 4s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* أنواع الهولوجرام */
-.hologram-card {
-  background-color: rgba(0, 10, 30, 0.3);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(57, 255, 20, 0.2);
-  border-radius: 0.5rem;
-  box-shadow: 0 0 15px rgba(57, 255, 20, 0.15);
-  overflow: hidden;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.hologram-card:hover {
-  box-shadow: 0 0 20px rgba(57, 255, 20, 0.3), 0 0 40px rgba(57, 255, 20, 0.1);
-  border-color: rgba(57, 255, 20, 0.4);
-}
-
-.hologram-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.5), transparent);
+  opacity: calc(0.5 * var(--effect-intensity, 0.5));
+  animation: scan-card 3s linear infinite;
+  transform: rotate(30deg);
   z-index: 1;
-}
-
-.hologram-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 10px,
-    rgba(57, 255, 20, 0.03) 10px,
-    rgba(57, 255, 20, 0.03) 20px
-  );
-  pointer-events: none;
-  opacity: 0.3;
-  z-index: -1;
-}
-
-/* زر الهولوجرام */
-.hologram-button {
-  background-color: rgba(0, 10, 20, 0.6);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(57, 255, 20, 0.3);
-  border-radius: 0.25rem;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.hologram-button:hover {
-  background-color: rgba(0, 20, 40, 0.7);
-  border-color: rgba(57, 255, 20, 0.6);
-  color: rgba(57, 255, 20, 0.9);
-  box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
-}
-
-.hologram-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(57, 255, 20, 0.3),
-    transparent
-  );
-  transition: all 0.5s ease;
-}
-
-.hologram-button:hover::before {
-  left: 100%;
-}
-
-/* تأثير الخاصية الثلاثية الأبعاد */
-.hologram-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.5s ease;
-}
-
-.hologram-3d:hover {
-  transform: rotateX(10deg) rotateY(10deg);
-}
-
-/* نص بتأثير هولوجرامي */
-.hologram-text {
-  color: rgba(57, 255, 20, 0.9);
-  text-shadow: 0 0 5px rgba(57, 255, 20, 0.7);
-  position: relative;
-  display: inline-block;
-}
-
-.hologram-text.animated {
-  animation: hologram-flicker 8s infinite;
-}
-
-/* أيقونة هولوجرامية */
-.hologram-icon {
-  position: relative;
-  color: rgba(57, 255, 20, 0.9);
-  filter: drop-shadow(0 0 3px rgba(57, 255, 20, 0.7));
-}
-
-.hologram-icon.rotating {
-  animation: hologram-rotation 10s linear infinite;
-}
-
-/* نافذة بيانات هولوجرامية */
-.hologram-data-window {
-  background: rgba(0, 10, 20, 0.7);
-  border: 1px solid rgba(57, 255, 20, 0.4);
-  border-radius: 0.25rem;
-  box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
-  padding: 1rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.hologram-data-window::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(45deg, rgba(57, 255, 20, 0.05) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(57, 255, 20, 0.05) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(57, 255, 20, 0.05) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(57, 255, 20, 0.05) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  animation: hologram-data-flow 20s linear infinite;
-  pointer-events: none;
-  opacity: 0.2;
-  z-index: -1;
-}
-
-/* خلفية هندسية هولوجرامية */
-.hologram-geometric-bg {
-  position: relative;
-  overflow: hidden;
-}
-
-.hologram-geometric-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(circle at 20% 30%, rgba(57, 255, 20, 0.05) 0, rgba(57, 255, 20, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at 60% 70%, rgba(57, 255, 20, 0.05) 0, rgba(57, 255, 20, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at 40% 50%, rgba(57, 255, 20, 0.07) 0, rgba(57, 255, 20, 0.07) 2px, transparent 2px);
-  background-size: 40px 40px;
-  background-position: 0 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* نموذج هولوجرامي شبكي */
-.hologram-mesh {
-  position: relative;
-  overflow: hidden;
-}
-
-.hologram-mesh::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: 
-    linear-gradient(to right, rgba(57, 255, 20, 0.05) 1px, transparent 1px) 0 0 / 20px 20px,
-    linear-gradient(to bottom, rgba(57, 255, 20, 0.05) 1px, transparent 1px) 0 0 / 20px 20px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* قسم هولوجرامي مع عرض مجسم */
-.hologram-projection {
-  position: relative;
-  transform-style: preserve-3d;
-  perspective: 800px;
-}
-
-.hologram-projection::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50%;
-  height: 10px;
-  background: radial-gradient(ellipse at center, rgba(57, 255, 20, 0.3) 0%, transparent 70%);
-  opacity: 0.5;
-  z-index: -1;
-}
-
-/* تأثير بكسل هولوجرامي */
-.hologram-pixel {
-  image-rendering: pixelated;
-  position: relative;
-}
-
-.hologram-pixel.glitching {
-  animation: hologram-glitch 8s infinite;
-}
-
-/* تأثير ارتعاش وفقدان بيانات */
-.hologram-glitch-text {
-  position: relative;
-  color: white;
-  display: inline-block;
-}
-
-.hologram-glitch-text::before,
-.hologram-glitch-text::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.8;
-}
-
-.hologram-glitch-text::before {
-  color: #39FF14;
-  z-index: -1;
-  animation: hologram-glitch 3s infinite;
-}
-
-.hologram-glitch-text::after {
-  color: #00ffff;
-  z-index: -2;
-  animation: hologram-glitch 2s infinite reverse;
-}
-
-/* مؤشر تحميل هولوجرامي */
-.hologram-loader {
-  width: 50px;
-  height: 50px;
-  border: 2px solid transparent;
-  border-top-color: rgba(57, 255, 20, 0.8);
-  border-right-color: rgba(57, 255, 20, 0.4);
-  border-radius: 50%;
-  animation: hologram-rotation 1s linear infinite;
-  position: relative;
-}
-
-.hologram-loader::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border: 2px dashed rgba(57, 255, 20, 0.3);
-  border-radius: 50%;
-  animation: hologram-rotation 5s linear infinite reverse;
-}
-
-.hologram-loader::after {
-  content: '';
-  position: absolute;
-  inset: 6px;
-  border-radius: 50%;
-  background: radial-gradient(circle at center, rgba(57, 255, 20, 0.5) 0%, transparent 70%);
-  animation: hologram-flicker 2s infinite;
-}
-
-/* إطار بيانات هولوجرامي */
-.hologram-data-frame {
-  border: 1px solid rgba(57, 255, 20, 0.3);
-  border-radius: 0.25rem;
-  padding: 0.25rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.hologram-data-frame::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(57, 255, 20, 0.2),
-    transparent
-  );
-  animation: hologram-scan 2.5s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-}
-
-/* تأثيرات نوافذ البيانات الكبيرة */
-.hologram-data-dashboard {
-  background: rgba(5, 10, 20, 0.8);
-  border: 1px solid rgba(57, 255, 20, 0.4);
-  border-radius: 0.5rem;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(57, 255, 20, 0.1);
-  padding: 1rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.hologram-data-dashboard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.8), transparent);
-}
-
-.hologram-data-dashboard::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(57, 255, 20, 0.1) 0%, transparent 100%);
   pointer-events: none;
 }
 
-/* زخارف ركنية للعناصر الهولوجرامية */
-.hologram-corner-accents {
-  position: relative;
+@keyframes scan-card {
+  0% { transform: translateX(-100%) rotate(30deg); }
+  100% { transform: translateX(100%) rotate(30deg); }
 }
 
-.hologram-corner-accents::before,
-.hologram-corner-accents::after,
-.hologram-corner-accents > span::before,
-.hologram-corner-accents > span::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: rgba(57, 255, 20, 0.5);
-  border-style: solid;
-  border-width: 0;
-}
-
-.hologram-corner-accents::before {
-  top: 0;
-  left: 0;
-  border-top-width: 1px;
-  border-left-width: 1px;
-}
-
-.hologram-corner-accents::after {
-  top: 0;
-  right: 0;
-  border-top-width: 1px;
-  border-right-width: 1px;
-}
-
-.hologram-corner-accents > span::before {
-  bottom: 0;
-  left: 0;
-  border-bottom-width: 1px;
-  border-left-width: 1px;
-}
-
-.hologram-corner-accents > span::after {
-  bottom: 0;
-  right: 0;
-  border-bottom-width: 1px;
-  border-right-width: 1px;
-}
-
-/* تأثير مسح LED للأزرار */
-.hologram-led-scan {
-  position: relative;
-  overflow: hidden;
-}
-
-.hologram-led-scan::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent 40px,
-    rgba(57, 255, 20, 0.15) 40px,
-    rgba(57, 255, 20, 0.15) 44px
-  );
-  background-size: 200% 100%;
-  animation: hologram-data-flow 3s linear infinite;
-  pointer-events: none;
-  opacity: 0.3;
+/* تأثير حركة الجزيئات (الجسيمات) */
+@keyframes particle-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  25% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(10px, -10px) scale(1.5);
+    opacity: 0.8;
+  }
+  75% {
+    opacity: 0.6;
+  }
 }

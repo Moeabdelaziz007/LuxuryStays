@@ -1,195 +1,47 @@
-import React, { useState } from "react";
-import { cva, type VariantProps } from "class-variance-authority";
+import React, { useState, forwardRef, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-// تعريف المتغيرات لبطاقة الهولوجرام
+// تعريف المتغيرات للبطاقة الهولوجرامية
 const hologramCardVariants = cva(
-  "relative overflow-hidden rounded-lg transition-all duration-300",
+  "relative rounded-lg p-4 overflow-hidden transition-colors",
   {
     variants: {
       variant: {
-        // بطاقة بتأثير هولوجرامي مع لون StayX الرئيسي
-        primary: 
-          "hologram-card bg-black/30 backdrop-blur-md border border-[#39FF14]/30 text-white shadow-[0_0_15px_rgba(57,255,20,0.15)]",
-        
-        // بطاقة هولوجرامية زجاجية
-        glass: 
-          "glass-effect bg-black/20 backdrop-blur-lg border border-white/10 text-white shadow-[0_0_15px_rgba(0,0,0,0.2)]",
-        
-        // بطاقة هولوجرامية عالية التقنية بلون أزرق
-        tech: 
-          "hologram-data-window border border-blue-500/30 text-white shadow-[0_0_15px_rgba(0,100,255,0.15)]",
-        
-        // بطاقة داكنة للمعلومات التقنية
-        dark: 
-          "bg-gray-900/90 border border-gray-800 text-gray-200 shadow-lg",
-        
-        // بطاقة تقنية مميزة للحالات المهمة
-        command: 
-          "bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-[#39FF14]/30 text-white shadow-[0_0_20px_rgba(0,0,0,0.3)]",
+        primary: "border border-[#39FF14]/40 bg-black/50 backdrop-blur-md text-white",
+        dark: "border border-gray-700 bg-black/80 backdrop-blur-sm text-white",
+        glass: "border-0 bg-white/5 backdrop-blur-lg text-white shadow-glow-sm",
+        tech: "border border-blue-500/30 bg-black/70 backdrop-blur-md text-white",
+        command: "border border-[#39FF14]/40 bg-gradient-to-b from-gray-900/90 to-black/90 backdrop-blur-sm text-white",
       },
       intensity: {
-        low: "opacity-90",
-        medium: "",
-        high: "shadow-[0_0_25px_rgba(57,255,20,0.2)]",
-        ultra: "shadow-[0_0_35px_rgba(57,255,20,0.3)]",
+        low: "[--effect-intensity:0.2]",
+        medium: "[--effect-intensity:0.5]",
+        high: "[--effect-intensity:0.8]",
+        ultra: "[--effect-intensity:1]",
       },
       animation: {
         none: "",
-        pulse: "animate-pulse-subtle",
-        scan: "hologram-scan-effect",
-        glow: "animate-glow",
-        float: "animate-float",
-        holographic: "hologram-element",
+        pulse: "pulse-animation",
+        holographic: "holographic-animation",
+        scan: "scan-animation",
+        float: "float-animation",
       },
       interactivity: {
-        none: "",
-        hover: "group hover:scale-[1.01] hover:shadow-[0_0_25px_rgba(57,255,20,0.3)]",
-        active: "group active:scale-[0.99] cursor-pointer",
-        full: "group hover:scale-[1.01] hover:shadow-[0_0_25px_rgba(57,255,20,0.3)] active:scale-[0.99] cursor-pointer",
-      }
+        static: "",
+        hover: "transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-glow-md",
+        active: "transform transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-glow-md",
+      },
     },
     defaultVariants: {
       variant: "primary",
       intensity: "medium",
       animation: "none",
-      interactivity: "hover"
+      interactivity: "hover",
     },
   }
 );
-
-// مكونات تأثيرات إضافية للبطاقة
-const HologramCardEffects = ({
-  showScanLine = true,
-  showCorners = true,
-  showParticles = false,
-  showGlitch = false,
-  variant = "primary",
-}: {
-  showScanLine?: boolean;
-  showCorners?: boolean;
-  showParticles?: boolean;
-  showGlitch?: boolean;
-  variant?: string;
-}) => {
-  const isPrimary = variant === "primary";
-  const isTech = variant === "tech";
-  const scanLineColor = isPrimary ? "rgba(57, 255, 20, 0.7)" : 
-                       isTech ? "rgba(0, 150, 255, 0.7)" : 
-                       "rgba(255, 255, 255, 0.5)";
-  
-  return (
-    <>
-      {/* خط المسح المتحرك */}
-      {showScanLine && (
-        <motion.div 
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <motion.div 
-            className="absolute left-0 right-0 h-[2px] z-10"
-            style={{ 
-              background: `linear-gradient(to right, transparent, ${scanLineColor}, transparent)`,
-              boxShadow: `0 0 5px ${scanLineColor}`
-            }}
-            animate={{ 
-              top: ["0%", "100%"],
-              opacity: [0, 0.7, 0]
-            }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity, 
-              repeatDelay: 5,
-              ease: "linear",
-              times: [0, 0.5, 1]
-            }}
-          />
-        </motion.div>
-      )}
-      
-      {/* زوايا مضيئة */}
-      {showCorners && (
-        <div className="absolute inset-0 pointer-events-none">
-          <div className={`absolute top-0 left-0 w-3 h-3 ${isPrimary ? 'border-[#39FF14]/60' : isTech ? 'border-blue-500/60' : 'border-white/40'} border-t-[1px] border-l-[1px]`} />
-          <div className={`absolute top-0 right-0 w-3 h-3 ${isPrimary ? 'border-[#39FF14]/60' : isTech ? 'border-blue-500/60' : 'border-white/40'} border-t-[1px] border-r-[1px]`} />
-          <div className={`absolute bottom-0 left-0 w-3 h-3 ${isPrimary ? 'border-[#39FF14]/60' : isTech ? 'border-blue-500/60' : 'border-white/40'} border-b-[1px] border-l-[1px]`} />
-          <div className={`absolute bottom-0 right-0 w-3 h-3 ${isPrimary ? 'border-[#39FF14]/60' : isTech ? 'border-blue-500/60' : 'border-white/40'} border-b-[1px] border-r-[1px]`} />
-        </div>
-      )}
-      
-      {/* جزيئات مضيئة */}
-      {showParticles && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className={`absolute w-1 h-1 rounded-full ${isPrimary ? 'bg-[#39FF14]/80' : isTech ? 'bg-blue-500/80' : 'bg-white/60'}`}
-              style={{
-                boxShadow: isPrimary 
-                  ? '0 0 4px rgba(57, 255, 20, 0.8)' 
-                  : isTech 
-                    ? '0 0 4px rgba(0, 150, 255, 0.8)'
-                    : '0 0 4px rgba(255, 255, 255, 0.6)',
-                top: '50%',
-                left: '50%',
-                opacity: 0
-              }}
-              animate={{
-                x: [
-                  0,
-                  (Math.random() * 2 - 1) * 100,
-                ],
-                y: [
-                  0,
-                  (Math.random() * 2 - 1) * 60,
-                ],
-                opacity: [0, 0.8, 0],
-                scale: [0.2, 1, 0.2]
-              }}
-              transition={{
-                duration: 2 + Math.random() * 2,
-                repeat: Infinity,
-                repeatDelay: Math.random() * 3,
-                ease: "easeOut"
-              }}
-            />
-          ))}
-        </div>
-      )}
-      
-      {/* تأثير خلل/تشويش البيانات */}
-      {showGlitch && (
-        <motion.div 
-          className="absolute inset-0 pointer-events-none bg-transparent"
-          animate={{ opacity: [1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1] }}
-          transition={{ 
-            duration: 0.5, 
-            repeat: Infinity, 
-            repeatDelay: 10,
-            times: [0, 0.1, 0.2, 0.3, 0.4, 0.41, 0.42, 0.43, 0.44, 0.45, 1]
-          }}
-        >
-          <motion.div 
-            className="absolute inset-0 opacity-0"
-            style={{ 
-              background: `linear-gradient(to right, transparent, ${isPrimary ? 'rgba(57, 255, 20, 0.2)' : isTech ? 'rgba(0, 150, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'}, transparent)`,
-              transform: "skew(-20deg) translateX(-10%)"
-            }}
-            animate={{ opacity: [0, 0, 0, 0, 0, 0.8, 0, 0.8, 0] }}
-            transition={{ 
-              duration: 0.5, 
-              repeat: Infinity, 
-              repeatDelay: 10,
-              times: [0, 0.1, 0.2, 0.3, 0.4, 0.41, 0.42, 0.43, 1]
-            }}
-          />
-        </motion.div>
-      )}
-    </>
-  );
-};
 
 export interface SpaceHologramCardProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -207,128 +59,207 @@ export interface SpaceHologramCardProps
   withHover3D?: boolean;
 }
 
-// مكون البطاقة الهولوجرامية الرئيسي
-const SpaceHologramCard = React.forwardRef<HTMLDivElement, SpaceHologramCardProps>(
-  ({ 
-    className, 
-    children, 
-    variant = "primary", 
-    intensity = "medium",
-    animation = "none",
-    interactivity = "hover",
-    showScanLine = true,
-    showCorners = true,
-    showParticles = false,
-    showGlitch = false,
-    title,
-    subtitle,
-    icon,
-    footer,
-    withHeaderAccent = false,
-    withHover3D = false,
-    ...props 
-  }, ref) => {
-    // تعقب حركة المؤشر لتأثير ثلاثي الأبعاد عند تحريك المؤشر
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+const SpaceHologramCard = forwardRef<HTMLDivElement, SpaceHologramCardProps>(
+  (
+    {
+      className,
+      variant,
+      intensity,
+      animation,
+      interactivity,
+      children,
+      showScanLine = false,
+      showCorners = false,
+      showParticles = false,
+      showGlitch = false,
+      title,
+      subtitle,
+      icon,
+      footer,
+      withHeaderAccent = false,
+      withHover3D = false,
+      ...props
+    },
+    ref
+  ) => {
+    // حالة للتحكم في تأثير 3D
+    const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0 });
+    const cardRef = useRef<HTMLDivElement>(null);
 
+    // وظيفة لمعالجة حركة الماوس لتأثير 3D
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!withHover3D) return;
+      if (!withHover3D || !cardRef.current) return;
+
+      const card = cardRef.current;
+      const rect = card.getBoundingClientRect();
       
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
+      // حساب موقع المؤشر النسبي داخل البطاقة
+      const x = e.clientX - rect.left; // موقع X داخل البطاقة
+      const y = e.clientY - rect.top; // موقع Y داخل البطاقة
       
-      setMousePosition({ x, y });
+      // تحويل الموقع إلى قيم دوران
+      // مقسمة على أبعاد العنصر للحصول على قيم نسبية من 0 إلى 1
+      const rotateY = ((x / rect.width) - 0.5) * 10; // قيمة دوران حول محور Y
+      const rotateX = ((y / rect.height) - 0.5) * -10; // قيمة دوران حول محور X (معكوسة)
+      
+      // تحديث حالة التحويل
+      setTransform({ rotateX, rotateY });
     };
 
+    // إعادة تعيين التحويل عند مغادرة الماوس
     const handleMouseLeave = () => {
-      if (!withHover3D) return;
-      setMousePosition({ x: 0.5, y: 0.5 });
+      setTransform({ rotateX: 0, rotateY: 0 });
     };
 
-    // احسب التدوير بناءً على موضع المؤشر
-    const transform = withHover3D 
-      ? {
-          rotateX: (mousePosition.y - 0.5) * -8, // تدوير سالب للحصول على تأثير واقعي
-          rotateY: (mousePosition.x - 0.5) * 8,
-          transformPerspective: "1000px"
-        }
-      : {};
+    // استخدام useEffect للتعامل مع حرآة الماوس للتأثير ثلاثي الأبعاد
+    useEffect(() => {
+      const currentRef = cardRef.current;
+      if (!currentRef || !withHover3D) return;
 
-    // تحديد لون النص وتلاوة الخلفية بناءً على نوع البطاقة
-    const isPrimary = variant === "primary";
-    const isTech = variant === "tech";
-    const headerAccentClass = withHeaderAccent 
-      ? isPrimary 
-        ? "border-b border-[#39FF14]/30 mb-3 pb-2"
-        : isTech
-          ? "border-b border-blue-500/30 mb-3 pb-2"
-          : "border-b border-gray-700 mb-3 pb-2"
-      : "";
+      // تفعيل معالجات الأحداث
+      currentRef.addEventListener('mousemove', handleMouseMove as any);
+      currentRef.addEventListener('mouseleave', handleMouseLeave);
+
+      // تنظيف معالجات الأحداث عند تفكيك المكون
+      return () => {
+        currentRef.removeEventListener('mousemove', handleMouseMove as any);
+        currentRef.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }, [withHover3D]);
     
-    const titleColorClass = isPrimary 
-      ? "text-[#39FF14]" 
-      : isTech 
-        ? "text-blue-400" 
-        : "text-white";
-
+    // تحديد نوع العنصر وسلوكه بناءً على خاصية withHover3D
+    if (withHover3D) {
+      return (
+        <motion.div
+          ref={cardRef}
+          className={cn(
+            hologramCardVariants({ variant, intensity, animation, interactivity }),
+            className
+          )}
+          style={{ 
+            transform: `perspective(1000px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)`,
+            transition: "transform 0.2s ease-out"
+          }}
+          // @ts-ignore - Framer Motion types conflict with standard HTML div props
+          {...props}
+        >
+          {/* الزخارف والعناصر الهولوجرامية */}
+          {showScanLine && <div className="hologram-scan-line absolute inset-0 pointer-events-none" />}
+          
+          {showCorners && (
+            <div className="absolute inset-0 pointer-events-none">
+              <span className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[#39FF14]/60" />
+              <span className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#39FF14]/60" />
+              <span className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[#39FF14]/60" />
+              <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[#39FF14]/60" />
+            </div>
+          )}
+          
+          {showParticles && (
+            <div className="absolute inset-0 pointer-events-none opacity-30">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div 
+                  key={i}
+                  className="absolute w-1 h-1 bg-[#39FF14] rounded-full"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    opacity: Math.random() * 0.6 + 0.2,
+                    animation: `particle-float ${Math.random() * 4 + 2}s infinite ease-in-out ${Math.random() * 2}s`
+                  }}
+                />
+              ))}
+            </div>
+          )}
+          
+          {showGlitch && (
+            <div className="absolute inset-0 pointer-events-none glitch-effect opacity-10"></div>
+          )}
+          
+          {/* محتوى البطاقة */}
+          <div className="relative z-10">
+            {(title || subtitle || icon) && (
+              <div className={`mb-4 ${withHeaderAccent ? 'pb-3 border-b border-[#39FF14]/20' : ''}`}>
+                {icon && <div className="mb-3">{icon}</div>}
+                {title && <h3 className="text-lg font-bold text-[#39FF14] mb-1">{title}</h3>}
+                {subtitle && <p className="text-sm text-gray-400">{subtitle}</p>}
+              </div>
+            )}
+            
+            <div>{children}</div>
+            
+            {footer && (
+              <div className={`mt-4 ${withHeaderAccent ? 'pt-3 border-t border-[#39FF14]/20' : ''}`}>
+                {footer}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      );
+    }
+    
+    // البطاقة العادية بدون تأثير 3D
     return (
-      <motion.div
+      <div
         ref={ref}
         className={cn(
           hologramCardVariants({ variant, intensity, animation, interactivity }),
           className
         )}
-        style={{ 
-          transform: withHover3D ? `perspective(1000px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)` : undefined,
-          transition: withHover3D ? "transform 0.2s ease-out" : undefined
-        }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        whileHover={withHover3D ? {} : undefined}
         {...props}
       >
-        <HologramCardEffects 
-          showScanLine={showScanLine}
-          showCorners={showCorners}
-          showParticles={showParticles}
-          showGlitch={showGlitch}
-          variant={variant as string}
-        />
+        {/* الزخارف والعناصر الهولوجرامية */}
+        {showScanLine && <div className="hologram-scan-line absolute inset-0 pointer-events-none" />}
         
-        <div className="relative z-10 h-full">
-          {/* رأس البطاقة مع العنوان والأيقونة */}
-          {(title || icon || subtitle) && (
-            <div className={`p-4 ${headerAccentClass}`}>
-              <div className="flex items-center justify-between">
-                {title && (
-                  <div>
-                    <h3 className={`font-bold ${titleColorClass}`}>{title}</h3>
-                    {subtitle && <p className="text-sm text-gray-300 mt-1">{subtitle}</p>}
-                  </div>
-                )}
-                {icon && <div className="text-white">{icon}</div>}
-              </div>
+        {showCorners && (
+          <div className="absolute inset-0 pointer-events-none">
+            <span className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[#39FF14]/60" />
+            <span className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#39FF14]/60" />
+            <span className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[#39FF14]/60" />
+            <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[#39FF14]/60" />
+          </div>
+        )}
+        
+        {showParticles && (
+          <div className="absolute inset-0 pointer-events-none opacity-30">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div 
+                key={i}
+                className="absolute w-1 h-1 bg-[#39FF14] rounded-full"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  opacity: Math.random() * 0.6 + 0.2,
+                  animation: `particle-float ${Math.random() * 4 + 2}s infinite ease-in-out ${Math.random() * 2}s`
+                }}
+              />
+            ))}
+          </div>
+        )}
+        
+        {showGlitch && (
+          <div className="absolute inset-0 pointer-events-none glitch-effect opacity-10"></div>
+        )}
+        
+        {/* محتوى البطاقة */}
+        <div className="relative z-10">
+          {(title || subtitle || icon) && (
+            <div className={`mb-4 ${withHeaderAccent ? 'pb-3 border-b border-[#39FF14]/20' : ''}`}>
+              {icon && <div className="mb-3">{icon}</div>}
+              {title && <h3 className="text-lg font-bold text-[#39FF14] mb-1">{title}</h3>}
+              {subtitle && <p className="text-sm text-gray-400">{subtitle}</p>}
             </div>
           )}
           
-          {/* محتوى البطاقة الرئيسي */}
-          <div className="px-4 pb-4 pt-0 h-full">
-            {children}
-          </div>
+          <div>{children}</div>
           
-          {/* تذييل البطاقة (اختياري) */}
           {footer && (
-            <div className={`px-4 py-3 mt-auto border-t ${
-              isPrimary ? 'border-[#39FF14]/20' : 
-              isTech ? 'border-blue-500/20' : 
-              'border-gray-700'
-            }`}>
+            <div className={`mt-4 ${withHeaderAccent ? 'pt-3 border-t border-[#39FF14]/20' : ''}`}>
               {footer}
             </div>
           )}
         </div>
-      </motion.div>
+      </div>
     );
   }
 );

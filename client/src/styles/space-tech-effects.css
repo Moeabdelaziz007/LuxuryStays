@@ -1,847 +1,298 @@
-/* تأثيرات فضائية تقنية متقدمة لواجهة StayX */
+/* CSS للتأثيرات الفضائية والتقنية */
 
-/* تعريف الألوان والمتغيرات */
-:root {
-  --space-black: rgb(0, 0, 10);
-  --space-dark-blue: rgb(5, 10, 30);
-  --space-nebula: rgba(70, 0, 120, 0.3);
-  
-  --tech-grid-color: rgba(57, 255, 20, 0.15);
-  --tech-glow: 0 0 15px rgba(57, 255, 20, 0.6), 0 0 30px rgba(57, 255, 20, 0.3);
-  --tech-circuit: rgba(57, 255, 20, 0.4);
-  
-  --terminal-color: #39FF14;
-  --terminal-bg: rgba(0, 0, 10, 0.9);
-  
-  --star-glow-1: rgba(255, 255, 255, 0.8);
-  --star-glow-2: rgba(120, 170, 255, 0.8);
-  --star-glow-3: rgba(255, 180, 120, 0.6);
+/* خلفية التدرج الفضائي */
+.space-gradient-bg {
+  background: linear-gradient(to bottom, #0a0a0a, #0d1117, #0a0a0a);
+  position: relative;
+  overflow: hidden;
 }
 
-/* ====== تأثيرات النجوم والمجرات ====== */
-@keyframes twinkle {
-  0%, 100% {
-    opacity: 0.2;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
+.space-gradient-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(57, 255, 20, 0.05) 0%, transparent 25%),
+    radial-gradient(circle at 80% 80%, rgba(0, 150, 255, 0.05) 0%, transparent 30%);
+  pointer-events: none;
+  z-index: 0;
 }
 
-@keyframes shootingStar {
-  0% {
-    transform: translateX(0) translateY(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(300px) translateY(300px) rotate(45deg);
-    opacity: 0;
-  }
-}
-
-@keyframes spacePulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
-}
-
-@keyframes nebulaDrift {
-  0% {
-    transform: rotate(0deg) scale(1);
-    filter: hue-rotate(0deg);
-  }
-  50% {
-    transform: rotate(180deg) scale(1.1);
-    filter: hue-rotate(30deg);
-  }
-  100% {
-    transform: rotate(360deg) scale(1);
-    filter: hue-rotate(0deg);
-  }
-}
-
-/* ====== تأثيرات التكنولوجيا ====== */
-@keyframes techScan {
-  0% {
-    background-position: 0% 0%;
-  }
-  100% {
-    background-position: 100% 100%;
-  }
-}
-
-@keyframes dataPulse {
-  0%, 100% {
-    opacity: 0.3;
-    height: 5px;
-  }
-  50% {
-    opacity: 0.8;
-    height: 15px;
-  }
-}
-
-@keyframes techCircuitPulse {
-  0%, 100% {
-    opacity: 0.1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: scale(1.05);
-  }
-}
-
-@keyframes terminalBlink {
-  0%, 100% {
-    opacity: 1;
-  }
-  49% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-  99% {
-    opacity: 0;
-  }
-}
-
-/* ====== تأثيرات الحركة الفضائية ====== */
-@keyframes spaceFloat {
-  0%, 100% {
-    transform: translateY(0px) translateX(0px);
-  }
-  25% {
-    transform: translateY(-10px) translateX(5px);
-  }
-  50% {
-    transform: translateY(0px) translateX(10px);
-  }
-  75% {
-    transform: translateY(10px) translateX(5px);
-  }
-}
-
-@keyframes spaceThruster {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(57, 255, 20, 0.7),
-                0 0 20px rgba(57, 255, 20, 0.4);
-    transform: scaleY(0.8);
-  }
-  50% {
-    box-shadow: 0 0 15px rgba(57, 255, 20, 0.9),
-                0 0 30px rgba(57, 255, 20, 0.6);
-    transform: scaleY(1);
-  }
-}
-
-@keyframes spaceTeleport {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0px);
-  }
-  50% {
-    opacity: 0.1;
-    transform: scale(0.8) rotate(5deg);
-    filter: blur(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0px);
-  }
-}
-
-/* ====== عناصر الفضاء ====== */
+/* تأثير خلفية النجوم */
 .space-stars-bg {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
   overflow: hidden;
-  z-index: 0;
-  pointer-events: none;
 }
 
 .space-star {
   position: absolute;
+  width: 2px;
+  height: 2px;
   background-color: white;
   border-radius: 50%;
-  width: 1px;
-  height: 1px;
-  animation: twinkle 4s ease-in-out infinite;
-  animation-delay: calc(var(--delay, 0) * 1s);
+  animation: star-twinkle 4s infinite ease-in-out;
 }
 
 .space-star.large {
-  width: 2px;
-  height: 2px;
-  box-shadow: 0 0 4px var(--star-glow-1);
+  width: 3px;
+  height: 3px;
 }
 
 .space-star.blue {
-  background-color: rgb(120, 170, 255);
-  box-shadow: 0 0 4px var(--star-glow-2);
+  background-color: #3498db;
 }
 
 .space-star.orange {
-  background-color: rgb(255, 180, 120);
-  box-shadow: 0 0 4px var(--star-glow-3);
+  background-color: #e74c3c;
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 
 .space-shooting-star {
   position: absolute;
-  width: 100px;
+  width: 80px;
   height: 1px;
-  background: linear-gradient(to right, transparent, white, transparent);
-  animation: shootingStar 10s linear infinite;
-  animation-delay: calc(var(--delay, 0) * 10s);
+  background: linear-gradient(to right, transparent, white 30%, white 70%, transparent);
+  border-radius: 50%;
   opacity: 0;
 }
 
 .space-nebula {
   position: absolute;
-  width: 300px;
-  height: 300px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: radial-gradient(circle at center, 
-    rgba(100, 70, 255, 0.15) 0%, 
-    rgba(70, 0, 120, 0.1) 50%, 
-    transparent 80%);
-  filter: blur(30px);
-  opacity: 0.3;
-  animation: nebulaDrift 60s linear infinite;
-  mix-blend-mode: screen;
-}
-
-/* ====== عناصر التكنولوجيا ====== */
-.tech-grid {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(to right, var(--tech-grid-color) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--tech-grid-color) 1px, transparent 1px);
-  background-size: 30px 30px;
-  opacity: 0.1;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.tech-circuit {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(circle at 10% 20%, var(--tech-circuit) 1px, transparent 1px),
-    radial-gradient(circle at 80% 30%, var(--tech-circuit) 1px, transparent 1px),
-    radial-gradient(circle at 20% 80%, var(--tech-circuit) 1px, transparent 1px),
-    radial-gradient(circle at 70% 60%, var(--tech-circuit) 1px, transparent 1px);
-  background-size: 100px 100px;
-  animation: techCircuitPulse 8s ease-in-out infinite;
-  opacity: 0.15;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.tech-scan-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(to right, 
-    transparent, 
-    rgba(57, 255, 20, 0.7), 
-    transparent
+  background: radial-gradient(
+    circle,
+    rgba(57, 255, 20, 0.1) 0%,
+    rgba(57, 255, 20, 0.05) 40%,
+    transparent 70%
   );
-  animation: techScan 3s linear infinite;
-  pointer-events: none;
-  z-index: 5;
+  filter: blur(10px);
+  opacity: 0.6;
+  animation: nebula-pulse 10s infinite ease-in-out;
 }
 
+@keyframes nebula-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* شبكة التقنية */
+.tech-grid {
+  background-image: linear-gradient(rgba(57, 255, 20, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 255, 20, 0.2) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* دوائر كهربائية تقنية */
+.tech-circuit {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%2339FF14' stroke-width='1'%3E%3Cpath d='M769 229L1037 260.9M927 880L731 737 520 660 309 538 40 599 295 764 126.5 879.5 40 599-197 493 102 382-31 229 126.5 79.5-69-63'/%3E%3Cpath d='M-31 229L237 261 390 382 603 493 308.5 537.5 101.5 381.5M370 905L295 764'/%3E%3Cpath d='M520 660L578 842 731 737 840 599 603 493 520 660 295 764 309 538 390 382 539 269 769 229 577.5 41.5 370 105 295 -36 126.5 79.5 237 261 102 382 40 599 -69 737 127 880'/%3E%3Cpath d='M520-140L578.5 42.5 731-63M603 493L539 269 237 261 370 105M902 382L539 269M390 382L102 382'/%3E%3Cpath d='M-222 42L126.5 79.5 370 105 539 269 577.5 41.5 927 80 769 229 902 382 603 493 731 737M295-36L577.5 41.5M578 842L295 764M40-201L127 80M102 382L-261 269'/%3E%3C/g%3E%3Cg fill='%2339FF14'%3E%3Ccircle cx='769' cy='229' r='5'/%3E%3Ccircle cx='539' cy='269' r='5'/%3E%3Ccircle cx='603' cy='493' r='5'/%3E%3Ccircle cx='731' cy='737' r='5'/%3E%3Ccircle cx='520' cy='660' r='5'/%3E%3Ccircle cx='309' cy='538' r='5'/%3E%3Ccircle cx='295' cy='764' r='5'/%3E%3Ccircle cx='40' cy='599' r='5'/%3E%3Ccircle cx='102' cy='382' r='5'/%3E%3Ccircle cx='127' cy='80' r='5'/%3E%3Ccircle cx='370' cy='105' r='5'/%3E%3Ccircle cx='578' cy='42' r='5'/%3E%3Ccircle cx='237' cy='261' r='5'/%3E%3Ccircle cx='390' cy='382' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.2;
+}
+
+/* تأثير تدفق البيانات */
 .tech-data-flow {
   position: absolute;
   width: 1px;
-  background: linear-gradient(to bottom, 
-    transparent, 
-    var(--terminal-color), 
-    transparent
-  );
-  animation: dataPulse 2s ease-in-out infinite;
-  animation-delay: calc(var(--delay, 0) * 0.5s);
-  opacity: 0.5;
-  z-index: 2;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(57, 255, 20, 0) 0%, rgba(57, 255, 20, 0.5) 50%, rgba(57, 255, 20, 0) 100%);
+  animation: data-flow 3s infinite;
 }
 
-.tech-terminal {
-  background-color: var(--terminal-bg);
-  border: 1px solid var(--terminal-color);
-  border-radius: 0.25rem;
-  padding: 1rem;
-  font-family: monospace;
+@keyframes data-flow {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* تأثيرات الأزرار التقنية */
+
+/* تأثير خط المسح */
+.effect-scanline {
   position: relative;
   overflow: hidden;
 }
 
-.tech-terminal::before {
+.effect-scanline::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 20px;
-  background: linear-gradient(to bottom, 
-    var(--terminal-color) 0%, 
-    transparent 100%
+  height: 4px;
+  background: linear-gradient(to right,
+    rgba(57, 255, 20, 0),
+    rgba(57, 255, 20, 0.5),
+    rgba(57, 255, 20, 0)
   );
-  opacity: 0.1;
+  opacity: calc(0.6 * var(--effect-intensity, 0.5));
+  animation: scanline 2s linear infinite;
+  z-index: 1;
+  pointer-events: none;
 }
 
-.tech-cursor {
-  display: inline-block;
-  width: 0.6em;
-  height: 1em;
-  background-color: var(--terminal-color);
-  animation: terminalBlink 1s step-end infinite;
-  vertical-align: middle;
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
 }
 
-/* ====== محتويات فضائية ====== */
-.space-container {
+/* تأثير نبض */
+.effect-pulse {
   position: relative;
-  perspective: 1000px;
+}
+
+.effect-pulse::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4);
+  animation: pulse 2s infinite;
+  z-index: 0;
+  opacity: calc(0.8 * var(--effect-intensity, 0.5));
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(57, 255, 20, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+}
+
+/* تأثير توهج */
+.effect-glow {
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(57, 255, 20, 0.3); }
+  100% { box-shadow: 0 0 20px rgba(57, 255, 20, 0.6); }
+}
+
+/* تأثير الطاقة */
+.effect-energize {
+  position: relative;
   overflow: hidden;
 }
 
-.space-floating-element {
-  animation: spaceFloat 6s ease-in-out infinite;
-}
-
-.space-teleport {
-  animation: spaceTeleport 0.8s ease-in-out;
-}
-
-.space-thruster {
-  position: relative;
-}
-
-.space-thruster::after {
+.effect-energize::before {
   content: '';
   position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 10px;
-  background: linear-gradient(to bottom, 
-    var(--terminal-color), 
-    transparent
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(57, 255, 20, 0) 45%,
+    rgba(57, 255, 20, 0.5) 50%,
+    rgba(57, 255, 20, 0) 55%
   );
-  border-radius: 0 0 50% 50%;
-  animation: spaceThruster 1.5s ease-in-out infinite;
+  background-size: 200% 200%;
+  border-radius: inherit;
+  animation: energize 2s infinite linear;
+  z-index: 1;
+  opacity: calc(0.6 * var(--effect-intensity, 0.5));
+  pointer-events: none;
 }
 
+@keyframes energize {
+  0% { background-position: 200% 200%; }
+  100% { background-position: -200% -200%; }
+}
+
+/* تأثير محرك الدفع */
+.effect-thruster {
+  position: relative;
+}
+
+.effect-thruster::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 25%;
+  width: 50%;
+  height: 10px;
+  background: linear-gradient(to bottom,
+    rgba(57, 255, 20, 0.8),
+    rgba(57, 255, 20, 0.4) 40%,
+    rgba(57, 255, 20, 0.1) 80%,
+    transparent
+  );
+  border-radius: 50%;
+  filter: blur(3px);
+  opacity: calc(0.7 * var(--effect-intensity, 0.5));
+  z-index: -1;
+  animation: thruster-pulse 2s infinite alternate;
+}
+
+@keyframes thruster-pulse {
+  0% { transform: scaleX(0.8) translateY(0); opacity: calc(0.4 * var(--effect-intensity, 0.5)); }
+  100% { transform: scaleX(1) translateY(5px); opacity: calc(0.7 * var(--effect-intensity, 0.5)); }
+}
+
+/* لوحة تحكم القيادة الفضائية */
+.space-button-commander {
+  position: relative;
+}
+
+/* تأثير المدار */
 .space-orbit {
   position: relative;
+  border-radius: 50%;
+  border: 1px dashed rgba(57, 255, 20, 0.3);
+  animation: rotate 20s linear infinite;
 }
 
 .space-orbit::before {
   content: '';
   position: absolute;
-  top: 50%;
+  top: -10px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 150%;
-  height: 150%;
-  border: 1px dashed rgba(57, 255, 20, 0.3);
+  width: 5px;
+  height: 5px;
+  background-color: #39FF14;
   border-radius: 50%;
-  animation: nebulaDrift 20s linear infinite;
-  pointer-events: none;
-}
-
-.space-orbit::after {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 0;
-  width: 10px;
-  height: 10px;
-  background-color: var(--terminal-color);
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(57, 255, 20, 0.7);
-  animation: spaceFloat 8s linear infinite;
-  pointer-events: none;
-}
-
-/* ====== نصوص فضائية ====== */
-.space-title {
-  font-family: 'Orbitron', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: white;
-  text-shadow: 0 0 10px rgba(57, 255, 20, 0.7);
-  position: relative;
-}
-
-.space-subtitle {
-  font-family: 'Rajdhani', sans-serif;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.8);
-  position: relative;
-}
-
-.space-text {
-  font-family: 'Rajdhani', sans-serif;
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.6;
-}
-
-.space-code {
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--terminal-color);
-  background-color: rgba(0, 0, 0, 0.3);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  border-left: 2px solid var(--terminal-color);
-}
-
-/* ====== كارت فضائي ====== */
-.space-card {
-  background: rgba(5, 10, 30, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(57, 255, 20, 0.3);
-  border-radius: 0.5rem;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.space-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--tech-glow), 0 10px 30px rgba(0, 0, 0, 0.7);
-  border-color: rgba(57, 255, 20, 0.5);
-}
-
-.space-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(57, 255, 20, 0.1) 0%, 
-    transparent 100%
-  );
-  pointer-events: none;
-}
-
-.space-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(to right, 
-    transparent, 
-    rgba(57, 255, 20, 0.8), 
-    transparent
-  );
-}
-
-/* الزوايا المضيئة للكروت الفضائية */
-.space-card-corners {
-  position: relative;
-}
-
-.space-card-corners::before,
-.space-card-corners::after,
-.space-card-corners > div::before,
-.space-card-corners > div::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: rgba(57, 255, 20, 0.7);
-  border-style: solid;
-  border-width: 0;
-}
-
-.space-card-corners::before {
-  top: 0;
-  left: 0;
-  border-top-width: 2px;
-  border-left-width: 2px;
-}
-
-.space-card-corners::after {
-  top: 0;
-  right: 0;
-  border-top-width: 2px;
-  border-right-width: 2px;
-}
-
-.space-card-corners > div::before {
-  bottom: 0;
-  left: 0;
-  border-bottom-width: 2px;
-  border-left-width: 2px;
-}
-
-.space-card-corners > div::after {
-  bottom: 0;
-  right: 0;
-  border-bottom-width: 2px;
-  border-right-width: 2px;
-}
-
-/* ====== أزرار فضائية ====== */
-.space-button-advanced {
-  background: rgba(0, 10, 20, 0.8);
-  color: white;
-  border: 1px solid rgba(57, 255, 20, 0.5);
-  border-radius: 0.25rem;
-  padding: 0.75rem 1.5rem;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  z-index: 1;
-  font-family: 'Rajdhani', sans-serif;
-  letter-spacing: 1px;
-}
-
-.space-button-advanced:hover {
-  color: var(--terminal-color);
-  border-color: rgba(57, 255, 20, 0.8);
-  box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
-}
-
-.space-button-advanced::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(57, 255, 20, 0.2),
-    transparent
-  );
-  transition: all 0.5s ease;
-  z-index: -1;
-}
-
-.space-button-advanced:hover::before {
-  left: 100%;
-}
-
-.space-button-advanced::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    180deg,
-    rgba(57, 255, 20, 0.1),
-    transparent 50%,
-    rgba(57, 255, 20, 0.1)
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-}
-
-.space-button-advanced:hover::after {
-  opacity: 1;
-}
-
-/* زر فضائي مع مؤثرات خاصة */
-.space-button-commander {
-  background: linear-gradient(135deg, 
-    rgba(0, 10, 30, 0.9) 0%, 
-    rgba(5, 20, 50, 0.9) 100%
-  );
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.75rem 1.5rem;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  z-index: 1;
-  font-family: 'Orbitron', sans-serif;
-  letter-spacing: 1px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.space-button-commander::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 2px solid transparent;
-  border-radius: 0.25rem;
-  background-image: linear-gradient(
-    to right,
-    var(--terminal-color),
-    rgba(0, 200, 255, 0.8),
-    var(--terminal-color)
-  );
-  background-origin: border-box;
-  background-clip: border-box;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: xor;
-  z-index: -1;
-}
-
-.space-button-commander:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
-}
-
-.space-button-commander::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--terminal-color),
-    transparent
-  );
-  transition: all 0.3s ease;
-}
-
-.space-button-commander:hover::after {
-  height: 4px;
-  box-shadow: 0 0 10px rgba(57, 255, 20, 0.6);
-}
-
-/* ====== تأثيرات حركة المركبات الفضائية ====== */
-.space-ship-engine {
-  position: relative;
-}
-
-.space-ship-engine::before {
-  content: '';
-  position: absolute;
-  bottom: -15px;
-  left: 50%;
+  box-shadow: 0 0 10px #39FF14;
   transform: translateX(-50%);
-  width: 40%;
-  height: 15px;
-  background: linear-gradient(to bottom, 
-    var(--terminal-color),
-    transparent 80%
-  );
-  filter: blur(2px);
-  opacity: 0.8;
-  border-radius: 0 0 50% 50%;
-  animation: spaceThruster 0.5s ease-in-out infinite;
+  animation: orbit 4s linear infinite;
 }
 
-.space-ship-engine::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20%;
-  height: 10px;
-  background: white;
-  filter: blur(3px);
-  opacity: 0.5;
-  border-radius: 0 0 50% 50%;
-  animation: spaceThruster 0.5s ease-in-out infinite;
-  animation-delay: 0.1s;
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* ====== تأثيرات فضائية للأجزاء المختلفة من الواجهة ====== */
-.space-header {
-  position: relative;
-  border-bottom: 1px solid rgba(57, 255, 20, 0.3);
-  overflow: hidden;
+@keyframes orbit {
+  0% { top: -10px; left: 50%; }
+  25% { top: 50%; left: calc(100% + 10px); }
+  50% { top: calc(100% + 10px); left: 50%; }
+  75% { top: 50%; left: -10px; }
+  100% { top: -10px; left: 50%; }
 }
 
-.space-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--terminal-color),
-    transparent
-  );
+/* تأثيرات ظلال وإضاءة */
+.shadow-glow-sm {
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
 }
 
-.space-sidebar {
-  background: rgba(0, 5, 15, 0.85);
-  border-right: 1px solid rgba(57, 255, 20, 0.2);
-  position: relative;
-  overflow: hidden;
+.shadow-glow-md {
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
 }
 
-.space-sidebar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 1px;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--terminal-color),
-    transparent
-  );
-}
-
-.space-footer {
-  position: relative;
-  border-top: 1px solid rgba(57, 255, 20, 0.3);
-  overflow: hidden;
-}
-
-.space-footer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--terminal-color),
-    transparent
-  );
-}
-
-/* ====== أشكال فضائية ====== */
-.space-hexagon {
-  position: relative;
-  width: 100px;
-  height: 57.74px; /* 100 * sin(60°) */
-  background-color: rgba(57, 255, 20, 0.1);
-  border: 1px solid rgba(57, 255, 20, 0.5);
-  margin: 28.87px 0; /* 57.74 / 2 */
-}
-
-.space-hexagon::before,
-.space-hexagon::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-left: 50px solid transparent;
-  border-right: 50px solid transparent;
-}
-
-.space-hexagon::before {
-  bottom: 100%;
-  border-bottom: 28.87px solid rgba(57, 255, 20, 0.1); /* 100 * sin(30°) */
-}
-
-.space-hexagon::after {
-  top: 100%;
-  border-top: 28.87px solid rgba(57, 255, 20, 0.1); /* 100 * sin(30°) */
-}
-
-.space-circle {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: rgba(5, 10, 30, 0.7);
-  border: 1px solid rgba(57, 255, 20, 0.5);
-  overflow: hidden;
-}
-
-.space-circle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(57, 255, 20, 0.2) 0%, 
-    transparent 100%
-  );
-}
-
-/* ====== بيانات التمدد ====== */
-.space-progress {
-  width: 100%;
-  height: 6px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  position: relative;
-  overflow: hidden;
-}
-
-.space-progress-bar {
-  height: 100%;
-  background-color: var(--terminal-color);
-  border-radius: 3px;
-  transition: width 0.3s ease;
-  position: relative;
-}
-
-.space-progress-bar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: techScan 2s linear infinite;
-}
-
-.space-stat {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.space-stat-label {
-  font-family: 'Rajdhani', sans-serif;
-  color: rgba(255, 255, 255, 0.7);
-  margin-right: 0.5rem;
-}
-
-.space-stat-value {
-  font-family: 'Orbitron', sans-serif;
-  color: var(--terminal-color);
-  font-weight: bold;
+.shadow-glow-lg {
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.4);
 }
