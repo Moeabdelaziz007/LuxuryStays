@@ -42,7 +42,7 @@ const techInputVariants = cva(
 );
 
 export interface TechInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement>,
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
     VariantProps<typeof techInputVariants> {
   leftIcon?: React.ReactNode;
   rightElement?: React.ReactNode;

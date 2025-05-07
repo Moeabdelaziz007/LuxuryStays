@@ -1,0 +1,107 @@
+/* تأثيرات حركية للواجهة التكنولوجية */
+
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(0, 10px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(57, 255, 20, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(57, 255, 20, 0.6); }
+}
+
+@keyframes text-glow {
+  0%, 100% { text-shadow: 0 0 5px rgba(57, 255, 20, 0.3); }
+  50% { text-shadow: 0 0 15px rgba(57, 255, 20, 0.6); }
+}
+
+@keyframes shimmer-x {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(100%) skewX(-15deg); }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes cursor {
+  0%, 100% { border-color: transparent }
+  50% { border-color: #39FF14 }
+}
+
+/* تكوينات حركية شائعة الاستخدام */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-text-glow {
+  animation: text-glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer-x {
+  animation: shimmer-x 3s infinite;
+}
+
+.animate-scan {
+  animation: scan 2s linear infinite;
+}
+
+.animate-rotate {
+  animation: rotate 10s linear infinite;
+}
+
+.animate-blink {
+  animation: blink 1.5s infinite;
+}
+
+.animate-gradient-x {
+  background-size: 200% 100%;
+  animation: gradient-x 8s ease infinite;
+}
+
+.animate-typing {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid;
+  width: 0;
+  animation: 
+    typing 3.5s steps(40, end) forwards,
+    cursor .75s step-end infinite;
+}
