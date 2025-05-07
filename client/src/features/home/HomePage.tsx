@@ -17,251 +17,405 @@ export default function HomePage() {
   return (
     <div className="text-white min-h-screen">
       {/* ✨ قسم البداية - مستقبل الإقامة الفاخرة */}
-      <section>
+      <section className="relative">
         <div className="relative min-h-[100vh] bg-black overflow-hidden">
-          {/* الخلفية الديناميكية مع تأثيرات التقنية */}
+          {/* الخلفية الديناميكية مع تأثيرات التقنية المحسنة */}
           <div className="absolute inset-0 bg-[#000000]">
-            {/* شبكة ثلاثية الأبعاد متحركة */}
-            <div className="absolute inset-0 opacity-20">
+            {/* شبكة ثلاثية الأبعاد متطورة مع تأثير العمق */}
+            <div className="absolute inset-0 opacity-30">
               <div className="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMzOUZGMTQiIHN0cm9rZS13aWR0aD0iMC41Ii8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')]" 
-                style={{animation: "panGrid 30s linear infinite", transformStyle: "preserve-3d", perspective: "1000px", transform: "rotateX(60deg)"}}></div>
+                style={{
+                  animation: "panGrid 40s linear infinite", 
+                  transformStyle: "preserve-3d", 
+                  perspective: "1500px", 
+                  transform: "rotateX(70deg)"
+                }}></div>
             </div>
             
-            {/* طبقة الضباب لإضافة العمق */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black"></div>
+            {/* طبقة الضباب المحسنة لإضافة مزيد من العمق */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black via-black/30 to-black"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-black"></div>
             
-            {/* وهج النيون المركزي المتحرك */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[50vh] bg-[#39FF14] rounded-full opacity-5 blur-[100px] animate-pulse"></div>
+            {/* تأثير وهج النيون المحسن */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vh] bg-[#39FF14] rounded-full opacity-10 blur-[120px] animate-pulse"></div>
+            <div className="absolute top-1/3 right-1/4 w-[30vw] h-[30vh] bg-[#39FF14] rounded-full opacity-5 blur-[80px] animate-pulse" style={{animationDelay: "1.5s"}}></div>
+            <div className="absolute bottom-1/4 left-1/3 w-[25vw] h-[25vh] bg-[#39FF14] rounded-full opacity-5 blur-[90px] animate-pulse" style={{animationDelay: "0.7s"}}></div>
             
-            {/* نقاط البيانات المضيئة المتحركة عشوائيًا */}
+            {/* نقاط بيانات متحركة بتأثير محسن */}
             <div className="absolute inset-0 overflow-hidden">
-              {Array.from({ length: 20 }).map((_, i) => (
+              {Array.from({ length: 30 }).map((_, i) => (
                 <div key={i} 
-                  className="absolute w-1 h-1 bg-[#39FF14] rounded-full"
+                  className="absolute rounded-full"
                   style={{
+                    width: `${Math.random() * 2 + 1}px`,
+                    height: `${Math.random() * 2 + 1}px`,
+                    background: `rgba(57, 255, 20, ${Math.random() * 0.7 + 0.3})`,
+                    boxShadow: `0 0 ${Math.random() * 6 + 2}px rgba(57, 255, 20, 0.7)`,
                     top: `${Math.random() * 100}%`,
                     left: `${Math.random() * 100}%`,
-                    opacity: Math.random() * 0.5 + 0.3,
-                    animation: `float ${Math.random() * 10 + 15}s linear infinite, pulse ${Math.random() * 2 + 1}s ease-in-out infinite alternate`
+                    opacity: Math.random() * 0.8 + 0.2,
+                    animation: `float ${Math.random() * 15 + 20}s linear infinite, pulse ${Math.random() * 3 + 2}s ease-in-out infinite alternate`
                   }}
                 ></div>
               ))}
             </div>
             
-            {/* خطوط اتصال النيون المتحركة */}
+            {/* خطوط اتصال النيون المتطورة */}
             <div className="absolute inset-0">
               <svg className="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,100 Q300,200 600,100 T1200,100" fill="none" stroke="#39FF14" strokeWidth="0.5">
-                  <animate attributeName="d" dur="10s" repeatCount="indefinite" 
+                <path d="M0,100 Q300,200 600,100 T1200,100" fill="none" stroke="#39FF14" strokeWidth="0.8" strokeDasharray="1,5">
+                  <animate attributeName="d" dur="20s" repeatCount="indefinite" 
                     values="M0,100 Q300,200 600,100 T1200,100;
                             M0,150 Q300,50 600,150 T1200,150;
                             M0,100 Q300,200 600,100 T1200,100" />
+                </path>
+                <path d="M0,300 Q400,350 800,300 T1600,300" fill="none" stroke="#39FF14" strokeWidth="0.6" strokeDasharray="0,10">
+                  <animate attributeName="d" dur="25s" repeatCount="indefinite" 
+                    values="M0,300 Q400,350 800,300 T1600,300;
+                            M0,250 Q400,400 800,250 T1600,250;
+                            M0,300 Q400,350 800,300 T1600,300" />
                 </path>
               </svg>
             </div>
           </div>
           
-          {/* المحتوى الرئيسي */}
-          <div className="relative h-full flex flex-col justify-center container mx-auto px-4 pt-10 sm:pt-16 pb-20 sm:pb-32">
-            {/* الشعار والعنوان مع تأثير النيون */}
-            <div className="text-center mb-6 sm:mb-8 mt-4 sm:mt-8 relative">
-              {/* نبض دائري خلف الشعار */}
-              <div className="absolute w-24 sm:w-32 h-24 sm:h-32 bg-[#39FF14] rounded-full blur-[50px] opacity-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
+          {/* المحتوى الرئيسي المحسن */}
+          <div className="relative h-full flex flex-col justify-center container mx-auto px-4 pt-10 sm:pt-16 pb-16 sm:pb-24">
+            {/* الشعار والعنوان مع تأثير النيون المحسن */}
+            <div className="text-center mb-8 sm:mb-10 md:mb-12 mt-8 sm:mt-12 relative">
+              {/* توهج خلفي للشعار - محسن */}
+              <div className="absolute w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-[#39FF14] rounded-full blur-[100px] opacity-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
               
-              {/* الشعار */}
-              <h1 className="inline-block text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black relative pb-2
+              {/* الشعار المحسن */}
+              <div className="relative inline-block">
+                <h1 className="text-5xl xs:text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black pb-2
                               bg-clip-text text-transparent bg-gradient-to-b from-white via-[#39FF14] to-[#21a100]
-                              filter drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]">
-                <span className="relative inline-block">
-                  <span className="relative">Stay</span>
-                  {/* تأثير النيون بالتوهج حول الحروف */}
-                  <span className="absolute inset-0 blur-[5px] bg-clip-text text-transparent bg-gradient-to-b from-white via-[#39FF14] to-[#39FF14]">Stay</span>
-                </span>
-                <span className="text-white ml-1">X</span>
-              </h1>
+                              filter drop-shadow-[0_0_10px_rgba(57,255,20,0.6)]">
+                  <span className="relative inline-block">
+                    <span className="relative">Stay</span>
+                    {/* تأثير النيون المحسن بالتوهج حول الحروف */}
+                    <span className="absolute inset-0 blur-[8px] bg-clip-text text-transparent bg-gradient-to-b from-white via-[#39FF14] to-[#39FF14]">Stay</span>
+                  </span>
+                  <span className="text-white font-black ml-1 relative">
+                    X
+                    <span className="absolute top-0 right-0 h-1/2 w-1/2 bg-[#39FF14] opacity-40 blur-md rounded-full"></span>
+                  </span>
+                </h1>
+                
+                {/* الخط المضيء تحت الشعار */}
+                <div className="h-1 bg-gradient-to-r from-transparent via-[#39FF14] to-transparent w-full mt-2 opacity-80"></div>
+              </div>
               
-              {/* جملة وصفية مع تأثير الكتابة */}
-              <div className="max-w-2xl mx-auto mt-2 sm:mt-4 h-10 sm:h-12 md:h-16 overflow-hidden relative">
-                <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "0s", animationFillMode: "forwards"}}>
+              {/* جملة وصفية بتأثير الكتابة محسن */}
+              <div className="max-w-2xl mx-auto mt-4 sm:mt-8 h-12 sm:h-16 md:h-18 overflow-hidden relative">
+                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-200 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "0s", animationFillMode: "forwards"}}>
                   مستقبل الإقامة الفاخرة
                 </p>
-                <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-neon-green font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "3s", animationFillMode: "forwards"}}>
+                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-[#39FF14] font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "3s", animationFillMode: "forwards", textShadow: "0 0 5px rgba(57, 255, 20, 0.5)"}}>
                   تجربة إقامة بمفهوم جديد
                 </p>
-                <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-300 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "6s", animationFillMode: "forwards"}}>
+                <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-gray-200 font-light absolute inset-0 animate-typewriter opacity-0" style={{animationDelay: "6s", animationFillMode: "forwards"}}>
                   منازل ذكية. رفاهية استثنائية.
                 </p>
               </div>
             </div>
             
-            {/* عبارة حماسية في منتصف القسم */}
-            <div className="relative mx-auto w-full max-w-5xl my-8 sm:my-10 md:my-12 px-3 sm:px-6">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#39FF14] mb-4 
-                            shadow-[0_0_10px_rgba(57,255,20,0.4)] inline-block
-                            animate-pulse">
-                  لسنا الوحيدون ولكننا الأفضل
+            {/* عبارة حماسية محسنة في منتصف القسم */}
+            <div className="relative mx-auto w-full max-w-5xl my-8 sm:my-12 md:my-16 px-4 sm:px-6">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-5 sm:mb-6 relative inline-block">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#39FF14] via-white to-[#39FF14] animate-gradient-x">
+                    لسنا الوحيدون ولكننا الأفضل
+                  </span>
+                  {/* تأثير توهج للعنوان */}
+                  <span className="absolute -inset-1 blur-md bg-[#39FF14] opacity-20 rounded-lg"></span>
                 </h2>
-                <p className="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto">
-                  تمتع بتجربة إقامة استثنائية مع أكثر من 120 عقار فاخر في أفضل المواقع
+                <p className="text-gray-200 text-lg sm:text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
+                  تمتع بتجربة إقامة استثنائية مع أكثر من <span className="text-[#39FF14] font-semibold">120</span> عقار فاخر في أفضل المواقع
                 </p>
               </div>
               
-              {/* شريط البحث المتقدم */}
-              <div className="bg-black/50 backdrop-blur-xl p-4 sm:p-6 rounded-xl border border-[#39FF14]/30
-                           shadow-[0_0_25px_rgba(57,255,20,0.3)] relative overflow-hidden
-                           transform transition-all hover:shadow-[0_0_35px_rgba(57,255,20,0.4)]">
-                {/* إضافة تأثير الخلفية */}
-                <div className="absolute inset-0 overflow-hidden opacity-5">
+              {/* شريط البحث المتقدم - محسن */}
+              <div className="relative bg-black/60 backdrop-blur-3xl p-6 sm:p-8 rounded-2xl 
+                  border border-[#39FF14]/30 shadow-[0_0_40px_rgba(57,255,20,0.15)] 
+                  transform transition-all hover:shadow-[0_0_50px_rgba(57,255,20,0.25)]
+                  overflow-hidden">
+                
+                {/* إضافة خطوط التزيين الزخرفية */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#39FF14]/60 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#39FF14]/40 to-transparent"></div>
+                <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-[#39FF14]/40 to-transparent"></div>
+                <div className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-[#39FF14]/40 to-transparent"></div>
+                
+                {/* تأثير المصفوفة المحسن في الخلفية */}
+                <div className="absolute inset-0 overflow-hidden opacity-10">
                   <div className="animate-matrix-text text-[10px] leading-tight text-[#39FF14]" style={{fontFamily: "monospace"}}>
-                    {Array.from({length: 15}).map((_, i) => (
-                      <div key={i}>01 STAYX 010 STAYX 101 STAYX 1010 STAYX 01 STAYX 10 STAYX 101</div>
+                    {Array.from({length: 20}).map((_, i) => (
+                      <div key={i} style={{
+                        transform: `translateY(${i * 5}px)`,
+                        animationDelay: `${i * 0.1}s`,
+                        opacity: 1 - (i * 0.04)
+                      }}>
+                        {i % 2 === 0 ? 
+                          '01 STAYX 010 SEARCH 101 LUXURY 1010 STAYX 01 COAST 10 VILLAS 101' : 
+                          '10 NORTH 101 COAST 010 BOOKING 1010 STAYX 01 STAY 10 EXPERIENCE 01'}
+                      </div>
                     ))}
                   </div>
                 </div>
                 
-                {/* عنوان شريط البحث */}
-                <div className="text-center mb-5">
-                  <h3 className="text-[#39FF14] text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="11" cy="11" r="8"></circle>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    ابحث عن وجهتك المثالية
-                  </h3>
+                {/* نقاط اتصال مضيئة */}
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} 
+                      className="absolute w-1 h-1 bg-[#39FF14]/80 rounded-full animate-ping" 
+                      style={{
+                        top: `${20 + (i * 10)}%`,
+                        left: i % 2 === 0 ? '0%' : '100%',
+                        transform: 'translate(-50%, -50%)',
+                        animationDuration: `${2 + i}s`,
+                        animationDelay: `${i * 0.3}s`
+                      }}>
+                  </div>
+                ))}
+                
+                {/* عنوان شريط البحث المحسن */}
+                <div className="text-center mb-6 sm:mb-8 relative">
+                  <div className="inline-block relative">
+                    <h3 className="text-white text-2xl sm:text-3xl font-bold inline-flex items-center gap-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-[#39FF14]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <span className="gradient-text bg-clip-text text-transparent bg-gradient-to-r from-white via-[#39FF14] to-white">
+                        ابحث عن وجهتك المثالية
+                      </span>
+                    </h3>
+                    {/* خط تحتي مضيء */}
+                    <div className="h-px w-full bg-gradient-to-r from-transparent via-[#39FF14] to-transparent mt-2"></div>
+                  </div>
+                  
+                  {/* جملة توضيحية تحت العنوان */}
+                  <p className="text-gray-300 mt-3 max-w-2xl mx-auto text-sm sm:text-base">
+                    اكتشف أفخم العقارات في الساحل الشمالي وراس الحكمة وقم بحجز إقامتك المثالية
+                  </p>
                 </div>
                 
-                {/* نموذج البحث */}
-                <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* نموذج البحث المحسن */}
+                <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                   {/* حقل الموقع */}
-                  <div className="relative">
-                    <label className="block text-[#39FF14] text-sm mb-1 font-medium">الموقع</label>
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0 rounded-lg blur opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition duration-500"></div>
                     <div className="relative">
-                      <select className="w-full bg-black/30 backdrop-blur-sm border border-[#39FF14]/30 rounded-md p-3 text-white focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] focus:shadow-[0_0_10px_rgba(57,255,20,0.3)] transition-all appearance-none">
-                        <option value="">جميع المواقع</option>
-                        <option value="north-coast">الساحل الشمالي</option>
-                        <option value="ras-elhekma">رأس الحكمة</option>
-                        <option value="marina">مارينا</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[#39FF14]">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                      </div>
-                      
-                      {/* Slight scanline effect */}
-                      <div className="absolute inset-0 pointer-events-none opacity-10 overflow-hidden rounded-md">
-                        <div className="h-full w-full" style={{
-                          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(57, 255, 20, 0.1) 2px, transparent 4px)',
-                          backgroundSize: '100% 4px',
-                          mixBlendMode: 'overlay'
-                        }}></div>
+                      <label className="block text-[#39FF14] text-sm mb-2 font-semibold">الموقع</label>
+                      <div className="relative">
+                        <select className="w-full py-3 px-4 bg-black/60 backdrop-blur-sm border border-[#39FF14]/40 rounded-lg text-white appearance-none
+                                     focus:outline-none focus:border-[#39FF14] focus:ring-1 focus:ring-[#39FF14] focus:shadow-[0_0_15px_rgba(57,255,20,0.4)] 
+                                     transition-all">
+                          <option value="">جميع المواقع</option>
+                          <option value="north-coast">الساحل الشمالي</option>
+                          <option value="ras-elhekma">رأس الحكمة</option>
+                          <option value="marina">مارينا</option>
+                          <option value="alamein">العلمين الجديدة</option>
+                          <option value="sahel-city">مدينة الساحل</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[#39FF14]">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </div>
+                        
+                        {/* تأثير خطوط المسح المحسنة */}
+                        <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden rounded-lg">
+                          <div className="h-full w-full" style={{
+                            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(57, 255, 20, 0.15) 2px, transparent 4px)',
+                            backgroundSize: '100% 4px',
+                            mixBlendMode: 'overlay'
+                          }}></div>
+                        </div>
                       </div>
                     </div>
                   </div>
                   
                   {/* التاريخ */}
-                  <TechInput
-                    type="date"
-                    label="تاريخ الوصول"
-                    withGlow={true}
-                    variant="bordered"
-                  />
+                  <div className="group relative">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0 rounded-lg blur opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition duration-500"></div>
+                    <div className="relative">
+                      <TechInput
+                        type="date"
+                        label="تاريخ الوصول"
+                        withGlow={true}
+                        variant="bordered"
+                        className="group-hover:border-[#39FF14]/60 transition-colors"
+                      />
+                    </div>
+                  </div>
                   
                   {/* الأشخاص */}
-                  <TechInput
-                    type="number"
-                    min="1"
-                    max="20"
-                    defaultValue="2"
-                    label="عدد الأشخاص"
-                    withGlow={true}
-                    variant="bordered"
-                    icon={
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                      </svg>
-                    }
-                  />
+                  <div className="group relative">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0 rounded-lg blur opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition duration-500"></div>
+                    <div className="relative">
+                      <TechInput
+                        type="number"
+                        min="1"
+                        max="20"
+                        defaultValue="2"
+                        label="عدد الأشخاص"
+                        withGlow={true}
+                        variant="bordered"
+                        className="group-hover:border-[#39FF14]/60 transition-colors"
+                        icon={
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                          </svg>
+                        }
+                      />
+                    </div>
+                  </div>
                   
-                  {/* زر البحث */}
-                  <div className="flex items-end">
-                    <TechButton
-                      type="submit"
-                      variant="default"
-                      className="w-full py-3"
-                      glowIntensity="medium"
-                      animation="pulse"
-                      shimmer={true}
-                    >
-                      <span className="flex items-center justify-center">
-                        ابحث الآن
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 rtl:ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                      </span>
-                    </TechButton>
+                  {/* زر البحث المحسن */}
+                  <div className="flex items-end relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/50 to-[#39FF14]/0 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-300"></div>
+                    <div className="relative w-full">
+                      <TechButton
+                        type="submit"
+                        variant="default"
+                        className="w-full py-3.5 text-lg font-bold group-hover:shadow-[0_0_20px_rgba(57,255,20,0.5)]"
+                        glowIntensity="strong"
+                        animation="pulse"
+                        shimmer={true}
+                      >
+                        <span className="flex items-center justify-center gap-2">
+                          <span>ابحث الآن</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:transform rtl:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </span>
+                      </TechButton>
+                    </div>
                   </div>
                 </form>
                 
-                {/* الإحصائيات السريعة */}
-                <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-6 text-center text-sm text-white/70">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[#39FF14]">120+</span> عقار متاح
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[#39FF14]">95%</span> تقييمات ممتازة
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[#39FF14]">2,500+</span> حجز شهريًا
+                {/* الإحصائيات السريعة المحسنة */}
+                <div className="mt-8 pt-5 border-t border-gray-800/50">
+                  <div className="flex flex-wrap justify-center sm:justify-around gap-4 sm:gap-8">
+                    {/* عنصر إحصائي 1 */}
+                    <div className="text-center px-4 py-2 backdrop-blur-md bg-black/30 rounded-lg border border-[#39FF14]/20 transform transition-transform hover:scale-105">
+                      <div className="text-[#39FF14] text-lg sm:text-xl font-bold">120+</div>
+                      <div className="text-gray-300 text-sm">عقار متاح</div>
+                    </div>
+                    
+                    {/* عنصر إحصائي 2 */}
+                    <div className="text-center px-4 py-2 backdrop-blur-md bg-black/30 rounded-lg border border-[#39FF14]/20 transform transition-transform hover:scale-105">
+                      <div className="text-[#39FF14] text-lg sm:text-xl font-bold">95%</div>
+                      <div className="text-gray-300 text-sm">تقييمات ممتازة</div>
+                    </div>
+                    
+                    {/* عنصر إحصائي 3 */}
+                    <div className="text-center px-4 py-2 backdrop-blur-md bg-black/30 rounded-lg border border-[#39FF14]/20 transform transition-transform hover:scale-105">
+                      <div className="text-[#39FF14] text-lg sm:text-xl font-bold">2,500+</div>
+                      <div className="text-gray-300 text-sm">حجز شهريًا</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            {/* الأزرار الرئيسية */}
-            <div className="flex flex-wrap justify-center gap-3 md:gap-5 mt-6 sm:mt-8">
-              <TechButton
-                variant="default"
-                size="lg"
-                className="min-w-[120px] md:min-w-[160px]"
-                glowIntensity="medium"
-                shimmer={true}
-                onClick={() => window.location.href = '/properties'}
-              >
-                <span className="flex items-center justify-center">
-                  تصفح العقارات
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 rtl:ml-1 sm:rtl:ml-2 rtl:transform rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                  </svg>
-                </span>
-              </TechButton>
+            {/* الأزرار الرئيسية - محسنة */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 mt-10 sm:mt-12">
+              {/* زر تصفح العقارات */}
+              <div className="group relative w-full sm:w-auto">
+                {/* تأثير التوهج الخارجي */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/70 to-[#39FF14]/0 rounded-lg opacity-70 blur-md group-hover:opacity-100 transition duration-300 group-hover:duration-200 animate-pulse-slow"></div>
+                
+                <TechButton
+                  variant="default"
+                  size="lg"
+                  className="relative w-full sm:w-auto min-w-[220px] py-4 md:py-5 text-lg font-bold"
+                  glowIntensity="strong"
+                  shimmer={true}
+                  animation="pulse"
+                  onClick={() => window.location.href = '/properties'}
+                >
+                  <span className="flex items-center justify-center gap-3">
+                    <span>تصفح العقارات</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 rtl:transform rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                  </span>
+                  
+                  {/* تأثير الخط المتحرك */}
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
+                </TechButton>
+              </div>
               
-              <TechButton
-                variant="outline"
-                size="lg"
-                className="min-w-[120px] md:min-w-[160px]"
-                animation="pulse"
-                onClick={() => window.location.href = '/login'}
-              >
-                تسجيل الدخول
-              </TechButton>
+              {/* زر تسجيل الدخول */}
+              <div className="group relative w-full sm:w-auto">
+                {/* تأثير التوهج الخارجي */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0 rounded-lg blur-md opacity-0 group-hover:opacity-70 transition duration-300"></div>
+                
+                <TechButton
+                  variant="outline"
+                  size="lg"
+                  className="relative w-full sm:w-auto min-w-[220px] py-4 md:py-5 text-lg font-bold border-[#39FF14]/50 group-hover:border-[#39FF14]"
+                  animation="pulse"
+                  onClick={() => window.location.href = '/login'}
+                >
+                  <span className="flex items-center justify-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                      <polyline points="10 17 15 12 10 7"></polyline>
+                      <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    <span>تسجيل الدخول</span>
+                  </span>
+                </TechButton>
+              </div>
             </div>
             
-            {/* مؤشر التمرير للأسفل بتصميم تقني مميز */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-white/60 hover:text-white/90 transition-colors cursor-pointer">
+            {/* مؤشر التمرير للأسفل بتصميم تقني مميز - محسن */}
+            <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-center hover:scale-110 transition-all duration-300 cursor-pointer group">
               <div className="flex flex-col items-center">
-                <p className="text-xs mb-2">اكتشف المزيد</p>
-                <div className="w-8 h-12 border-2 border-[#39FF14]/40 rounded-full flex justify-center pt-1 relative">
-                  <div className="w-1 h-2 bg-[#39FF14] rounded-full animate-scrolldown"></div>
-                  {/* خطوط المسح */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    <div className="h-full w-full bg-[#39FF14]/5 
-                                 transform translate-y-0 animate-scan"></div>
+                {/* النص فوق المؤشر */}
+                <p className="text-xs text-[#39FF14] mb-2 font-medium tracking-wider group-hover:text-white transition-colors">
+                  اكتشف المزيد
+                </p>
+                
+                {/* إطار المؤشر المحسن */}
+                <div className="relative">
+                  {/* الهالة الخارجية */}
+                  <div className="absolute -inset-1 bg-gradient-to-b from-[#39FF14]/0 via-[#39FF14]/30 to-[#39FF14]/0 rounded-full blur opacity-50 group-hover:opacity-100 transition duration-300"></div>
+                  
+                  <div className="w-8 h-14 border-2 border-[#39FF14]/50 group-hover:border-[#39FF14] rounded-full flex flex-col justify-start pt-1 relative transition-colors duration-300">
+                    {/* نقطة الضوء المتحركة */}
+                    <div className="w-1.5 h-1.5 bg-[#39FF14] rounded-full animate-scrolldown shadow-[0_0_5px_rgba(57,255,20,0.8)] group-hover:shadow-[0_0_8px_rgba(57,255,20,1)]"></div>
+                    
+                    {/* تأثير خط المسح الأفقي */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
+                      <div className="h-full w-full bg-[#39FF14]/5 transform translate-y-0 animate-scan"></div>
+                    </div>
+                    
+                    {/* نقاط مضيئة ثابتة */}
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} 
+                          className="absolute w-0.5 h-0.5 bg-[#39FF14] rounded-full" 
+                          style={{
+                            top: `${30 + (i * 20)}%`,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            opacity: 0.6 - (i * 0.15)
+                          }}>
+                      </div>
+                    ))}
+                    
+                    {/* الأسهم في الأسفل */}
+                    <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-[#39FF14]/70 group-hover:text-[#39FF14] transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
