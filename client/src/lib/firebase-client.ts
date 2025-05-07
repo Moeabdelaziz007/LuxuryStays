@@ -23,12 +23,37 @@ export const app = firebaseApp;
 export const db = firestoreDb;
 export const storage = firebaseStorage;
 
-// دالة مساعدة للتعامل مع وثائق Firestore بشكل آمن
-export const safeDoc = (doc: any) => {
-  if (!doc || !doc.exists) {
-    return null;
+// دالة مساعدة محسّنة للتعامل مع وثائق Firestore بشكل آمن مع معالجة الأخطاء
+export const safeDoc = async <T>(docFn: () => Promise<any>, defaultValue: T | null = null): Promise<T | null> => {
+  try {
+    const doc = await docFn();
+    
+    // إذا كانت النتيجة فارغة أو غير موجودة
+    if (!doc) return defaultValue;
+    
+    // التعامل مع وثيقة فردية
+    if (doc.exists && typeof doc.data === 'function') {
+      return { id: doc.id, ...doc.data() } as T;
+    }
+    
+    // التعامل مع نتائج query (مجموعة وثائق)
+    if (doc.docs && Array.isArray(doc.docs)) {
+      return doc.docs.map((d: any) => ({ id: d.id, ...d.data() })) as unknown as T;
+    }
+    
+    // التعامل مع حالات خاصة مثل getCountFromServer
+    if (doc.data && typeof doc.data === 'function' && !doc.exists) {
+      return doc.data() as T;
+    }
+    
+    // إذا كان الكائن بالفعل معالج
+    if (doc.id) return doc as T;
+    
+    return defaultValue;
+  } catch (error) {
+    console.error("خطأ في الوصول إلى Firestore:", error);
+    return defaultValue;
   }
-  return { id: doc.id, ...doc.data() };
 };
 
 // ======= وظائف المصادقة المحسّنة =======

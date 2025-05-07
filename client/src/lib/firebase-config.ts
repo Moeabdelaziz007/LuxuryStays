@@ -44,8 +44,11 @@ export const db = initializeFirestore(app, {
     // زيادة حجم التخزين المؤقت للتطبيقات الكبيرة
     cacheSizeBytes: CACHE_SIZE_UNLIMITED,
   }),
-  // زيادة مهلة الانتظار لتحسين الاتصال على الشبكات البطيئة
+  // تحسينات الشبكة للاتصالات غير المستقرة والشبكات البطيئة
   experimentalForceLongPolling: true,
+  experimentalAutoDetectLongPolling: true,
+  // زيادة مهلة الانتظار (30 ثانية)
+  maxOperationRetryTime: 30000,
 });
 
 // تهيئة خدمة التخزين
@@ -54,12 +57,37 @@ export const storage = getStorage(app);
 // ملاحظة: لا نحتاج لاستدعاء enableIndexedDbPersistence لأن persistentLocalCache يقوم بذلك تلقائيًا
 console.log("تم تكوين Firestore مع دعم وضع عدم الاتصال");
 
-// دالة مساعدة للتعامل مع وثائق Firestore بشكل آمن
-export const safeDoc = (doc: any) => {
-  if (!doc || !doc.exists) {
-    return null;
+// دالة مساعدة محسّنة للتعامل مع وثائق Firestore بشكل آمن مع معالجة الأخطاء
+export const safeDoc = async <T>(docFn: () => Promise<any>, defaultValue: T | null = null): Promise<T | null> => {
+  try {
+    const doc = await docFn();
+    
+    // إذا كانت النتيجة فارغة أو غير موجودة
+    if (!doc) return defaultValue;
+    
+    // التعامل مع وثيقة فردية
+    if (doc.exists && typeof doc.data === 'function') {
+      return { id: doc.id, ...doc.data() } as T;
+    }
+    
+    // التعامل مع نتائج query (مجموعة وثائق)
+    if (doc.docs && Array.isArray(doc.docs)) {
+      return doc.docs.map((d: any) => ({ id: d.id, ...d.data() })) as unknown as T;
+    }
+    
+    // التعامل مع حالات خاصة مثل getCountFromServer
+    if (doc.data && typeof doc.data === 'function' && !doc.exists) {
+      return doc.data() as T;
+    }
+    
+    // إذا كان الكائن بالفعل معالج
+    if (doc.id) return doc as T;
+    
+    return defaultValue;
+  } catch (error) {
+    console.error("خطأ في الوصول إلى Firestore:", error);
+    return defaultValue;
   }
-  return { id: doc.id, ...doc.data() };
 };
 
 // تصدير كل شيء
