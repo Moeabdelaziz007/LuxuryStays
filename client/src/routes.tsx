@@ -262,6 +262,15 @@ export default function AppRoutes() {
         )}
       </Route>
       
+      {/* مسار خاص للمعاملات المالية */}
+      <Route path="/super-admin/finances/transactions">
+        <RouteGuard role={UserRole.SUPER_ADMIN}>
+          <SuperAdminLayout>
+            <FinancialTransactions />
+          </SuperAdminLayout>
+        </RouteGuard>
+      </Route>
+      
       {/* مسار للصفحات غير الموجودة */}
       <Route>
         <NotFound />

@@ -5,6 +5,7 @@ import { properties, services } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import adminRoutes from './routes/admin';
+import paymentRoutes from './routes/payment';
 import { authenticateUser, createCustomToken } from './firebase-admin-simple';
 import axios from "axios";
 
@@ -20,6 +21,9 @@ const googleOAuth = {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin routes
   app.use('/api/admin', adminRoutes);
+  
+  // Register payment routes
+  app.use('/api', paymentRoutes);
   
   // API endpoint to check server status
   app.get("/api/status", (_req, res) => {
