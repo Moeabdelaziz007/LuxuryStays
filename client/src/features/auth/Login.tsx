@@ -5,10 +5,12 @@ import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/aut
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import GoogleLoginWarning from "@/components/GoogleLoginWarning";
+import GoogleAuthDomainAlert from "@/components/GoogleAuthDomainAlert";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/auth-context";
 import GoogleLoginButton from "@/components/ui/GoogleLoginButtonFixed";
 import GuestLoginButton from "@/components/ui/GuestLoginButtonFixed";
+import { isCurrentDomainAuthorized, storeCurrentDomain } from "@/lib/FirebaseDomainHelper";
 
 // صفحة تسجيل الدخول
 export default function LoginNew() {
@@ -213,6 +215,14 @@ export default function LoginNew() {
     try {
       console.log("بدء محاولة تسجيل الدخول باستخدام Google...");
       console.log("النطاق الحالي:", window.location.host);
+      
+      // التحقق من النطاق قبل محاولة تسجيل الدخول
+      if (!isCurrentDomainAuthorized()) {
+        console.warn("النطاق الحالي غير مصرح به في Firebase. عرض تحذير...");
+        storeCurrentDomain(); // تخزين النطاق الحالي للرجوع إليه لاحقًا
+        setShowGoogleWarning(true);
+        return;
+      }
       
       // إرسال مسار إعادة التوجيه إلى دالة تسجيل الدخول مع Google
       await loginWithGoogle(redirectPath || undefined);
@@ -563,8 +573,8 @@ export default function LoginNew() {
 
       {/* Google Login Warning Dialog */}
       <Dialog open={showGoogleWarning} onOpenChange={setShowGoogleWarning}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white p-0 overflow-hidden">
-          <GoogleLoginWarning />
+        <DialogContent className="bg-black/95 border-amber-800/30 text-white overflow-hidden">
+          <GoogleAuthDomainFeedback />
         </DialogContent>
       </Dialog>
     </div>
