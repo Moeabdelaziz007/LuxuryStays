@@ -377,6 +377,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // تسجيل الدخول باستخدام Google - طريقة بديلة لا تتطلب تسجيل النطاق في Firebase
+  // تسجيل الدخول باستخدام Google - مُبسط لاستخدام نطاق Firebase المعتمد
   const loginWithGoogle = async (redirectPath?: string) => {
     setLoading(true);
     setError(null);
@@ -394,28 +395,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       console.log("محاولة تسجيل الدخول باستخدام Google...");
       
+      // إنشاء مزود مصادقة Google
+      const googleProvider = new GoogleAuthProvider();
+      
+      // إضافة نطاقات لطلب المعلومات
+      googleProvider.addScope('email');
+      googleProvider.addScope('profile');
+      
+      // استخدام signInWithPopup لمحاولة تسجيل الدخول
       try {
-        // إنشاء مزود مصادقة Google
-        const googleProvider = new GoogleAuthProvider();
-        
-        // إضافة نطاقات لطلب المعلومات
-        googleProvider.addScope('email');
-        googleProvider.addScope('profile');
-        
-        // تبسيط إعدادات المزود لمنع مشاكل إعادة التوجيه
-        // إزالة setCustomParameters لتجنب التعارض مع إعدادات OAuth
-        
-        console.log("تم تهيئة مزود Google، جاري تسجيل الدخول (باستخدام النافذة المنبثقة)...");
-        console.log("النطاق الحالي:", window.location.hostname);
-
-        // استخدام signInWithPopup بدلاً من signInWithRedirect للتجاوز مشكلة إعادة التوجيه
+        console.log("تم تهيئة مزود Google، جاري تسجيل الدخول باستخدام النافذة المنبثقة...");
         const result = await signInWithPopup(auth, googleProvider);
         
-        // الحصول على النتيجة
-        const credential = GoogleAuthProvider.credentialFromResult(result);
+        // تسجيل معلومات المستخدم
+        console.log("تم تسجيل الدخول باستخدام Google بنجاح!");
         const user = result.user;
-        
-        console.log("تم تسجيل الدخول باستخدام Google بنجاح:", user.email);
         
         // إضافة المستخدم إلى Firestore إذا لم يكن موجودًا
         if (db) {
@@ -442,83 +436,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
           } catch (firestoreError) {
             console.warn("تعذر حفظ معلومات المستخدم في Firestore:", firestoreError);
-            // استمر حتى لو فشل Firestore
           }
         }
-        
-        console.log("اكتملت عملية تسجيل الدخول مع Google بنجاح!");
       } catch (popupError: any) {
-        // إذا فشلت النافذة المنبثقة، يمكننا تجربة طريقة إعادة التوجيه
-        if (popupError.code === 'auth/popup-blocked' || 
-            popupError.code === 'auth/popup-closed-by-user' || 
-            popupError.code === 'auth/cancelled-popup-request') {
-          
-          console.log("النافذة المنبثقة غير متاحة، محاولة تسجيل الدخول باستخدام إعادة التوجيه...");
-          
-          const provider = new GoogleAuthProvider();
-          provider.addScope('profile');
-          provider.addScope('email');
-          
-          await signInWithRedirect(auth, provider);
-          // لن يتم تنفيذ أي كود بعد هذا لأن الصفحة ستتم إعادة تحميلها
+        console.error("خطأ في تسجيل الدخول باستخدام النافذة المنبثقة:", popupError);
+        
+        // محاولة تسجيل الدخول باستخدام المصادقة المجهولة
+        if (popupError.code === 'auth/unauthorized-domain') {
+          console.log("النطاق غير مصرح به في Firebase، محاولة تسجيل الدخول كضيف...");
+          await loginAnonymously();
         } else {
-          // في حالة أخطاء أخرى، نمرر الخطأ ليتم التعامل معه في الـ catch الرئيسي
           throw popupError;
         }
       }
-      console.log("هذه الرسالة لن تظهر بسبب إعادة التوجيه");
+    } catch (error: any) {
+      console.error("خطأ في تسجيل الدخول باستخدام Google:", error);
       
-    } catch (err: any) {
-      console.error("خطأ في تسجيل الدخول:", err);
-      
-      // محاولة تسجيل دخول مجهول (Anonymous Authentication) كحل بديل
+      // محاولة تسجيل الدخول كضيف إذا فشلت محاولة Google
       try {
-        console.log("محاولة تسجيل الدخول كضيف باستخدام المصادقة المجهولة...");
-        
-        // استخدام المصادقة المجهولة التي توفرها Firebase
-        // التحقق من أن auth ليس null قبل استخدامه
-        if (!auth) {
-          throw new Error("خدمة المصادقة غير متوفرة");
-        }
-        
-        const guestCred = await signInAnonymously(auth);
-        console.log("تم إنشاء حساب مجهول جديد");
-        
-        // تحديث اسم المستخدم
-        if (guestCred.user) {
-          await updateProfile(guestCred.user, {
-            displayName: "ضيف StayX"
-          });
-        }
-        
-        // إضافة معلومات إلى Firestore
-        if (db) {
-          const guestData = {
-            uid: guestCred.user.uid,
-            email: null, // المستخدمين المجهولين ليس لديهم بريد إلكتروني
-            name: "ضيف StayX",
-            role: "CUSTOMER",
-            createdAt: new Date().toISOString(),
-            isAnonymous: true
-          };
-          
-          await setDoc(doc(db, "users", guestCred.user.uid), guestData);
-        }
-        
-        console.log("✅ تم تسجيل دخول حساب ضيف بنجاح!");
-        return;
+        console.log("محاولة تسجيل الدخول كضيف...");
+        await loginAnonymously();
       } catch (guestError) {
         console.error("فشل تسجيل الدخول كضيف:", guestError);
         setError("فشل تسجيل الدخول. الرجاء المحاولة مرة أخرى لاحقًا.");
-      }
-      
-      // عرض رسالة الخطأ المناسبة
-      if (err.code === 'auth/unauthorized-domain') {
-        setError("جاري تسجيل الدخول كضيف بدلاً من Google.");
-      } else if (err.code === 'auth/popup-closed-by-user') {
-        setError("تم إغلاق نافذة تسجيل الدخول. سيتم تسجيل الدخول كضيف تلقائيًا.");
-      } else {
-        setError("فشل تسجيل الدخول. الرجاء المحاولة مرة أخرى.");
       }
     } finally {
       setLoading(false);

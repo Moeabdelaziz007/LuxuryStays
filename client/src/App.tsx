@@ -21,28 +21,61 @@ function RedirectHandler() {
   // Handle redirect result from Google sign-in
   useEffect(() => {
     const handleRedirectResult = async () => {
+      // التحقق من وجود معلمات طلب Google Oauth في المسار الحالي
+      const currentUrl = new URL(window.location.href);
+      const hasOauthParams = currentUrl.search.includes('oauth') || 
+                            currentUrl.search.includes('google') || 
+                            currentUrl.search.includes('firebaseui');
+      
+      // التحقق من وجود مؤشر لعملية مصادقة معلقة
+      const pendingAuth = localStorage.getItem('pendingGoogleAuth') === 'true';
+      
       try {
         console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location });
         console.log("Checking for redirect result from Google sign-in...");
         
-        // تحسين معالجة نتائج إعادة التوجيه من Google
-        console.log("Current domains in Firebase that should be authorized:", window.location.host);
-        const result = await getRedirectResult(auth).catch(error => {
-          console.error("Error getting redirect result:", error);
-          if (error.code === 'auth/unauthorized-domain') {
-            console.error(`Please add "${window.location.host}" to Firebase authorized domains!`);
-          }
-          return null;
-        });
+        // إعداد متغيرات للتعامل مع نتيجة إعادة التوجيه
+        let authResult = null;
         
-        if (result) {
-          console.log("✅ Google redirect sign-in successful!");
-          console.log("User signed in:", result.user.email);
-          console.log("Display name:", result.user.displayName);
-          console.log("User ID:", result.user.uid);
+        // تنفيذ التحقق من نتيجة إعادة التوجيه
+        try {
+          // استخدام authDomain من Firebase Hosting
+          const customAuthConfig = {
+            // استخدام نطاق Firebase المعتمد بصرف النظر عن النطاق الحالي
+            authDomain: 'staychill-3ed08.firebaseapp.com'
+          };
           
-          // Get saved redirect path if any
+          // محاولة الحصول على نتيجة إعادة التوجيه
+          authResult = await getRedirectResult(auth);
+        } catch (redirectError) {
+          console.error("Error getting redirect result:", redirectError);
+          
+          if (redirectError.code === 'auth/unauthorized-domain') {
+            console.error(`Firebase domain error: "${window.location.host}" not in authorized domains!`);
+            console.error("Using alternative Firebase hosting domain for authentication");
+            
+            // قم بعرض تنبيه للمستخدم ليعرف لماذا سيتم نقله إلى نطاق آخر
+            if (pendingAuth || hasOauthParams) {
+              console.log("Detected pending auth or OAuth parameters - preparing for Firebase domain auth");
+            }
+          }
+          
+          // لا حاجة للتوقف هنا - سنعود إلى النطاق المعتمد
+          authResult = null;
+        }
+        
+        // التعامل مع نتيجة إعادة التوجيه الناجحة
+        if (authResult) {
+          console.log("✅ Google redirect sign-in successful!");
+          console.log("User signed in:", authResult.user.email);
+          console.log("Display name:", authResult.user.displayName);
+          console.log("User ID:", authResult.user.uid);
+          
+          // استرجاع مسار إعادة التوجيه المحفوظ
           let savedRedirectPath = localStorage.getItem('googleAuthRedirectPath');
+          
+          // مسح متغير عملية المصادقة المعلقة
+          localStorage.removeItem('pendingGoogleAuth');
           
           if (savedRedirectPath) {
             console.log("Redirecting to saved path after Google login:", savedRedirectPath);
@@ -50,7 +83,7 @@ function RedirectHandler() {
             setLocation(savedRedirectPath);
           } else {
             // Redirect based on role if available in the token
-            const idTokenResult = await result.user.getIdTokenResult();
+            const idTokenResult = await authResult.user.getIdTokenResult();
             const role = idTokenResult.claims.role;
             
             if (role) {

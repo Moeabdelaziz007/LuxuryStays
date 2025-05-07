@@ -8,8 +8,6 @@ const KNOWN_AUTHORIZED_DOMAINS = [
   'localhost',
   'staychill-3ed08.firebaseapp.com',
   'staychill-3ed08.web.app',
-  'f383ffdf-c47a-4c1b-883b-f090e022af0c-00-3o45tueo3kkse.spock.replit.dev',
-  'luxury-stays-mohamedabdela18.replit.app',
 ];
 
 /**
