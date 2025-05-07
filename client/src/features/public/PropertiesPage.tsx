@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon, Search, Map, FilterX, BuildingIcon, BedDouble, Bath, Users, Save, BookMarked } from "lucide-react";
 import { format } from "date-fns";
@@ -575,7 +575,16 @@ export default function PropertiesPage() {
                               from: dateRange.from,
                               to: dateRange.to,
                             }}
-                            onSelect={(value) => setDateRange(value || { from: undefined, to: undefined })}
+                            onSelect={(value) => {
+                              if (value) {
+                                setDateRange({
+                                  from: value.from,
+                                  to: value.to || undefined
+                                });
+                              } else {
+                                setDateRange({ from: undefined, to: undefined });
+                              }
+                            }}
                             numberOfMonths={2}
                             className="bg-gray-900 text-white border-gray-700"
                           />
