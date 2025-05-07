@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useLocation } from "wouter";
-import { auth, db, safeDoc } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signInAnonymously, sendPasswordResetEmail } from "firebase/auth";
 import { doc, getDoc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";

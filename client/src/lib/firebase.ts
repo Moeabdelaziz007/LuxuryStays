@@ -6,6 +6,9 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  signInAnonymously,
+  sendPasswordResetEmail,
   UserCredential,
   connectAuthEmulator,
   Auth 
@@ -37,9 +40,6 @@ if (typeof window === "undefined") {
 
 // Add extra initialization code to troubleshoot Firebase connection issues
 console.log("Initializing Firebase with project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
-
-// Explicitly set Firebase configuration to match .env values
-// This will fix the mismatch with the Firebase project configuration
 
 // Add debugging to help troubleshoot environment variables
 console.log("=== DEBUGGING FIREBASE CONFIGURATION ===");
@@ -112,6 +112,9 @@ if (app) {
         cacheSizeBytes: 50000000, // Increase cache size to 50MB
         ignoreUndefinedProperties: true // Ignore undefined properties to prevent errors
       };
+    } catch (err) {
+      console.warn("Could not set Firestore settings:", err);
+    }
     
     // تكوين متقدم للتخزين المحلي وإدارة الشبكة لتحسين الأداء في كل الظروف
     if (db) {
@@ -339,9 +342,6 @@ export const registerUser = async (email: string, password: string, name: string
     // إظهار خطأ مفصل في حالة فشل حفظ البيانات
     console.error("Failed to save user data to Firestore:", error);
     console.warn("User was created in Firebase Auth but data couldn't be saved to Firestore");
-    
-    // يمكننا أن نعرض للمستخدم أن هناك مشكلة في حفظ البيانات ولكن التسجيل تم بنجاح
-    // لن نرمي خطأ هنا لأن المستخدم تم إنشاؤه بنجاح في Firebase Auth
   }
   
   return userData;
