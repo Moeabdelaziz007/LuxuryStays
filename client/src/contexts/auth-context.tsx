@@ -394,9 +394,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // محاولة استخدام النافذة المنبثقة أولاً (تعمل بشكل أفضل في بيئة Replit)
         console.log("Trying popup signin first");
         const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
+        
+        // تعديل الإعدادات المخصصة للعمل بشكل أفضل في بيئة Replit
+        provider.setCustomParameters({ 
+          prompt: 'select_account',
+          // إضافة معلمات إضافية للمساعدة في حل مشكلات موزع google.com
+          login_hint: 'user@gmail.com'
+        });
+        
+        // التأكد من إضافة النطاقات المطلوبة
         provider.addScope('profile');
         provider.addScope('email');
+        
+        // محاولة تسجيل الدخول باستخدام النافذة المنبثقة
+        console.log("Starting popup authentication process...");
         const result = await signInWithPopup(auth, provider);
         console.log("Popup signin successful");
       } catch (popupError: any) {

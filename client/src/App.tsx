@@ -22,7 +22,15 @@ function RedirectHandler() {
         console.log("[DEBUG] RedirectHandler in App.tsx:", { user, loading, pathname: location });
         console.log("Checking for redirect result from Google sign-in...");
         
-        const result = await getRedirectResult(auth);
+        // تحسين معالجة نتائج إعادة التوجيه من Google
+        console.log("Current domains in Firebase that should be authorized:", window.location.host);
+        const result = await getRedirectResult(auth).catch(error => {
+          console.error("Error getting redirect result:", error);
+          if (error.code === 'auth/unauthorized-domain') {
+            console.error(`Please add "${window.location.host}" to Firebase authorized domains!`);
+          }
+          return null;
+        });
         
         if (result) {
           console.log("✅ Google redirect sign-in successful!");
