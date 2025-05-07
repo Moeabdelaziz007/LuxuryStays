@@ -67,8 +67,11 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
   }, [initialTab]);
   
   // Fetch user's bookings with better error handling and fallback
+  // Use memo for stable query key to prevent unnecessary re-renders
+  const bookingsQueryKey = useMemo(() => ["customer-bookings", user?.uid], [user?.uid]);
+  
   const { data: bookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery({
-    queryKey: ["customer-bookings", user?.uid],
+    queryKey: bookingsQueryKey,
     queryFn: async () => {
       if (!user?.uid || !db) return [];
       
@@ -171,14 +174,18 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
         return [];
       }
     },
-    enabled: !!user?.uid && !!db,
+    enabled: Boolean(user?.uid) && Boolean(db),
     staleTime: 5 * 60 * 1000, // تخزين البيانات لمدة 5 دقائق قبل إعادة الاستعلام
-    retry: 2 // محاولة إعادة الاستعلام مرتين في حالة الفشل
+    retry: 2, // محاولة إعادة الاستعلام مرتين في حالة الفشل
+    refetchOnWindowFocus: false
   });
   
   // Fetch user's favorite properties
+  // Use memo for stable query key to prevent duplicate requests
+  const favoritesQueryKey = useMemo(() => ["customer-favorites", user?.uid], [user?.uid]);
+  
   const { data: favorites = [], isLoading: favoritesLoading, error: favoritesError } = useQuery({
-    queryKey: ["customer-favorites", user?.uid],
+    queryKey: favoritesQueryKey,
     queryFn: async () => {
       if (!user?.uid || !db) return [];
       
@@ -271,9 +278,10 @@ export default function NewCustomerDashboard({ activeTab: initialTab = "dashboar
         return [];
       }
     },
-    enabled: !!user?.uid && !!db,
+    enabled: Boolean(user?.uid) && Boolean(db),
     staleTime: 5 * 60 * 1000, // تخزين البيانات لمدة 5 دقائق قبل إعادة الاستعلام
-    retry: 2 // محاولة إعادة الاستعلام مرتين في حالة الفشل
+    retry: 2, // محاولة إعادة الاستعلام مرتين في حالة الفشل
+    refetchOnWindowFocus: false
   });
   
   const formatDate = (dateObj: any) => {
