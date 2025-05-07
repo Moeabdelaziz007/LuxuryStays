@@ -1,147 +1,95 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/features/i18n/hooks/useTranslation";
-import { MapPin, Phone, Mail, ArrowRight, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Instagram, MapPin, Phone, Mail } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function Footer() {
-  const { t, isRTL } = useTranslation();
+  const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-secondary pt-16 pb-8">
+    <footer className="bg-black border-t border-[#39FF14]/20 py-8 relative">
+      {/* Subtle neon glow effect */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#39FF14]/30 to-transparent"></div>
+      
+      {/* Main footer */}
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          <div>
-            <Link href="/" className="text-2xl font-bold text-white font-poppins mb-6 inline-block">
-              Stay<span className="text-accent">X</span>
-            </Link>
-            <p className="text-white/70 mb-6">
-              {t("footer.description")}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+          {/* Logo and brief description */}
+          <div className="flex flex-col items-center md:items-start">
+            <Logo size="lg" variant="neon" withText className="mb-4" />
+            <p className="text-gray-400 text-sm mb-6 text-center md:text-right max-w-xs font-tajawal">
+              بوابتك للإقامة الفاخرة في الساحل الشمالي وراس الحكمة، نوفر لك تجربة حجز مميزة وسلسة
             </p>
-            <div className="flex space-x-4">
-              <Button variant="outline" size="icon" className="rounded-full hover:bg-accent hover:text-primary">
-                <Facebook size={18} />
-              </Button>
-              <Button variant="outline" size="icon" className="rounded-full hover:bg-accent hover:text-primary">
-                <Twitter size={18} />
-              </Button>
-              <Button variant="outline" size="icon" className="rounded-full hover:bg-accent hover:text-primary">
-                <Instagram size={18} />
-              </Button>
-              <Button variant="outline" size="icon" className="rounded-full hover:bg-accent hover:text-primary">
-                <Linkedin size={18} />
+            <div className="flex space-x-4 rtl:space-x-reverse">
+              <Button variant="outline" size="icon" className="rounded-full border-[#39FF14]/30 hover:bg-[#39FF14]/10 hover:border-[#39FF14]">
+                <Instagram size={18} className="text-[#39FF14]" />
               </Button>
             </div>
           </div>
           
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-6">{t("footer.quickLinks")}</h3>
-            <ul className="space-y-3">
+          {/* Quick links - real pages */}
+          <div className="flex flex-col items-center md:items-start">
+            <h3 className="text-lg font-semibold text-[#39FF14] mb-6 font-tajawal">روابط سريعة</h3>
+            <ul className="space-y-3 text-center md:text-right font-tajawal">
               <li>
-                <Link href="#properties" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  {t("nav.properties")}
+                <Link href="/" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                  الرئيسية
                 </Link>
               </li>
               <li>
-                <Link href="#services" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  {t("nav.services")}
+                <Link href="/properties" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                  العقارات
                 </Link>
               </li>
               <li>
-                <Link href="#about" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  {t("nav.about")}
+                <Link href="/services" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                  الخدمات
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  {t("footer.contactUs")}
+                <Link href="/login" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                  تسجيل الدخول
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  Careers
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-6">{t("footer.services")}</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link href="#" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  Fine Dining
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  Nightlife
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  Concierge
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  Private Events
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-white/70 hover:text-accent transition-colors duration-300">
-                  ChillRoom (Coming Soon)
+                <Link href="/signup" className="text-gray-400 hover:text-[#39FF14] transition-colors duration-300">
+                  إنشاء حساب
                 </Link>
               </li>
             </ul>
           </div>
           
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-6">{t("footer.contactUs")}</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <MapPin className={`${isRTL ? 'ml-3' : 'mr-3'} mt-1 text-accent flex-shrink-0`} size={18} />
-                <span className="text-white/70">Downtown Dubai, United Arab Emirates</span>
+          {/* Contact info */}
+          <div className="flex flex-col items-center md:items-start">
+            <h3 className="text-lg font-semibold text-[#39FF14] mb-6 font-tajawal">تواصل معنا</h3>
+            <ul className="space-y-4 text-center md:text-right">
+              <li className="flex items-start justify-center md:justify-start rtl:flex-row-reverse">
+                <MapPin className="rtl:ml-3 ltr:mr-3 mt-1 text-[#39FF14] flex-shrink-0" size={18} />
+                <span className="text-gray-400 font-tajawal">الساحل الشمالي، مصر</span>
               </li>
-              <li className="flex items-center">
-                <Phone className={`${isRTL ? 'ml-3' : 'mr-3'} text-accent flex-shrink-0`} size={18} />
-                <span className="text-white/70">+971 4 123 4567</span>
+              <li className="flex items-center justify-center md:justify-start rtl:flex-row-reverse">
+                <Phone className="rtl:ml-3 ltr:mr-3 text-[#39FF14] flex-shrink-0" size={18} />
+                <span className="text-gray-400 font-tajawal">+20 10 1234 5678</span>
               </li>
-              <li className="flex items-center">
-                <Mail className={`${isRTL ? 'ml-3' : 'mr-3'} text-accent flex-shrink-0`} size={18} />
-                <span className="text-white/70">info@stayx.com</span>
+              <li className="flex items-center justify-center md:justify-start rtl:flex-row-reverse">
+                <Mail className="rtl:ml-3 ltr:mr-3 text-[#39FF14] flex-shrink-0" size={18} />
+                <span className="text-gray-400 font-tajawal">info@stayx.com</span>
               </li>
             </ul>
-            
-            <div className="mt-6">
-              <h4 className="text-white mb-3">{t("footer.subscribe")}</h4>
-              <div className="flex">
-                <Input 
-                  type="email" 
-                  placeholder={t("footer.emailPlaceholder")} 
-                  className="bg-secondary border-border rounded-r-none"
-                />
-                <Button className="bg-accent hover:bg-accent/90 text-primary rounded-l-none">
-                  <ArrowRight size={18} />
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
         
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-white/50 text-sm mb-4 md:mb-0">
-            {t("footer.copyright")}
+        {/* Copyright */}
+        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-gray-500 text-sm mb-4 md:mb-0 font-tajawal">
+            {currentYear} © StayX - جميع الحقوق محفوظة
           </p>
-          <div className="flex space-x-6">
-            <Link href="#" className="text-white/50 hover:text-accent text-sm transition-colors duration-300">
-              {t("footer.privacy")}
+          <div className="flex space-x-6 rtl:space-x-reverse">
+            <Link href="/privacy" className="text-gray-500 hover:text-[#39FF14] text-sm transition-colors duration-300 font-tajawal">
+              سياسة الخصوصية
             </Link>
-            <Link href="#" className="text-white/50 hover:text-accent text-sm transition-colors duration-300">
-              {t("footer.terms")}
-            </Link>
-            <Link href="#" className="text-white/50 hover:text-accent text-sm transition-colors duration-300">
-              {t("footer.cookies")}
+            <Link href="/terms" className="text-gray-500 hover:text-[#39FF14] text-sm transition-colors duration-300 font-tajawal">
+              الشروط والأحكام
             </Link>
           </div>
         </div>
