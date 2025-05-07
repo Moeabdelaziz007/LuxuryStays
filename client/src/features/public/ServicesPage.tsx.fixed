@@ -1,0 +1,156 @@
+// ServicesPage.tsx - صفحة الخدمات المبسطة مع تصميم بطاقات جذاب
+import React, { useState } from 'react';
+import { collection, getDocs, query } from "firebase/firestore";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/firebase";
+import { motion } from "framer-motion";
+import { ArrowUpRight, Sparkles, Calendar, MapPin, Clock, Shield } from "lucide-react";
+
+interface ServiceLocation {
+  name: string;
+  area: string;
+  cuisine?: string;
+  priceRange?: string;
+  type?: string;
+  specialty?: string;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  status: "active" | "coming-soon";
+  iconClass?: string;
+  launchDate?: string;
+  locations?: ServiceLocation[];
+}
+
+// Original local services data
+const localServices: Service[] = [
+  // ... services data
+];
+
+/**
+ * صفحة الخدمات المبسطة مع تصميم بطاقات جذاب
+ */
+export default function ServicesPage() {
+  // استعلام الخدمات
+  const { data: services, isLoading } = useQuery({
+    // original query setup
+    queryKey: ['services'],
+    queryFn: async () => {
+      try {
+        if (!db) {
+          console.log("Firebase DB not available, using local services data");
+          return localServices;
+        }
+        
+        const servicesQuery = query(collection(db, "services"));
+        const snapshot = await getDocs(servicesQuery);
+        
+        if (snapshot.empty) {
+          console.log("No services found in Firestore, using local data");
+          return localServices;
+        }
+        
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Service[];
+      } catch (error: any) {
+        console.error("Error fetching services:", error);
+        return localServices;
+      }
+    }
+  });
+
+  // تصنيف الخدمات حسب الحالة
+  const activeServices = services?.filter(service => service.status === 'active') || [];
+  const comingSoonServices = services?.filter(service => service.status === 'coming-soon') || [];
+
+  // مؤشر التحميل
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-72">
+        <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-[#39FF14] border-b-2"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-16">
+      {/* العنوان الرئيسي */}
+      <div className="text-center mb-16">
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-5">
+          خدمات <span className="text-[#39FF14] relative">
+            StayX
+            <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-[#39FF14] rounded-full shadow-[0_0_5px_#39FF14]"></span>
+          </span> المميزة
+        </h1>
+        <p className="text-gray-400 max-w-2xl mx-auto">
+          ندعوك لاستكشاف مجموعة خدماتنا الحصرية المصممة لتحويل إقامتك إلى تجربة لا تُنسى
+        </p>
+      </div>
+
+      {/* قسم الخدمات المتاحة حالياً */}
+      {activeServices.length > 0 && (
+        <div className="mb-20">
+          <div className="flex items-center mb-10">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <Sparkles size={24} className="text-[#39FF14] mr-3" />
+              الخدمات المتاحة حالياً
+            </h2>
+            <div className="flex-grow border-t border-gray-700 mr-4 ml-6"></div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-12">
+            {activeServices.map((service, index) => (
+              <ServiceCard key={service.id} service={service} index={index} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* قسم الخدمات القادمة قريباً */}
+      {comingSoonServices.length > 0 && (
+        <div>
+          <div className="flex items-center mb-10">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <Calendar size={24} className="text-[#39FF14] mr-3" />
+              خدمات قادمة قريباً
+            </h2>
+            <div className="flex-grow border-t border-gray-700 mr-4 ml-6"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {comingSoonServices.map((service, index) => (
+              <ComingSoonCard key={service.id} service={service} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * بطاقة عرض الخدمة المتاحة - تصميم جذاب
+ */
+function ServiceCard({ service, index }: { service: Service; index: number }) {
+  // Original implementation
+  return (
+    <motion.div>
+      {/* Original JSX */}
+    </motion.div>
+  );
+}
+
+/**
+ * بطاقة عرض الخدمة القادمة قريباً
+ */
+function ComingSoonCard({ service }: { service: Service }) {
+  // Original implementation
+  return (
+    <motion.div>
+      {/* Original JSX */}
+    </motion.div>
+  );
+}

@@ -111,18 +111,15 @@ export default function ServicesPage() {
   // مؤشر التحميل
   if (isLoading) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center h-72">
-          <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-[#39FF14] border-b-2"></div>
-        </div>
-      </Layout>
+      <div className="flex justify-center items-center h-72">
+        <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-[#39FF14] border-b-2"></div>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto px-4 py-16">
-        {/* العنوان الرئيسي */}
+    <div className="max-w-5xl mx-auto px-4 py-16">
+      {/* العنوان الرئيسي */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-5">
             خدمات <span className="text-[#39FF14] relative">
@@ -173,7 +170,6 @@ export default function ServicesPage() {
           </div>
         )}
       </div>
-    </Layout>
   );
 }
 

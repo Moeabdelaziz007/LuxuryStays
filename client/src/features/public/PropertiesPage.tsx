@@ -545,13 +545,11 @@ export default function PropertiesPage() {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center h-72">
-            <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-[#39FF14] border-b-2"></div>
-          </div>
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-center items-center h-72">
+          <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-[#39FF14] border-b-2"></div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
@@ -569,15 +567,14 @@ export default function PropertiesPage() {
   const locations = Object.keys(locationsMap);
 
   return (
-    <Layout>
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">عقارات <span className="text-[#39FF14]">StayX</span> المميزة</h1>
-          <p className="text-gray-400 max-w-3xl mx-auto">
-            اكتشف مجموعة من أفخم العقارات في الساحل الشمالي وراس الحكمة، مصممة خصيصًا لتوفير تجربة إقامة استثنائية.
-            جميع العقارات مجهزة بأحدث المرافق وتقع في مواقع متميزة.
-          </p>
-        </div>
+    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-white mb-4">عقارات <span className="text-[#39FF14]">StayX</span> المميزة</h1>
+        <p className="text-gray-400 max-w-3xl mx-auto">
+          اكتشف مجموعة من أفخم العقارات في الساحل الشمالي وراس الحكمة، مصممة خصيصًا لتوفير تجربة إقامة استثنائية.
+          جميع العقارات مجهزة بأحدث المرافق وتقع في مواقع متميزة.
+        </p>
+      </div>
         
         {/* بحث متقدم مع عرضين (قائمة / خريطة) */}
         <div className="mb-12">
@@ -1112,7 +1109,6 @@ export default function PropertiesPage() {
           )}
         </div>
       </div>
-    </Layout>
   );
 }
 
