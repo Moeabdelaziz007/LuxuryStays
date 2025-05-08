@@ -160,12 +160,9 @@ function App() {
             <WelcomeMessage />
             <TechBackgroundLayout>
               {showHeaderFooter && <SmartHeader />}
-              <div className="container mx-auto pt-2">
-                <FirestoreErrorHandler>
-                  <div></div>
-                </FirestoreErrorHandler>
-              </div>
-              <AppRoutes />
+              <FirestoreErrorHandler>
+                <AppRoutes />
+              </FirestoreErrorHandler>
               {showHeaderFooter && <Footer />}
             </TechBackgroundLayout>
           </TooltipProvider>

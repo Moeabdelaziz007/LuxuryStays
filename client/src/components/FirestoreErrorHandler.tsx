@@ -14,6 +14,11 @@ interface FirestoreErrorHandlerProps {
 /**
  * مكون للتعامل مع أخطاء الاتصال بـ Firestore
  * يعرض حالة مناسبة عندما يكون الاتصال بـ Firestore معطلاً
+ * 
+ * ملاحظة: يختلف هذا المكون عن DatabaseErrorBoundary في أنه:
+ * 1. يكشف عن أخطاء الاتصال من خلال FirestoreStatusContext
+ * 2. يظهر رسائل خطأ مخصصة لمشاكل الاتصال بـ Firestore
+ * 3. لا يعترض أخطاء التشغيل العامة مثل DatabaseErrorBoundary
  */
 const FirestoreErrorHandler: React.FC<FirestoreErrorHandlerProps> = ({
   children,
