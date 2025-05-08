@@ -15,43 +15,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import { useFirestoreStatus } from '@/contexts/FirestoreStatusContext';
-import DatabaseErrorBoundary from '@/components/PlaceholderDatabaseErrorBoundary';
-
-// Temporary ApiClient until we properly setup the backend API
-const ApiClient = {
-  async get<T>(url: string, config?: any): Promise<T> {
-    try {
-      // Mock data for now
-      return Promise.resolve({} as T);
-    } catch (error) {
-      throw error;
-    }
-  },
-  async post<T>(url: string, data?: any, config?: any): Promise<T> {
-    try {
-      // Mock data for now
-      return Promise.resolve({} as T);
-    } catch (error) {
-      throw error;
-    }
-  },
-  async patch<T>(url: string, data?: any, config?: any): Promise<T> {
-    try {
-      // Mock data for now
-      return Promise.resolve({} as T);
-    } catch (error) {
-      throw error;
-    }
-  },
-  async delete<T>(url: string, config?: any): Promise<T> {
-    try {
-      // Mock data for now
-      return Promise.resolve({} as T);
-    } catch (error) {
-      throw error;
-    }
-  }
-};
+import DatabaseErrorBoundary from '@/components/DatabaseErrorBoundary';
+import { ApiClient } from '@/lib/api-client';
 import {
   Dialog,
   DialogContent,
