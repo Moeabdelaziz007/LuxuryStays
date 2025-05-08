@@ -97,5 +97,23 @@ export default {
     privacy: "Privacy Policy",
     terms: "Terms of Service",
     cookies: "Cookie Policy"
+  },
+  system: {
+    loading: "Loading...",
+    error: "An error occurred",
+    success: "Operation successful",
+    offline: "You are offline",
+    online: "You are now online",
+    sessionExpired: "Session expired, please login again",
+    comingSoon: "Coming Soon",
+    notFound: "404 - Page Not Found",
+    pageNotFoundMessage: "The page you are looking for doesn't exist or has been moved.",
+    backToHome: "Back to Homepage",
+    noAccess: "Access Denied",
+    noAccessMessage: "You don't have permission to access this page.",
+    serverError: "Server Error",
+    serverErrorMessage: "Something went wrong on our server. Please try again later.",
+    maintenance: "Site Under Maintenance",
+    maintenanceMessage: "We're currently making some improvements. Please check back soon."
   }
 };

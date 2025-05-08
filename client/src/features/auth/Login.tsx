@@ -461,22 +461,22 @@ export default function Login() {
 
       // Specific error handling
       if (err.code === 'auth/unauthorized-domain') {
-        console.error("Unauthorized domain:", window.location.host);
+        console.error("نطاق غير مصرح به:", window.location.host);
         toast({
-          title: "Domain Error",
-          description: "This domain is not authorized. Please contact support.",
+          title: "خطأ في النطاق",
+          description: "هذا النطاق غير مصرح به. يرجى الاتصال بالدعم الفني.",
           variant: "destructive"
         });
       } else if (err.code === 'auth/network-request-failed') {
         toast({
-          title: "Network Error",
-          description: "Please check your internet connection",
+          title: "خطأ في الشبكة",
+          description: "يرجى التحقق من اتصالك بالإنترنت",
           variant: "destructive"
         });
       } else {
         toast({
-          title: "Login Error",
-          description: err.message || "An unexpected error occurred",
+          title: "خطأ في تسجيل الدخول",
+          description: err.message || "حدث خطأ غير متوقع",
           variant: "destructive"
         });
       }
